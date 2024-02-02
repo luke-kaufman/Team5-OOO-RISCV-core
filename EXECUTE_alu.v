@@ -25,10 +25,10 @@ module EXECUTE_alu(
 					3'h4 : alu_out = src_1 ^ src_2; // XOR
 					3'h6 : alu_out = src_1 | src_2; // OR
 					3'h7 : alu_out = src_1 & src_2; // AND
-					3'h1 : alu_out = src_1 << src_2; // SLL
-					3'h5 : alu_out = funct7 ? src_1 >> src_2 | src_1 >> src_2; // SRL/SRA (TODO)
+					3'h1 : alu_out = src_1 << src_2[4:0]; // SLL
+					3'h5 : alu_out = funct7 ? src_1 >> src_2[4:0] | src_1 >> src_2[4:0]; // SRL/SRA (TODO)
 					3'h2 : alu_out = (src_1 < src_2) ? 1 : 0; // SLT
-					3'h3 : alu_out = src_1 + src_2; // SLTU (TODO)
+					3'h3 : alu_out = (src_1 < src_2) ? 1 : 0; // SLTU (TODO)
 					default: 
 				endcase
 			end
