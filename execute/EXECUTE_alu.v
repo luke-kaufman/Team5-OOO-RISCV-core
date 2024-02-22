@@ -11,13 +11,15 @@ module EXECUTE_alu(
 		input		 pred,
 		input [31:0] target,
 
-		output reg [31:0] alu_out
+		output [31:0] data_out
 	);
 
-	assign data_out = enable ? alu_out : 32'hZ
+	reg [31:0] alu_out;
 
-	if (enable) begin
-		always @ (posedge clk) begin
+	assign data_out = enable ? alu_out : 32'hZ;
+
+	always @ (posedge clk) begin
+		if (enable) begin
 			if (rst) alu_out = 32'h0; // Reset Signal
 			else begin // Process alu_out
 				case (alu_ctrl)
@@ -26,10 +28,10 @@ module EXECUTE_alu(
 					3'h6 : alu_out = src_1 | src_2; // OR
 					3'h7 : alu_out = src_1 & src_2; // AND
 					3'h1 : alu_out = src_1 << src_2[4:0]; // SLL
-					3'h5 : alu_out = funct7 ? src_1 >> src_2[4:0] | src_1 >> src_2[4:0]; // SRL/SRA (TODO)
+					3'h5 : alu_out = funct7 ? src_1 >> src_2[4:0] : src_1 >> src_2[4:0]; // SRL/SRA (TODO)
 					3'h2 : alu_out = (src_1 < src_2) ? 1 : 0; // SLT
 					3'h3 : alu_out = (src_1 < src_2) ? 1 : 0; // SLTU (TODO)
-					default: 
+					default: ;
 				endcase
 			end
 		end
