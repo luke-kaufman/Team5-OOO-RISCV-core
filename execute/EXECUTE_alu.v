@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module EXECUTE_alu(
+module execute_alu (
 		input		 clk, enable, rst,
 		input [31:0] src_1,
 		input [31:0] src_2,
