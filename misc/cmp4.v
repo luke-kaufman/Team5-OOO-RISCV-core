@@ -1,5 +1,4 @@
 // TESTING STATUS: MISSING
-// TODO: fix the magic number 4 in width declarations?
 module cmp4 (
     input wire [3:0] a,
     input wire [3:0] b,
