@@ -1,0 +1,2 @@
+- strength? how to decide it for each standard cell during compiletime?
+- what number-of-input muxes should we have? only 2, 4, 8?

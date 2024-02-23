@@ -12,8 +12,17 @@ module fifo #(
     output wire valid_o,
     output wire [DATA_WIDTH-1:0] data_o
 );
+
+    wire fifo_empty;
+    wire fifo_full;
+    wire enq;
+    wire deq;
+    
+    register #(.WIDTH(ADDR_WIDTH)) enq_ptr;
+    register #(.WIDTH(ADDR_WIDTH)) deq_ptr;
+
     generate
-        for (genvar i = 0; i < FIFO_DEPTH; i++) begin
+        for (genvar i = 0; i < FIFO_DEPTH; i = i + 1) begin
             register #(.WIDTH(DATA_WIDTH)) fifo_entry (
                 .clk(clk),
                 .rst(rst),
@@ -23,10 +32,10 @@ module fifo #(
         end
     endgenerate
     
-    register #(.WIDTH(ADDR_WIDTH)) enq_ptr;
-    register #(.WIDTH(ADDR_WIDTH)) deq_ptr;
-    wire enq;
-    wire deq;
+
+    assign fifo_empty = enq_ptr == deq_ptr;
+    assign fifo_full = (enq_ptr[ADDR_WIDTH-2:0] == deq_ptr[ADDR_WIDTH-2:0]) (enq_ptr[ADDR_WIDTH] != 
+    
 
     assign 
 
