@@ -1,4 +1,7 @@
-module mux8.v #(
+// TESTING STATUS: MISSING
+// TODO: complete
+// TODO: fix the magic number 8 in width declarations?
+module mux8 #(
     parameter WIDTH = 1
 ) (
     input wire [WIDTH-1:0] d0;
@@ -9,7 +12,7 @@ module mux8.v #(
     input wire [WIDTH-1:0] d5;
     input wire [WIDTH-1:0] d6;
     input wire [WIDTH-1:0] d7;
-    input wire [3:0] sel;
+    input wire [3:0] s;
     output wire [WIDTH-1:0] y
-)
-    
+);
+endmodule

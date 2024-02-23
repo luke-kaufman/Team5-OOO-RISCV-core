@@ -1,3 +1,4 @@
+// TESTING STATUS: MISSING
 module register #(
     parameter WIDTH = 1
 ) (
