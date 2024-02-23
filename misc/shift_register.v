@@ -1,4 +1,6 @@
-// TODO: probably remove this
+// IMPL STATUS: MISSING
+// TEST STATUS: MISSING
+// NOTE: DEPRECATE?
 module shift_register #(
   parameter WIDTH = 1,
   parameter SHIFT_AMOUNT = 1

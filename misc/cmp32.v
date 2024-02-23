@@ -1,5 +1,5 @@
-// TESTING STATUS: MISSING
-// TODO: fix the magic number 32 in width declarations?
+// IMPL STATUS: COMPLETE
+// TEST STATUS: MISSING
 module cmp32 (
     input wire [31:0] a,
     input wire [31:0] b,

@@ -1,6 +1,5 @@
-// TESTING STATUS: MISSING
-// TODO: complete
-// TODO: fix the magic number 8 in width declarations?
+// IMPL STATUS: MISSING
+// TEST STATUS: MISSING
 module mux8 #(
     parameter WIDTH = 1
 ) (

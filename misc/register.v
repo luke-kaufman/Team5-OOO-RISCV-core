@@ -1,4 +1,5 @@
-// TESTING STATUS: MISSING
+// IMPL STATUS: COMPLETE
+// TEST STATUS: MISSING
 module register #(
     parameter WIDTH = 1
 ) (

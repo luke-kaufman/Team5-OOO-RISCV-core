@@ -1,5 +1,5 @@
-// TESTING STATUS: MISSING
-// TODO: complete
+// IMPL STATUS: MISSING
+// TEST STATUS: MISSING
 module shift_queue #(
   parameter N_ENTRIES = 8,
   parameter ENTRY_WIDTH = 81 /* LSQ Entry width */

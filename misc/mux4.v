@@ -1,5 +1,5 @@
-// TESTING STATUS: COMPLETE
-// TODO: fix the magic number 4 in width declarations?
+// IMPL STATUS: COMPLETE
+// TEST STATUS: MISSING
 module mux4 #(
     parameter WIDTH = 1
 ) (

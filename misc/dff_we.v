@@ -1,4 +1,5 @@
-// TESTING STATUS: MISSING
+// IMPL STATUS: COMPLETE
+// TEST STATUS: MISSING
 module dff_we(
     input wire clk,
     input wire rst,

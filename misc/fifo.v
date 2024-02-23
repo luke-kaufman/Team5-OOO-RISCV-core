@@ -1,3 +1,5 @@
+// IMPL STATUS: MISSING
+// TEST STATUS: MISSING
 module fifo #(
     parameter DATA_WIDTH = 1,
     parameter FIFO_DEPTH = 2,

@@ -1,4 +1,5 @@
-// TESTING STATUS: MISSING
+// IMPL STATUS: COMPLETE
+// TEST STATUS: MISSING
 module cmp4 (
     input wire [3:0] a,
     input wire [3:0] b,
