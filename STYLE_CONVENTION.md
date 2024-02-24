@@ -12,3 +12,5 @@ module_name m(.a(a), .b(b), .c(c)) -> This is allowed
 ONLY wires and parameters. NO regs (except testbenches).
 ALL wires should be all lowercase. One exception to this is the Nangate/FreePDK stdcell port names. We can't change those.
 ALL parameters should be all UPPERCASE.
+
+testbenches should be written so that they should output PASSED only (unlike mux4 so far).
