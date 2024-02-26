@@ -1,4 +1,4 @@
-// IMPL STATUS: COMPLETE
+// IMPL STATUS: MISSING
 // TEST STATUS: MISSING
 module cmp32 (
     input wire [31:0] a,
@@ -13,5 +13,5 @@ module cmp32 (
         end
     endgenerate
 
-    AND4_X1 and_gate(.A1(z[0]), .A2(z[1]), .A3(z[2]), .A4(z[3]), .ZN(y));
+    and32 and_gate(.a(z), .y(y));
 endmodule
