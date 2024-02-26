@@ -24,8 +24,8 @@ module sram_64x128_1rw(
     inout gnd;
 `endif
   input  clk0; // clock
-  input   csb0; // active low chip select
-  input  web0; // active low write control
+  input  csb0_aL; // active low chip select
+  input  web0_aL; // active low write control
   input [ADDR_WIDTH-1:0]  addr0;
   input [DATA_WIDTH-1:0]  din0;
   output [DATA_WIDTH-1:0] dout0;

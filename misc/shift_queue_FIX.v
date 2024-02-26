@@ -5,7 +5,7 @@ module shift_queue #(
   parameter ENTRY_WIDTH = 81 /* LSQ Entry width */
 ) (
     input wire clk,
-    input wire rst,
+    input wire rst_aL,
     output wire ready_o,
     input wire valid_i,
     input wire [ENTRY_WIDTH-1:0] data_i,
@@ -25,7 +25,7 @@ generate
                                     .s1(/*TODO*/), 
                                     .s2(/*TODO*/), 
                                     .y(din_mux_out))
-        register #(ENTRY_WIDTH) entry(.clk(clk), .rst(rst), .we(/*TODO*/), .data_i(din_mux_out), .data_o(entry_douts[i]))
+        register #(ENTRY_WIDTH) entry(.clk(clk), .rst_aL(rst_aL), .we(/*TODO*/), .data_i(din_mux_out), .data_o(entry_douts[i]))
     end
 endgenerate
 

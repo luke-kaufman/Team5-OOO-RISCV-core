@@ -6,7 +6,7 @@ module shift_register #(
   parameter SHIFT_AMOUNT = 1
 ) (
   input wire clk,
-  input wire rst,
+  input wire rst_aL,
   input wire shft,
   input wire [WIDTH-1:0] din,
   output wire [WIDTH-1:0] dout
@@ -25,7 +25,7 @@ module shift_register #(
   generate
     for (genvar i = 0; i < WIDTH; i++) begin
 
-      dff_we dff(.clk(clk), .rst(rst), .we(shft), .d(dff), .q())
+      dff_we dff(.clk(clk), .rst_aL(rst_aL), .we(shft), .d(dff), .q())
     end
   endgenerate
 

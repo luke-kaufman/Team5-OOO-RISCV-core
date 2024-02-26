@@ -1,13 +1,12 @@
 // Instruction Fetch Unit
 module ifu #(
-    parameter ADDR_WIDTH = 32,
-    parameter I$_BLOCK_SIZE = 64  // 64b
-    parameter I$_NUM_SETS = 64,
-    parameter I$_NUM_WAYS = 2,
+    parameter I$_BLOCK_SIZE = ICACHE_DATA_BLOCK_SIZE
+    parameter I$_NUM_SETS = ICACHE_NUM_SETS,
+    parameter I$_NUM_WAYS = ICACHE_NUM_WAYS,
 ) (
     input wire [ADDR_WIDTH-1:0] recovery_PC,
     input wire recovery_PC_valid,
-    input wire stall,
+    input wire backend_stall,
     input wire [I$_BLOCK_SIZE-1:0] dram_response,
     input wire dram_response_valid,
     
@@ -55,11 +54,21 @@ mux2 #(ADDR_WIDTH) instr_in_way_mux (
 // END ICACHE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 // ::: PREDICTED NEXT PC BLOCK :::::::::::::::::::::::::::::::::::::::::::::::::
+predicted_NPC #() pred_NPC (
 
+);
 // END PREDICTED NEXT PC BLOCK :::::::::::::::::::::::::::::::::::::::::::::::::
 
 // ::: INSTRUCTION FIFO ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
+fifo #(
+    .DATA_WIDTH(INSTR_WIDTH /*instruction*/ 
+              + ADDR_WIDTH /*PC*/
+              + 1 /*Prediction bit - 1 taken, 0 not taken*/
+              + ADDR_WIDTH /*TARGET PC*/),
+    .FIFO_DEPTH(8)
+) instruction_FIFO (
+    
+);
 // END INSTRUCTION FIFO ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 // END::::::::: internal IFU module instantiations ::::::::::::::::::::::::::::::
