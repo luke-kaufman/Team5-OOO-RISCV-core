@@ -1,5 +1,5 @@
 // IMPL STATUS: COMPLETE
-// TEST STATUS: MISSING
+// TEST STATUS: COMPLETE
 module and32 (
     input wire [31:0] a,
     output wire y

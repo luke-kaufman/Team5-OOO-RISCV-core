@@ -43,17 +43,17 @@ module fifo #(
     
     wire eq_msb;
     wire not_eq_msb;
-    wire [PTR_WIDTH-1:0] eq_ptr;
+    wire eq_ptr;
 
     cmp #(.WIDTH(1)) cmp_msb (
         .a(enq_ctr[CTR_WIDTH-1]),
         .b(deq_ctr[CTR_WIDTH-1]),
-        .eq(eq_msb)
+        .y(eq_msb)
     );
     cmp #(.WIDTH(PTR_WIDTH)) cmp_ptr (
         .a(enq_ptr),
         .b(deq_ptr),
-        .eq(eq_ptr)
+        .y(eq_ptr)
     );
     AND2_X1 eq_msb_AND_eq_ptr (
         .A1(eq_msb),
@@ -68,6 +68,15 @@ module fifo #(
         .A1(not_eq_msb),
         .A2(eq_ptr),
         .ZN(fifo_full)
+    );
+
+    INV_X1 NOT_fifo_full (
+        .A(fifo_full),
+        .ZN(ready_enq)
+    );
+    INV_X1 NOT_fifo_empty (
+        .A(fifo_empty),
+        .ZN(valid_deq)
     );
 
     AND2_X1 ready_enq_AND_valid_enq (

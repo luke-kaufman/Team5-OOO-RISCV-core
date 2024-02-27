@@ -1,4 +1,4 @@
-// IMPL STATUS: MISSING
+// IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
 module cmp32 (
     input wire [31:0] a,
