@@ -4,7 +4,7 @@
 // do use these global defines to initalize those parameters
 
 `define ADDR_WIDTH 32
-`define INSTR_SIZE 32
+`define INSTR_WIDTH 32
 
 `define ICACHE_NUM_SETS 64
 `define ICACHE_TAG_ENTRY_SIZE 24

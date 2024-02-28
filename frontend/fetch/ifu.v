@@ -9,10 +9,11 @@ module ifu #(
     input wire backend_stall, 
     input wire [I$_BLOCK_SIZE-1:0] dram_response,
     input wire dram_response_valid,
-    input wire dispatch_ready,  // INTERFACE TO RENAME
     
-    output wire [INSTR_WIDTH-1:0] instr_to_decode,
-    output wire instr_to_decode_valid  // INTERFACE TO RENAME
+    // INTERFACE TO RENAME
+    input wire dispatch_ready,
+    output wire instr_valid,
+    output wire [INSTR_WIDTH-1:0] instr_data,
 );
 
 // :::::::::::: internal IFU wires and registers between modules :::::::::::::::
@@ -89,8 +90,8 @@ fifo #(
     .valid_enq(icache_hit),  // input
     .data_enq(IFIFO_data_enq),
     .ready_deq(dispatch_ready),   // input
-    .valid_deq(instr_to_decode_valid),  // output
-    .data_deq(instr_to_decode)
+    .valid_deq(instr_valid,),  // output
+    .data_deq(instr_data)
 );
 
 wire IFIFO_full_stall;

@@ -1,4 +1,4 @@
-// Constrained random and directed testbench for cmp32 module
+// Random and directed testbench for cmp32 module
 `timescale 1ns / 1ps
 
 module cmp32_tb;

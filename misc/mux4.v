@@ -1,4 +1,4 @@
-// IMPL STATUS: COMPLETE
+// IMPL STATUS: MISSING
 // TEST STATUS: MISSING
 module mux4 #(
     parameter WIDTH = 1
