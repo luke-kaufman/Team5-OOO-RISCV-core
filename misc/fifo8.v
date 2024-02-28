@@ -1,10 +1,10 @@
 // IMPL STATUS: MISSING
 // TEST STATUS: MISSING
-module fifo #(
+module fifo8 #(
     parameter DATA_WIDTH = 32,
-    parameter enum {8, 16, 32} FIFO_DEPTH = 8,
-    localparam PTR_WIDTH = $clog2(FIFO_DEPTH),
-    localparam CTR_WIDTH = PTR_WIDTH + 1
+    localparam FIFO_DEPTH = 8,
+    localparam PTR_WIDTH = $clog2(FIFO_DEPTH), // = 3
+    localparam CTR_WIDTH = PTR_WIDTH + 1 // = 4
     // CTR_WIDTH is PTR_WIDTH + 1 to disambiguate between full and empty conditions
 ) (
     input wire clk,
@@ -115,7 +115,7 @@ module fifo #(
         end
     endgenerate
 
-    mux #(.WIDTH(DATA_WIDTH), .N_INS(FIFO_DEPTH)) fifo_entry_mux (
+    mux8 #(.WIDTH(DATA_WIDTH)) fifo_entry_mux (
         .ins(fifo_entry_dout),
         .sel(deq_ptr),
         .out(data_deq)

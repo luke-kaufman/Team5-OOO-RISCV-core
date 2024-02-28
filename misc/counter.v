@@ -1,4 +1,4 @@
-// IMPL STATUS: MISSING
+// IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
 module counter #(
     parameter WIDTH = 1
@@ -17,7 +17,7 @@ module counter #(
         .dout(count)
     );
     wire [WIDTH-1:0] one = 'b1;
-    add #(.WIDTH(WIDTH)) adder (
+    adder #(.WIDTH(WIDTH)) add (
         .a(count),
         .b(one),
         .sum(next_count)

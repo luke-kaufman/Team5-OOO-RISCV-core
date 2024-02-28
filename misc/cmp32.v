@@ -1,5 +1,5 @@
 // IMPL STATUS: COMPLETE
-// TEST STATUS: MISSING
+// TEST STATUS: COMPLETE
 module cmp32 (
     input wire [31:0] a,
     input wire [31:0] b,
