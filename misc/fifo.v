@@ -2,7 +2,7 @@
 // TEST STATUS: MISSING
 module fifo #(
     parameter DATA_WIDTH = 32,
-    parameter FIFO_DEPTH = 8,
+    parameter enum {8, 16, 32} FIFO_DEPTH = 8,
     localparam PTR_WIDTH = $clog2(FIFO_DEPTH),
     localparam CTR_WIDTH = PTR_WIDTH + 1
     // CTR_WIDTH is PTR_WIDTH + 1 to disambiguate between full and empty conditions
