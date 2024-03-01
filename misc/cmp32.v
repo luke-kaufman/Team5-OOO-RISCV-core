@@ -1,5 +1,12 @@
+`ifndef CMP32_V
+`define CMP32_V
+
 // IMPL STATUS: COMPLETE
 // TEST STATUS: COMPLETE
+
+`include "stdcells.v"
+`include "and32.v"
+
 module cmp32 (
     input wire [31:0] a,
     input wire [31:0] b,
@@ -15,3 +22,5 @@ module cmp32 (
 
     and32 and_(.a(eq), .y(y));
 endmodule
+
+`endif

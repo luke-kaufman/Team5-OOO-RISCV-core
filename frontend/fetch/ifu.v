@@ -16,28 +16,39 @@ module ifu #(
     output wire [INSTR_WIDTH-1:0] instr_data,
 );
 
-// :::::::::::: internal IFU wires and registers between modules :::::::::::::::
+// ::: PC MUX & PC :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+mux4 #(.WIDTH(ADDR_WIDTH)) (
+    .d0(next_PC),
+    .d1(recovery_PC),
+    .d2(),
+    .d3(recovery_PC),
+    .s(),
+    .y()
+);
 
-register #(.WIDTH(ADDR_WIDTH)) PC;
-
-// to nextPC mux
-wire i$_miss_stall;
-
-
-// :::::::::::: internal IFU module instantiations :::::::::::::::::::::::::::::
-
-// PC MUX
-
+register #(.WIDTH(ADDR_WIDTH)) PC (
+    .clk(),
+    .rst_aL(),
+    .we(),
+    .din(),
+    .dout()
+);
+// END PC MUX & PC :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 // ::: ICACHE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 wire [I$_BLOCK_SIZE-1:0] icache_out_way;
 wire icache_hit;
-cache icache # (
+wire icache_miss;
+INV_X1 icmiss(
+    .A(icache_hit),
+    .ZN(icache_miss)
+);
+cache #(
     .ADDR_WIDTH(ADDR_WIDTH)     
     .I$_BLOCK_SIZE(I$_BLOCK_SIZE),  
     .I$_NUM_SETS(I$_NUM_SETS),
     .I$_NUM_WAYS(I$_NUM_WAYS),
-) (
+) icache (
     .PC(PC),
     .we(/*TODO*/),
     .write_data(/*TODO*/),

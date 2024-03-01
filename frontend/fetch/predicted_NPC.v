@@ -11,10 +11,10 @@ module predicted_NPC # (
 
 // ::: JAL adder ::::::::::::::::::::::::::::::::::::::::::
 wire [ADDR_WIDTH-1:0] sext_jal_off;
-sign_extend sext32_1 # (
+sign_extend # (
     .IN_WIDTH(1+8+11+1),
     .OUT_WIDTH(ADDR_WIDTH)
-)(
+) sext32_1 (
     .in({instr[31],instr[19:12],instr[30:20],instr[0]}),
     .out(sext_jal_off)
 );
@@ -29,10 +29,10 @@ add32 jal_adder (
 
 // ::: B-TYPE adder ::::::::::::::::::::::::::::::::::::::::::
 wire [ADDR_WIDTH-1:0] sext32_btype_off;
-sign_extend sext32_1 # (
+sign_extend # (
     .IN_WIDTH(1+6+4+1),
     .OUT_WIDTH(ADDR_WIDTH)
-)(
+) sext32_2 (
     .in({instr[31],instr[30:25],instr[11:8],instr[0]}),
     .out(sext32_btype_off)
 );
@@ -54,18 +54,6 @@ add32 jal_adder (
 );
 // END PCplus4 adder ::::::::::::::::::::::::::::::::::::::::::
 
-// Static BR predictor mux, backwards taken forwards not taken ::
-wire [ADDR_WIDTH-1:0] br_predictor_out;
-mux2 #(
-    .WIDTH(ADDR_WIDTH)
-) (
-    .sel(instr[31]),
-    .in0(PCplus4_add_out),
-    .in1(btype_add_out),
-    .out(br_predictor_out)
-);
-// END Static BR predictor mux ::::::::::::::::::::::::::::::::::
-
 // "To next PC mux" mux :::::::::::::::::::::::::::::::::::::::::
 wire is_unconditional;
 // 00 - b-type (cond)
@@ -86,9 +74,9 @@ AND3_X1 is_br_and_backwards (
 );
 
 // Outputs assigned below
-mux4 toNPCmux #(
+mux4 #(
     .WIDTH(ADDR_WIDTH)
-)(
+) to_NPC_mux (
     .d0(PCplus4_add_out),  
     .d1(PCplus4_add_out),
     .d2(btype_add_out),

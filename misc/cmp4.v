@@ -10,6 +10,7 @@ module cmp4 (
 
     generate
         for (genvar i = 0; i < 4; i = i + 1) begin
+            // TODO: use XNOR2_X1 instead
             XOR2_X1 xor_gate(.A(a[i]), .B(b[i]), .Z(xors[i]));
             INV_X1 inv_gate(.A(xors[i]), .ZN(xnors[i]));
         end

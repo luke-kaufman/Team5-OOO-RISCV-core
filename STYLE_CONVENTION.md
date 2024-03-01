@@ -14,3 +14,8 @@ ALL wires should be all lowercase. One exception to this is the Nangate/FreePDK 
 ALL parameters should be all UPPERCASE.
 
 testbenches should be written so that they should output PASSED only (unlike mux4 so far).
+
+Running tests with Icarus Verilog (example with adder.v and adder_tb.v):
+
+1. iverilog -g2012 -gspecify -o adder_tb.vvp misc/adder.v freepdk-45nm/stdcells.v testing/misc/adder_tb.v
+2. vvp adder_tb.vvp

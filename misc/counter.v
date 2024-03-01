@@ -5,14 +5,14 @@ module counter #(
 ) (
     input wire clk,
     input wire rst_aL,
-    input wire en,
+    input wire inc,
     output wire [WIDTH-1:0] count
 );
     wire [WIDTH-1:0] next_count;
     register #(.WIDTH(WIDTH)) ctr (
         .clk(clk),
         .rst_aL(rst_aL),
-        .we(en),
+        .we(inc),
         .din(next_count),
         .dout(count)
     );

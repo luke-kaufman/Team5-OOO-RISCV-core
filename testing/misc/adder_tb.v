@@ -1,17 +1,20 @@
-`include "cmp32.v"
-
-// Random and directed testbench for cmp32 module
-module cmp32_tb;
+// Random and directed testbench for adder module
+`timescale 1ns / 1ps
+module adder_tb;
+    parameter WIDTH = 32;
     // Inputs and outputs
-    reg [31:0] a;
-    reg [31:0] b;
-    wire y;
+    reg [WIDTH-1:0] a;
+    reg [WIDTH-1:0] b;
+    reg cin = 1'b0;
+    wire [WIDTH-1:0] sum;
+    wire cout;
 
     // Instantiate the Design Under Test (DUT)
-    cmp32 dut (
-        .a(a),
-        .b(b),
-        .y(y)
+    adder #(.WIDTH(WIDTH)) uut (
+        .a(a), 
+        .b(b), 
+        .sum(sum),
+        .cout(cout)
     );
 
     integer num_random_tests_passed = 0;
@@ -27,8 +30,8 @@ module cmp32_tb;
         a = $urandom();
         b = $urandom();
         #10;
-        actual_output = y;
-        expected_output = a == b;
+        actual_output = sum;
+        expected_output = (a + b);
         if (actual_output == expected_output) begin
             num_random_tests_passed++;
             $display("Test case passed: a = %0d, b = %0d, actual_output = %0d, expected_output = %0d", a, b, actual_output, expected_output);
@@ -43,8 +46,8 @@ module cmp32_tb;
         a = 32'b1111_1111_1111_1111_1111_1111_1111_1111;
         b = 32'b1111_1111_1111_1111_1111_1111_1111_1111;
         #10;
-        actual_output = y;
-        expected_output = (a == b);
+        actual_output = sum;
+        expected_output = (a + b);
         if (actual_output == expected_output) begin
             num_directed_tests_passed++;
             $display("Test case passed: a = %0d, b = %0d, actual_output = %0d, expected_output = %0d", a, b, actual_output, expected_output);
@@ -56,8 +59,8 @@ module cmp32_tb;
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b1111_1111_1111_1111_1111_1111_1111_1111;
         #10;
-        actual_output = y;
-        expected_output = (a == b);
+        actual_output = sum;
+        expected_output = (a + b);
         if (actual_output == expected_output) begin
             num_directed_tests_passed++;
             $display("Test case passed: a = %0d, b = %0d, actual_output = %0d, expected_output = %0d", a, b, actual_output, expected_output);
@@ -69,8 +72,8 @@ module cmp32_tb;
         a = 32'b1111_1111_1111_1111_1111_1111_1111_1111;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         #10;
-        actual_output = y;
-        expected_output = (a == b);
+        actual_output = sum;
+        expected_output = (a + b);
         if (actual_output == expected_output) begin
             num_directed_tests_passed++;
             $display("Test case passed: a = %0d, b = %0d, actual_output = %0d, expected_output = %0d", a, b, actual_output, expected_output);
@@ -82,8 +85,8 @@ module cmp32_tb;
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         #10;
-        actual_output = y;
-        expected_output = (a == b);
+        actual_output = sum;
+        expected_output = (a + b);
         if (actual_output == expected_output) begin
             num_directed_tests_passed++;
             $display("Test case passed: a = %0d, b = %0d, actual_output = %0d, expected_output = %0d", a, b, actual_output, expected_output);
@@ -94,16 +97,10 @@ module cmp32_tb;
 
     // Task to display test results
     task display_test_results();
-        if (num_random_tests_passed == num_random_tests) begin
-            $display("ALL %0d RANDOM TESTS PASSED", num_random_tests);
-        end else begin
-            $display("SOME RANDOM TESTS FAILED: %0d/%0d passed", num_random_tests_passed, num_random_tests);
-        end
-        if (num_directed_tests_passed == num_directed_tests) begin
-            $display("ALL %0d DIRECTED TESTS PASSED", num_directed_tests);
-        end else begin
-            $display("SOME DIRECTED TESTS FAILED: %0d/%0d passed", num_directed_tests_passed, num_directed_tests);
-        end
+        if (num_random_tests_passed == num_random_tests) $display("ALL %0d RANDOM TESTS PASSED", num_random_tests);
+        else $display("SOME RANDOM TESTS FAILED: %0d/%0d passed", num_random_tests_passed, num_random_tests);
+        if (num_directed_tests_passed == num_directed_tests) $display("ALL %0d DIRECTED TESTS PASSED", num_directed_tests);
+        else $display("SOME DIRECTED TESTS FAILED: %0d/%0d passed", num_directed_tests_passed, num_directed_tests);
         $finish;
     endtask
 

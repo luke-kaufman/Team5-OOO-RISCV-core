@@ -1,5 +1,11 @@
+`ifndef AND32_V
+`define AND32_V
+
 // IMPL STATUS: COMPLETE
 // TEST STATUS: COMPLETE
+
+`include "stdcells.v"
+
 module and32 (
     input wire [31:0] a,
     output wire y
@@ -39,3 +45,5 @@ module and32 (
         .ZN(y)
     );
 endmodule
+
+`endif
