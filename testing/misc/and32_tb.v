@@ -1,5 +1,6 @@
+`include "and32.v"
+
 // Constrained random and directed testbench for and32 module
-`timescale 1ns / 1ps
 
 module and32_tb;
     // Inputs and outputs
@@ -28,9 +29,9 @@ module and32_tb;
         expected_output = &a;
         if (actual_output == expected_output) begin
             num_random_tests_passed++;
-            $display("Test case passed: a = %0d, actual_output = %0d, expected_output = %0d", a, actual_output, expected_output);
+            // $display("Random test case passed: a = %0d, actual_output = %0d, expected_output = %0d", a, actual_output, expected_output);
         end else begin
-            $display("Test case failed: a = %0d, actual_output = %0d, expected_output = %0d", a, actual_output, expected_output);
+            $display("Random test case failed: a = %0d, actual_output = %0d, expected_output = %0d", a, actual_output, expected_output);
         end
     endtask
 
@@ -43,9 +44,9 @@ module and32_tb;
         expected_output = &a;
         if (actual_output == expected_output) begin
             num_directed_tests_passed++;
-            $display("Test case passed: a = %0d, actual_output = %0d, expected_output = %0d", a, actual_output, expected_output);
+            $display("Directed test case passed: a = %0d, actual_output = %0d, expected_output = %0d", a, actual_output, expected_output);
         end else begin
-            $display("Test case failed: a = %0d, actual_output = %0d, expected_output = %0d", a, actual_output, expected_output);
+            $display("Directed test case failed: a = %0d, actual_output = %0d, expected_output = %0d", a, actual_output, expected_output);
         end
     endtask
 
