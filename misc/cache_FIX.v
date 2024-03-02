@@ -1,23 +1,32 @@
 // TODO: make this truly parametrizable?
 // TODO: change BLOCK_SIZE to be in terms of bytes, not bits?
 module cache #(
-    parameter BLOCK_SIZE = ICACHE_DATA_BLOCK_SIZE,  // 64 bits
+    parameter BLOCK_SIZE_BITS = ICACHE_DATA_BLOCK_SIZE,  // 64 bits
     parameter NUM_SETS = ICACHE_NUM_SETS,
     parameter NUM_WAYS = ICACHE_NUM_WAYS,
-    parameter NUM_TAG_CTRL_BITS = 1 // valid + dirty + etc.
-    parameter WRITE_SIZE_BITS = 64
+    parameter NUM_TAG_CTRL_BITS = 1, // valid + dirty + etc.
+    parameter WRITE_SIZE_BITS = 64,
     //::: local params ::: don't override
     localparam NUM_SET_BITS = $clog2(NUM_SETS),
-    localparam NUM_OFFSET_BITS = $clog2(BLOCK_SIZE >> 3),
+    localparam NUM_OFFSET_BITS = $clog2(BLOCK_SIZE_BITS >> 3),
     localparam TAG_ENTRY_SIZE = ADDR_WIDTH - (NUM_SET_BITS + NUM_OFFSET_BITS) + NUM_TAG_CTRL_BITS
 ) (
     input wire clk,
     input wire rst_aL,
-    input wire [ADDR_WIDTH-1:0] PC,
-    input wire we,
-    input wire [BLOCK_SIZE-1:0] write_data,
+    input wire [ADDR_WIDTH-1:0] addr,
+    input wire we_aL,
+    input wire d_cache_is_ST,  // if reason for d-cache access is to store something (used for dirty bit)
+    input wire [WRITE_SIZE_BITS-1:0] write_data,  // 64 for icache (DRAMresponse) 8 bits for dcache 
     output wire [BLOCK_SIZE-1:0] selected_data_way,
-    output wire icache_hit
+    output wire cache_hit
+);
+
+`define get_tag     ADDR_WIDTH-1:(NUM_SET_BITS:NUM_OFFSET_BITS);
+`define get_set_num (NUM_SET_BITS+NUM_OFFSET_BITS-1):NUM_OFFSET_BITS;
+`define get_offset  NUM_OFFSET_BITS-1:0;
+
+INV_X1 we_aH (
+    .A(we_aL)
 );
 
 // ::: TAG ARRAY :::::::::::::::::::::::::::::::::::::
@@ -26,35 +35,60 @@ wire [47:0] tag_out;
 sram_64x48_1rw_wsize24 tag_arr (
     .clk0(clk),
     .csb0_aL(0),  // 1 chip
-    .web0_aL(/*TODO*/),
-    .addr0(/*TODO*/),
-    .din0(/*TODO*/),
+    .web0_aL(we_aL),
+    .wmask0({way1_selected, way0_selected}),
+    .addr0(addr[get_set_num]),
+    .din0(addr[get_tag]),
     .dout0(tag_out)
 );
 
+// For dirty bits - write 1 when completing ST instruction
+genvar i;
 generate
     if(WRITE_SIZE_BITS == 8) begin  // FOR D-CACHE ONLY
-        register #(.WIDTH(64)) way0_dirtys (
-            .clk(clk),
-            .rst_aL(rst_aL),
-            .we(),
-            .din(),
-            // .dout()
+        
+        AND2_X1 way0_dirty_we (
+            .A(we_aH.ZN),
+            .B(way0_selected)  // loops around from after ways tags are checked (increases crit path)
         );
-        register #(.WIDTH(64)) way1_dirtys (
-            .clk(clk),
-            .rst_aL(rst_aL),
-            .we(),
-            .din(),
-            // .dout()
+        AND2_X1 way1_dirty_we (
+            .A(we_aH.ZN),
+            .B(way1_selected)
         );
+
+        for(i = 0; i < NUM_SETS; i = i + 1) begin: ways_d
+            // set way0 dirty bit for this tag
+            OR2_X1 set_way0_d(
+                .A(d_cache_is_ST),
+                .B(ways_d[i].way0_dirty.q),
+            );
+            dff_we way0_dirty (
+                .clk(clk),
+                .rst_aL(rst_aL)
+                .we(way0_dirty_we.ZN),
+                .d(set_way0_d.ZN),
+            );
+
+            // set way1 dirty bit for this tag
+            OR2_X1 set_way1_d(
+                .A(d_cache_is_ST),
+                .B(ways_d[i].way1_dirty.q),
+            );
+            dff_we way1_dirty (
+                .clk(clk),
+                .rst_aL(rst_aL)
+                .we(way1_dirty_we.ZN),
+                .d(set_way1_d.ZN),
+            );
+        end
     end
 endgenerate
 
 // capture Tag Array outputs
 wire way0_v, way0_dirty, way1_v, way1_dirty;
 wire [TAG_ENTRY_SIZE-1:0] way0_tag, way1_tag;
-assign {way0_dirty, way1_dirty} = {way0_dirtys.dout[/*ADDR*/], way1_dirtys.dout[/*ADDR*/]};
+assign way0_dirty = ways_d[addr[get_set_num]].way0_dirty.q, 
+assign way1_dirty = ways_d[addr[get_set_num]].way1_dirty.q;
 assign {way0_v, way0_tag, way1_v, way1_tag} = tag_out;
 
 // END TAG ARRAY :::::::::::::::::::::::::::::::::::::
@@ -67,9 +101,10 @@ generate
         sram_64x128_1rw_wsize64 i_cache_data_arr (
             .clk0(clk),
             .csb0_aL(0),  // 1 chip
-            .web0_aL(/*TODO*/),
-            .addr0(/*TODO*/),
-            .din0(/*TODO*/),
+            .web0_aL(we_aL),
+            .wmask0({way1_selected, way0_selected}),
+            .addr0(addr[get_set_num]),
+            .din0(write_data),
             .dout0(data_out)
         );
     end
@@ -77,9 +112,10 @@ generate
         sram_64x128_1rw_wsize8 d_cache_data_arr (
             .clk0(clk),
             .csb0_aL(0),  // 1 chip
-            .web0_aL(/*TODO*/),
-            .addr0(/*TODO*/),
-            .din0(/*TODO*/),
+            .web0_aL(we_aL),
+            .wmask0({way1_selected, way0_selected}),
+            .addr0(addr[get_set_num]),
+            .din0(write_data),
             .dout0(data_out)
         );
     end
@@ -87,7 +123,6 @@ generate
         // THROW ERROR THIS IS NOT POSSIBLE
         assign data_out = 0;
     end
-
 endgenerate
 
 // capture 2 data bank outputs
@@ -96,11 +131,9 @@ assign {way0_data, way1_data} = data_out;
 
 // END DATA ARRAY ::::::::::::::::::::::::::::::::::::
 
-
-
 // ::: process cache tag and data bank outputs ::::::::
 
-// select which instruction within way
+// select which way
 wire way0_tag_match, way1_tag_match;
 cmp32 way0_tag_check (
     .a(tag_b1),
@@ -130,7 +163,7 @@ AND2_X1 way1_check_v(
 OR2_X1 icache_hit_or_gate(
     .A1(way0_selected),
     .A2(way1_selected),
-    .ZN(icache_hit)
+    .ZN(cache_hit)
 );
 
 // select which data way

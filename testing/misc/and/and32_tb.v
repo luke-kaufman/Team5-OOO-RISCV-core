@@ -1,6 +1,6 @@
-`include "and32.v"
+`include "misc/and/and32.v"
 
-// Constrained random and directed testbench for and32 module
+// random and directed testbench for and32 module
 
 module and32_tb;
     // Inputs and outputs
@@ -29,7 +29,6 @@ module and32_tb;
         expected_output = &a;
         if (actual_output == expected_output) begin
             num_random_tests_passed++;
-            // $display("Random test case passed: a = %0d, actual_output = %0d, expected_output = %0d", a, actual_output, expected_output);
         end else begin
             $display("Random test case failed: a = %0d, actual_output = %0d, expected_output = %0d", a, actual_output, expected_output);
         end
@@ -61,7 +60,7 @@ module and32_tb;
 
     // Initial block to run testcases
     initial begin
-        repeat (1000) begin
+        repeat (1000000) begin
             random_testcase();
         end
         directed_testcases();

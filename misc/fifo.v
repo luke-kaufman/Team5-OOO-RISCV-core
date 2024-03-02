@@ -1,3 +1,13 @@
+`ifndef FIFO_V
+`define FIFO_V
+
+`include "freepdk-45nm/stdcells.v"
+`include "misc/counter.v"
+`include "misc/cmp/cmp_.v"
+`include "misc/dec/dec_.v"
+`include "misc/mux/mux_.v"
+`include "misc/register.v"
+
 // IMPL STATUS: MISSING
 // TEST STATUS: MISSING
 module fifo #(
@@ -19,7 +29,7 @@ module fifo #(
     
     output wire valid_deq,
     output wire ready_enq,
-    output wire [DATA_WIDTH-1:0] data_deq,
+    output wire [DATA_WIDTH-1:0] data_deq
 
     // random access ports
     // input wire [PTR_WIDTH-1:0] rd_addr0,
@@ -48,7 +58,7 @@ module fifo #(
     
     // comparator that disambiguates between full and empty conditions using the MSB
     wire eq_msb;
-    cmp #(.WIDTH(1)) cmp_msb (
+    cmp_ #(.WIDTH(1)) cmp_msb (
         .a(enq_ctr[CTR_WIDTH-1]),
         .b(deq_ctr[CTR_WIDTH-1]),
         .y(eq_msb)
@@ -57,7 +67,7 @@ module fifo #(
     wire [PTR_WIDTH-1:0] enq_ptr = enq_ctr[PTR_WIDTH-1:0];
     wire [PTR_WIDTH-1:0] deq_ptr = deq_ctr[PTR_WIDTH-1:0];
     wire eq_ptr;
-    cmp #(.WIDTH(PTR_WIDTH)) cmp_ptr (
+    cmp_ #(.WIDTH(PTR_WIDTH)) cmp_ptr (
         .a(enq_ptr),
         .b(deq_ptr),
         .y(eq_ptr)
@@ -109,7 +119,7 @@ module fifo #(
 
     // decoder that feeds into the write enable logic for each fifo entry
     wire [FIFO_DEPTH-1:0] onehot_enq_ptr;
-    decoder #(.IN_WIDTH(PTR_WIDTH)) enq_ptr_dec (
+    dec_ #(.IN_WIDTH(PTR_WIDTH)) enq_ptr_dec (
         .in(enq_ptr),
         .out(onehot_enq_ptr)
     );
@@ -135,9 +145,11 @@ module fifo #(
     end
 
     // mux that drives the dequeue data using the dequeue pointer
-    mux8 #(.WIDTH(DATA_WIDTH)) fifo_entry_mux (
+    mux_ #(.WIDTH(DATA_WIDTH), .N_INS(FIFO_DEPTH)) fifo_entry_mux (
         .ins(fifo_entry_dout),
         .sel(deq_ptr),
         .out(data_deq)
     );
 endmodule
+
+`endif

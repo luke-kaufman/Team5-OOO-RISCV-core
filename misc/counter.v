@@ -1,3 +1,10 @@
+`ifndef COUNTER_V
+`define COUNTER_V
+
+`include "freepdk-45nm/stdcells.v"
+`include "misc/register.v"
+`include "misc/adder.v"
+
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
 module counter #(
@@ -23,3 +30,5 @@ module counter #(
         .sum(next_count)
     );
 endmodule
+
+`endif

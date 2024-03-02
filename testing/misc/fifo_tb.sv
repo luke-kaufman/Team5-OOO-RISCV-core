@@ -68,6 +68,7 @@ module fifo_tb;
         ready_deq = $urandom();
         data_enq = $urandom();
         // check if dut output matches golden output
+        #CLOCK_PERIOD;
         if ({ready_enq_dut, valid_deq_dut, data_deq_dut} === {ready_enq_golden, valid_deq_golden, data_deq_golden}) begin
             num_random_tests_passed++;
             $display("Test case passed: valid_enq = %0d, ready_deq = %0d, data_enq = %0d, ready_enq_dut = %0d, valid_deq_dut = %0d, data_deq_dut = %0d, ready_enq_golden = %0d, valid_deq_golden = %0d, data_deq_golden = %0d", valid_enq, ready_deq, data_enq, ready_enq_dut, valid_deq_dut, data_deq_dut, ready_enq_golden, valid_deq_golden, data_deq_golden);
