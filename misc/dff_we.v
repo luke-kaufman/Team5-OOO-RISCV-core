@@ -1,3 +1,8 @@
+`ifndef DFF_WE_V
+`define DFF_WE_V
+
+`include "freepdk-45nm/stdcells.v"
+
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
 module dff_we(
@@ -7,7 +12,9 @@ module dff_we(
     input wire d,
     output wire q
 );
-    wire _d;
-    MUX2_X1 mux(.A(q), .B(d), .S(we), .Z(_d));
-    DFFR_X1 dff(.D(_d), .RN(rst_aL), .CK(clk), .Q(q));
+    wire sel_d;
+    MUX2_X1 mux(.A(q), .B(d), .S(we), .Z(sel_d));
+    DFFR_X1 dff(.D(sel_d), .RN(rst_aL), .CK(clk), .Q(q));
 endmodule
+
+`endif
