@@ -1,6 +1,6 @@
 [submodule "freepdk-45nm"]
 	path = freepdk-45nm
-	url = https://github.com/mflowgen/freepdk-45nm.git
+	url = https://github.com/ounuvar/freepdk-45nm.git
 [submodule "openram"]
 	path = openram
 	url = https://github.com/VLSIDA/OpenRAM.git
