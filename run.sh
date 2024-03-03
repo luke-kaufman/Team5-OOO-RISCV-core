@@ -9,3 +9,4 @@ TESTBENCH_PATH=$(find . -name ${1}.v)
 iverilog ${FLAGS} ${TESTBENCH_PATH}
 vvp ${1}.vvp
 rm ${1}.vvp
+# gtkwave ${1}.vcd

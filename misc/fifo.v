@@ -23,12 +23,12 @@ module fifo #(
     input wire clk,
     input wire rst_aL,
 
+    output wire ready_enq,
     input wire valid_enq,
-    input wire ready_deq,
     input wire [DATA_WIDTH-1:0] data_enq,
     
+    input wire ready_deq,
     output wire valid_deq,
-    output wire ready_enq,
     output wire [DATA_WIDTH-1:0] data_deq
 
     // random access ports

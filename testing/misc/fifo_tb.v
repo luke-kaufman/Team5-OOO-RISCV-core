@@ -1,3 +1,6 @@
+`include "misc/fifo.v"
+`include "misc/fifo_golden.sv"
+
 // random testbench for fifo module
 module fifo_tb;
     // parameters
@@ -84,7 +87,6 @@ module fifo_tb;
         end else begin
             $display("SOME RANDOM TESTS FAILED: %0d/%0d passed", num_random_tests_passed, num_random_tests);
         end
-        $finish;
     endtask
 
     // initial block to run tests
@@ -93,5 +95,6 @@ module fifo_tb;
             random_testcase();
         end
         display_test_results();
+        $finish;
     end
 endmodule
