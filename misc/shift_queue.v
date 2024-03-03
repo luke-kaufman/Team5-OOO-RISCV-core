@@ -28,6 +28,7 @@ module shift_queue #(
     output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts
 );
     // state elements
+    wire [PTR_WIDTH-1:0] enq_ptr;
     counter #(.WIDTH(PTR_WIDTH)) enq_ptr_r (
         .clk(clk),
         .rst_aL(rst_aL),
@@ -45,11 +46,19 @@ module shift_queue #(
     end
 
     // internal signals
-    wire [PTR_WIDTH-1:0] enq_ptr;
-    
+    wire queue_full;
+    cmp_ #(.WIDTH(PTR_WIDTH)) queue_full_cmp (
+        .a(enq_ptr),
+        .b({PTR_WIDTH{1'b1}}),
+        .y(queue_full)
+    );
 
     // output drivers
-    assign enqueue_ready = (enq_ptr == 0);
+    INV_X1 inv (
+        .A(queue_full),
+        .ZN(enqueue_ready)
+    );
+    or_ #(.N_INS())
 endmodule
 
 `endif
