@@ -1,3 +1,15 @@
+`ifndef CACHE_V
+`define CACHE_V
+
+`include "freepdk-45nm/stdcells.v"
+`include "misc/global_defs.v"
+`include "sram/icache_data_sram.v"
+`include "sram/dcache_data_sram_netlist_only.v"
+`include "sram/tag_array_sram.v"
+`include "misc/dff_we.v"
+`include "misc/cmp/cmp32.v"
+`include "misc/onehot_mux/onehot_mux2.v"
+
 // TODO: make this truly parametrizable?
 // TODO: change BLOCK_SIZE to be in terms of bytes, not bits?
 module cache #(
@@ -9,7 +21,7 @@ module cache #(
     //::: local params ::: don't override
     localparam NUM_SET_BITS = $clog2(NUM_SETS),
     localparam NUM_OFFSET_BITS = $clog2(BLOCK_SIZE_BITS >> 3),
-    localparam TAG_ENTRY_SIZE = ADDR_WIDTH - (NUM_SET_BITS + NUM_OFFSET_BITS) + NUM_TAG_CTRL_BITS
+    localparam TAG_ENTRY_SIZE = 32/*FIX-ADDR_WIDTH*/ - (NUM_SET_BITS + NUM_OFFSET_BITS) + NUM_TAG_CTRL_BITS
 ) (
     input wire clk,
     input wire rst_aL,
@@ -17,7 +29,7 @@ module cache #(
     input wire we_aL,
     input wire d_cache_is_ST,  // if reason for d-cache access is to store something (used for dirty bit)
     input wire [WRITE_SIZE_BITS-1:0] write_data,  // 64 for icache (DRAMresponse) 8 bits for dcache 
-    output wire [BLOCK_SIZE-1:0] selected_data_way,
+    output wire [BLOCK_SIZE_BITS-1:0] selected_data_way,
     output wire cache_hit
 );
 
@@ -60,25 +72,25 @@ generate
             // set way0 dirty bit for this tag
             OR2_X1 set_way0_d(
                 .A(d_cache_is_ST),
-                .B(ways_d[i].way0_dirty.q),
+                .B(ways_d[i].way0_dirty.q)
             );
             dff_we way0_dirty (
                 .clk(clk),
-                .rst_aL(rst_aL)
+                .rst_aL(rst_aL),
                 .we(way0_dirty_we.ZN),
-                .d(set_way0_d.ZN),
+                .d(set_way0_d.ZN)
             );
 
             // set way1 dirty bit for this tag
             OR2_X1 set_way1_d(
                 .A(d_cache_is_ST),
-                .B(ways_d[i].way1_dirty.q),
+                .B(ways_d[i].way1_dirty.q)
             );
             dff_we way1_dirty (
                 .clk(clk),
-                .rst_aL(rst_aL)
+                .rst_aL(rst_aL),
                 .we(way1_dirty_we.ZN),
-                .d(set_way1_d.ZN),
+                .d(set_way1_d.ZN)
             );
         end
     end
@@ -87,7 +99,7 @@ endgenerate
 // capture Tag Array outputs
 wire way0_v, way0_dirty, way1_v, way1_dirty;
 wire [TAG_ENTRY_SIZE-1:0] way0_tag, way1_tag;
-assign way0_dirty = ways_d[addr[get_set_num]].way0_dirty.q, 
+assign way0_dirty = ways_d[addr[get_set_num]].way0_dirty.q; 
 assign way1_dirty = ways_d[addr[get_set_num]].way1_dirty.q;
 assign {way0_v, way0_tag, way1_v, way1_tag} = tag_out;
 
@@ -126,7 +138,7 @@ generate
 endgenerate
 
 // capture 2 data bank outputs
-wire [BLOCK_SIZE-1:0] way0_data, way1_data;
+wire [BLOCK_SIZE_BITS-1:0] way0_data, way1_data;
 assign {way0_data, way1_data} = data_out;
 
 // END DATA ARRAY ::::::::::::::::::::::::::::::::::::
@@ -151,12 +163,12 @@ wire way0_selected, way1_selected;
 AND2_X1 way0_check_v(
     .A1(way0_tag_match),
     .A2(way0_v),
-    .ZN(way0_selected),
+    .ZN(way0_selected)
 );
 AND2_X1 way1_check_v(
     .A1(way1_tag_match),
     .A2(way1_v),
-    .ZN(way1_selected),
+    .ZN(way1_selected)
 );
 
 // Cache hit - is either way selected and valid?
@@ -167,7 +179,7 @@ OR2_X1 icache_hit_or_gate(
 );
 
 // select which data way
-onehot_mux2 #(BLOCK_SIZE) way_data_mux (
+onehot_mux2 #(.WIDTH(BLOCK_SIZE_BITS)) way_data_mux (
     .d0(way0_data),
     .d1(way1_data),
     .s({way1_selected, way0_selected}),
@@ -177,3 +189,4 @@ onehot_mux2 #(BLOCK_SIZE) way_data_mux (
 // END process cache tag and data bank outputs ::::::::
 
 endmodule
+`endif

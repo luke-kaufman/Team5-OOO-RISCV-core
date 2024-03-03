@@ -42,8 +42,12 @@ module integer_issue #(
     output wire issue_valid,
     output wire [ISSUE_DATA_WIDTH-1:0] issue_data
 );
-    shift_queue iiq #(
+    // internal signals
+    // wakeup feedback: (wakeup_valid, wakeup_tag/index, wakeup_data)
+    wire wakeup_valid;
 
+    shift_queue iiq #(
+        
     ) (
 
     );

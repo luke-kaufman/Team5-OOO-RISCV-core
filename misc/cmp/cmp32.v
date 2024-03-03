@@ -4,8 +4,8 @@
 // IMPL STATUS: COMPLETE
 // TEST STATUS: COMPLETE
 
-`include "stdcells.v"
-`include "and32.v"
+`include "freepdk-45nm/stdcells.v"
+`include "misc/and/and32.v"
 
 module cmp32 (
     input wire [31:0] a,

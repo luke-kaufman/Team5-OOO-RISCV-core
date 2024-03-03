@@ -49,12 +49,15 @@ INV_X1 icmiss(
 );
 
 cache #(
-    .ADDR_WIDTH(ADDR_WIDTH)     
+    .ADDR_WIDTH(ADDR_WIDTH),     
     .I$_BLOCK_SIZE(I$_BLOCK_SIZE),  
     .I$_NUM_SETS(I$_NUM_SETS),
-    .I$_NUM_WAYS(I$_NUM_WAYS),
+    .I$_NUM_WAYS(I$_NUM_WAYS)
 ) icache (
+    .clk(clk),
+    .rst_aL(rst_aL),
     .addr(PC),
+    .d_cache_is_ST(0), // not used in icache
     .we(dram_response_valid),
     .write_data(dram_response)
 );

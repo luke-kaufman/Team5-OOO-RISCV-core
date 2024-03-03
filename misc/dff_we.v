@@ -4,7 +4,7 @@
 `include "freepdk-45nm/stdcells.v"
 
 // IMPL STATUS: COMPLETE
-// TEST STATUS: MISSING
+// TEST STATUS: FAILING (doesn't reset properly)
 module dff_we(
     input wire clk,
     input wire rst_aL,
