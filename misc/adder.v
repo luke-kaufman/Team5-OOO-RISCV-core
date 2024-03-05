@@ -1,5 +1,9 @@
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
+
+`include "freepdk-45nm/stdcells.v"
+`include "misc/global_defs.vh"
+
 module adder #(
     parameter WIDTH = 1
 ) (

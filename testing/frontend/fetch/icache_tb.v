@@ -1,6 +1,6 @@
 `include "misc/cache.v"
 `include "freepdk-45nm/stdcells.v"
-`include "misc/global_defs.v"
+`include "misc/global_defs.vh"
 
 // Things to test:
 // 1. Read from cache (correct way and instruction)
@@ -15,11 +15,11 @@ module icache_tb;
 
     // icache signals
     reg [31:0] icache_addr;
-    reg [31:0] dram_response_data;
+    reg [63:0] dram_response_data;
     reg dram_response_valid;
 
     // dut outputs
-    wire [31:0] icache_data_way_out;
+    wire [63:0] icache_data_way_out;
     wire icache_hit;
 
     // golden outputs?? if i decide to do that
@@ -34,16 +34,17 @@ module icache_tb;
 
     // instantiate the icache (DUT)
     cache #(    
-        .BLOCK_SIZE_BITS(64/*ICACHE_DATA_BLOCK_SIZE*/),
-        .NUM_SETS(64/*ICACHE_NUM_SETS*/),
-        .NUM_WAYS(2/*ICACHE_NUM_WAYS*/),
-        .NUM_TAG_CTRL_BITS(1/*ICACHE_NUM_TAG_CTRL_BITS*/),
-        .WRITE_SIZE_BITS(64/*ICACHE_WRITE_SIZE_BITS*/)
+        .BLOCK_SIZE_BITS(`ICACHE_DATA_BLOCK_SIZE),
+        .NUM_SETS(`ICACHE_NUM_SETS),
+        .NUM_WAYS(`ICACHE_NUM_WAYS),
+        .NUM_TAG_CTRL_BITS(`ICACHE_NUM_TAG_CTRL_BITS),
+        .WRITE_SIZE_BITS(`ICACHE_WRITE_SIZE_BITS)
     ) dut (
         .clk(clk),
-        .reset(reset),
+        .rst_aL(reset),
         .addr(icache_addr),
         .write_data(dram_response_data),
+        .d_cache_is_ST(1'b0),
         .we_aL(dram_response_valid),
         .selected_data_way(icache_data_way_out),
         .cache_hit(icache_hit)

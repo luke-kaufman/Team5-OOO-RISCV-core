@@ -2,7 +2,7 @@
 `define CACHE_V
 
 `include "freepdk-45nm/stdcells.v"
-`include "misc/global_defs.v"
+`include "misc/global_defs.vh"
 `include "sram/icache_data_sram.v"
 `include "sram/dcache_data_sram_netlist_only.v"
 `include "sram/tag_array_sram.v"
@@ -13,19 +13,19 @@
 // TODO: make this truly parametrizable?
 // TODO: change BLOCK_SIZE to be in terms of bytes, not bits?
 module cache #(
-    parameter BLOCK_SIZE_BITS = ICACHE_DATA_BLOCK_SIZE,  // 64 bits
-    parameter NUM_SETS = ICACHE_NUM_SETS,
-    parameter NUM_WAYS = ICACHE_NUM_WAYS,
+    parameter BLOCK_SIZE_BITS = `ICACHE_DATA_BLOCK_SIZE,  // 64 bits
+    parameter NUM_SETS = `ICACHE_NUM_SETS,
+    parameter NUM_WAYS = `ICACHE_NUM_WAYS,
     parameter NUM_TAG_CTRL_BITS = 1, // valid + dirty + etc.
     parameter WRITE_SIZE_BITS = 64,
     //::: local params ::: don't override
     localparam NUM_SET_BITS = $clog2(NUM_SETS),
     localparam NUM_OFFSET_BITS = $clog2(BLOCK_SIZE_BITS >> 3),
-    localparam TAG_ENTRY_SIZE = 32/*FIX-ADDR_WIDTH*/ - (NUM_SET_BITS + NUM_OFFSET_BITS) + NUM_TAG_CTRL_BITS
+    localparam TAG_ENTRY_SIZE = `ADDR_WIDTH - (NUM_SET_BITS + NUM_OFFSET_BITS) + NUM_TAG_CTRL_BITS
 ) (
     input wire clk,
     input wire rst_aL,
-    input wire [ADDR_WIDTH-1:0] addr,
+    input wire [`ADDR_WIDTH-1:0] addr,
     input wire we_aL,
     input wire d_cache_is_ST,  // if reason for d-cache access is to store something (used for dirty bit)
     input wire [WRITE_SIZE_BITS-1:0] write_data,  // 64 for icache (DRAMresponse) 8 bits for dcache 
@@ -33,9 +33,10 @@ module cache #(
     output wire cache_hit
 );
 
-`define get_tag     ADDR_WIDTH-1:(NUM_SET_BITS:NUM_OFFSET_BITS);
-`define get_set_num (NUM_SET_BITS+NUM_OFFSET_BITS-1):NUM_OFFSET_BITS;
-`define get_offset  NUM_OFFSET_BITS-1:0;
+// access cache bit fields
+`define get_tag     `ADDR_WIDTH-1 : (NUM_SET_BITS+NUM_OFFSET_BITS)
+`define get_set_num  (NUM_SET_BITS+NUM_OFFSET_BITS-1) : NUM_OFFSET_BITS
+`define get_offset   NUM_OFFSET_BITS-1 : 0
 
 INV_X1 we_aH (
     .A(we_aL)
@@ -46,13 +47,18 @@ INV_X1 we_aH (
 wire [47:0] tag_out;
 sram_64x48_1rw_wsize24 tag_arr (
     .clk0(clk),
-    .csb0_aL(0),  // 1 chip
-    .web0_aL(we_aL),
+    .csb0(1'b0),  // 1 chip
+    .web0(we_aL),
     .wmask0({way1_selected, way0_selected}),
-    .addr0(addr[get_set_num]),
-    .din0(addr[get_tag]),
+    .addr0(addr[`get_set_num]),
+    .din0({1'b1, addr[`get_tag], 1'b1, addr[`get_tag]}),
     .dout0(tag_out)
 );
+
+// capture Tag Array outputs
+wire way0_v, way1_v;
+wire [TAG_ENTRY_SIZE-2:0] way0_tag, way1_tag;
+assign {way0_v, way0_tag, way1_v, way1_tag} = tag_out;
 
 // For dirty bits - write 1 when completing ST instruction
 genvar i;
@@ -94,14 +100,20 @@ generate
             );
         end
     end
+
+    wire way0_dirty_bit, way1_dirty_bit;
+    // assign way0_dirty_bit = ways_d[addr[`get_set_num]].way0_dirty.q; 
+    // assign way1_dirty_bit = ways_d[addr[`get_set_num]].way1_dirty.q;
+    mux32 #(WIDTH=1) mux32_1 (
+        .ins(ways_d[]),
+        .sel({1'b0, addr[(NUM_SET_BITS+NUM_OFFSET_BITS-2) : NUM_OFFSET_BITS]}),
+    );
+
+    mux32 #(WIDTH=1) mux32_2 (
+        
+    );
 endgenerate
 
-// capture Tag Array outputs
-wire way0_v, way0_dirty, way1_v, way1_dirty;
-wire [TAG_ENTRY_SIZE-1:0] way0_tag, way1_tag;
-assign way0_dirty = ways_d[addr[get_set_num]].way0_dirty.q; 
-assign way1_dirty = ways_d[addr[get_set_num]].way1_dirty.q;
-assign {way0_v, way0_tag, way1_v, way1_tag} = tag_out;
 
 // END TAG ARRAY :::::::::::::::::::::::::::::::::::::
 
@@ -112,22 +124,22 @@ generate
     if (WRITE_SIZE_BITS == 64) begin      // I-Cache
         sram_64x128_1rw_wsize64 i_cache_data_arr (
             .clk0(clk),
-            .csb0_aL(0),  // 1 chip
-            .web0_aL(we_aL),
+            .csb0(1'b0),  // 1 chip
+            .web0(we_aL),
             .wmask0({way1_selected, way0_selected}),
-            .addr0(addr[get_set_num]),
-            .din0(write_data),
+            .addr0(addr[`get_set_num]),
+            .din0({write_data, write_data}),
             .dout0(data_out)
         );
     end
     else if (WRITE_SIZE_BITS == 8) begin  // D-Cache
         sram_64x128_1rw_wsize8 d_cache_data_arr (
             .clk0(clk),
-            .csb0_aL(0),  // 1 chip
-            .web0_aL(we_aL),
+            .csb0(0),  // 1 chip
+            .web0(we_aL),
             .wmask0({way1_selected, way0_selected}),
-            .addr0(addr[get_set_num]),
-            .din0(write_data),
+            .addr0(addr[`get_set_num]),
+            .din0({write_data, write_data}),
             .dout0(data_out)
         );
     end
@@ -148,13 +160,13 @@ assign {way0_data, way1_data} = data_out;
 // select which way
 wire way0_tag_match, way1_tag_match;
 cmp32 way0_tag_check (
-    .a(tag_b1),
-    .b(PC[(ADDR_WIDTH-1):(ADDR_WIDTH-TAG_ENTRY_SIZE+1)]),
+    .a({9'b0, way0_tag}),
+    .b({9'b0, addr[`get_tag]}),
     .y(way0_tag_match)
 );
 cmp32 way1_tag_check (
-    .a(tag_b2),
-    .b(PC[(ADDR_WIDTH-1):(ADDR_WIDTH-TAG_ENTRY_SIZE+1)]),
+    .a({9'b0, way1_tag}),
+    .b({9'b0, addr[`get_tag]}),
     .y(way1_tag_match)
 );
 
