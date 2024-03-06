@@ -3,7 +3,7 @@
 
 module mux_tb #(
     parameter N_RANDOM_TESTS = 10,
-    parameter N_INS = 2,
+    parameter N_INS = 64,
     parameter WIDTH = 32,
     localparam SEL_WIDTH = $clog2(N_INS)
 );
@@ -42,7 +42,7 @@ module mux_tb #(
 
     initial begin
 
-        // small directed case mainly to check if golden is working
+        // small directed case
         for (integer i = 0; i < N_INS; i = i + 1) begin
             a[i] = i*2;
         end

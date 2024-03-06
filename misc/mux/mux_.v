@@ -65,7 +65,6 @@ module mux_ #(
 
     // the gated inputs
     wire [N_INS-1:0][WIDTH-1:0] gated_ins;
-    wire [(SEL_WIDTH+1)-1:0] and_in;
     genvar i,j,k;
     // for each bit 
     generate
@@ -75,9 +74,10 @@ module mux_ #(
             wire [N_INS-1:0] gated_ins_i;
             for(j = 0; j < N_INS; j = j + 1) begin
 
+                wire [(SEL_WIDTH+1)-1:0] and_in;
                 assign and_in[0] = ins[j][i];
                 for(k = 0; k < SEL_WIDTH; k = k + 1) begin
-                    assign and_in[k+1] = (j & (1 << k)) ? sel[k] : inv_sel[k];
+                    assign and_in[k+1] = (j & (1'b1 << k)) ? sel[k] : inv_sel[k];
                 end
 
                 and_ #(.N_INS(SEL_WIDTH+1)) and_gate(
