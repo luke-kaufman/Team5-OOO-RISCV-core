@@ -1,5 +1,7 @@
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
+`ifndef OR32_V
+`define OR32_V
 module or32 (
     input wire [31:0] a,
     output wire y
@@ -39,3 +41,4 @@ module or32 (
         .ZN(y)
     );
 endmodule
+`endif
