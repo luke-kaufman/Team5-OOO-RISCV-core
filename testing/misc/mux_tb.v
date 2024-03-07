@@ -1,9 +1,9 @@
-`include "misc/mux/mux32.v"
+`include "misc/mux/mux_.v"
 `include "golden/misc/mux_golden.v"
 
-module mux32_tb #(
-    parameter N_RANDOM_TESTS = 100,
-    parameter N_INS = 32,
+module mux_tb #(
+    parameter N_RANDOM_TESTS = 10,
+    parameter N_INS = 64,
     parameter WIDTH = 32,
     localparam SEL_WIDTH = $clog2(N_INS)
 );
@@ -16,8 +16,9 @@ module mux32_tb #(
     wire[WIDTH-1:0] y_golden;
 
     // instantiate the design under test (DUT)
-    mux32 #(
-        .WIDTH(WIDTH)
+    mux_ #(
+        .WIDTH(WIDTH),
+        .N_INS(N_INS)
     ) dut (
         .ins(a),
         .sel(sel),
@@ -41,7 +42,7 @@ module mux32_tb #(
 
     initial begin
 
-        // small directed case mainly to check if golden is working
+        // small directed case
         for (integer i = 0; i < N_INS; i = i + 1) begin
             a[i] = i*2;
         end
@@ -51,8 +52,9 @@ module mux32_tb #(
             #15;
             if (y_dut == y_golden) begin
                 num_directed_tests_passed++;
+                $display("Directed test case passed: sel=%2d\ny_dut    = %64b\ny_golden = %64b", sel, y_dut, y_golden);
             end else begin
-                $display("Random test case failed: sel=%2d, y_dut = %32b, y_golden = %32b", sel, y_dut, y_golden);
+                $display("Directed test case failed: sel=%2d\ny_dut    = %64b\ny_golden = %64b", sel, y_dut, y_golden);
             end
         end
         
@@ -69,8 +71,10 @@ module mux32_tb #(
             #15;
             if (y_dut == y_golden) begin
                 num_random_tests_passed++;
+                $display("Random test case passed: sel=%2d\ny_dut    = %64b\ny_golden = %64b", sel, y_dut, y_golden);
+
             end else begin
-                $display("Random test case failed: sel=%2d, y_dut = %32b, y_golden = %32b", sel, y_dut, y_golden);
+                $display("Random test case failed: sel=%2d\ny_dut    = %64b\ny_golden = %64b", sel, y_dut, y_golden);
             end
         end
 

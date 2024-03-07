@@ -104,13 +104,10 @@ generate
     wire way0_dirty_bit, way1_dirty_bit;
     // assign way0_dirty_bit = ways_d[addr[`get_set_num]].way0_dirty.q; 
     // assign way1_dirty_bit = ways_d[addr[`get_set_num]].way1_dirty.q;
-    mux32 #(WIDTH=1) mux32_1 (
-        .ins(ways_d[]),
-        .sel({1'b0, addr[(NUM_SET_BITS+NUM_OFFSET_BITS-2) : NUM_OFFSET_BITS]}),
-    );
-
-    mux32 #(WIDTH=1) mux32_2 (
-        
+    mux64 #(.WIDTH(1)) mux64_1 (
+        .ins(ways_d[].way0_dirty.q),
+        .sel({1'b0, addr[`get_set_num]}),
+        .out(way0_dirty_bit)
     );
 endgenerate
 

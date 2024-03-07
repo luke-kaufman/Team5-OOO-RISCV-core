@@ -1,5 +1,8 @@
 // IMPL STATUS: COMPLETE
-// TEST STATUS: MISSING
+// TEST STATUS: COMPLETE
+
+`ifndef MUX32_V
+`define MUX32_V
 `include "freepdk-45nm/stdcells.v"
 `include "misc/global_defs.vh"
 `include "misc/and/and8.v"
@@ -51,5 +54,5 @@ module mux32 #(
         // OR gate to combine the AND gates outputs
         or32 or_gate(.a(gated_ins_i), .y(out[i]));
     end
-    // assign out = ins[sel];
 endmodule
+`endif

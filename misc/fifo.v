@@ -7,6 +7,7 @@
 `include "misc/dec/dec_.v"
 `include "misc/mux/mux_.v"
 `include "misc/register.v"
+`include "misc/global_defs.v"
 
 // IMPL STATUS: MISSING
 // TEST STATUS: MISSING
@@ -39,8 +40,8 @@ module fifo #(
 );
     // counter that holds the enqueue pointer
     wire enq;
-    wire [CTR_WIDTH-1:0] enq_ctr;
-    counter #(.WIDTH(CTR_WIDTH)) enq_counter (
+    wire [ADDR_WIDTH-1:0] enq_ctr;
+    up_counter #(.WIDTH(CTR_WIDTH)) enq_counter (
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(enq),
@@ -49,7 +50,7 @@ module fifo #(
     // counter that holds the dequeue pointer
     wire deq;
     wire [CTR_WIDTH-1:0] deq_ctr;
-    counter #(.WIDTH(CTR_WIDTH)) deq_counter (
+    up_counter #(.WIDTH(CTR_WIDTH)) deq_counter (
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(deq),
