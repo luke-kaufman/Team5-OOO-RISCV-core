@@ -10,7 +10,7 @@
 `include "misc/or/or_.v"
 `include "misc/extend_first1.v"
 
-// IMPL STATUS: MISSING
+// IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
 module shift_queue #(
     parameter N_ENTRIES = 8,

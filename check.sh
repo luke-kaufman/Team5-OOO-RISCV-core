@@ -1,5 +1,11 @@
-FLAGS='-g2012 -Wall -Wno-implicit -Wno-portbind -tnull'
-
 MODULE_PATH=$(find . -name ${1}.v -o -name ${1}.sv)
 
-iverilog ${FLAGS} ${MODULE_PATH}
+if [[ "$(hostname)" == "iam-ssh1" ]] || [[ "$(hostname)" == "vsc"* ]]; then
+    FLAGS='-sv -lint -suppress 2605,2623'
+    VERILOG=vlog
+else
+    FLAGS='-g2012 -Wall -Wno-implicit -Wno-portbind -tnull'
+    VERILOG=iverilog
+fi
+
+${VERILOG} ${FLAGS} ${MODULE_PATH}
