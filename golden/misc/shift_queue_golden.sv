@@ -44,6 +44,6 @@ module shift_queue_golden #(
         end
     end
     wire [N_ENTRIES-1:0] shift_we = shift_we_pre & deq;
-
+    
     
 endmodule
