@@ -21,7 +21,7 @@ fi
 ${VERILOG} ${FLAGS} ${TESTBENCH_PATH}
 
 if [[ "$(hostname)" == "vsc"* ]]; then
-    vsim -c -do "run -all" ${1}
+    vsim -c -do "run -all; quit" ${1}
 else
     vvp ${1}.vvp
     rm ${1}.vvp
