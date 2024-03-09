@@ -1,4 +1,4 @@
-// IMPL STATUS: MISSING
+// IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
 module ff1 #(
     parameter WIDTH = 8

@@ -9,28 +9,24 @@
 `include "misc/register.v"
 `include "misc/global_defs.vh"
 
-// IMPL STATUS: MISSING
+// IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
 module fifo #(
-    // parameter RANDOM_ACCESS = 0, // 0 for strictly fifo, 1 for fifo with random access
-    // localparam N_READ_PORTS = 2,
-    // localparam N_WRITE_PORTS = 2,
     parameter DATA_WIDTH = 32,
-    parameter enum {_8=8, _16=16} FIFO_DEPTH = 8,
-    localparam PTR_WIDTH = $clog2(FIFO_DEPTH), // = 3 or 4
-    localparam CTR_WIDTH = PTR_WIDTH + 1 // = 4 or 5
-    // CTR_WIDTH is PTR_WIDTH + 1 to disambiguate between full and empty conditions
+    parameter FIFO_DEPTH = 8,
+    localparam PTR_WIDTH = $clog2(FIFO_DEPTH),
+    localparam CTR_WIDTH = PTR_WIDTH + 1 // CTR_WIDTH is PTR_WIDTH + 1 to disambiguate between full and empty conditions
 ) (
     input wire clk,
     input wire rst_aL,
 
-    output wire ready_enq,
-    input wire valid_enq,
-    input wire [DATA_WIDTH-1:0] data_enq,
+    output wire enq_ready,
+    input wire enq_valid,
+    input wire [DATA_WIDTH-1:0] enq_data,
     
-    input wire ready_deq,
-    output wire valid_deq,
-    output wire [DATA_WIDTH-1:0] data_deq
+    input wire deq_ready,
+    output wire deq_valid,
+    output wire [DATA_WIDTH-1:0] deq_data
 
     // random access ports
     // input wire [PTR_WIDTH-1:0] rd_addr0,
@@ -97,24 +93,24 @@ module fifo #(
     // logic that checks if the fifo is ready to enqueue
     INV_X1 NOT_fifo_full (
         .A(fifo_full),
-        .ZN(ready_enq)
+        .ZN(enq_ready)
     );
     // logic that checks if the fifo is valid to dequeue
     INV_X1 NOT_fifo_empty (
         .A(fifo_empty),
-        .ZN(valid_deq)
+        .ZN(deq_valid)
     );
 
     // logic that drives the enqueue signal using the ready-valid interface
-    AND2_X1 ready_enq_AND_valid_enq (
-        .A1(ready_enq),
-        .A2(valid_enq),
+    AND2_X1 enq_ready_AND_enq_valid (
+        .A1(enq_ready),
+        .A2(enq_valid),
         .ZN(enq)
     );
     // logic that drives the dequeue signal using the ready-valid interface
-    AND2_X1 ready_deq_AND_valid_deq (
-        .A1(ready_deq),
-        .A2(valid_deq),
+    AND2_X1 deq_ready_AND_deq_valid (
+        .A1(deq_ready),
+        .A2(deq_valid),
         .ZN(deq)
     );
 
@@ -140,7 +136,7 @@ module fifo #(
             .clk(clk),
             .rst_aL(rst_aL),
             .we(fifo_entry_we[i]),
-            .din(data_enq),
+            .din(enq_data),
             .dout(fifo_entry_dout[i])
         );
     end
@@ -149,7 +145,7 @@ module fifo #(
     mux_ #(.WIDTH(DATA_WIDTH), .N_INS(FIFO_DEPTH)) fifo_entry_mux (
         .ins(fifo_entry_dout),
         .sel(deq_ptr),
-        .out(data_deq)
+        .out(deq_data)
     );
 endmodule
 

@@ -91,13 +91,16 @@ module decode_rename_dispatch #(
         .wr_data()
     );
     
-    fifo rob #(
+    fifo_ram_golden rob #(
         .DATA_WIDTH(ROB_DISPATCH_DATA_WIDTH),
-        .FIFO_DEPTH(16)
+        .FIFO_DEPTH(16),
+        .N_READ_PORTS(2),
+        .N_WRITE_PORTS(2)
     ) (
         .clk(clk),
         .rst_aL(rst_aL),
-        .ready_enq(dispatch),
-
+        .enq_ready(dispatch),
+        
+        
     )
 endmodule

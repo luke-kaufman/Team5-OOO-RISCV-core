@@ -5,8 +5,8 @@ module onehot_mux2_tb;
 logic [1:0] s;
 logic [31:0] d1, d0;
 logic [31:0] y;
-integer num_tests = 0;
-integer num_tests_passed = 0;
+int num_tests = 0;
+int num_tests_passed = 0;
 
 // Instantiate the Unit Under Test (UUT)
 onehot_mux2 #(32) uut (
