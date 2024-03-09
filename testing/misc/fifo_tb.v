@@ -1,5 +1,5 @@
 `include "misc/fifo.v"
-`include "misc/fifo_golden.sv"
+`include "golden/misc/fifo_golden.sv"
 
 // random testbench for fifo module
 module fifo_tb;
@@ -91,7 +91,11 @@ module fifo_tb;
 
     // initial block to run tests
     initial begin
-        repeat (1000) begin
+        @(negedge clk);
+        rst_aL = 0;
+        @(negedge clk);
+
+        repeat (10) begin
             random_testcase();
         end
         display_test_results();

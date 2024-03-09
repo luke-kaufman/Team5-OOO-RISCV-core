@@ -2,12 +2,12 @@
 `define FIFO_V
 
 `include "freepdk-45nm/stdcells.v"
-`include "misc/counter.v"
+`include "misc/up_counter.v"
 `include "misc/cmp/cmp_.v"
 `include "misc/dec/dec_.v"
 `include "misc/mux/mux_.v"
 `include "misc/register.v"
-`include "misc/global_defs.v"
+`include "misc/global_defs.vh"
 
 // IMPL STATUS: MISSING
 // TEST STATUS: MISSING
@@ -40,7 +40,7 @@ module fifo #(
 );
     // counter that holds the enqueue pointer
     wire enq;
-    wire [ADDR_WIDTH-1:0] enq_ctr;
+    wire [CTR_WIDTH-1:0] enq_ctr;
     up_counter #(.WIDTH(CTR_WIDTH)) enq_counter (
         .clk(clk),
         .rst_aL(rst_aL),
@@ -127,7 +127,7 @@ module fifo #(
 
     // memory that holds fifo entries
     wire [FIFO_DEPTH-1:0] fifo_entry_we;
-    wire [DATA_WIDTH-1:0] [FIFO_DEPTH-1:0] fifo_entry_dout;
+    wire [FIFO_DEPTH-1:0] [DATA_WIDTH-1:0] fifo_entry_dout;
     for (genvar i = 0; i < FIFO_DEPTH; i = i + 1) begin
         // logic that drives the write enable signal for each fifo entry
         AND2_X1 onehot_enq_ptr_AND_enq (

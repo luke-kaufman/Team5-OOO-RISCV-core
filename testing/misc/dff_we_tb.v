@@ -26,7 +26,7 @@ module dff_we_tb #(
         forever #HALF_PERIOD clk = ~clk;
     end
 
-    // design under test
+    // design under test (dut)
     dff_we dut (
         .clk(clk),
         .rst_aL(rst_aL),

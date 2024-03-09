@@ -1,3 +1,3 @@
 module test;
-    initial $display("%0b", 4'b1010 & 4'b1000);
+    initial $display("%0b", 1'b1 | 4'b1010);
 endmodule

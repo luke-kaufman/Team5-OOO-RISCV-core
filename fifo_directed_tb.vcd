@@ -1,0 +1,239 @@
+$date
+	Sat Mar  9 20:02:19 2024
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module fifo_directed_tb $end
+$var wire 1 ! valid_deq $end
+$var wire 1 " ready_enq $end
+$var wire 32 # data_deq [31:0] $end
+$var wire 3 $ count [2:0] $end
+$var parameter 32 % CLOCK_PERIOD $end
+$var parameter 33 & CTR_WIDTH $end
+$var parameter 32 ' DATA_WIDTH $end
+$var parameter 32 ( FIFO_DEPTH $end
+$var parameter 32 ) HALF_PERIOD $end
+$var parameter 32 * N_RANDOM_TESTS $end
+$var parameter 32 + PTR_WIDTH $end
+$var reg 1 , clk $end
+$var reg 32 - data_enq [31:0] $end
+$var reg 1 . ready_deq $end
+$var reg 1 / rst_aL $end
+$var reg 1 0 valid_enq $end
+$var integer 32 1 num_directed_tests [31:0] $end
+$var integer 32 2 num_directed_tests_passed [31:0] $end
+$scope module dut $end
+$var wire 1 , clk $end
+$var wire 32 3 data_enq [31:0] $end
+$var wire 1 . ready_deq $end
+$var wire 1 " ready_enq $end
+$var wire 1 / rst_aL $end
+$var wire 1 ! valid_deq $end
+$var wire 1 0 valid_enq $end
+$var wire 4 4 next_enq_ctr [3:0] $end
+$var wire 4 5 next_deq_ctr [3:0] $end
+$var wire 1 6 fifo_full $end
+$var wire 1 7 fifo_empty $end
+$var wire 3 8 enq_ptr [2:0] $end
+$var wire 3 9 deq_ptr [2:0] $end
+$var wire 32 : data_deq [31:0] $end
+$var wire 3 ; count [2:0] $end
+$var parameter 33 < CTR_WIDTH $end
+$var parameter 32 = DATA_WIDTH $end
+$var parameter 32 > FIFO_DEPTH $end
+$var parameter 32 ? PTR_WIDTH $end
+$var reg 4 @ deq_ctr_r [3:0] $end
+$var reg 4 A enq_ctr_r [3:0] $end
+$var reg 256 B fifo_r [255:0] $end
+$var reg 256 C next_fifo [255:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b11 ?
+b1000 >
+b100000 =
+b100 <
+b11 +
+b1010 *
+b101 )
+b1000 (
+b100000 '
+b100 &
+b1010 %
+$end
+#0
+$dumpvars
+bx C
+bx B
+bx A
+bx @
+bx ;
+bx :
+bx 9
+bx 8
+x7
+x6
+bx 5
+bx 4
+bx 3
+b0 2
+b0 1
+x0
+x/
+x.
+bx -
+0,
+bx $
+bx #
+x"
+x!
+$end
+#5
+1,
+#10
+b0 C
+b0 #
+b0 :
+b0 9
+0!
+1"
+b0 $
+b0 ;
+b0 5
+b0 8
+b0 4
+b0 B
+17
+06
+b0 @
+b0 A
+b0 -
+b0 3
+0.
+00
+0/
+0,
+#15
+1,
+#20
+0,
+#25
+1,
+#30
+0,
+#35
+1,
+#40
+1/
+0,
+#45
+1,
+#50
+b1 4
+b10010001101000101011001111000 C
+b10010001101000101011001111000 -
+b10010001101000101011001111000 3
+10
+0,
+#55
+b1001000110100010101100111100000010010001101000101011001111000 C
+b1 8
+1!
+b1 $
+b1 ;
+b10 4
+b10010001101000101011001111000 #
+b10010001101000101011001111000 :
+b10010001101000101011001111000 B
+07
+b1 A
+1,
+#60
+b1 4
+b10010001101000101011001111000 C
+b0 -
+b0 3
+00
+b1 1
+b1 2
+0,
+#65
+1,
+#70
+b10 4
+b1000011101100101010000110010000100010010001101000101011001111000 C
+b10000111011001010100001100100001 -
+b10000111011001010100001100100001 3
+10
+0,
+#75
+b100001110110010101000011001000011000011101100101010000110010000100010010001101000101011001111000 C
+b10 8
+b10 $
+b10 ;
+b11 4
+b1000011101100101010000110010000100010010001101000101011001111000 B
+b10 A
+1,
+#80
+b10 4
+b1000011101100101010000110010000100010010001101000101011001111000 C
+b0 -
+b0 3
+00
+b10 1
+b10 2
+0,
+#85
+1,
+#90
+b11 4
+b101010111100110111101111000000011000011101100101010000110010000100010010001101000101011001111000 C
+b10101011110011011110111100000001 -
+b10101011110011011110111100000001 3
+10
+0,
+#95
+b10101011110011011110111100000001101010111100110111101111000000011000011101100101010000110010000100010010001101000101011001111000 C
+b11 8
+b11 $
+b11 ;
+b100 4
+b101010111100110111101111000000011000011101100101010000110010000100010010001101000101011001111000 B
+b11 A
+1,
+#100
+b11 4
+b101010111100110111101111000000011000011101100101010000110010000100010010001101000101011001111000 C
+b0 -
+b0 3
+00
+b11 1
+b11 2
+0,
+#105
+1,
+#110
+b1 5
+b10010001101000101011001111000 -
+b10010001101000101011001111000 3
+1.
+0,
+#115
+b10000111011001010100001100100001 #
+b10000111011001010100001100100001 :
+b1 9
+b10 $
+b10 ;
+b10 5
+b1 @
+1,
+#120
+b100 2
+0,
