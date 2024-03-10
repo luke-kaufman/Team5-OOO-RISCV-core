@@ -9,6 +9,7 @@
 `include "misc/dff_we.v"
 `include "misc/cmp/cmp32.v"
 `include "misc/onehot_mux/onehot_mux2.v"
+`include "misc/mux/mux_.v"
 
 // TODO: make this truly parametrizable?
 // TODO: change BLOCK_SIZE to be in terms of bytes, not bits?
@@ -42,6 +43,8 @@ INV_X1 we_aH (
     .A(we_aL)
 );
 
+wire [NUM_WAYS-1:0] we_mask;
+
 // ::: TAG ARRAY :::::::::::::::::::::::::::::::::::::
 // Both i-cache and d-cache are the same size
 wire [47:0] tag_out;
@@ -49,7 +52,8 @@ sram_64x48_1rw_wsize24 tag_arr (
     .clk0(clk),
     .csb0(1'b0),  // 1 chip
     .web0(we_aL),
-    .wmask0({way1_selected, way0_selected}),
+    .rst_aL(rst_aL),
+    .wmask0(we_mask),
     .addr0(addr[`get_set_num]),
     .din0({1'b1, addr[`get_tag], 1'b1, addr[`get_tag]}),
     .dout0(tag_out)
@@ -57,11 +61,12 @@ sram_64x48_1rw_wsize24 tag_arr (
 
 // capture Tag Array outputs
 wire way0_v, way1_v;
-wire [TAG_ENTRY_SIZE-2:0] way0_tag, way1_tag;
+wire [TAG_ENTRY_SIZE-2:0] way0_tag, way1_tag;  // -2 for valid bit
 assign {way0_v, way0_tag, way1_v, way1_tag} = tag_out;
 
 // For dirty bits - write 1 when completing ST instruction
 genvar i;
+wire [NUM_SETS-1:0][NUM_WAYS-1:0] dirty_sets;
 generate
     if(WRITE_SIZE_BITS == 8) begin  // FOR D-CACHE ONLY
         
@@ -86,6 +91,7 @@ generate
                 .we(way0_dirty_we.ZN),
                 .d(set_way0_d.ZN)
             );
+            assign dirty_sets[i][0] = way0_dirty.q;
 
             // set way1 dirty bit for this tag
             OR2_X1 set_way1_d(
@@ -98,16 +104,19 @@ generate
                 .we(way1_dirty_we.ZN),
                 .d(set_way1_d.ZN)
             );
+            assign dirty_sets[i][1] = way1_dirty.q;
+
         end
     end
 
-    wire way0_dirty_bit, way1_dirty_bit;
-    // assign way0_dirty_bit = ways_d[addr[`get_set_num]].way0_dirty.q; 
-    // assign way1_dirty_bit = ways_d[addr[`get_set_num]].way1_dirty.q;
-    mux64 #(.WIDTH(1)) mux64_1 (
-        .ins(ways_d[].way0_dirty.q),
-        .sel({1'b0, addr[`get_set_num]}),
-        .out(way0_dirty_bit)
+    wire [NUM_WAYS-1:0] set_dirty_bits;
+    mux_ #(
+        .WIDTH(2),
+        .N_INS(NUM_SETS)
+    ) mux64_1 (
+        .ins(dirty_sets),
+        .sel(addr[`get_set_num]),
+        .out(set_dirty_bits)
     );
 endgenerate
 
@@ -118,23 +127,25 @@ endgenerate
 // I-cache & D-cache same size but different write granularities
 wire [127:0] data_out;
 generate
-    if (WRITE_SIZE_BITS == 64) begin      // I-Cache
+    if (WRITE_SIZE_BITS == 64) begin: icache      // I-Cache
         sram_64x128_1rw_wsize64 i_cache_data_arr (
             .clk0(clk),
             .csb0(1'b0),  // 1 chip
             .web0(we_aL),
-            .wmask0({way1_selected, way0_selected}),
+            .rst_aL(rst_aL),
+            .wmask0(we_mask),
             .addr0(addr[`get_set_num]),
             .din0({write_data, write_data}),
             .dout0(data_out)
         );
     end
-    else if (WRITE_SIZE_BITS == 8) begin  // D-Cache
+    else if (WRITE_SIZE_BITS == 8) begin: dcache  // D-Cache
         sram_64x128_1rw_wsize8 d_cache_data_arr (
             .clk0(clk),
             .csb0(0),  // 1 chip
             .web0(we_aL),
-            .wmask0({way1_selected, way0_selected}),
+            .rst_aL(rst_aL),
+            .wmask0(we_mask),
             .addr0(addr[`get_set_num]),
             .din0({write_data, write_data}),
             .dout0(data_out)
@@ -146,9 +157,9 @@ generate
     end
 endgenerate
 
-// capture 2 data bank outputs
+// capture 2 data way outputs
 wire [BLOCK_SIZE_BITS-1:0] way0_data, way1_data;
-assign {way0_data, way1_data} = data_out;
+assign {way0_data, way1_data} = icache.i_cache_data_arr.dout0;
 
 // END DATA ARRAY ::::::::::::::::::::::::::::::::::::
 
@@ -179,6 +190,25 @@ AND2_X1 way1_check_v(
     .A2(way1_v),
     .ZN(way1_selected)
 );
+
+mux_ #(
+    .WIDTH(1),
+    .N_INS(4)
+) mux4_way_fill1 (
+    .ins({1'b1,1'b1,1'b0,1'b1}),  // if 1 valid , write to way 0
+    .sel({way1_v, way0_v}),
+    .out(we_mask[0])
+);
+mux_ #(
+    .WIDTH(1),
+    .N_INS(4)
+) mux4_way_fill2 (
+    .ins({1'b1,1'b0,1'b1,1'b0}),  // if 0 valid, write to way 1  
+    .sel({way1_v, way0_v}),
+    .out(we_mask[1])
+);
+// TODO: if and(we_mask[0], we_mask[1]) == 1, randomly choose to evict 
+
 
 // Cache hit - is either way selected and valid?
 OR2_X1 icache_hit_or_gate(

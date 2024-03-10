@@ -80,15 +80,15 @@ module mux_tb #(
 
         // display random test results
         if (num_random_tests_passed == num_random_tests) begin
-            $display("(mux32_tb) ALL %0d RANDOM TESTS PASSED", num_random_tests);
+            $display("(mux_tb) ALL %0d RANDOM TESTS PASSED", num_random_tests);
         end else begin
-            $display("(mux32_tb) SOME RANDOM TESTS FAILED: %0d/%0d passed", num_random_tests_passed, num_random_tests);
+            $display("(mux_tb) SOME RANDOM TESTS FAILED: %0d/%0d passed", num_random_tests_passed, num_random_tests);
         end
         // display directed test results
         if (num_directed_tests_passed == num_directed_tests) begin
-            $display("(and_tb) ALL %0d DIRECTED TESTS PASSED", num_directed_tests);
+            $display("(mux_tb) ALL %0d DIRECTED TESTS PASSED", num_directed_tests);
         end else begin
-            $display("(and_tb) SOME DIRECTED TESTS FAILED: %0d/%0d passed", num_directed_tests_passed, num_directed_tests);
+            $display("(mux_tb) SOME DIRECTED TESTS FAILED: %0d/%0d passed", num_directed_tests_passed, num_directed_tests);
         end
         $finish;
     end
