@@ -5,7 +5,7 @@
 
 // IMPL STATUS: COMPLETE
 // TEST STATUS: FAILING (doesn't reset properly)
-module dff_we(
+module dff_we (
     input wire clk,
     // input wire rst_aL, (NOTE: edited to suppress "coerced to inout" warning)
     inout wire rst_aL,

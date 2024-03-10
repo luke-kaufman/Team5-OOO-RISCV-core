@@ -9,7 +9,7 @@ module sram_64x48_1rw_wsize24(
     gnd,
 `endif
 // Port 0: RW
-    clk0,csb0,web0,wmask0,addr0,din0,dout0
+    clk0,csb0,web0,rst_aL,wmask0,addr0,din0,dout0
   );
 
   parameter NUM_WMASKS = 2 ;
@@ -27,6 +27,7 @@ module sram_64x48_1rw_wsize24(
 `endif
   input  clk0; // clock
   input   csb0; // active low chip select
+  input rst_aL;
   input  web0; // active low write control
   input [ADDR_WIDTH-1:0]  addr0;
   input [NUM_WMASKS-1:0]   wmask0; // write mask
@@ -45,16 +46,31 @@ module sram_64x48_1rw_wsize24(
   // All inputs are registers
   always @(posedge clk0)
   begin
-    csb0_reg = csb0;
-    web0_reg = web0;
-    wmask0_reg = wmask0;
-    addr0_reg = addr0;
-    din0_reg = din0;
-    #(T_HOLD) dout0 = 48'bx;
-    if ( !csb0_reg && web0_reg && VERBOSE )
-      $display($time," Reading %m addr0=%b dout0=%b",addr0_reg,mem[addr0_reg]);
-    if ( !csb0_reg && !web0_reg && VERBOSE )
-      $display($time," Writing %m addr0=%b din0=%b wmask0=%b",addr0_reg,din0_reg,wmask0_reg);
+    if(!rst_aL) begin
+        // reset regs
+        csb0_reg <= 1'b1;
+        web0_reg <= 1'b1;
+        wmask0_reg <= 1'b1;
+        addr0_reg <= 6'b0;
+        din0_reg <= 48'b0;
+        dout0 <= 48'b0;
+        // reset mem
+        for (int i = 0; i < RAM_DEPTH; i = i + 1) begin
+            mem[i] <= 48'b0;
+        end
+    end
+    else begin
+      csb0_reg = csb0;
+      web0_reg = web0;
+      wmask0_reg = wmask0;
+      addr0_reg = addr0;
+      din0_reg = din0;
+      #(T_HOLD) dout0 = 48'bx;
+      if ( !csb0_reg && web0_reg && VERBOSE )
+        $display($time," Reading %m addr0=%b dout0=%b",addr0_reg,mem[addr0_reg]);
+      if ( !csb0_reg && !web0_reg && VERBOSE )
+        $display($time," Writing %m addr0=%b din0=%b wmask0=%b",addr0_reg,din0_reg,wmask0_reg);
+    end
   end
 
 

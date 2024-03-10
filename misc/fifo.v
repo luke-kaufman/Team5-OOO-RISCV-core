@@ -1,47 +1,40 @@
 `ifndef FIFO_V
 `define FIFO_V
 
-`include "freepdk-45nm/stdcells.v"
-`include "misc/counter.v"
+`include "misc/inv.v"
+`include "misc/and/and_.v"
 `include "misc/cmp/cmp_.v"
 `include "misc/dec/dec_.v"
 `include "misc/mux/mux_.v"
 `include "misc/register.v"
-`include "misc/global_defs.v"
+`include "misc/up_counter.v"
 
-// IMPL STATUS: MISSING
+// IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
 module fifo #(
-    // parameter RANDOM_ACCESS = 0, // 0 for strictly fifo, 1 for fifo with random access
-    // localparam N_READ_PORTS = 2,
-    // localparam N_WRITE_PORTS = 2,
-    parameter DATA_WIDTH = 32,
-    parameter enum {_8=8, _16=16} FIFO_DEPTH = 8,
-    localparam PTR_WIDTH = $clog2(FIFO_DEPTH), // = 3 or 4
-    localparam CTR_WIDTH = PTR_WIDTH + 1 // = 4 or 5
-    // CTR_WIDTH is PTR_WIDTH + 1 to disambiguate between full and empty conditions
+    parameter ENTRY_WIDTH = 32,
+    parameter N_ENTRIES = 8,
+    localparam PTR_WIDTH = $clog2(N_ENTRIES),
+    localparam CTR_WIDTH = PTR_WIDTH + 1 // CTR_WIDTH is PTR_WIDTH + 1 to disambiguate between full and empty conditions
 ) (
     input wire clk,
-    input wire rst_aL,
+    // input wire rst_aL, (NOTE: edited to suppress "coerced to inout" warning)
+    inout wire rst_aL,
 
-    output wire ready_enq,
-    input wire valid_enq,
-    input wire [DATA_WIDTH-1:0] data_enq,
+    output wire enq_ready,
+    input wire enq_valid,
+    input wire [ENTRY_WIDTH-1:0] enq_data,
     
-    input wire ready_deq,
-    output wire valid_deq,
-    output wire [DATA_WIDTH-1:0] data_deq
+    input wire deq_ready,
+    output wire deq_valid,
+    output wire [ENTRY_WIDTH-1:0] deq_data,
 
-    // random access ports
-    // input wire [PTR_WIDTH-1:0] rd_addr0,
-    // input wire [PTR_WIDTH-1:0] rd_addr1,
-    // input wire [PTR_WIDTH-1:0] wr_addr0,
-    // input wire [PTR_WIDTH-1:0] wr_addr1
+    output wire [PTR_WIDTH-1:0] count // for debugging
 );
     // counter that holds the enqueue pointer
     wire enq;
-    wire [ADDR_WIDTH-1:0] enq_ctr;
-    up_counter #(.WIDTH(CTR_WIDTH)) enq_counter (
+    wire [CTR_WIDTH-1:0] enq_ctr;
+    up_counter #(.WIDTH(CTR_WIDTH)) enq_up_counter (
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(enq),
@@ -50,7 +43,7 @@ module fifo #(
     // counter that holds the dequeue pointer
     wire deq;
     wire [CTR_WIDTH-1:0] deq_ctr;
-    up_counter #(.WIDTH(CTR_WIDTH)) deq_counter (
+    up_counter #(.WIDTH(CTR_WIDTH)) deq_up_counter (
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(deq),
@@ -59,16 +52,21 @@ module fifo #(
     
     // comparator that disambiguates between full and empty conditions using the MSB
     wire eq_msb;
-    cmp_ #(.WIDTH(1)) cmp_msb (
+    cmp_ #(.WIDTH(1)) eq_msb_cmp (
         .a(enq_ctr[CTR_WIDTH-1]),
         .b(deq_ctr[CTR_WIDTH-1]),
         .y(eq_msb)
     );
+    
+    // pointers are the lower bits of the counters
+    wire [PTR_WIDTH-1:0] enq_ptr;
+    wire [PTR_WIDTH-1:0] deq_ptr;
+    assign enq_ptr = enq_ctr[PTR_WIDTH-1:0];
+    assign deq_ptr = deq_ctr[PTR_WIDTH-1:0];
+
     // comparator that checks if the enqueue and dequeue pointers are equal (i.e. the fifo is empty or full)
-    wire [PTR_WIDTH-1:0] enq_ptr = enq_ctr[PTR_WIDTH-1:0];
-    wire [PTR_WIDTH-1:0] deq_ptr = deq_ctr[PTR_WIDTH-1:0];
     wire eq_ptr;
-    cmp_ #(.WIDTH(PTR_WIDTH)) cmp_ptr (
+    cmp_ #(.WIDTH(PTR_WIDTH)) eq_ptr_cmp (
         .a(enq_ptr),
         .b(deq_ptr),
         .y(eq_ptr)
@@ -76,81 +74,78 @@ module fifo #(
     
     // logic that checks if the fifo is empty
     wire fifo_empty;
-    AND2_X1 eq_msb_AND_eq_ptr (
-        .A1(eq_msb),
-        .A2(eq_ptr),
-        .ZN(fifo_empty)
+    and_ #(.N_INS(2)) fifo_empty_and (
+        .a({eq_msb, eq_ptr}),
+        .y(fifo_empty)
     );
     // logic that checks if the fifo is full
     wire not_eq_msb;
     wire fifo_full;
-    INV_X1 NOT_eq_msb (
-        .A(eq_msb),
-        .ZN(not_eq_msb)
+    inv eq_msb_inv (
+        .a(eq_msb),
+        .y(not_eq_msb)
     );
-    AND2_X1 not_eq_msb_AND_eq_ptr (
-        .A1(not_eq_msb),
-        .A2(eq_ptr),
-        .ZN(fifo_full)
+    and_ #(.N_INS(2)) fifo_full_and (
+        .a({not_eq_msb, eq_ptr}),
+        .y(fifo_full)
     );
 
     // logic that checks if the fifo is ready to enqueue
-    INV_X1 NOT_fifo_full (
-        .A(fifo_full),
-        .ZN(ready_enq)
+    inv fifo_full_inv (
+        .a(fifo_full),
+        .y(enq_ready)
     );
     // logic that checks if the fifo is valid to dequeue
-    INV_X1 NOT_fifo_empty (
-        .A(fifo_empty),
-        .ZN(valid_deq)
+    inv fifo_empty_inv (
+        .a(fifo_empty),
+        .y(deq_valid)
     );
 
     // logic that drives the enqueue signal using the ready-valid interface
-    AND2_X1 ready_enq_AND_valid_enq (
-        .A1(ready_enq),
-        .A2(valid_enq),
-        .ZN(enq)
+    and_ #(.N_INS(2)) enq_and (
+        .a({enq_ready, enq_valid}),
+        .y(enq)
     );
     // logic that drives the dequeue signal using the ready-valid interface
-    AND2_X1 ready_deq_AND_valid_deq (
-        .A1(ready_deq),
-        .A2(valid_deq),
-        .ZN(deq)
+    and_ #(.N_INS(2)) deq_and (
+        .a({deq_ready, deq_valid}),
+        .y(deq)
     );
 
     // decoder that feeds into the write enable logic for each fifo entry
-    wire [FIFO_DEPTH-1:0] onehot_enq_ptr;
+    wire [N_ENTRIES-1:0] onehot_enq_ptr;
     dec_ #(.IN_WIDTH(PTR_WIDTH)) enq_ptr_dec (
         .in(enq_ptr),
         .out(onehot_enq_ptr)
     );
 
     // memory that holds fifo entries
-    wire [FIFO_DEPTH-1:0] fifo_entry_we;
-    wire [DATA_WIDTH-1:0] [FIFO_DEPTH-1:0] fifo_entry_dout;
-    for (genvar i = 0; i < FIFO_DEPTH; i = i + 1) begin
+    wire [N_ENTRIES-1:0] fifo_entry_we;
+    wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] fifo_entry_dout;
+    for (genvar i = 0; i < N_ENTRIES; i = i + 1) begin
         // logic that drives the write enable signal for each fifo entry
-        AND2_X1 onehot_enq_ptr_AND_enq (
-            .A1(onehot_enq_ptr[i]),
-            .A2(enq),
-            .ZN(fifo_entry_we[i])
+        and_ #(.N_INS(2)) fifo_entry_we_and (
+            .a({onehot_enq_ptr[i], enq}),
+            .y(fifo_entry_we[i])
         );
         // register that holds each fifo entry
-        register #(.WIDTH(DATA_WIDTH)) fifo_entry (
+        register #(.WIDTH(ENTRY_WIDTH)) fifo_entry (
             .clk(clk),
             .rst_aL(rst_aL),
             .we(fifo_entry_we[i]),
-            .din(data_enq),
+            .din(enq_data),
             .dout(fifo_entry_dout[i])
         );
     end
 
     // mux that drives the dequeue data using the dequeue pointer
-    mux_ #(.WIDTH(DATA_WIDTH), .N_INS(FIFO_DEPTH)) fifo_entry_mux (
+    mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_ENTRIES)) deq_data_mux (
         .ins(fifo_entry_dout),
         .sel(deq_ptr),
-        .out(data_deq)
+        .out(deq_data)
     );
+
+    assign count = enq_ctr[PTR_WIDTH-1:0] - deq_ctr[PTR_WIDTH-1:0]; // for debugging (NOTE: behavioral code)
 endmodule
 
 `endif

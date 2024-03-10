@@ -44,8 +44,8 @@ module #(
         .q(q_golden)
     );
 
-    integer num_random_tests_passed = 0;
-    integer num_random_tests = 0;
+    int num_random_tests_passed = 0;
+    int num_random_tests = 0;
 
     initial begin
         $dumpfile("ifu_tb.vcd");

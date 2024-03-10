@@ -13,12 +13,12 @@ module or32;
         .y(y)
     );
 
-    integer num_random_tests_passed = 0;
-    integer num_random_tests = 0;
-    integer num_directed_tests_passed = 0;
-    integer num_directed_tests = 0;
-    integer actual_output;
-    integer expected_output;
+    int num_random_tests_passed = 0;
+    int num_random_tests = 0;
+    int num_directed_tests_passed = 0;
+    int num_directed_tests = 0;
+    int actual_output;
+    int expected_output;
     
     // Task to check random testcase
     task random_testcase();
@@ -67,7 +67,7 @@ module or32;
 
     initial begin
         // Random testcases
-        for (integer i = 0; i < 10; i = i + 1) begin
+        for (int i = 0; i < 10; i = i + 1) begin
             random_testcase();
         end
 

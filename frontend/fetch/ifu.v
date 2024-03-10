@@ -91,8 +91,8 @@ predicted_NPC #() pred_NPC (
                          + 1 /*branch info valid bit*/
                          + 1 /*Prediction bit - 1 taken, 0 not taken*/
                          + ADDR_WIDTH /*TARGET PC*/)
-wire IFIFO_ready_enq;
-wire [IFIFO_ENTRY_WIDTH-1:0] IFIFO_data_enq = {selected_instr,
+wire IFIFO_enq_ready;
+wire [IFIFO_ENTRY_WIDTH-1:0] IFIFO_enq_data = {selected_instr,
                                                 PC,
                                                 is_cond_branch,  // branch info valid bit
                                                 br_prediction,
@@ -103,17 +103,17 @@ fifo #(
 ) instruction_FIFO (
     .clk(clk),
     .rst_aL(rst_aL),
-    .ready_enq(IFIFO_ready_enq), // output
-    .valid_enq(icache.cache_hit),  // input
-    .data_enq(IFIFO_data_enq),
-    .ready_deq(dispatch_ready),   // input
-    .valid_deq(instr_valid),  // output
-    .data_deq(instr_data)
+    .enq_ready(IFIFO_enq_ready), // output
+    .enq_valid(icache.cache_hit),  // input
+    .enq_data(IFIFO_enq_data),
+    .deq_ready(dispatch_ready),   // input
+    .deq_valid(instr_valid),  // output
+    .deq_data(instr_data)
 );
 
 wire IFIFO_full_stall;
 NAND2_X1 instr_FIFO_stall (
-    .A1(IFIFO_ready_enq),
+    .A1(IFIFO_enq_ready),
     .A2(icache_hit),
     .ZN(IFIFO_full_stall)
 )

@@ -1,5 +1,5 @@
 `include "misc/fifo.v"
-`include "misc/fifo_golden.sv"
+`include "golden/misc/fifo_golden.sv"
 
 // random testbench for fifo module
 module fifo_tb;
@@ -12,19 +12,19 @@ module fifo_tb;
     reg rst_aL;
 
     // inputs
-    reg valid_enq;
-    reg ready_deq;
-    reg [DATA_WIDTH-1:0] data_enq;
+    reg enq_valid;
+    reg deq_ready;
+    reg [DATA_WIDTH-1:0] enq_data;
 
     // dut outputs
-    wire ready_enq_dut;
-    wire valid_deq_dut;
-    wire [DATA_WIDTH-1:0] data_deq_dut;
+    wire enq_ready_dut;
+    wire deq_valid_dut;
+    wire [DATA_WIDTH-1:0] deq_data_dut;
 
     // golden outputs
-    wire ready_enq_golden;
-    wire valid_deq_golden;
-    wire [DATA_WIDTH-1:0] data_deq_golden;
+    wire enq_ready_golden;
+    wire deq_valid_golden;
+    wire [DATA_WIDTH-1:0] deq_data_golden;
 
     // clock generation
     localparam CLOCK_PERIOD = 10;
@@ -38,45 +38,45 @@ module fifo_tb;
     fifo #(.DATA_WIDTH(DATA_WIDTH), .FIFO_DEPTH(FIFO_DEPTH)) dut (
         .clk(clk),
         .rst_aL(rst_aL),
-        .valid_enq(valid_enq),
-        .ready_deq(ready_deq),
-        .data_enq(data_enq),
-        .ready_enq(ready_enq_dut),
-        .valid_deq(valid_deq_dut),
-        .data_deq(data_deq_dut)
+        .enq_valid(enq_valid),
+        .deq_ready(deq_ready),
+        .enq_data(enq_data),
+        .enq_ready(enq_ready_dut),
+        .deq_valid(deq_valid_dut),
+        .deq_data(deq_data_dut)
     );
 
     // golden model
     fifo_golden #(.DATA_WIDTH(DATA_WIDTH), .FIFO_DEPTH(FIFO_DEPTH)) golden (
         .clk(clk),
         .rst_aL(rst_aL),
-        .valid_enq(valid_enq),
-        .ready_deq(ready_deq),
-        .data_enq(data_enq),
-        .ready_enq(ready_enq_golden),
-        .valid_deq(valid_deq_golden),
-        .data_deq(data_deq_golden)
+        .enq_valid(enq_valid),
+        .deq_ready(deq_ready),
+        .enq_data(enq_data),
+        .enq_ready(enq_ready_golden),
+        .deq_valid(deq_valid_golden),
+        .deq_data(deq_data_golden)
     );
 
-    integer num_random_tests_passed = 0;
-    integer num_random_tests = 0;
-    integer num_directed_tests_passed = 0;
-    integer num_directed_tests = 0;
+    int num_random_tests_passed = 0;
+    int num_random_tests = 0;
+    int num_directed_tests_passed = 0;
+    int num_directed_tests = 0;
 
     // task to check random testcase
     task random_testcase();
         num_random_tests++;
         // assign random values to inputs
-        valid_enq = $urandom();
-        ready_deq = $urandom();
-        data_enq = $urandom();
+        enq_valid = $urandom();
+        deq_ready = $urandom();
+        enq_data = $urandom();
         // check if dut output matches golden output
         #CLOCK_PERIOD;
-        if ({ready_enq_dut, valid_deq_dut, data_deq_dut} === {ready_enq_golden, valid_deq_golden, data_deq_golden}) begin
+        if ({enq_ready_dut, deq_valid_dut, deq_data_dut} === {enq_ready_golden, deq_valid_golden, deq_data_golden}) begin
             num_random_tests_passed++;
-            $display("Test case passed: valid_enq = %0d, ready_deq = %0d, data_enq = %0d, ready_enq_dut = %0d, valid_deq_dut = %0d, data_deq_dut = %0d, ready_enq_golden = %0d, valid_deq_golden = %0d, data_deq_golden = %0d", valid_enq, ready_deq, data_enq, ready_enq_dut, valid_deq_dut, data_deq_dut, ready_enq_golden, valid_deq_golden, data_deq_golden);
+            $display("Test case passed: enq_valid = %0d, deq_ready = %0d, enq_data = %0d, enq_ready_dut = %0d, deq_valid_dut = %0d, deq_data_dut = %0d, enq_ready_golden = %0d, deq_valid_golden = %0d, deq_data_golden = %0d", enq_valid, deq_ready, enq_data, enq_ready_dut, deq_valid_dut, deq_data_dut, enq_ready_golden, deq_valid_golden, deq_data_golden);
         end else begin
-            $display("Test case failed: valid_enq = %0d, ready_deq = %0d, data_enq = %0d, ready_enq_dut = %0d, valid_deq_dut = %0d, data_deq_dut = %0d, ready_enq_golden = %0d, valid_deq_golden = %0d, data_deq_golden = %0d", valid_enq, ready_deq, data_enq, ready_enq_dut, valid_deq_dut, data_deq_dut, ready_enq_golden, valid_deq_golden, data_deq_golden);
+            $display("Test case failed: enq_valid = %0d, deq_ready = %0d, enq_data = %0d, enq_ready_dut = %0d, deq_valid_dut = %0d, deq_data_dut = %0d, enq_ready_golden = %0d, deq_valid_golden = %0d, deq_data_golden = %0d", enq_valid, deq_ready, enq_data, enq_ready_dut, deq_valid_dut, deq_data_dut, enq_ready_golden, deq_valid_golden, deq_data_golden);
         end
     endtask
 
@@ -91,7 +91,11 @@ module fifo_tb;
 
     // initial block to run tests
     initial begin
-        repeat (1000) begin
+        @(negedge clk);
+        rst_aL = 0;
+        @(negedge clk);
+
+        repeat (10) begin
             random_testcase();
         end
         display_test_results();

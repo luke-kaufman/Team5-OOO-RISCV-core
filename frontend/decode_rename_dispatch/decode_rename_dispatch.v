@@ -2,6 +2,7 @@
 `include "misc/regfile/regfile32_2r2w.v"
 `include "misc/regfile/regfile32_3r1w.v"
 `include "misc/fifo.v"
+`include "misc/fifo_ram.v"
 
 module decode_rename_dispatch #(
     localparam ROB_DISPATCH_DATA_WIDTH = ,
@@ -91,13 +92,28 @@ module decode_rename_dispatch #(
         .wr_data()
     );
     
-    fifo rob #(
+    fifo_ram_golden #(
         .DATA_WIDTH(ROB_DISPATCH_DATA_WIDTH),
-        .FIFO_DEPTH(16)
-    ) (
+        .FIFO_DEPTH(16),
+        .N_READ_PORTS(2),
+        .N_WRITE_PORTS(2)
+    ) rob (
         .clk(clk),
         .rst_aL(rst_aL),
-        .ready_enq(dispatch),
+        
+        .enq_ready(dispatch_rob_ready),
+        .enq_valid(dispatch_valid),
+        .enq_data(dispatch_rob_data),
 
-    )
+        .deq_ready(1'b1), // ARF is always ready to accept data
+        .deq_valid(retire_valid),
+        .deq_data(retire_data),
+
+        .rd_addr({rob_id_src1, rob_id_src2}),
+        .rd_data({rob_reg_data_src1, rob_reg_data_src2}),
+
+        .wr_en({wb_valid_alu, wb_valid_lsu}),
+        .wr_addr({wb_tag_alu, wb_tag_lsu}),
+        .wr_data({wb_data_alu, wb_data_lsu})
+    );
 endmodule
