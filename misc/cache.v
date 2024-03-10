@@ -72,11 +72,11 @@ generate
         
         AND2_X1 way0_dirty_we (
             .A(we_aH.ZN),
-            .B(way0_selected)  // loops around from after ways tags are checked (increases crit path)
+            .B(read_way0_selected)  // loops around from after ways tags are checked (increases crit path)
         );
         AND2_X1 way1_dirty_we (
             .A(we_aH.ZN),
-            .B(way1_selected)
+            .B(read_way1_selected)
         );
 
         for(i = 0; i < NUM_SETS; i = i + 1) begin: ways_d
@@ -179,41 +179,46 @@ cmp32 way1_tag_check (
 );
 
 // check tag matches with valid bits
-wire way0_selected, way1_selected;
+wire read_way0_selected, read_way1_selected;
 AND2_X1 way0_check_v(
     .A1(way0_tag_match),
     .A2(way0_v),
-    .ZN(way0_selected)
+    .ZN(read_way0_selected)
 );
 AND2_X1 way1_check_v(
     .A1(way1_tag_match),
     .A2(way1_v),
-    .ZN(way1_selected)
+    .ZN(read_way1_selected)
 );
 
-mux_ #(
-    .WIDTH(1),
-    .N_INS(4)
-) mux4_way_fill1 (
-    .ins({1'b1,1'b1,1'b0,1'b1}),  // if 1 valid , write to way 0
-    .sel({way1_v, way0_v}),
-    .out(we_mask[0])
-);
+// FIX: NEED TO OVERWRITE IF TAG MATCH, PICK NON-VALID WAY if no tag match, or RANDOMLY PICK if no tag match and both valid
+// AND2_X1 tag_match_detected (
+//     .A1(way0_tag_match),
+//     .A2(way1_tag_match)
+// );
 mux_ #(
     .WIDTH(1),
     .N_INS(4)
 ) mux4_way_fill2 (
-    .ins({1'b1,1'b0,1'b1,1'b0}),  // if 0 valid, write to way 1  
+    .ins({1'b1,1'b0,1'b1,1'b1}),  // if 0 valid, write to way 1  
     .sel({way1_v, way0_v}),
     .out(we_mask[1])
+);
+mux_ #(
+    .WIDTH(1),
+    .N_INS(4)
+) mux4_way_fill1 (
+    .ins({1'b1,1'b1,1'b0,1'b0}),  // if 1 valid , write to way 0
+    .sel({way1_v, way0_v}),
+    .out(we_mask[0])
 );
 // TODO: if and(we_mask[0], we_mask[1]) == 1, randomly choose to evict 
 
 
 // Cache hit - is either way selected and valid?
 OR2_X1 icache_hit_or_gate(
-    .A1(way0_selected),
-    .A2(way1_selected),
+    .A1(read_way0_selected),
+    .A2(read_way1_selected),
     .ZN(cache_hit)
 );
 
@@ -221,7 +226,7 @@ OR2_X1 icache_hit_or_gate(
 onehot_mux2 #(.WIDTH(BLOCK_SIZE_BITS)) way_data_mux (
     .d0(way0_data),
     .d1(way1_data),
-    .s({way1_selected, way0_selected}),
+    .s({read_way1_selected, read_way0_selected}),
     .y(selected_data_way)
 );
 
