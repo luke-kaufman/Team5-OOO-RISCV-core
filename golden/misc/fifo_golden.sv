@@ -7,11 +7,11 @@ module fifo_golden #(
     input logic clk,
     input logic rst_aL,
 
-    input logic deq_ready,
+    output logic enq_ready,
     input logic enq_valid,
     input logic [DATA_WIDTH-1:0] enq_data,
     
-    output logic enq_ready,
+    input logic deq_ready,
     output logic deq_valid,
     output logic [DATA_WIDTH-1:0] deq_data,
 

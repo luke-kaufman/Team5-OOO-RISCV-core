@@ -11,11 +11,11 @@ module fifo_ram_golden #(
     input logic clk,
     input logic rst_aL,
 
-    input logic deq_ready,
+    output logic enq_ready,
     input logic enq_valid,
     input logic [DATA_WIDTH-1:0] enq_data,
     
-    output logic enq_ready,
+    input logic deq_ready,
     output logic deq_valid,
     output logic [DATA_WIDTH-1:0] deq_data,
 
@@ -24,6 +24,8 @@ module fifo_ram_golden #(
     input logic [N_WRITE_PORTS-1:0] wr_en,
     input logic [N_WRITE_PORTS-1:0] [PTR_WIDTH-1:0] wr_addr,
     input logic [N_WRITE_PORTS-1:0] [DATA_WIDTH-1:0] wr_data,
+
+    output logic [FIFO_DEPTH-1:0] [DATA_WIDTH-1:0] fifo_state, // for updating entries by partial writes
 
     output logic [PTR_WIDTH-1:0] count // for debugging
 );
@@ -50,6 +52,7 @@ module fifo_ram_golden #(
     for (genvar i = 0; i < N_READ_PORTS; i++) begin
         assign rd_data[i] = fifo_r[rd_addr[i]];
     end
+    assign fifo_state = fifo_r;
     assign count = enq_ctr_r - deq_ctr_r; // for debugging
 
     // next state logic without dynamic slicing

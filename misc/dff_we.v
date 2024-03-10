@@ -8,7 +8,7 @@
 module dff_we (
     input wire clk,
     // input wire rst_aL, (NOTE: edited to suppress "coerced to inout" warning)
-    input wire rst_aL,
+    inout wire rst_aL,
     input wire we,
     input wire d,
     output wire q
