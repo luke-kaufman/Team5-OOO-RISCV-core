@@ -6,6 +6,7 @@
 `include "misc/cmp/cmp_.v"
 `include "misc/dec/dec_.v"
 `include "misc/mux/mux_.v"
+`include "misc/onehot_mux/onehot_mux_.v"
 `include "misc/register.v"
 `include "misc/up_counter.v"
 
@@ -182,7 +183,7 @@ module fifo_ram #(
         // NOTE: current assumption is that there won't ever be a race condition between the enq_data and wr_data(s)
         // mux that selects the din for each fifo entry
         // NOTE: mux_ only works with power-of-2 N_INS
-        one_hot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_WRITE_PORTS+1)) entry_din_mux (
+        onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_WRITE_PORTS+1)) entry_din_mux (
             .ins({wr_data, enq_data}),
             .sel({wr_en_we_transposed[i], enq_we[i]}),
             .out(entry_dins[i])
