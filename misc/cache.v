@@ -2,7 +2,7 @@
 `define CACHE_V
 
 `include "freepdk-45nm/stdcells.v"
-`include "misc/global_defs.vh"
+`include "misc/global_defs.svh"
 `include "sram/icache_data_sram.v"
 `include "sram/dcache_data_sram_netlist_only.v"
 `include "sram/tag_array_sram.v"

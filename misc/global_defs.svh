@@ -24,10 +24,10 @@
 `define DCACHE_NUM_TAG_CTRL_BITS 2  // dirty and valid
 `define DCACHE_WRITE_SIZE_BITS 8
 
-`define ROB_DEPTH 16
-`define ROB_ID_WIDTH $clog2(`ROB_DEPTH)
-`define ARF_DEPTH 32
-`define ARF_ID_WIDTH $clog2(`ARF_DEPTH)
+`define ROB_N_ENTRIES 16
+`define ROB_ID_WIDTH $clog2(`ROB_N_ENTRIES)
+`define ARF_N_ENTRIES 32
+`define ARF_ID_WIDTH $clog2(`ARF_N_ENTRIES)
 
 `define REG_WIDTH 32
 
@@ -38,16 +38,22 @@ typedef struct packed {
     logic dst_valid;
     logic [`ARF_ID_WIDTH-1:0] dst_arf_id;
     logic [`PC_WIDTH-1:0] pc;
-} rob_dispatch_data_t;
-
-typedef struct packed {
-    logic dst_valid;
-    logic [`ARF_ID_WIDTH-1:0] dst_arf_id;
-    logic [`PC_WIDTH-1:0] pc;
     logic ld_mispredict;
     logic br_mispredict;
     logic reg_ready;
     logic [`REG_WIDTH-1:0] reg_data;
 } rob_entry_t;
+
+typedef struct packed {
+    logic dst_valid;
+    logic [`ARF_ID_WIDTH-1:0] dst_arf_id;
+    logic [`PC_WIDTH-1:0] pc;
+} rob_dispatch_data_t;
+
+typedef struct packed {
+    logic mispredict;
+    logic reg_ready;
+    logic [`REG_WIDTH-1:0] reg_data;
+} rob_wb_data_t;
 
 `endif

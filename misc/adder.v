@@ -2,7 +2,7 @@
 // TEST STATUS: MISSING
 
 `include "freepdk-45nm/stdcells.v"
-`include "misc/global_defs.vh"
+`include "misc/global_defs.svh"
 
 module adder #(
     parameter WIDTH = 1

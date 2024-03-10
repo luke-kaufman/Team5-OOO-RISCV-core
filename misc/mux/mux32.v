@@ -4,7 +4,7 @@
 `ifndef MUX32_V
 `define MUX32_V
 `include "freepdk-45nm/stdcells.v"
-`include "misc/global_defs.vh"
+`include "misc/global_defs.svh"
 `include "misc/and/and8.v"
 `include "misc/or/or32.v"
 
