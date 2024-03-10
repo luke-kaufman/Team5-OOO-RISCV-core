@@ -64,7 +64,9 @@ module icache_tb;
         
         // reset, wait, then start testing
         reset_aL = 0;
-        #100;
+        @(negedge clk);
+        @(negedge clk);
+        @(negedge clk);
         reset_aL = 1;
 
         // test 1: write to cache then read it
@@ -72,10 +74,12 @@ module icache_tb;
         dram_response_data = 64'hFEDCBA9876543210;
         dram_response_valid = 1; 
         expected_output = dram_response_data;
-        #10;
+        @(negedge clk);
+        
         dram_response_valid = 0; 
         // now read
-        #10;
+        @(negedge clk);
+        #4
         $display("ICACHE DATAOUT: %0h", dut.data_out);
         
         num_directed_tests++;

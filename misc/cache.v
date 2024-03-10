@@ -43,6 +43,8 @@ INV_X1 we_aH (
     .A(we_aL)
 );
 
+wire [NUM_WAYS-1:0] we_mask;
+
 // ::: TAG ARRAY :::::::::::::::::::::::::::::::::::::
 // Both i-cache and d-cache are the same size
 wire [47:0] tag_out;
@@ -64,6 +66,7 @@ assign {way0_v, way0_tag, way1_v, way1_tag} = tag_out;
 
 // For dirty bits - write 1 when completing ST instruction
 genvar i;
+wire [NUM_SETS-1:0][NUM_WAYS-1:0] dirty_sets;
 generate
     if(WRITE_SIZE_BITS == 8) begin  // FOR D-CACHE ONLY
         
@@ -76,7 +79,6 @@ generate
             .B(way1_selected)
         );
 
-        wire [NUM_SETS-1:0][NUM_WAYS-1:0] dirty_sets;
         for(i = 0; i < NUM_SETS; i = i + 1) begin: ways_d
             // set way0 dirty bit for this tag
             OR2_X1 set_way0_d(
@@ -125,7 +127,7 @@ endgenerate
 // I-cache & D-cache same size but different write granularities
 wire [127:0] data_out;
 generate
-    if (WRITE_SIZE_BITS == 64) begin      // I-Cache
+    if (WRITE_SIZE_BITS == 64) begin: icache      // I-Cache
         sram_64x128_1rw_wsize64 i_cache_data_arr (
             .clk0(clk),
             .csb0(1'b0),  // 1 chip
@@ -137,7 +139,7 @@ generate
             .dout0(data_out)
         );
     end
-    else if (WRITE_SIZE_BITS == 8) begin  // D-Cache
+    else if (WRITE_SIZE_BITS == 8) begin: dcache  // D-Cache
         sram_64x128_1rw_wsize8 d_cache_data_arr (
             .clk0(clk),
             .csb0(0),  // 1 chip
@@ -157,7 +159,7 @@ endgenerate
 
 // capture 2 data way outputs
 wire [BLOCK_SIZE_BITS-1:0] way0_data, way1_data;
-assign {way0_data, way1_data} = i_cache_data_arr.dout0;
+assign {way0_data, way1_data} = icache.i_cache_data_arr.dout0;
 
 // END DATA ARRAY ::::::::::::::::::::::::::::::::::::
 
@@ -189,7 +191,6 @@ AND2_X1 way1_check_v(
     .ZN(way1_selected)
 );
 
-wire [NUM_WAYS-1:0] we_mask;
 mux_ #(
     .WIDTH(1),
     .N_INS(4)
