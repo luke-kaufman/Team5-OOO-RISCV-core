@@ -35,12 +35,13 @@ module fifo_ram #(
 
     input wire [N_READ_PORTS-1:0] [PTR_WIDTH-1:0] rd_addr,
     output wire [N_READ_PORTS-1:0] [ENTRY_WIDTH-1:0] rd_data,
+    
     // NOTE: all writes are assumed to be to separate entries
+    // writes are generalized to be optional and partial across all entries
     input wire [N_WRITE_PORTS-1:0] wr_en,
     input wire [N_WRITE_PORTS-1:0] [PTR_WIDTH-1:0] wr_addr,
-    input wire [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data,
-
-    output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts, // for updating entries by partial writes
+    input wire [N_ENTRIES-1:0] [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data,
+    output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts,
 
     output wire [PTR_WIDTH-1:0] count // for debugging
 );
@@ -185,7 +186,7 @@ module fifo_ram #(
         // NOTE: mux_ only works with power-of-2 N_INS
         // if all selects are 0, the output is don't care (physically all 0s), entry_we in this case is 0 anyway
         onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_WRITE_PORTS+1)) entry_din_mux (
-            .ins({wr_data, enq_data}),
+            .ins({wr_data[i], enq_data}),
             .sel({wr_en_we_transposed[i], enq_we[i]}),
             .out(entry_dins[i])
         );

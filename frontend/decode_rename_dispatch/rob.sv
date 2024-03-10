@@ -51,38 +51,37 @@ module rob #(
     input wire wb_ld_mispredict
 );
     rob_entry_t [`ROB_N_ENTRIES-1:0] rob_state;
-    rob_entry_t entry_wr_data_alu;
-    rob_entry_t entry_wr_data_lsu;
-    rob_wb_data_t wb_data_alu;
-    rob_wb_data_t wb_data_lsu;
-
-    // TODO: check the correctness of these entry_wr_data values for each instruction type
-    // select the old reg_data/mispredict state or the new wb_reg_data/mispredict state depending on the wb_valid signal
-    // for (genvar i = 0; i < `ROB_N_ENTRIES; i++) begin
-    //     mux_ #(.N_INS(2), .WIDTH(BR_MISPREDICT_BIT_END+1)) wb_data_alu_mux (
-    //         .sel(wb_valid_alu),
-    //         .ins({
-    //             rob_state[wb_rob_id_alu][BR_MISPREDICT_BIT_END:0],
-    //             {wb_br_mispredict, 1'b1 /* REG READY */, wb_reg_data_alu}
-    //         }),
-    //         .out(wb_data_alu)
-    //     );
-    //     mux_ #(.N_INS(2), .WIDTH(LD_MISPREDICT_BIT_END+1)) wb_data_lsu_mux (
-    //         .sel(wb_valid_lsu),
-    //         .ins({
-    //             rob_state[wb_rob_id_lsu][LD_MISPREDICT_BIT_END:0],
-    //             {wb_ld_mispredict, rob_state[BR_MISPREDICT_BIT_END] /* BR MISPREDICT STATE */, 1'b1 /* REG READY */, wb_reg_data_lsu}
-    //         }),
-    //         .y(wb_data_lsu)
-    //     );
-    //     assign entry_wr_data_alu = {rob_state[wb_rob_id_alu][DST_VALID_BIT_END:LD_MISPREDICT_BIT_END], wb_data_alu};
-    //     assign entry_wr_data_lsu = {rob_state[wb_rob_id_lsu][DST_VALID_BIT_END:BR_MISPREDICT_BIT_END], wb_data_lsu};
-    // end
-
     rob_entry_t entry_rd_data_src1;
     rob_entry_t entry_rd_data_src2;
     rob_entry_t dispatch_entry_data;
     rob_entry_t retire_entry_data;
+    
+    rob_entry_t [`ROB_N_ENTRIES-1:0] entry_wr_data_alu;
+    rob_entry_t [`ROB_N_ENTRIES-1:0] entry_wr_data_lsu;
+    rob_entry_t [`ROB_N_ENTRIES-1:0] entry_wr_data;
+
+    for (genvar i = 0; i < `ROB_N_ENTRIES; i++) begin
+        assign entry_wr_data_alu[i] = '{
+            dst_valid: rob_state[i].dst_valid,
+            dst_arf_id: rob_state[i].dst_arf_id,
+            pc: rob_state[i].pc,
+            ld_mispredict: rob_state[i].ld_mispredict,
+            br_mispredict: wb_br_mispredict,
+            reg_ready: 1'b1,
+            reg_data: wb_reg_data_alu
+        };
+        assign entry_wr_data_lsu[i] = '{
+            dst_valid: rob_state[i].dst_valid,
+            dst_arf_id: rob_state[i].dst_arf_id,
+            pc: rob_state[i].pc,
+            ld_mispredict: wb_ld_mispredict,
+            br_mispredict: rob_state[i].br_mispredict,
+            reg_ready: 1'b1,
+            reg_data: wb_reg_data_lsu
+        };
+        assign entry_wr_data[i] = {entry_wr_data_alu[i], entry_wr_data_lsu[i]};
+    end
+
     fifo_ram #(
         .ENTRY_WIDTH(ENTRY_WIDTH),
         .N_ENTRIES(`ROB_N_ENTRIES),
@@ -105,7 +104,7 @@ module rob #(
 
         .wr_en({wb_valid_alu, wb_valid_lsu}),
         .wr_addr({wb_rob_id_alu, wb_rob_id_lsu}),
-        .wr_data({entry_wr_data_alu, entry_wr_data_lsu}),
+        .wr_data(entry_wr_data),
 
         .entry_douts(rob_state)
     );

@@ -50,10 +50,10 @@ typedef struct packed {
     logic [`PC_WIDTH-1:0] pc;
 } rob_dispatch_data_t;
 
-typedef struct packed {
-    logic mispredict;
-    logic reg_ready;
-    logic [`REG_WIDTH-1:0] reg_data;
-} rob_wb_data_t;
+// typedef struct packed {
+//     logic mispredict;
+//     logic reg_ready;
+//     logic [`REG_WIDTH-1:0] reg_data;
+// } rob_wb_data_t;
 
 `endif
