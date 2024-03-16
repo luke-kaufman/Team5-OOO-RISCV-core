@@ -1,7 +1,7 @@
 `include "misc/and/and_.v"
 `include "golden/misc/and_golden.v"
 
-module and_tb #(
+module xnor_tb #(
     parameter N_RANDOM_TESTS = 100,
     parameter N_INS = 2
 );
@@ -20,7 +20,7 @@ module and_tb #(
         .y(y_dut)
     );
     // instantiate the golden model
-    and_golden #(
+    xnor_golden #(
         .N_INS(N_INS)
     ) golden (
         .a(a),
