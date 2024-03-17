@@ -1,5 +1,5 @@
 // IMPL STATUS: COMPLETE
-// TEST STATUS: INCOMPLETE
+// TEST STATUS: COMPLETE
 
 `ifndef DEC3_V
 `define DEC3_V
@@ -18,14 +18,16 @@ module dec3(in, out);
         );
     end
 
-	AND3_X1(.A(inv_in[2]), .B(inv_in[1]), .C(inv_in[0]), .ZN(out[0]));
-	AND3_X1(.A(inv_in[2]), .B(inv_in[1]), .C(in[0]), .ZN(out[1]));
-	AND3_X1(.A(inv_in[2]), .B(in[1]), .C(inv_in[0]), .ZN(out[2]));
-	AND3_X1(.A(inv_in[2]), .B(in[1]), .C(in[0]), .ZN(out[3]));
+	AND3_X1 a0(.A1(inv_in[2]), .A2(inv_in[1]), .A3(inv_in[0]), .ZN(out[0]));
+	AND3_X1 a1(.A1(inv_in[2]), .A2(inv_in[1]), .A3(in[0]), .ZN(out[1]));
+	AND3_X1 a2(.A1(inv_in[2]), .A2(in[1]), .A3(inv_in[0]), .ZN(out[2]));
+	AND3_X1 a3(.A1(inv_in[2]), .A2(in[1]), .A3(in[0]), .ZN(out[3]));
 
-	AND3_X1(.A(in[2]), .B(inv_in[1]), .C(inv_in[0]), .ZN(out[4]));
-	AND3_X1(.A(in[2]), .B(inv_in[1]), .C(in[0]), .ZN(out[5]));
-	AND3_X1(.A(in[2]), .B(in[1]), .C(inv_in[0]), .ZN(out[6]));
-	AND3_X1(.A(in[2]), .B(in[1]), .C(in[0]), .ZN(out[7]));
+	AND3_X1 a4(.A1(in[2]), .A2(inv_in[1]), .A3(inv_in[0]), .ZN(out[4]));
+	AND3_X1 a5(.A1(in[2]), .A2(inv_in[1]), .A3(in[0]), .ZN(out[5]));
+	AND3_X1 a6(.A1(in[2]), .A2(in[1]), .A3(inv_in[0]), .ZN(out[6]));
+	AND3_X1 a7(.A1(in[2]), .A2(in[1]), .A3(in[0]), .ZN(out[7]));
 
 endmodule
+
+`endif

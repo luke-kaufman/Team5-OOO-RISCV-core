@@ -1,5 +1,5 @@
 // IMPL STATUS: COMPLETE
-// TEST STATUS: INCOMPLETE
+// TEST STATUS: COMPLETE
 
 `ifndef DEC4_V
 `define DEC4_V
@@ -18,24 +18,26 @@ module dec4(in, out);
         );
     end
 
-	AND4_X1(.A(inv_in[3]), .B(inv_in[2]), .C(inv_in[1]), .D(inv_in[0]), .ZN(out[0]));
-	AND4_X1(.A(inv_in[3]), .B(inv_in[2]), .C(inv_in[1]), .D(in[0]), .ZN(out[1]));
-	AND4_X1(.A(inv_in[3]), .B(inv_in[2]), .C(in[1]), .D(inv_in[0]), .ZN(out[2]));
-	AND4_X1(.A(inv_in[3]), .B(inv_in[2]), .C(in[1]), .D(in[0]), .ZN(out[3]));
+	AND4_X1 a0(.A1(inv_in[3]), .A2(inv_in[2]), .A3(inv_in[1]), .A4(inv_in[0]), .ZN(out[0]));
+	AND4_X1 a1(.A1(inv_in[3]), .A2(inv_in[2]), .A3(inv_in[1]), .A4(in[0]), .ZN(out[1]));
+	AND4_X1 a2(.A1(inv_in[3]), .A2(inv_in[2]), .A3(in[1]), .A4(inv_in[0]), .ZN(out[2]));
+	AND4_X1 a3(.A1(inv_in[3]), .A2(inv_in[2]), .A3(in[1]), .A4(in[0]), .ZN(out[3]));
 
-	AND4_X1(.A(inv_in[3]), .B(in[2]), .C(inv_in[1]), .D(inv_in[0]), .ZN(out[4]));
-	AND4_X1(.A(inv_in[3]), .B(in[2]), .C(inv_in[1]), .D(in[0]), .ZN(out[5]));
-	AND4_X1(.A(inv_in[3]), .B(in[2]), .C(in[1]), .D(inv_in[0]), .ZN(out[6]));
-	AND4_X1(.A(inv_in[3]), .B(in[2]), .C(in[1]), .D(in[0]), .ZN(out[7]));
+	AND4_X1 a4(.A1(inv_in[3]), .A2(in[2]), .A3(inv_in[1]), .A4(inv_in[0]), .ZN(out[4]));
+	AND4_X1 a5(.A1(inv_in[3]), .A2(in[2]), .A3(inv_in[1]), .A4(in[0]), .ZN(out[5]));
+	AND4_X1 a6(.A1(inv_in[3]), .A2(in[2]), .A3(in[1]), .A4(inv_in[0]), .ZN(out[6]));
+	AND4_X1 a7(.A1(inv_in[3]), .A2(in[2]), .A3(in[1]), .A4(in[0]), .ZN(out[7]));
 
-	AND4_X1(.A(in[3]), .B(inv_in[2]), .C(inv_in[1]), .D(inv_in[0]), .ZN(out[8]));
-	AND4_X1(.A(in[3]), .B(inv_in[2]), .C(inv_in[1]), .D(in[0]), .ZN(out[9]));
-	AND4_X1(.A(in[3]), .B(inv_in[2]), .C(in[1]), .D(inv_in[0]), .ZN(out[10]));
-	AND4_X1(.A(in[3]), .B(inv_in[2]), .C(in[1]), .D(in[0]), .ZN(out[11]));
+	AND4_X1 a8(.A1(in[3]), .A2(inv_in[2]), .A3(inv_in[1]), .A4(inv_in[0]), .ZN(out[8]));
+	AND4_X1 a9(.A1(in[3]), .A2(inv_in[2]), .A3(inv_in[1]), .A4(in[0]), .ZN(out[9]));
+	AND4_X1 a10(.A1(in[3]), .A2(inv_in[2]), .A3(in[1]), .A4(inv_in[0]), .ZN(out[10]));
+	AND4_X1 a11(.A1(in[3]), .A2(inv_in[2]), .A3(in[1]), .A4(in[0]), .ZN(out[11]));
 
-	AND4_X1(.A(in[3]), .B(in[2]), .C(inv_in[1]), .D(inv_in[0]), .ZN(out[12]));
-	AND4_X1(.A(in[3]), .B(in[2]), .C(inv_in[1]), .D(in[0]), .ZN(out[13]));
-	AND4_X1(.A(in[3]), .B(in[2]), .C(in[1]), .D(inv_in[0]), .ZN(out[14]));
-	AND4_X1(.A(in[3]), .B(in[2]), .C(in[1]), .D(in[0]), .ZN(out[15]));
+	AND4_X1 a12(.A1(in[3]), .A2(in[2]), .A3(inv_in[1]), .A4(inv_in[0]), .ZN(out[12]));
+	AND4_X1 a13(.A1(in[3]), .A2(in[2]), .A3(inv_in[1]), .A4(in[0]), .ZN(out[13]));
+	AND4_X1 a14(.A1(in[3]), .A2(in[2]), .A3(in[1]), .A4(inv_in[0]), .ZN(out[14]));
+	AND4_X1 a15(.A1(in[3]), .A2(in[2]), .A3(in[1]), .A4(in[0]), .ZN(out[15]));
 
 endmodule
+
+`endif
