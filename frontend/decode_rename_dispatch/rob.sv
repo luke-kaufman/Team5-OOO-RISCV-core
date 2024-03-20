@@ -17,11 +17,17 @@ module rob #(
     input wire rst_aL,
 
     // READY-THEN-VALID INTERFACE TO FETCH (ENQUEUE)
+<<<<<<< HEAD
     // ififo triple handshake with ROB, IIQ, and LSQ
     input wire dispatch_valid, // demanding valid
     output wire dispatch_ready, // helping ready (ROB)
     output wire [`ROB_ID_WIDTH-1:0] dispatch_rob_id, // helping data (ROB)
     input var rob_dispatch_data_t dispatch_data,
+=======
+    output wire rob_dispatch_ready, // helping ready (ROB)
+    input wire dispatch_valid, // demanding valid (ififo triple handshake with ROB, IIQ, and LSQ)
+    input var rob_dispatch_data_t rob_dispatch_data,
+>>>>>>> bdb773ec31f813181f1ac430eab207919b4f47d1
 
     // INTERFACE TO ARF (DEQUEUE)
     // ARF is always ready to accept data
@@ -72,6 +78,7 @@ module rob #(
     rob_entry_t [`ROB_N_ENTRIES-1:0] entry_wr_data;
 
     for (genvar i = 0; i < `ROB_N_ENTRIES; i++) begin
+<<<<<<< HEAD
         assign entry_wr_data_alu[i] = '{
             dst_valid: rob_state[i].dst_valid,
             dst_arf_id: rob_state[i].dst_arf_id,
@@ -89,8 +96,27 @@ module rob #(
             br_mispredict: rob_state[i].br_mispredict,
             reg_ready: 1'b1,
             reg_data: lsu_wb_reg_data
+=======
+        var rob_entry_t entry_wr_data_alu = {
+            rob_state[i].dst_valid,
+            rob_state[i].dst_arf_id,
+            rob_state[i].pc,
+            rob_state[i].ld_mispredict,
+            wb_br_mispredict,
+            1'b1,
+            wb_reg_data_alu
         };
-        assign entry_wr_data[i] = {entry_wr_data_alu[i], entry_wr_data_lsu[i]};
+        var rob_entry_t entry_wr_data_lsu = {
+            rob_state[i].dst_valid,
+            rob_state[i].dst_arf_id,
+            rob_state[i].pc,
+            wb_ld_mispredict,
+            rob_state[i].br_mispredict,
+            1'b1,
+            wb_reg_data_lsu
+>>>>>>> bdb773ec31f813181f1ac430eab207919b4f47d1
+        };
+        assign entry_wr_data[i] = {entry_wr_data_alu, entry_wr_data_lsu};
     end
 
     fifo_ram #(
