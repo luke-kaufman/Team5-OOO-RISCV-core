@@ -33,7 +33,7 @@ mux4 #(.WIDTH(ADDR_WIDTH)) PC_mux(
     .s({recovery_PC_valid, stall_gate.ZN})
 );
 
-register #(.WIDTH(ADDR_WIDTH)) PC (
+reg_ #(.WIDTH(ADDR_WIDTH)) PC (
     .clk(clk),
     .rst_aL(rst_aL),
     .we(1),  // always write since PC_mux will feed PC itself when stalling

@@ -28,10 +28,12 @@ module fifo_ram #(
     output wire enq_ready,
     input wire enq_valid,
     input wire [ENTRY_WIDTH-1:0] enq_data,
+    output wire [PTR_WIDTH-1:0] enq_addr, // to get the ROB tail ID for dispatch
     
     input wire deq_ready,
     output wire deq_valid,
     output wire [ENTRY_WIDTH-1:0] deq_data,
+    output wire [PTR_WIDTH-1:0] deq_addr, // to get the ROB head ID for retirement
 
     input wire [N_READ_PORTS-1:0] [PTR_WIDTH-1:0] rd_addr,
     output wire [N_READ_PORTS-1:0] [ENTRY_WIDTH-1:0] rd_data,
@@ -191,7 +193,7 @@ module fifo_ram #(
             .out(entry_dins[i])
         );
         // register that holds each fifo entry
-        register #(.WIDTH(ENTRY_WIDTH)) entry (
+        reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg (
             .clk(clk),
             .rst_aL(rst_aL),
             .we(entry_we[i]),
@@ -216,7 +218,12 @@ module fifo_ram #(
         );
     end
 
-    assign count = enq_ctr[PTR_WIDTH-1:0] - deq_ctr[PTR_WIDTH-1:0]; // for debugging (NOTE: behavioral code)
+    // assign the enqueue and dequeue addresses
+    assign enq_addr = enq_ptr;
+    assign deq_addr = deq_ptr;
+    
+    // for debugging (NOTE: behavioral code)
+    assign count = enq_ctr[PTR_WIDTH-1:0] - deq_ctr[PTR_WIDTH-1:0];
 endmodule
 
 `endif

@@ -5,7 +5,7 @@
 
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
-module register #(
+module reg_ #(
     parameter WIDTH = 1
 ) (
     input wire clk,

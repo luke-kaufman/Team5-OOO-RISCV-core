@@ -1,3 +1,6 @@
+`ifndef ROB_V
+`define ROB_V
+
 `include "misc/fifo_ram.v"
 `include "misc/global_defs.svh"
 `include "misc/mux/mux_.v"
@@ -5,28 +8,26 @@
 `include "misc/inv.v"
 `include "freepdk-45nm/stdcells.v"
 
+// IMPL STATUS: MISSING
+// TEST STATUS: MISSING
 module rob #(
-    // localparam REG_DATA_BITS_END = `REG_WIDTH - 1,
-    // localparam REG_READY_BIT_END = REG_DATA_BITS_END + 1,
-    // localparam BR_MISPREDICT_BIT_END = REG_READY_BIT_END + 1,
-    // localparam LD_MISPREDICT_BIT_END = BR_MISPREDICT_BIT_END + 1,
-    // localparam PC_BITS_END = LD_MISPREDICT_BIT_END + `PC_WIDTH,
-    // localparam DST_ARF_ID_BITS_END = PC_BITS_END + `ARF_ID_WIDTH,
-    // localparam DST_VALID_BIT_END = DST_ARF_ID_BITS_END + 1, // the index of the last bit
-    // localparam ENTRY_WIDTH = DST_VALID_BIT_END + 1 // the number of bits as opposed to the index of the last bit
     localparam ENTRY_WIDTH = $bits(rob_entry_t)
 ) (
     input wire clk,
     input wire rst_aL,
 
     // READY-THEN-VALID INTERFACE TO FETCH (ENQUEUE)
-    output wire rob_dispatch_ready, // helping ready (ROB)
-    input wire dispatch_valid, // demanding valid (ififo triple handshake with ROB, IIQ, and LSQ)
-    input rob_dispatch_data_t rob_dispatch_data,
+    // ififo triple handshake with ROB, IIQ, and LSQ
+    input wire dispatch_valid, // demanding valid
+    output wire dispatch_ready, // helping ready (ROB)
+    output wire [`ROB_ID_WIDTH-1:0] dispatch_rob_id, // helping data (ROB)
+    input var rob_dispatch_data_t dispatch_data,
 
     // INTERFACE TO ARF (DEQUEUE)
     // ARF is always ready to accept data
-    output wire retire_valid,
+    output wire retire,
+    output wire [`ROB_ID_WIDTH-1:0] retire_rob_id,
+    output wire [`ARF_ID_WIDTH-1:0] retire_arf_id,
     output wire [`REG_WIDTH-1:0] retire_reg_data,
 
     // src1 ready/data info (REGISTER READ)
@@ -39,22 +40,32 @@ module rob #(
     output wire [`REG_WIDTH-1:0] rob_reg_data_src2,
 
     // INTERFACE TO ALU (WRITEBACK)
-    input wire wb_valid_alu,
-    input wire [`ROB_ID_WIDTH-1:0] wb_rob_id_alu,
-    input wire [`REG_WIDTH-1:0] wb_reg_data_alu,
-    input wire wb_br_mispredict,
+    input wire alu_wb_valid,
+    input wire [`ROB_ID_WIDTH-1:0] alu_wb_rob_id,
+    input wire [`REG_WIDTH-1:0] alu_wb_reg_data,
+    input wire alu_wb_br_mispredict,
 
     // INTERFACE TO LSU (WRITEBACK)
-    input wire wb_valid_lsu,
-    input wire [`ROB_ID_WIDTH-1:0] wb_rob_id_lsu,
-    input wire [`REG_WIDTH-1:0] wb_reg_data_lsu,
-    input wire wb_ld_mispredict
+    input wire lsu_wb_valid,
+    input wire [`ROB_ID_WIDTH-1:0] lsu_wb_rob_id,
+    input wire [`REG_WIDTH-1:0] lsu_wb_reg_data,
+    input wire lsu_wb_ld_mispredict
 );
     rob_entry_t [`ROB_N_ENTRIES-1:0] rob_state;
     rob_entry_t entry_rd_data_src1;
     rob_entry_t entry_rd_data_src2;
     rob_entry_t dispatch_entry_data;
     rob_entry_t retire_entry_data;
+
+    assign dispatch_entry_data = '{
+        dst_valid: dispatch_data.dst_valid,
+        dst_arf_id: dispatch_data.dst_arf_id,
+        pc: dispatch_data.pc,
+        ld_mispredict: 1'b0,
+        br_mispredict: 1'b0,
+        reg_ready: 1'b0,
+        reg_data: {`REG_WIDTH{1'b0}}
+    };
     
     rob_entry_t [`ROB_N_ENTRIES-1:0] entry_wr_data_alu;
     rob_entry_t [`ROB_N_ENTRIES-1:0] entry_wr_data_lsu;
@@ -66,18 +77,18 @@ module rob #(
             dst_arf_id: rob_state[i].dst_arf_id,
             pc: rob_state[i].pc,
             ld_mispredict: rob_state[i].ld_mispredict,
-            br_mispredict: wb_br_mispredict,
+            br_mispredict: alu_wb_br_mispredict,
             reg_ready: 1'b1,
-            reg_data: wb_reg_data_alu
+            reg_data: alu_wb_reg_data
         };
         assign entry_wr_data_lsu[i] = '{
             dst_valid: rob_state[i].dst_valid,
             dst_arf_id: rob_state[i].dst_arf_id,
             pc: rob_state[i].pc,
-            ld_mispredict: wb_ld_mispredict,
+            ld_mispredict: lsu_wb_ld_mispredict,
             br_mispredict: rob_state[i].br_mispredict,
             reg_ready: 1'b1,
-            reg_data: wb_reg_data_lsu
+            reg_data: lsu_wb_reg_data
         };
         assign entry_wr_data[i] = {entry_wr_data_alu[i], entry_wr_data_lsu[i]};
     end
@@ -87,23 +98,25 @@ module rob #(
         .N_ENTRIES(`ROB_N_ENTRIES),
         .N_READ_PORTS(2),
         .N_WRITE_PORTS(2)
-    ) rob (
+    ) _rob (
         .clk(clk),
         .rst_aL(rst_aL),
         
-        .enq_ready(rob_dispatch_ready),
+        .enq_ready(dispatch_ready),
         .enq_valid(dispatch_valid),
         .enq_data(dispatch_entry_data),
+        .enq_addr(dispatch_rob_id),
 
-        // ARF is always ready to accept data
-        .deq_valid(retire_valid),
+        .deq_ready(1'b1), // ARF is always ready to accept data
+        .deq_valid(retire),
         .deq_data(retire_entry_data),
+        .deq_addr(retire_rob_id),
 
         .rd_addr({rob_id_src1, rob_id_src2}),
         .rd_data({entry_rd_data_src1, entry_rd_data_src2}),
 
-        .wr_en({wb_valid_alu, wb_valid_lsu}),
-        .wr_addr({wb_rob_id_alu, wb_rob_id_lsu}),
+        .wr_en({alu_wb_valid, lsu_wb_valid}),
+        .wr_addr({alu_wb_rob_id, lsu_wb_rob_id}),
         .wr_data(entry_wr_data),
 
         .entry_douts(rob_state)
@@ -125,9 +138,17 @@ module rob #(
         .a(retire_entry_data.ld_mispredict),
         .y(not_ld_mispredict)
     );
-    and_ #(.N_INS(4)) retire_valid_and (
-        .a({retire_entry_data.dst_valid, retire_entry_data.reg_ready, not_br_mispredict, not_ld_mispredict}),
-        .y(retire_valid)
+    and_ #(.N_INS(4)) retire_and (
+        .a({
+            retire_entry_data.dst_valid,
+            retire_entry_data.reg_ready,
+            not_br_mispredict,
+            not_ld_mispredict
+        }),
+        .y(retire)
     );
+    assign retire_arf_id = retire_entry_data.dst_arf_id;
     assign retire_reg_data = retire_entry_data.reg_data;
 endmodule
+
+`endif

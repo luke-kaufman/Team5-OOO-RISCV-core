@@ -120,27 +120,27 @@ module fifo #(
     );
 
     // memory that holds fifo entries
-    wire [N_ENTRIES-1:0] fifo_entry_we;
-    wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] fifo_entry_dout;
+    wire [N_ENTRIES-1:0] entry_we;
+    wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_dout;
     for (genvar i = 0; i < N_ENTRIES; i = i + 1) begin
         // logic that drives the write enable signal for each fifo entry
-        and_ #(.N_INS(2)) fifo_entry_we_and (
+        and_ #(.N_INS(2)) entry_we_and (
             .a({onehot_enq_ptr[i], enq}),
-            .y(fifo_entry_we[i])
+            .y(entry_we[i])
         );
         // register that holds each fifo entry
-        register #(.WIDTH(ENTRY_WIDTH)) fifo_entry (
+        reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg (
             .clk(clk),
             .rst_aL(rst_aL),
-            .we(fifo_entry_we[i]),
+            .we(entry_we[i]),
             .din(enq_data),
-            .dout(fifo_entry_dout[i])
+            .dout(entry_dout[i])
         );
     end
 
     // mux that drives the dequeue data using the dequeue pointer
     mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_ENTRIES)) deq_data_mux (
-        .ins(fifo_entry_dout),
+        .ins(entry_dout),
         .sel(deq_ptr),
         .out(deq_data)
     );

@@ -301,10 +301,10 @@ module shift_queue #(
         .ins(entry_douts),
         .out(deq_data)
     );
-    // entry_douts is already driven in each entry_r instantiation
+    // entry_douts is already driven in each entry_reg instantiation
 
     // state elements
-    up_down_counter #(.WIDTH(CTR_WIDTH)) enq_ctr_r (
+    up_down_counter #(.WIDTH(CTR_WIDTH)) enq_up_down_counter (
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(enq_ctr_inc),
@@ -312,7 +312,7 @@ module shift_queue #(
         .count(enq_ctr)
     );
     for (genvar i = 0; i < N_ENTRIES; i++) begin : queue
-        register #(.WIDTH(ENTRY_WIDTH)) entry_r (
+        reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg (
             .clk(clk),
             .rst_aL(rst_aL),
             .we(entry_we[i]),

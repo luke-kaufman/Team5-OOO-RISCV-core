@@ -1,19 +1,16 @@
 `include "freepdk-45nm/stdcells.v"
-`include "misc/regfile/regfile32_2r2w.v"
-`include "misc/regfile/regfile32_3r1w.v"
+`include "misc/regfile.v"
 `include "misc/fifo.v"
 `include "misc/fifo_ram.v"
+`include "misc/global_defs.svh"
 
-module decode_rename_dispatch #(
-    localparam ROB_DISPATCH_DATA_WIDTH = ,
-    localparam IIQ_DISPATCH_DATA_WIDTH = ,
-    localparam LSQ_DISPATCH_DATA_WIDTH = ,
-) (
+module decode_rename_dispatch (
     input wire clk,
     input wire rst_aL,
     // INTERFACE TO FETCH
-    input wire instr_valid,
-    input wire [INSTR_WIDTH-1:0] instr,
+    output wire ififo_dispatch_ready,
+    input wire ififo_dispatch_valid,
+    input wire [INSTR_WIDTH-1:0] ififo_dispatch_data,
     // INTERFACE TO INTEGER ISSUE QUEUE
     input wire iiq_dispatch_ready,
     output wire iiq_dispatch_valid,
@@ -22,98 +19,190 @@ module decode_rename_dispatch #(
     input wire lsq_dispatch_ready,
     output wire lsq_dispatch_valid,
     output wire [LSQ_DISPATCH_DATA_WIDTH-1:0] lsq_dispatch_data
+    // INTERFACE TO ALU (WRITEBACK)
+    input wire alu_wb_valid,
+    input wire [`ROB_ID_WIDTH-1:0] alu_wb_rob_id,
+    input wire [`REG_WIDTH-1:0] alu_wb_reg_data,
+    input wire alu_wb_br_mispredict,
+    // INTERFACE TO LSU (WRITEBACK)
+    input wire lsu_wb_valid,
+    input wire [`ROB_ID_WIDTH-1:0] lsu_wb_rob_id,
+    input wire [`REG_WIDTH-1:0] lsu_wb_reg_data,
+    input wire lsu_wb_ld_mispredict
 );
-    // internal signals
+    // decode signals
+    wire is_int_instr;
+    wire is_ld_st_instr;
+    // NOTE: is_int_instr and is_ld_st_instr should be mutually exclusive
     wire rs1_valid;
     wire rs2_valid;
     wire rd_valid;
     wire [REG_BITS-1:0] rs1;
     wire [REG_BITS-1:0] rs2;
     wire [REG_BITS-1:0] rd;
+    
+    // TODO: implement
+    instr_decode instr_decode (
+        .instr(instr),
+        .is_int_instr(is_int_instr),
+        .is_ld_st_instr(is_ld_st_instr),
+        .rs1_valid(rs1_valid),
+        .rs2_valid(rs2_valid),
+        .rd_valid(rd_valid),
+        .rs1(rs1),
+        .rs2(rs2),
+        .rd(rd),
+        // .imm(imm),
+        // .branch(branch),
+        // .branch_target(branch_target),
+    );
+
+    // triple dispatch handshake (IFIFO vs. ROB, IIQ, LSQ)
+    wire iiq_dispatch_ok;
+    wire lsq_dispatch_ok;
+    or_ #(.N_INS(2)) iiq_dispatch_ok_or (
+        .a({iiq_dispatch_ready, is_ld_st_instr}),
+        .y(iiq_dispatch_ok)
+    );
+    or_ #(.N_INS(2)) lsq_dispatch_ok_or (
+        .a({lsq_dispatch_ready, is_int_instr}),
+        .y(lsq_dispatch_ok)
+    );
+    wire rob_dispatch_ready;
+    wire dispatch;
+    and_ #(.N_INS(4)) dispatch_and (
+        .a({
+            ififo_dispatch_valid,
+            rob_dispatch_ready,
+            iiq_dispatch_ok,
+            lsq_dispatch_ok
+        }),
+        .y(dispatch)
+    );
+
+    wire retire_arf_id_not_renamed;
+    cmp_ #(.WIDTH(`ROB_ID_WIDTH)) retire_arf_id_not_renamed_cmp (
+        .a(retire_rob_id),
+        .b(retire_arf_id_curr_rob_id),
+        .y(retire_arf_id_not_renamed)
+    );
+    wire retire_arf_id_mark_as_retired;
+    and_ #(.N_INS(2)) retire_arf_id_mark_as_retired_and (
+        .a({retire_arf_id_not_renamed, retire}),
+        .y(retire_arf_id_mark_as_retired)
+    );
+
+    wire rename_rd;
+    and_ #(.N_INS(2)) rename_rd_and (
+        .a({rd_valid, dispatch}),
+        .y(rename_rd)
+    );
+
+    // register alias table: ARF/ROB table
+    // [0: ARF (retired), 1: ROB (speculative)]
     wire rs1_retired;
     wire rs2_retired;
-    
-    wire dispatch;
-
-    // TODO: FIX
-    instr_decode instr_decode (
-        .clk(clk),
-        .rst_aL(rst_aL),
-        .instr_valid(instr_valid),
-        .instr(instr),
-        .decoded_instr(decoded_instr),
-        .instr_type(instr_type),
-        .src1(src1),
-        .src2(src2),
-        .dst(dst),
-        .imm(imm),
-        .branch(branch),
-        .branch_target(branch_target),
-        .valid(valid)
-    );
-
-    // Register Alias Table: ARF/ROB Table [0: ARF (retired), 1: ROB (speculative)]
-    regfile32_2r2w #(.DATA_WIDTH(4)) arf_rob_table (
-        .clk(clk),
-        .rst_aL(rst_aL),
-        
-        .rd_addr0(rs1),
-        .rd_data0(rs1_retired),
-        
-        .rd_addr1(rs2),
-        .rd_data1(rs2_retired),
-        
-        // (synchronous) reset port to mark rd as retired
-        .wr_en0(),
-        .wr_addr0(),
-        .wr_data0(1'b0),
-        
-        // (synchronous) set port to mark rd as speculative
-        .wr_en1(),
-        .wr_addr1(rd),
-        .wr_data1(1'b1)
-    );
-    // Register Alias Table: Tag Table
-    regfile32_3r1w #(.DATA_WIDTH(1)) tag_table (
-        .clk(clk),
-        .rst_aL(rst_aL),
-
-        .rd_addr0(rs1),
-        .rd_data0(),
-
-        .rd_addr1(rs2),
-        .rd_data1(),
-
-        .rd_addr2(),
-        .rd_data2(),
-        // write port to rename rd to a new speculative (ROB) tag
-        .wr_en(),
-        .wr_addr(rd),
-        .wr_data()
-    );
-    
-    fifo_ram_golden #(
-        .DATA_WIDTH(ROB_DISPATCH_DATA_WIDTH),
-        .FIFO_DEPTH(16),
+    regfile #(
+        .ENTRY_WIDTH(4),
+        .N_ENTRIES(32),
         .N_READ_PORTS(2),
         .N_WRITE_PORTS(2)
-    ) rob (
+    ) arf_rob_table (
+        .clk(clk),
+        .rst_aL(rst_aL),
+
+        .rd_addr({rs1, rs2}),
+        .rd_data({rs1_retired, rs2_retired}),
+        
+        // (synchronous) reset (1'b0) port to mark as retired (point to ARF)
+        // (synchronous) set (1'b1) port to mark as speculative (point to ROB)
+        .wr_en({retire_arf_id_mark_as_retired, rename_rd}),
+        .wr_addr({retire_arf_id, rd}),
+        .wr_data({1'b0, 1'b1}),
+    );
+
+    // register alias table: tag table
+    wire [`ROB_ID_WIDTH-1:0] rob_id_src1;
+    wire [`ROB_ID_WIDTH-1:0] rob_id_src2;
+    wire [`ROB_ID_WIDTH-1:0] retire_arf_id_curr_rob_id;
+    regfile #(
+        .ENTRY_WIDTH(1),
+        .N_ENTRIES(32),
+        .N_READ_PORTS(3),
+        .N_WRITE_PORTS(1)
+    ) tag_table (
+        .clk(clk),
+        .rst_aL(rst_aL),
+
+        .rd_addr({rs1, rs2, retire_arf_id}),
+        .rd_data({rob_id_src1, rob_id_src2, retire_arf_id_curr_rob_id}),
+
+        // write port to rename rd to a new speculative (ROB) tag
+        .wr_en(rename_rd),
+        .wr_addr(rd),
+        .wr_data(dispatch_rob_id)
+    );
+    
+    
+    wire [`ROB_ID_WIDTH-1:0] dispatch_rob_id;
+    rob_dispatch_data_t rob_dispatch_data;
+    wire retire;
+    wire [`ROB_ID_WIDTH-1:0] retire_rob_id;
+    wire [`ARF_ID_WIDTH-1:0] retire_arf_id;
+    wire [`REG_WIDTH-1:0] retire_reg_data;
+    wire rob_reg_ready_src1;
+    wire rob_reg_data_src1;
+    wire rob_reg_ready_src2;
+    wire rob_reg_data_src2;
+    rob _rob (
         .clk(clk),
         .rst_aL(rst_aL),
         
-        .enq_ready(dispatch_rob_ready),
-        .enq_valid(dispatch_valid),
-        .enq_data(dispatch_rob_data),
+        .dispatch_ready(rob_dispatch_ready),
+        .dispatch_valid(dispatch),
+        .dispatch_rob_id(dispatch_rob_id),
+        .dispatch_data(rob_dispatch_data),
 
-        .deq_ready(1'b1), // ARF is always ready to accept data
-        .deq_valid(retire_valid),
-        .deq_data(retire_data),
+        .retire(retire),
+        .retire_rob_id(retire_rob_id),
+        .retire_arf_id(retire_arf_id),
+        .retire_reg_data(retire_reg_data),
 
-        .rd_addr({rob_id_src1, rob_id_src2}),
-        .rd_data({rob_reg_data_src1, rob_reg_data_src2}),
+        .rob_id_src1(rob_id_src1),
+        .rob_reg_ready_src1(rob_reg_ready_src1),
+        .rob_reg_data_src1(rob_reg_data_src1),
 
-        .wr_en({wb_valid_alu, wb_valid_lsu}),
-        .wr_addr({wb_tag_alu, wb_tag_lsu}),
-        .wr_data({wb_data_alu, wb_data_lsu})
+        .rob_id_src2(rob_id_src2),
+        .rob_reg_ready_src2(rob_reg_ready_src2),
+        .rob_reg_data_src2(rob_reg_data_src2),
+
+        .alu_wb_valid(alu_wb_valid),
+        .alu_wb_rob_id(alu_wb_rob_id),
+        .alu_wb_reg_data(alu_wb_reg_data),
+        .alu_wb_br_mispredict(alu_wb_br_mispredict),
+
+        .lsu_wb_valid(lsu_wb_valid),
+        .lsu_wb_rob_id(lsu_wb_rob_id),
+        .lsu_wb_reg_data(lsu_wb_reg_data),
+        .lsu_wb_ld_mispredict(lsu_wb_ld_mispredict)
+    );
+
+    wire [`REG_WIDTH-1:0] arf_reg_data_src1;
+    wire [`REG_WIDTH-1:0] arf_reg_data_src2;
+    regfile #(
+        .ENTRY_WIDTH(32),
+        .N_ENTRIES(32),
+        .N_READ_PORTS(2),
+        .N_WRITE_PORTS(1)
+    ) arf (
+        .clk(clk),
+        .rst_aL(rst_aL),
+        
+        .rd_addr({rob_reg_data_src1, rob_reg_ready_src1}),
+        .rd_data({arf_reg_data_src1, arf_reg_data_src2}),
+        
+        .wr_en(retire),
+        .wr_addr(retire_arf_id),
+        .wr_data(retire_reg_data)
     );
 endmodule
