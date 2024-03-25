@@ -2,7 +2,7 @@
 `define COUNTER_V
 
 `include "freepdk-45nm/stdcells.v"
-`include "misc/register.v"
+`include "misc/reg_.v"
 `include "misc/adder.v"
 
 // IMPL STATUS: COMPLETE

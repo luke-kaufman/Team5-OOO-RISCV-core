@@ -23,9 +23,9 @@ module fifo_golden #(
     logic [FIFO_DEPTH-1:0] [DATA_WIDTH-1:0] fifo_r;
     
     // next state signals
-    logic [CTR_WIDTH-1:0] next_enq_ctr;
-    logic [CTR_WIDTH-1:0] next_deq_ctr;
-    logic [FIFO_DEPTH-1:0] [DATA_WIDTH-1:0] next_fifo;
+    logic [CTR_WIDTH-1:0] enq_ctr_next;
+    logic [CTR_WIDTH-1:0] deq_ctr_next;
+    logic [FIFO_DEPTH-1:0] [DATA_WIDTH-1:0] fifo_next;
 
     // internal signals
     wire [PTR_WIDTH-1:0] enq_ptr = enq_ctr_r[PTR_WIDTH-1:0];
@@ -40,13 +40,13 @@ module fifo_golden #(
     assign count = enq_ctr_r - deq_ctr_r; // for debugging
 
     // next state logic without dynamic slicing
-    assign next_enq_ctr = enq_valid && enq_ready ? enq_ctr_r + 1 : enq_ctr_r;
-    assign next_deq_ctr = deq_valid && deq_ready ? deq_ctr_r + 1 : deq_ctr_r;
+    assign enq_ctr_next = enq_valid && enq_ready ? enq_ctr_r + 1 : enq_ctr_r;
+    assign deq_ctr_next = deq_valid && deq_ready ? deq_ctr_r + 1 : deq_ctr_r;
     // next state logic with dynamic slicing
     always_comb begin
-        next_fifo = fifo_r;
+        fifo_next = fifo_r;
         if (enq_valid && enq_ready) begin
-            next_fifo[enq_ptr] = enq_data;
+            fifo_next[enq_ptr] = enq_data;
         end
     end
     
@@ -57,9 +57,9 @@ module fifo_golden #(
             deq_ctr_r <= 0;
             fifo_r <= 0;
         end else begin
-            enq_ctr_r <= next_enq_ctr;
-            deq_ctr_r <= next_deq_ctr;
-            fifo_r <= next_fifo;
+            enq_ctr_r <= enq_ctr_next;
+            deq_ctr_r <= deq_ctr_next;
+            fifo_r <= fifo_next;
         end
     end
 endmodule

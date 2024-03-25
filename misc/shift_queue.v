@@ -1,7 +1,7 @@
 `ifndef SHIFT_QUEUE_V
 `define SHIFT_QUEUE_V
 
-`include "misc/register.v"
+`include "misc/reg_.v"
 `include "misc/up_down_counter.v"
 `include "misc/cmp/cmp_.v"
 `include "misc/onehot_mux/onehot_mux_.v"
@@ -13,9 +13,9 @@
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
 module shift_queue #(
-    parameter N_ENTRIES = 8,
-    parameter ENTRY_WIDTH = 81, /* LSQ Entry width */
-    localparam PTR_WIDTH = $clog2(N_ENTRIES),
+    parameter N_ENTRIES = `IIQ_N_ENTRIES,
+    parameter ENTRY_WIDTH = `IIQ_ENTRY_WIDTH,
+    localparam PTR_WIDTH = `IIQ_ID_WIDTH,
     localparam CTR_WIDTH = PTR_WIDTH + 1
 ) (
     input wire clk,
@@ -256,6 +256,7 @@ module shift_queue #(
         );
     end
 
+    // TODO: redundant with the implementation of up_down_counter (it already handles the case inc = 1, dec = 1)
     wire enq_ctr_inc;
     wire enq_ctr_dec;
     wire enq_not;

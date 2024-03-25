@@ -1,3 +1,6 @@
+`ifndef DEC_V
+`define DEC_V
+
 module dec_ #(
     parameter IN_WIDTH = 1
 ) (
@@ -6,3 +9,5 @@ module dec_ #(
 );
     assign out = 1 << in;
 endmodule
+
+`endif

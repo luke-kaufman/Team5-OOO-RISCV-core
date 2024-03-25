@@ -7,7 +7,7 @@
 `include "misc/dec/dec_.v"
 `include "misc/mux/mux_.v"
 `include "misc/onehot_mux/onehot_mux_.v"
-`include "misc/register.v"
+`include "misc/reg_.v"
 `include "misc/up_counter.v"
 
 module fifo_ram #(

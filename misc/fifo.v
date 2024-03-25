@@ -6,7 +6,7 @@
 `include "misc/cmp/cmp_.v"
 `include "misc/dec/dec_.v"
 `include "misc/mux/mux_.v"
-`include "misc/register.v"
+`include "misc/reg_.v"
 `include "misc/up_counter.v"
 
 // IMPL STATUS: COMPLETE

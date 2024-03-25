@@ -1,61 +1,60 @@
+`include "misc/global_defs.svh"
 `include "freepdk-45nm/stdcells.v"
 `include "misc/regfile.v"
 `include "misc/fifo.v"
 `include "misc/fifo_ram.v"
-`include "misc/global_defs.svh"
 
-module decode_rename_dispatch (
+module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire clk,
     input wire rst_aL,
     // INTERFACE TO FETCH
     output wire ififo_dispatch_ready,
     input wire ififo_dispatch_valid,
-    input wire [INSTR_WIDTH-1:0] ififo_dispatch_data,
-    // INTERFACE TO INTEGER ISSUE QUEUE
+    input wire [`INSTR_WIDTH-1:0] ififo_dispatch_data,
+    // INTERFACE TO INTEGER ISSUE QUEUE (IIQ)
     input wire iiq_dispatch_ready,
     output wire iiq_dispatch_valid,
-    output wire [IIQ_DISPATCH_DATA_WIDTH-1:0] iiq_dispatch_data,
-    // INTERFACE TO LOAD/STORE QUEUE
+    output wire iiq_entry_t iiq_dispatch_data,
+    // INTERFACE TO LOAD/STORE QUEUE (LSQ)
     input wire lsq_dispatch_ready,
     output wire lsq_dispatch_valid,
-    output wire [LSQ_DISPATCH_DATA_WIDTH-1:0] lsq_dispatch_data
-    // INTERFACE TO ALU (WRITEBACK)
+    output wire lsq_entry_t lsq_dispatch_data,
+    // INTERFACE TO WRITEBACK (ALU)
     input wire alu_wb_valid,
-    input wire [`ROB_ID_WIDTH-1:0] alu_wb_rob_id,
-    input wire [`REG_WIDTH-1:0] alu_wb_reg_data,
+    input wire rob_id_t alu_wb_rob_id,
+    input wire reg_data_t alu_wb_reg_data,
     input wire alu_wb_br_mispredict,
-    // INTERFACE TO LSU (WRITEBACK)
+    // INTERFACE TO WRITEBACK (LSU)
     input wire lsu_wb_valid,
-    input wire [`ROB_ID_WIDTH-1:0] lsu_wb_rob_id,
-    input wire [`REG_WIDTH-1:0] lsu_wb_reg_data,
+    input wire rob_id_t lsu_wb_rob_id,
+    input wire reg_data_t lsu_wb_reg_data,
     input wire lsu_wb_ld_mispredict
 );
     // decode signals
     wire is_int_instr;
-    wire is_ld_st_instr;
-    // NOTE: is_int_instr and is_ld_st_instr should be mutually exclusive
+    wire is_ld_st_instr; // NOTE: is_int_instr and is_ld_st_instr should be mutually exclusive
     wire rs1_valid;
     wire rs2_valid;
     wire rd_valid;
-    wire [REG_BITS-1:0] rs1;
-    wire [REG_BITS-1:0] rs2;
-    wire [REG_BITS-1:0] rd;
+    wire arf_id_t rs1;
+    wire arf_id_t rs2;
+    wire arf_id_t rd;
     
     // TODO: implement
-    instr_decode instr_decode (
-        .instr(instr),
-        .is_int_instr(is_int_instr),
-        .is_ld_st_instr(is_ld_st_instr),
-        .rs1_valid(rs1_valid),
-        .rs2_valid(rs2_valid),
-        .rd_valid(rd_valid),
-        .rs1(rs1),
-        .rs2(rs2),
-        .rd(rd),
-        // .imm(imm),
-        // .branch(branch),
-        // .branch_target(branch_target),
-    );
+    // instr_decode instr_decode (
+    //     .instr(instr),
+    //     .is_int_instr(is_int_instr),
+    //     .is_ld_st_instr(is_ld_st_instr),
+    //     .rs1_valid(rs1_valid),
+    //     .rs2_valid(rs2_valid),
+    //     .rd_valid(rd_valid),
+    //     .rs1(rs1),
+    //     .rs2(rs2),
+    //     .rd(rd)
+    //     // .imm(imm),
+    //     // .branch(branch),
+    //     // .branch_target(branch_target),
+    // );
 
     // triple dispatch handshake (IFIFO vs. ROB, IIQ, LSQ)
     wire iiq_dispatch_ok;
@@ -80,7 +79,11 @@ module decode_rename_dispatch (
         .y(dispatch)
     );
 
+    // logic to decide if arf_id of the ROB head should be marked as retired (0) in the ARF/ROB table
+    wire retire;
+    wire rob_id_t retire_rob_id;
     wire retire_arf_id_not_renamed;
+    wire rob_id_t retire_arf_id_curr_rob_id;
     cmp_ #(.WIDTH(`ROB_ID_WIDTH)) retire_arf_id_not_renamed_cmp (
         .a(retire_rob_id),
         .b(retire_arf_id_curr_rob_id),
@@ -92,6 +95,7 @@ module decode_rename_dispatch (
         .y(retire_arf_id_mark_as_retired)
     );
 
+    // logic to decide if rd should be marked as speculative (1) in the ARF/ROB table
     wire rename_rd;
     and_ #(.N_INS(2)) rename_rd_and (
         .a({rd_valid, dispatch}),
@@ -102,6 +106,7 @@ module decode_rename_dispatch (
     // [0: ARF (retired), 1: ROB (speculative)]
     wire rs1_retired;
     wire rs2_retired;
+    wire rob_id_t retire_arf_id;
     regfile #(
         .ENTRY_WIDTH(4),
         .N_ENTRIES(32),
@@ -118,13 +123,13 @@ module decode_rename_dispatch (
         // (synchronous) set (1'b1) port to mark as speculative (point to ROB)
         .wr_en({retire_arf_id_mark_as_retired, rename_rd}),
         .wr_addr({retire_arf_id, rd}),
-        .wr_data({1'b0, 1'b1}),
+        .wr_data({1'b0, 1'b1})
     );
 
     // register alias table: tag table
-    wire [`ROB_ID_WIDTH-1:0] rob_id_src1;
-    wire [`ROB_ID_WIDTH-1:0] rob_id_src2;
-    wire [`ROB_ID_WIDTH-1:0] retire_arf_id_curr_rob_id;
+    wire rob_id_t rob_id_src1;
+    wire rob_id_t rob_id_src2;
+    wire rob_id_t dispatch_rob_id;
     regfile #(
         .ENTRY_WIDTH(1),
         .N_ENTRIES(32),
@@ -144,12 +149,8 @@ module decode_rename_dispatch (
     );
     
     
-    wire [`ROB_ID_WIDTH-1:0] dispatch_rob_id;
-    rob_dispatch_data_t rob_dispatch_data;
-    wire retire;
-    wire [`ROB_ID_WIDTH-1:0] retire_rob_id;
-    wire [`ARF_ID_WIDTH-1:0] retire_arf_id;
-    wire [`REG_WIDTH-1:0] retire_reg_data;
+    wire rob_dispatch_data_t rob_dispatch_data;
+    wire reg_data_t retire_reg_data;
     wire rob_reg_ready_src1;
     wire rob_reg_data_src1;
     wire rob_reg_ready_src2;
@@ -187,8 +188,8 @@ module decode_rename_dispatch (
         .lsu_wb_ld_mispredict(lsu_wb_ld_mispredict)
     );
 
-    wire [`REG_WIDTH-1:0] arf_reg_data_src1;
-    wire [`REG_WIDTH-1:0] arf_reg_data_src2;
+    wire reg_data_t arf_reg_data_src1;
+    wire reg_data_t arf_reg_data_src2;
     regfile #(
         .ENTRY_WIDTH(32),
         .N_ENTRIES(32),

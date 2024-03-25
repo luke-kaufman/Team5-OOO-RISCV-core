@@ -2,7 +2,7 @@
 `define UP_DOWN_COUNTER_V
 
 `include "freepdk-45nm/stdcells.v"
-`include "misc/register.v"
+`include "misc/reg_.v"
 `include "misc/adder.v"
 
 // IMPL STATUS: MISSING
@@ -15,6 +15,11 @@ module up_down_counter #(
     inout wire rst_aL,
     input wire inc,
     input wire dec,
+    // inc = 0, dec = 0: no change (0)
+    // inc = 0, dec = 1: decrement (-1)
+    // inc = 1, dec = 0: increment (+1)
+    // inc = 1, dec = 1: no change (0)
+    // use mux4 to select the correct input to the adder
     output wire [WIDTH-1:0] count
 );
     wire [WIDTH-1:0] next_count;
