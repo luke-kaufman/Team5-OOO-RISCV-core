@@ -90,4 +90,10 @@ typedef struct packed { // FIXME
 } lsq_entry_t;
 `define LSQ_ENTRY_WIDTH $bits(lsq_entry_t)
 
+typedef struct packed {
+    logic [2:0] alu_ctrl; // FIXME
+    reg_data_t src1_data;
+    reg_data_t src2_data;
+} iiq_issue_data_t;
+
 `endif

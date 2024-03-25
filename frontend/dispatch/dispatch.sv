@@ -31,8 +31,9 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire lsu_wb_ld_mispredict
 );
     // decode signals
-    wire is_int_instr;
-    wire is_ld_st_instr; // NOTE: is_int_instr and is_ld_st_instr should be mutually exclusive
+    wire is_int_instr; // is integer instruction?
+    wire is_ls_instr; // is load-store instruction?
+    // NOTE: is_int_instr and is_ls_instr should be mutually exclusive
     wire rs1_valid;
     wire rs2_valid;
     wire rd_valid;
@@ -44,7 +45,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     // instr_decode instr_decode (
     //     .instr(instr),
     //     .is_int_instr(is_int_instr),
-    //     .is_ld_st_instr(is_ld_st_instr),
+    //     .is_ls_instr(is_ls_instr),
     //     .rs1_valid(rs1_valid),
     //     .rs2_valid(rs2_valid),
     //     .rd_valid(rd_valid),
@@ -60,7 +61,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire iiq_dispatch_ok;
     wire lsq_dispatch_ok;
     or_ #(.N_INS(2)) iiq_dispatch_ok_or (
-        .a({iiq_dispatch_ready, is_ld_st_instr}),
+        .a({iiq_dispatch_ready, is_ls_instr}),
         .y(iiq_dispatch_ok)
     );
     or_ #(.N_INS(2)) lsq_dispatch_ok_or (
