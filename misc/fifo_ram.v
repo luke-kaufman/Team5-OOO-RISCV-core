@@ -22,8 +22,8 @@ module fifo_ram #(
     parameter N_WRITE_PORTS = 2
 ) (
     input wire clk,
-    // input wire rst_aL, (NOTE: edited to suppress "coerced to inout" warning)
-    inout wire rst_aL,
+    // input wire rst_aL, (NOTE: edited to suppress "coerced to input" warning)
+    input wire rst_aL,
 
     output wire enq_ready,
     input wire enq_valid,

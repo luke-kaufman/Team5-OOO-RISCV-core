@@ -18,8 +18,7 @@ module fifo #(
     localparam CTR_WIDTH = PTR_WIDTH + 1 // CTR_WIDTH is PTR_WIDTH + 1 to disambiguate between full and empty conditions
 ) (
     input wire clk,
-    // input wire rst_aL, (NOTE: edited to suppress "coerced to inout" warning)
-    inout wire rst_aL,
+    input wire rst_aL,
 
     output wire enq_ready,
     input wire enq_valid,

@@ -11,8 +11,8 @@ module up_counter #(
     parameter WIDTH = 1
 ) (
     input wire clk,
-    // input wire rst_aL, (NOTE: edited to suppress "coerced to inout" warning)
-    inout wire rst_aL,
+    // input wire rst_aL, (NOTE: edited to suppress "coerced to input" warning)
+    input wire rst_aL,
     input wire inc,
     output wire [WIDTH-1:0] count
 );

@@ -35,7 +35,7 @@ module fifo_tb;
     end
 
     // design under test
-    fifo #(.DATA_WIDTH(DATA_WIDTH), .FIFO_DEPTH(FIFO_DEPTH)) dut (
+    fifo #(.ENTRY_WIDTH(DATA_WIDTH), .N_ENTRIES(FIFO_DEPTH)) dut (
         .clk(clk),
         .rst_aL(rst_aL),
         .enq_valid(enq_valid),
