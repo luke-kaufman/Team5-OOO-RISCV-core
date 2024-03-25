@@ -3,6 +3,7 @@
 
 `include "misc/dec/dec_.v"
 `include "misc/and/and_.v"
+`include "misc/ff1/ff1.v"
 
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
@@ -53,10 +54,10 @@ module regfile #(
         );
     end
 
-    // ff1 to generate a one-hot select signal for the din mux of each entry (prioritize less signifcant write ports, e.g., 0 > 1 > 2 > ...)
+    // ff1 to generate a one-hot select signal for the din mux of each entry (prioritize less significant write ports, e.g., 0 > 1 > 2 > ...)
     wire [N_ENTRIES-1:0] [N_WRITE_PORTS-1:0] din_onehot_mux_sel;
     for (genvar i = 0; i < N_ENTRIES; i++) begin
-        ff1_ #(.WIDTH(N_WRITE_PORTS)) din_onehot_mux_sel_ff1 (
+        ff1 #(.WIDTH(N_WRITE_PORTS)) din_onehot_mux_sel_ff1 (
             .a(we_pre[i]),
             .y(din_onehot_mux_sel[i])
         );

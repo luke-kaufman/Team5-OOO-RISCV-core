@@ -1,8 +1,7 @@
 `include "misc/global_defs.svh"
 `include "freepdk-45nm/stdcells.v"
 `include "misc/regfile.v"
-`include "misc/fifo.v"
-`include "misc/fifo_ram.v"
+`include "frontend/dispatch/rob.v"
 
 module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire clk,
@@ -153,9 +152,10 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire rob_dispatch_data_t rob_dispatch_data;
     wire reg_data_t retire_reg_data;
     wire rob_reg_ready_src1;
-    wire rob_reg_data_src1;
+    wire reg_data_t rob_reg_data_src1;
     wire rob_reg_ready_src2;
-    wire rob_reg_data_src2;
+    wire reg_data_t rob_reg_data_src2;
+    assign rob_dispatch_data = {ififo_dispatch_data, rs1, rs2, rd}; // FIXME
     rob _rob (
         .clk(clk),
         .rst_aL(rst_aL),
@@ -200,11 +200,35 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .clk(clk),
         .rst_aL(rst_aL),
         
-        .rd_addr({rob_reg_data_src1, rob_reg_ready_src1}),
+        .rd_addr({rs1, rs2}),
         .rd_data({arf_reg_data_src1, arf_reg_data_src2}),
         
         .wr_en(retire),
         .wr_addr(retire_arf_id),
         .wr_data(retire_reg_data)
     );
+
+    // INTERFACE TO FETCH
+    assign ififo_dispatch_ready = dispatch;
+
+    // INTERFACE TO INTEGER ISSUE QUEUE (IIQ)
+    assign iiq_dispatch_valid = dispatch && is_int_instr; // FIXME: convert to structural
+
+    assign iiq_dispatch_data.src1_valid = rs1_valid;
+    assign iiq_dispatch_data.src1_rob_id = rob_id_src1;
+    assign iiq_dispatch_data.src1_ready = rob_reg_ready_src1;
+    assign iiq_dispatch_data.src1_data = rs1_retired ? arf_reg_data_src1 : rob_reg_data_src1; // FIXME: convert to structural
+    assign iiq_dispatch_data.src2_valid = rs2_valid;
+    assign iiq_dispatch_data.src2_rob_id = rob_id_src2;
+    assign iiq_dispatch_data.src2_ready = rob_reg_ready_src2;
+    assign iiq_dispatch_data.src2_data = rs2_retired ? arf_reg_data_src2 : rob_reg_data_src2; // FIXME: convert to structural
+    assign iiq_dispatch_data.dst_valid = rd_valid;
+    assign iiq_dispatch_data.dst_rob_id = dispatch_rob_id;
+    assign iiq_dispatch_data.alu_ctrl = 0; // FIXME
+    assign iiq_dispatch_data.br_dir_pred = 0; // FIXME
+    assign iiq_dispatch_data.jalr_target_pc = 0; // FIXME
+
+    // INTERFACE TO LOAD-STORE QUEUE (LSQ)
+    assign lsq_dispatch_valid = 0; // FIXME
+    assign lsq_dispatch_data = 0; // FIXME
 endmodule
