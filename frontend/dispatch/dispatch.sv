@@ -11,18 +11,25 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire ififo_dispatch_valid,
     input wire [`INSTR_WIDTH-1:0] ififo_dispatch_data,
     // INTERFACE TO INTEGER ISSUE QUEUE (IIQ)
+    // ready-valid interface
     input wire iiq_dispatch_ready,
     output wire iiq_dispatch_valid,
     output wire iiq_entry_t iiq_dispatch_data,
+    // integer wakeup bypass interface
+    input wire int_wakeup_valid,
+    input wire rob_id_t int_wakeup_rob_id,
     // INTERFACE TO LOAD/STORE QUEUE (LSQ)
     input wire lsq_dispatch_ready,
     output wire lsq_dispatch_valid,
     output wire lsq_entry_t lsq_dispatch_data,
     // INTERFACE TO WRITEBACK (ALU)
+    // writeback interface
     input wire alu_wb_valid,
     input wire rob_id_t alu_wb_rob_id,
     input wire reg_data_t alu_wb_reg_data,
     input wire alu_wb_br_mispredict,
+    // data bypass interface
+    input wire alu
     // INTERFACE TO WRITEBACK (LSU)
     input wire lsu_wb_valid,
     input wire rob_id_t lsu_wb_rob_id,
@@ -148,7 +155,6 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .wr_data(dispatch_rob_id)
     );
     
-    
     wire rob_dispatch_data_t rob_dispatch_data;
     wire reg_data_t retire_reg_data;
     wire rob_reg_ready_src1;
@@ -177,6 +183,9 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .rob_id_src2(rob_id_src2),
         .rob_reg_ready_src2(rob_reg_ready_src2),
         .rob_reg_data_src2(rob_reg_data_src2),
+
+        .int_wakeup_valid(int_wakeup_valid),
+        .int_wakeup_rob_id(int_wakeup_rob_id),
 
         .alu_wb_valid(alu_wb_valid),
         .alu_wb_rob_id(alu_wb_rob_id),
@@ -214,9 +223,13 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     // INTERFACE TO INTEGER ISSUE QUEUE (IIQ)
     assign iiq_dispatch_valid = dispatch && is_int_instr; // FIXME: convert to structural
 
+    // TODO: add issue2dispatch wakeup bypass
+    // TODO: add execute2dispatch data bypass
     assign iiq_dispatch_data.src1_valid = rs1_valid;
     assign iiq_dispatch_data.src1_rob_id = rob_id_src1;
-    assign iiq_dispatch_data.src1_ready = rob_reg_ready_src1;
+    // issue2dispatch wakeup bypass (FIXME: convert to structural)
+    assign iiq_dispatch_data.src1_ready = (int_wakeup_rob_id == rob_id_src1) ? 1'b1 : rob_reg_ready_src1;
+    // execute2dispatch data bypass (FIXME: convert to structural)
     assign iiq_dispatch_data.src1_data = rs1_retired ? arf_reg_data_src1 : rob_reg_data_src1; // FIXME: convert to structural
     assign iiq_dispatch_data.src2_valid = rs2_valid;
     assign iiq_dispatch_data.src2_rob_id = rob_id_src2;

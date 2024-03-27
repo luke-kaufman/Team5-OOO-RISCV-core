@@ -13,8 +13,9 @@ module dff_we (
     output wire q
 );
     wire sel_d;
+    wire qn;
     MUX2_X1 mux(.A(q), .B(d), .S(we), .Z(sel_d));
-    DFFR_X1 dff(.D(sel_d), .RN(rst_aL), .CK(clk), .Q(q));
+    DFFR_X1 dff(.D(sel_d), .RN(rst_aL), .CK(clk), .Q(q), .QN(qn));
     // FIXME: this doesn't reset properly
 endmodule
 
