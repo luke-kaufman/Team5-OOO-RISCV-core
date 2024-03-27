@@ -126,7 +126,7 @@ module rob (
 
         .wr_en({alu_wb_valid, lsu_wb_valid, int_wakeup_valid}),
         .wr_addr({alu_wb_rob_id, lsu_wb_rob_id, int_wakeup_rob_id}),
-        .wr_data(entry_wr_data),
+        .wr_data(d),
 
         .entry_douts(rob_state)
     );
