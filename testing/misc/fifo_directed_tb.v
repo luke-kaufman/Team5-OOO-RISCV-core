@@ -140,7 +140,7 @@ module fifo_directed_tb #(
         enq_valid = 0;
         deq_ready = 1;
         enq_data = 32'h12345678;
-        if (deq_data !== 32'h12345678 || count == 3) begin
+        if (deq_data !== 32'h12345678 || count != 3) begin
             $display("Directed test 4 FAILED at time %0t: actual (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d), expected (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d)", $time, enq_ready, deq_valid, deq_data, count, 1'b1, 1'b1, 32'h12345678, 3);
         end
         @(negedge clk);
