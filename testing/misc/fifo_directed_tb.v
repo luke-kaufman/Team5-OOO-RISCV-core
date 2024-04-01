@@ -4,9 +4,9 @@
 // directed testbench for fifo modules
 module fifo_directed_tb #(
     parameter N_RANDOM_TESTS = 10,
-    parameter DATA_WIDTH = 32,
-    parameter FIFO_DEPTH = 8,
-    localparam PTR_WIDTH = $clog2(FIFO_DEPTH),
+    parameter ENTRY_WIDTH = 32,
+    parameter N_ENTRIES = 8,
+    localparam PTR_WIDTH = $clog2(N_ENTRIES),
     localparam CTR_WIDTH = PTR_WIDTH + 1
 );
     // clock and reset
@@ -16,12 +16,12 @@ module fifo_directed_tb #(
     // inputs
     reg deq_ready;
     reg enq_valid;
-    reg [DATA_WIDTH-1:0] enq_data;
+    reg [ENTRY_WIDTH-1:0] enq_data;
 
     // outputs
     wire enq_ready;
     wire deq_valid;
-    wire [DATA_WIDTH-1:0] deq_data;
+    wire [ENTRY_WIDTH-1:0] deq_data;
     wire [PTR_WIDTH-1:0] count; // for debugging
 
     // clock generation
@@ -33,9 +33,9 @@ module fifo_directed_tb #(
     end
 
     // design under test (dut)
-    fifo_golden #(
-        .DATA_WIDTH(DATA_WIDTH),
-        .FIFO_DEPTH(FIFO_DEPTH)
+    fifo #(
+        .ENTRY_WIDTH(ENTRY_WIDTH),
+        .N_ENTRIES(N_ENTRIES)
     ) dut (
         .clk(clk),
         .rst_aL(rst_aL),
