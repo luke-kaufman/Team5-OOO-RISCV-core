@@ -1,40 +1,40 @@
 `include "misc/global_defs.svh"
 `include "freepdk-45nm/stdcells.v"
 `include "misc/regfile.v"
-`include "frontend/dispatch/rob.v"
+`include "frontend/dispatch/rob.sv"
+`include "misc/mux/mux_.v"
+`include "misc/onehot_mux/onehot_mux_.v"
+`include "misc/or/or_.v"
+`include "misc/reg_.v"
 
 module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire clk,
     input wire rst_aL,
-    // INTERFACE TO FETCH
+    // INTERFACE TO INSRUCTION FIFO (IFIFO)
     output wire ififo_dispatch_ready,
     input wire ififo_dispatch_valid,
-    input wire [`INSTR_WIDTH-1:0] ififo_dispatch_data,
+    input wire ififo_entry_t ififo_dispatch_data,
     // INTERFACE TO INTEGER ISSUE QUEUE (IIQ)
-    // ready-valid interface
     input wire iiq_dispatch_ready,
     output wire iiq_dispatch_valid,
     output wire iiq_entry_t iiq_dispatch_data,
-    // integer wakeup bypass interface
+    // integer wakeup (from IIQ)
     input wire int_wakeup_valid,
     input wire rob_id_t int_wakeup_rob_id,
-    // INTERFACE TO LOAD/STORE QUEUE (LSQ)
+    // INTERFACE TO LOAD-STORE QUEUE (LSQ)
     input wire lsq_dispatch_ready,
     output wire lsq_dispatch_valid,
     output wire lsq_entry_t lsq_dispatch_data,
-    // INTERFACE TO WRITEBACK (ALU)
-    // writeback interface
-    input wire alu_wb_valid,
-    input wire rob_id_t alu_wb_rob_id,
-    input wire reg_data_t alu_wb_reg_data,
-    input wire alu_wb_br_mispredict,
-    // data bypass interface
-    input wire alu
-    // INTERFACE TO WRITEBACK (LSU)
-    input wire lsu_wb_valid,
-    input wire rob_id_t lsu_wb_rob_id,
-    input wire reg_data_t lsu_wb_reg_data,
-    input wire lsu_wb_ld_mispredict
+    // INTERFACE TO ARITHMETIC-LOGIC UNIT (ALU)
+    input wire alu_valid,
+    input wire rob_id_t alu_rob_id,
+    input wire reg_data_t alu_out_data,
+    input wire alu_br_mispred,
+    // INTERFACE TO LOAD-STORE UNIT (LSU)
+    input wire lsu_valid,
+    input wire rob_id_t lsu_rob_id,
+    input wire reg_data_t lsu_out_data,
+    input wire lsu_ld_mispred
 );
     // decode signals
     wire is_int_instr; // is integer instruction?
@@ -156,12 +156,14 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     );
     
     wire rob_dispatch_data_t rob_dispatch_data;
+    assign rob_dispatch_data.dst_valid = rd_valid;
+    assign rob_dispatch_data.dst_arf_id = rd;
+    assign rob_dispatch_data.pc = ififo_dispatch_data.pc;
     wire reg_data_t retire_reg_data;
     wire rob_reg_ready_src1;
     wire reg_data_t rob_reg_data_src1;
     wire rob_reg_ready_src2;
     wire reg_data_t rob_reg_data_src2;
-    assign rob_dispatch_data = {ififo_dispatch_data, rs1, rs2, rd}; // FIXME
     rob _rob (
         .clk(clk),
         .rst_aL(rst_aL),
@@ -187,15 +189,15 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .int_wakeup_valid(int_wakeup_valid),
         .int_wakeup_rob_id(int_wakeup_rob_id),
 
-        .alu_wb_valid(alu_wb_valid),
-        .alu_wb_rob_id(alu_wb_rob_id),
-        .alu_wb_reg_data(alu_wb_reg_data),
-        .alu_wb_br_mispredict(alu_wb_br_mispredict),
+        .alu_valid(alu_valid),
+        .alu_rob_id(alu_rob_id),
+        .alu_out_data(alu_out_data),
+        .alu_br_mispred(alu_br_mispred),
 
-        .lsu_wb_valid(lsu_wb_valid),
-        .lsu_wb_rob_id(lsu_wb_rob_id),
-        .lsu_wb_reg_data(lsu_wb_reg_data),
-        .lsu_wb_ld_mispredict(lsu_wb_ld_mispredict)
+        .lsu_valid(lsu_valid),
+        .lsu_rob_id(lsu_rob_id),
+        .lsu_out_data(lsu_out_data),
+        .lsu_ld_mispred(lsu_ld_mispred)
     );
 
     wire reg_data_t arf_reg_data_src1;
@@ -223,18 +225,32 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     // INTERFACE TO INTEGER ISSUE QUEUE (IIQ)
     assign iiq_dispatch_valid = dispatch && is_int_instr; // FIXME: convert to structural
 
-    // TODO: add issue2dispatch wakeup bypass
-    // TODO: add execute2dispatch data bypass
+    // TODO: add lsu wakeup & data bypass (simultaneous wakeup and data bypass)
+    // FIXME: convert to structural
     assign iiq_dispatch_data.src1_valid = rs1_valid;
     assign iiq_dispatch_data.src1_rob_id = rob_id_src1;
-    // issue2dispatch wakeup bypass (FIXME: convert to structural)
-    assign iiq_dispatch_data.src1_ready = (int_wakeup_rob_id == rob_id_src1) ? 1'b1 : rob_reg_ready_src1;
-    // execute2dispatch data bypass (FIXME: convert to structural)
-    assign iiq_dispatch_data.src1_data = rs1_retired ? arf_reg_data_src1 : rob_reg_data_src1; // FIXME: convert to structural
+    // issue2dispatch wakeup bypass
+    assign iiq_dispatch_data.src1_ready = (int_wakeup_valid & (int_wakeup_rob_id == rob_id_src1)) ?
+                                            1'b1 :
+                                            rob_reg_ready_src1;
+    // execute2dispatch data bypass
+    assign iiq_dispatch_data.src1_data = (alu_valid & (alu_rob_id == rob_id_src1)) ?
+                                            alu_out_data :
+                                            (rs1_retired ?
+                                                arf_reg_data_src1 :
+                                                rob_reg_data_src1);
     assign iiq_dispatch_data.src2_valid = rs2_valid;
     assign iiq_dispatch_data.src2_rob_id = rob_id_src2;
-    assign iiq_dispatch_data.src2_ready = rob_reg_ready_src2;
-    assign iiq_dispatch_data.src2_data = rs2_retired ? arf_reg_data_src2 : rob_reg_data_src2; // FIXME: convert to structural
+    // issue2dispatch wakeup bypass
+    assign iiq_dispatch_data.src2_ready = (int_wakeup_valid & (int_wakeup_rob_id == rob_id_src2)) ?
+                                            1'b1 :
+                                            rob_reg_ready_src2;
+    // execute2dispatch data bypass
+    assign iiq_dispatch_data.src2_data = (alu_valid & (alu_rob_id == rob_id_src2)) ?
+                                            alu_out_data :
+                                            (rs2_retired ?
+                                                arf_reg_data_src2 :
+                                                rob_reg_data_src2);
     assign iiq_dispatch_data.dst_valid = rd_valid;
     assign iiq_dispatch_data.dst_rob_id = dispatch_rob_id;
     assign iiq_dispatch_data.alu_ctrl = 0; // FIXME

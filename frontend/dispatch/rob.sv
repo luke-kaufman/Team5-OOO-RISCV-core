@@ -45,13 +45,13 @@ module rob (
     input wire alu_wb_valid,
     input wire rob_id_t alu_wb_rob_id,
     input wire reg_data_t alu_wb_reg_data,
-    input wire alu_wb_br_mispredict,
+    input wire alu_wb_br_mispred,
 
     // INTERFACE TO LSU (LOAD-STORE WRITEBACK + WAKEUP)
     input wire lsu_wb_valid,
     input wire rob_id_t lsu_wb_rob_id,
     input wire reg_data_t lsu_wb_reg_data,
-    input wire lsu_wb_ld_mispredict
+    input wire lsu_wb_ld_mispred
 );
     wire rob_entry_t [`ROB_N_ENTRIES-1:0] rob_state;
     wire rob_entry_t entry_rd_data_src1;
@@ -85,14 +85,14 @@ module rob (
         assign entry_wr_data_alu_wb[i].dst_arf_id = rob_state[i].dst_arf_id;
         assign entry_wr_data_alu_wb[i].pc = rob_state[i].pc;
         assign entry_wr_data_alu_wb[i].ld_mispredict = rob_state[i].ld_mispredict;
-        assign entry_wr_data_alu_wb[i].br_mispredict = alu_wb_br_mispredict;
+        assign entry_wr_data_alu_wb[i].br_mispredict = alu_wb_br_mispred;
         assign entry_wr_data_alu_wb[i].reg_ready = rob_state[i].reg_ready; // NOTE: should already be 1'b1
         assign entry_wr_data_alu_wb[i].reg_data = alu_wb_reg_data;
 
         assign entry_wr_data_lsu_wb[i].dst_valid = rob_state[i].dst_valid;
         assign entry_wr_data_lsu_wb[i].dst_arf_id = rob_state[i].dst_arf_id;
         assign entry_wr_data_lsu_wb[i].pc = rob_state[i].pc;
-        assign entry_wr_data_lsu_wb[i].ld_mispredict = lsu_wb_ld_mispredict;
+        assign entry_wr_data_lsu_wb[i].ld_mispredict = lsu_wb_ld_mispred;
         assign entry_wr_data_lsu_wb[i].br_mispredict = rob_state[i].br_mispredict;
         assign entry_wr_data_lsu_wb[i].reg_ready = 1'b1; // TODO: verify that ld wb and wakeup always happen in the same cycle
         assign entry_wr_data_lsu_wb[i].reg_data = lsu_wb_reg_data;

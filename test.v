@@ -1,5 +1,16 @@
-module test;
-    wire [2:0] [1:0] mat = {2'b11, 2'b01, 2'b10};
+typedef struct packed {
+        logic b;
+} my_type;
 
-    initial $display("%0b", mat & 6'b111111);
+module test;
+    // struct packed {
+    //     logic a;
+    // } val1;
+    wire my_type val2;
+    initial begin
+        // val1.a = 1'b0;
+        val2.b = 1'b0;
+    end
+    // assign val2.b = 1'b0;
+    // assign val1.a = 1'b0;
 endmodule

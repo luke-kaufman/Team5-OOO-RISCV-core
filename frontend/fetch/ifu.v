@@ -1,8 +1,8 @@
 // Instruction Fetch Unit
 module ifu #(
-    parameter I$_BLOCK_SIZE = ICACHE_DATA_BLOCK_SIZE
+    parameter I$_BLOCK_SIZE = ICACHE_DATA_BLOCK_SIZE,
     parameter I$_NUM_SETS = ICACHE_NUM_SETS,
-    parameter I$_NUM_WAYS = ICACHE_NUM_WAYS,
+    parameter I$_NUM_WAYS = ICACHE_NUM_WAYS
 ) (
     input wire clk,
     input wire rst_aL,
@@ -15,7 +15,7 @@ module ifu #(
     // INTERFACE TO RENAME
     input wire dispatch_ready,
     output wire instr_valid,
-    output wire [INSTR_WIDTH-1:0] instr_data,
+    output wire [INSTR_WIDTH-1:0] instr_data
 );
 
 // ::: PC MUX & PC :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -92,14 +92,16 @@ predicted_NPC #() pred_NPC (
                          + 1 /*Prediction bit - 1 taken, 0 not taken*/
                          + ADDR_WIDTH /*TARGET PC*/)
 wire IFIFO_enq_ready;
-wire [IFIFO_ENTRY_WIDTH-1:0] IFIFO_enq_data = {selected_instr,
-                                                PC,
-                                                is_cond_branch,  // branch info valid bit
-                                                br_prediction,
-                                                br_target_PC}
+wire ififo_entry_t IFIFO_enq_data;
+assign IFIFO_enq_data.selected_instr = selected_instr;
+assign IFIFO_enq_data.PC = PC;
+assign IFIFO_enq_data.is_cond_br = is_cond_br;
+assign IFIFO_enq_data.br_dir_pred = br_prediction;
+assign IFIFO_enq_data.br_target_pred = br_target_PC;
+
 fifo #(
-    .DATA_WIDTH(IFIFO_ENTRY_WIDTH),
-    .FIFO_DEPTH(8)
+    .ENTRY_WIDTH(IFIFO_ENTRY_WIDTH),
+    .N_ENTRIES(8)
 ) instruction_FIFO (
     .clk(clk),
     .rst_aL(rst_aL),

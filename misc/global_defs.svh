@@ -36,6 +36,14 @@ typedef logic [`ARF_ID_WIDTH-1:0] arf_id_t;
 typedef logic [`ROB_ID_WIDTH-1:0] rob_id_t;
 
 typedef struct packed {
+    logic [`INSTR_WIDTH-1:0] instr;
+    logic [`ADDR_WIDTH-1:0] pc;
+    logic is_cond_br;
+    logic br_dir_pred;
+    logic [`ADDR_WIDTH-1:0] br_target_pred;
+} ififo_entry_t;
+
+typedef struct packed {
     logic dst_valid;
     arf_id_t dst_arf_id;
     logic [`ADDR_WIDTH-1:0] pc;
