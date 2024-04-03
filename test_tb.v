@@ -61,7 +61,6 @@ module test_tb #(
         init_enq_up_counter_state = 4'b1001;
         init_deq_up_counter_state = 4'b0110;
         init = 1;
-        @(posedge clk);
         @(negedge clk);
         $display("enq_up_counter: %d", dut.enq_up_counter.counter_reg.dout);
         $display("deq_up_counter: %d", dut.deq_up_counter.counter_reg.dout);
