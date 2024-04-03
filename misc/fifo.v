@@ -14,6 +14,7 @@
 module fifo #(
     parameter N_ENTRIES = 8,
     parameter ENTRY_WIDTH = 32,
+    parameter [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] INIT_ENTRY_REG_STATE = 0,
     localparam PTR_WIDTH = $clog2(N_ENTRIES),
     localparam CTR_WIDTH = PTR_WIDTH + 1 // CTR_WIDTH is PTR_WIDTH + 1 to disambiguate between full and empty conditions
 ) (

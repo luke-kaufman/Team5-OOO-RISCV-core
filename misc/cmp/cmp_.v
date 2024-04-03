@@ -6,7 +6,7 @@ module cmp_ #(
 ) (
     input wire [WIDTH-1:0] a,
     input wire [WIDTH-1:0] b,
-    output wire y,
+    output wire eq,
     output wire lt,
     output wire gte
 );
