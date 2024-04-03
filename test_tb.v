@@ -3,7 +3,9 @@
 
 module test_tb #(
     parameter N_ENTRIES = 8,
-    parameter ENTRY_WIDTH = 32
+    parameter ENTRY_WIDTH = 32,
+    localparam PTR_WIDTH = $clog2(N_ENTRIES),
+    localparam CTR_WIDTH = PTR_WIDTH + 1 // CTR_WIDTH is PTR_WIDTH + 1 to disambiguate between full and empty conditions
 );
     reg clk;
     reg rst_aL;
@@ -15,8 +17,13 @@ module test_tb #(
     reg deq_ready;
     wire deq_valid;
     wire [ENTRY_WIDTH-1:0] deq_data;
-    
-    // wire [PTR_WIDTH-1:0] count;
+
+    wire [PTR_WIDTH-1:0] count;
+
+    reg init;
+    reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_entry_reg_state;
+    reg [CTR_WIDTH-1:0] init_enq_up_counter_state;
+    reg [CTR_WIDTH-1:0] init_deq_up_counter_state;
 
     fifo #(
         .ENTRY_WIDTH(ENTRY_WIDTH),
@@ -31,9 +38,14 @@ module test_tb #(
         
         .deq_ready(deq_ready),
         .deq_valid(deq_valid),
-        .deq_data(deq_data)
+        .deq_data(deq_data),
 
-        // .count(count)
+        .count(count),
+
+        .init(init),
+        .init_entry_reg_state(init_entry_reg_state),
+        .init_enq_up_counter_state(init_enq_up_counter_state),
+        .init_deq_up_counter_state(init_deq_up_counter_state)
     );
 
     always begin
@@ -44,13 +56,13 @@ module test_tb #(
         clk = 1;
         #1;
         for (int i = 0; i < N_ENTRIES; i++) begin
-            force dut.entry[i].entry_reg.we = 1'b1;
-            force dut.entry[i].entry_reg.din = 32'hDEADBEE0 + i;
+            init_entry_reg_state[i] = 32'hDEADBEE0 + i;
         end
-        force dut.enq_up_counter.counter_reg.we = 1'b1;
-        force dut.enq_up_counter.counter_reg.din = 4'b1001;
-        force dut.deq_up_counter.counter_reg.we = 1'b1;
-        force dut.deq_up_counter.counter_reg.din = 4'b0110;
+        init_enq_up_counter_state = 4'b1001;
+        init_deq_up_counter_state = 4'b0110;
+        init = 1;
+        @(posedge clk);
+        @(negedge clk);
         $display("enq_up_counter: %d", dut.enq_up_counter.counter_reg.dout);
         $display("deq_up_counter: %d", dut.deq_up_counter.counter_reg.dout);
         $finish;

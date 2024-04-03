@@ -29,7 +29,14 @@ module fifo #(
     output wire deq_valid,
     output wire [ENTRY_WIDTH-1:0] deq_data,
 
-    output wire [PTR_WIDTH-1:0] count // for debugging
+    // for debugging
+    output wire [PTR_WIDTH-1:0] count,
+
+    // for testing
+    input wire init,
+    input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_entry_reg_state,
+    input wire [CTR_WIDTH-1:0] init_enq_up_counter_state,
+    input wire [CTR_WIDTH-1:0] init_deq_up_counter_state
 );
     // counter that holds the enqueue pointer
     wire enq;
@@ -38,7 +45,10 @@ module fifo #(
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(enq),
-        .count(enq_ctr)
+        .count(enq_ctr),
+
+        .init(init),
+        .init_state(init_enq_up_counter_state)
     );
     // counter that holds the dequeue pointer
     wire deq;
@@ -47,7 +57,10 @@ module fifo #(
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(deq),
-        .count(deq_ctr)
+        .count(deq_ctr),
+
+        .init(init),
+        .init_state(init_deq_up_counter_state)
     );
     
     // comparator that disambiguates between full and empty conditions using the MSB
@@ -134,7 +147,10 @@ module fifo #(
             .rst_aL(rst_aL),
             .we(entry_we[i]),
             .din(enq_data),
-            .dout(entry_dout[i])
+            .dout(entry_dout[i]),
+
+            .init(init),
+            .init_state(init_entry_reg_state[i])
         );
     end
 

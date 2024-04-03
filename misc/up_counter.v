@@ -11,10 +11,13 @@ module up_counter #(
     parameter WIDTH = 1
 ) (
     input wire clk,
-    // input wire rst_aL, (NOTE: edited to suppress "coerced to input" warning)
     input wire rst_aL,
     input wire inc,
-    output wire [WIDTH-1:0] count
+    output wire [WIDTH-1:0] count,
+
+    // for testing
+    input wire init,
+    input wire [WIDTH-1:0] init_state
 );
     wire [WIDTH-1:0] next_count;
     reg_ #(.WIDTH(WIDTH)) counter_reg ( // NOTE: STATEFUL
@@ -22,7 +25,10 @@ module up_counter #(
         .rst_aL(rst_aL),
         .we(inc),
         .din(next_count),
-        .dout(count)
+        .dout(count),
+
+        .init(init),
+        .init_state(init_state)
     );
     wire [WIDTH-1:0] one = 'b1;
     adder #(.WIDTH(WIDTH)) add (
