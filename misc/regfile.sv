@@ -93,6 +93,14 @@ module regfile #(
             .out(rd_data[i])
         );
     end
+
+    // assertions
+    // check that all write ports are to different addresses
+    for (genvar i = 0; i < N_WRITE_PORTS; i++) begin
+        for (genvar j = i + 1; j < N_WRITE_PORTS; j++) begin
+            assert property (@(posedge clk) disable iff (!rst_aL) wr_en[i] && wr_en[j] |-> wr_addr[i] != wr_addr[j]);
+        end
+    end
 endmodule
 
 `endif

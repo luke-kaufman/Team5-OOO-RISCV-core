@@ -12,8 +12,8 @@
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
 module fifo #(
-    parameter ENTRY_WIDTH = 32,
     parameter N_ENTRIES = 8,
+    parameter ENTRY_WIDTH = 32,
     localparam PTR_WIDTH = $clog2(N_ENTRIES),
     localparam CTR_WIDTH = PTR_WIDTH + 1 // CTR_WIDTH is PTR_WIDTH + 1 to disambiguate between full and empty conditions
 ) (
@@ -33,7 +33,7 @@ module fifo #(
     // counter that holds the enqueue pointer
     wire enq;
     wire [CTR_WIDTH-1:0] enq_ctr;
-    up_counter #(.WIDTH(CTR_WIDTH)) enq_up_counter (
+    up_counter #(.WIDTH(CTR_WIDTH)) enq_up_counter ( // NOTE: STATEFUL
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(enq),
@@ -42,7 +42,7 @@ module fifo #(
     // counter that holds the dequeue pointer
     wire deq;
     wire [CTR_WIDTH-1:0] deq_ctr;
-    up_counter #(.WIDTH(CTR_WIDTH)) deq_up_counter (
+    up_counter #(.WIDTH(CTR_WIDTH)) deq_up_counter ( // NOTE: STATEFUL
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(deq),
@@ -54,7 +54,7 @@ module fifo #(
     cmp_ #(.WIDTH(1)) eq_msb_cmp (
         .a(enq_ctr[CTR_WIDTH-1]),
         .b(deq_ctr[CTR_WIDTH-1]),
-        .y(eq_msb)
+        .eq(eq_msb)
     );
     
     // pointers are the lower bits of the counters
@@ -68,7 +68,7 @@ module fifo #(
     cmp_ #(.WIDTH(PTR_WIDTH)) eq_ptr_cmp (
         .a(enq_ptr),
         .b(deq_ptr),
-        .y(eq_ptr)
+        .eq(eq_ptr)
     );
     
     // logic that checks if the fifo is empty
@@ -121,14 +121,14 @@ module fifo #(
     // memory that holds fifo entries
     wire [N_ENTRIES-1:0] entry_we;
     wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_dout;
-    for (genvar i = 0; i < N_ENTRIES; i = i + 1) begin
+    for (genvar i = 0; i < N_ENTRIES; i = i + 1) begin : entry
         // logic that drives the write enable signal for each fifo entry
         and_ #(.N_INS(2)) entry_we_and (
             .a({onehot_enq_ptr[i], enq}),
             .y(entry_we[i])
         );
         // register that holds each fifo entry
-        reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg (
+        reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg ( // NOTE: STATEFUL
             .clk(clk),
             .rst_aL(rst_aL),
             .we(entry_we[i]),

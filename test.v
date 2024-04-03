@@ -1,16 +1,19 @@
-typedef struct packed {
-        logic b;
-} my_type;
+`include "freepdk-45nm/stdcells.v"
+`include "misc/dff_we.v"
+`include "misc/reg_.v"
 
-module test;
-    // struct packed {
-    //     logic a;
-    // } val1;
-    wire my_type val2;
-    initial begin
-        // val1.a = 1'b0;
-        val2.b = 1'b0;
-    end
-    // assign val2.b = 1'b0;
-    // assign val1.a = 1'b0;
+module test (
+    input wire clk,
+    input wire rst_aL,
+    input wire we,
+    input wire d,
+    output wire q
+);
+    dff_we dff (
+        .clk(clk),
+        .rst_aL(rst_aL),
+        .we(we),
+        .d(d),
+        .q(q)
+    );
 endmodule

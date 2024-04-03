@@ -17,7 +17,7 @@ module up_counter #(
     output wire [WIDTH-1:0] count
 );
     wire [WIDTH-1:0] next_count;
-    reg_ #(.WIDTH(WIDTH)) ctr (
+    reg_ #(.WIDTH(WIDTH)) counter_reg ( // NOTE: STATEFUL
         .clk(clk),
         .rst_aL(rst_aL),
         .we(inc),

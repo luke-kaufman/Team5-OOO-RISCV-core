@@ -11,7 +11,9 @@ module cmp_ #(
     output wire gte
 );
     // TODO: implement
-    assign y = (a == b);
+    assign eq = (a == b);
+    assign lt = (a < b);
+    assign gte = (a >= b);
 endmodule
 
 `endif
