@@ -23,8 +23,7 @@ module reg_ #(
     end
 
     always @(posedge init) begin
-        force we = 1'b1;
-        force din = init_state;
+        force dout = init_state;
     end
 endmodule
 
