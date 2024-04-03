@@ -4,8 +4,8 @@
 // random testbench for fifo module
 module fifo_tb;
     // parameters
-    localparam DATA_WIDTH = 32;
-    localparam FIFO_DEPTH = 8;
+    localparam ENTRY_WIDTH = 32;
+    localparam N_ENTRIES = 8;
 
     // clock and reset
     reg clk;
@@ -14,17 +14,17 @@ module fifo_tb;
     // inputs
     reg enq_valid;
     reg deq_ready;
-    reg [DATA_WIDTH-1:0] enq_data;
+    reg [ENTRY_WIDTH-1:0] enq_data;
 
     // dut outputs
     wire enq_ready_dut;
     wire deq_valid_dut;
-    wire [DATA_WIDTH-1:0] deq_data_dut;
+    wire [ENTRY_WIDTH-1:0] deq_data_dut;
 
     // golden outputs
     wire enq_ready_golden;
     wire deq_valid_golden;
-    wire [DATA_WIDTH-1:0] deq_data_golden;
+    wire [ENTRY_WIDTH-1:0] deq_data_golden;
 
     // clock generation
     localparam CLOCK_PERIOD = 10;
@@ -35,7 +35,7 @@ module fifo_tb;
     end
 
     // design under test
-    fifo #(.ENTRY_WIDTH(DATA_WIDTH), .N_ENTRIES(FIFO_DEPTH)) dut (
+    fifo #(.ENTRY_WIDTH(ENTRY_WIDTH), .N_ENTRIES(N_ENTRIES)) dut (
         .clk(clk),
         .rst_aL(rst_aL),
         .enq_valid(enq_valid),
@@ -47,7 +47,7 @@ module fifo_tb;
     );
 
     // golden model
-    fifo_golden #(.DATA_WIDTH(DATA_WIDTH), .FIFO_DEPTH(FIFO_DEPTH)) golden (
+    fifo_golden #(.ENTRY_WIDTH(ENTRY_WIDTH), .N_ENTRIES(N_ENTRIES)) golden (
         .clk(clk),
         .rst_aL(rst_aL),
         .enq_valid(enq_valid),
@@ -95,7 +95,7 @@ module fifo_tb;
         rst_aL = 0;
         @(negedge clk);
 
-        repeat (10) begin
+        repeat (1000) begin
             random_testcase();
         end
         display_test_results();
