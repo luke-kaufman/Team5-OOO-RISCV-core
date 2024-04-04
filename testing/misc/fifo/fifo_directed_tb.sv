@@ -3,60 +3,71 @@
 
 // directed testbench for fifo modules
 module fifo_directed_tb #(
-    parameter N_RANDOM_TESTS = 10,
-    parameter ENTRY_WIDTH = 32,
     parameter N_ENTRIES = 8,
+    parameter ENTRY_WIDTH = 32,
     localparam PTR_WIDTH = $clog2(N_ENTRIES),
     localparam CTR_WIDTH = PTR_WIDTH + 1
 );
-    // clock and reset
+    // inputs and outputs
     reg clk;
     reg rst_aL;
-
-    // inputs
-    reg deq_ready;
+    wire enq_ready;
     reg enq_valid;
     reg [ENTRY_WIDTH-1:0] enq_data;
-
-    // outputs
-    wire enq_ready;
+    reg deq_ready;
     wire deq_valid;
     wire [ENTRY_WIDTH-1:0] deq_data;
-    wire [PTR_WIDTH-1:0] count; // for debugging
+    // for debugging
+    wire [PTR_WIDTH-1:0] count;
+    // for testing
+    reg init;
+
+    typedef reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_reg_state_t;
+    typedef reg [CTR_WIDTH-1:0] init_enq_up_counter_state_t;
+    typedef reg [CTR_WIDTH-1:0] init_deq_up_counter_state_t;
+    typedef struct packed {
+        entry_reg_state_t entry_reg_state;
+        init_enq_up_counter_state_t init_enq_up_counter_state;
+        init_deq_up_counter_state_t init_deq_up_counter_state;
+    } init_state_t;
+    init_state_t init_state;
 
     // clock generation
     localparam CLOCK_PERIOD = 10;
     localparam HALF_PERIOD = CLOCK_PERIOD / 2;
     initial begin
-        clk = 0;
+        clk = 1;
         forever #HALF_PERIOD clk = ~clk;
     end
 
     // design under test (dut)
     fifo #(
-        .ENTRY_WIDTH(ENTRY_WIDTH),
-        .N_ENTRIES(N_ENTRIES)
+        .N_ENTRIES(N_ENTRIES),
+        .ENTRY_WIDTH(ENTRY_WIDTH)
     ) dut (
         .clk(clk),
         .rst_aL(rst_aL),
-
-        .deq_ready(deq_ready),
+        .enq_ready(enq_ready),
         .enq_valid(enq_valid),
         .enq_data(enq_data),
-        
-        .enq_ready(enq_ready),
+        .deq_ready(deq_ready),
         .deq_valid(deq_valid),
         .deq_data(deq_data),
-
-        .count(count) // for debugging
+        // for debugging
+        .count(count),
+        // for testing
+        .init(init),
+        .init_entry_reg_state(init_entry_reg_state),
+        .init_enq_up_counter_state(init_enq_up_counter_state),
+        .init_deq_up_counter_state(init_deq_up_counter_state)
     );
     
-    int num_directed_tests_passed = 0;
     int num_directed_tests = 0;
-
+    int num_directed_tests_passed = 0;
+    
+    reg [999:0] []
     initial begin
-        $dumpfile("fifo_directed_tb.vcd");
-        $dumpvars(0, fifo_directed_tb);
+        $readmemb("fifo_directed_tb.tv", init_entry_reg_state);
         $monitor($time, " clk = %b, rst_aL = %b, deq_ready = %b, enq_valid = %b, enq_data = %h, enq_ready = %b, deq_valid = %b, deq_data = %h", clk, rst_aL, deq_ready, enq_valid, enq_data, enq_ready, deq_valid, deq_data);
         // reset the design
         @(negedge clk);
