@@ -1,6 +1,6 @@
 `include "misc/cache.v"
 `include "freepdk-45nm/stdcells.v"
-`include "misc/global_defs.vh"
+`include "misc/global_defs.svh"
 
 // Things to test:
 // 1. Read from cache (correct way and instruction)
@@ -59,6 +59,7 @@ module icache_tb;
     int num_directed_tests = 0;
     longint actual_output;
     longint expected_output;
+    int expected_we_mask;
 
     task directed_testcases();
         
@@ -70,8 +71,9 @@ module icache_tb;
 
         // TEST READING A PREVIOUS WRITE FROM THE CACHE ------------------------------------------------------------------
         
-        icache_addr = 32'hFEDCB00C;
-        dram_response_data = 64'hFEDCBA9876543210;
+        // write into the cache SET 0 WAY 0
+        icache_addr = 32'h10000000;
+        dram_response_data = 64'hAAAAAAAAAAAAAAAA;
         dram_response_valid = 1; 
         expected_output = dram_response_data;
         $display("ICACHE WE_MASK: %2b", dut.we_mask);
@@ -94,45 +96,83 @@ module icache_tb;
 
         num_directed_tests++;
         if (icache_hit == 1) begin
-            $display("Test 1.2 PASS: expected 1 got %0d", icache_hit);
+            $display("Test 1.2 PASS: expected 1 got %0d\n", icache_hit);
             num_directed_tests_passed++;
         end else begin
-            $display("Test 1.2 FAIL: expected 1 got %0d", icache_hit);
+            $display("Test 1.2 FAIL: expected 1 got %0d\n", icache_hit);
         end
 
         // TEST CACHE MISS WITHIN THE SAME SET ----------------------------------------------------------------------------
         
-        icache_addr = 32'hF0DCB00C;  // E changed to 0 to change tag
+        // try to read from set 0 , tag thats not in the set
+        icache_addr = 32'h80000000; 
         @(negedge clk);
         #4  // account for read delay on neg edge (3)
 
         num_directed_tests++;
         if (icache_hit == 0) begin
-            $display("Test 2 PASS: expected miss got %0d, data %0h", icache_hit, icache_data_way_out);
+            $display("Test 2 PASS: expected miss got %0d, data %0h\n", icache_hit, icache_data_way_out);
             num_directed_tests_passed++;
         end else begin
-            $display("Test 2 FAIL: expected miss got %0d, data %0h", icache_hit, icache_data_way_out);
+            $display("Test 2 FAIL: expected miss got %0d, data %0h\n", icache_hit, icache_data_way_out);
         end
 
         // TEST WRITING TO OTHER WAY IN CACHE SET AND READING FROM IT --------------------------------------------------
-       
+
         // write: Should write to other way in set 1
-        icache_addr = 32'hF0DCB00C;  // different tag to initial write
-        dram_response_data = 64'hDEADBEEFDEADBEEF;
+        // this write is the same addr that just missed 
+        // (pretending this is the dram response orginially triggered by cache miss signal)
+        icache_addr = 32'h80000000;  
+        dram_response_data = 64'hBBBBBBBBBBBBBBBB;
         dram_response_valid = 1; 
         expected_output = dram_response_data;
-        // $display("3 ICACHE WAY0_V: %1b", dut.we_);
-        // $display("3 ICACHE WAY0_tag_match: %1b", dut.we_);
-        // $display("3 ICACHE WAY1_V: %1b", dut.we_);
-        // $display("3 ICACHE WAY1_tag_match: %1b", dut.we_);
+        $display("3 ICACHE TAG OUT: %48b", dut.tag_out);
+        $display("3 ICACHE WAY1_V: %1b WAY0_V: %1b", dut.way1_v, dut.way0_v);
+        $display("3 ICACHE WAY1_tag_match: %1b WAY0_tag_match: %1b", dut.way1_tag_match, dut.way0_tag_match);
         $display("3 ICACHE WE_MASK: %2b", dut.we_mask);
+        num_directed_tests++;
+        if(dut.we_mask == 2'b10) begin
+            $display("Test 3.0 PASS: expected 2'b10, got 2'b%2b", dut.we_mask);
+            num_directed_tests_passed++;
+        end else begin
+            $display("Test 3.0 FAIL: expected 2'b10, got 2'b%2b", dut.we_mask);
+        end
         @(negedge clk);
+        
+        // now read
+        dram_response_valid = 0; 
+        @(negedge clk);
+        #4  // account for read delay on neg edge (3)
+        
+        $display("3 ICACHE WAY0 TAG MATCH: %1b", dut.way0_tag_match);
+        $display("3 ICACHE WAY1 TAG MATCH: %1b", dut.way1_tag_match);
+        $display("3 ICACHE WAY0 READ SELECTED: %1b", dut.read_way0_selected);
+        $display("3 ICACHE WAY1 READ SELECTED: %1b", dut.read_way1_selected);
+        $display("3 ICACHE WAY0 DATA: %0h", dut.way0_data);
+        $display("3 ICACHE WAY1 DATA: %0h", dut.way1_data);
+        $display("3 ICACHE DATAOUT: %0h", dut.data_out);
+        
+        num_directed_tests++;
+        if (icache_data_way_out == expected_output) begin
+            $display("Test 3.1 PASS: expected 0x%0h, got 0x%0h", expected_output, icache_data_way_out);
+            num_directed_tests_passed++;
+        end else begin
+            $display("Test 3.1 FAIL: expected 0x%0h, got 0x%0h", expected_output, icache_data_way_out);
+        end
+
+        num_directed_tests++;
+        if (icache_hit == 1) begin
+            $display("Test 3.2 PASS: expected 1 got %0d\n", icache_hit);
+            num_directed_tests_passed++;
+        end else begin
+            $display("Test 3.2 FAIL: expected 1 got %0d\n", icache_hit);
+        end
         
         // TEST WRITING TO CACHE SET WITH 1 WAY VALID AND THE SAME TAG AS THAT WAY ----------------------------------------
 
         // write: should already have data here - should overwrite it with new data
-        icache_addr = 32'hFEDCB00C;
-        dram_response_data = 64'h0123456789ABCDEF;
+        icache_addr = 32'h80000000;
+        dram_response_data = 64'hCCCCCCCCCCCCCCCC;
         dram_response_valid = 1; 
         expected_output = dram_response_data;
         $display("4 ICACHE WE_MASK: %2b", dut.we_mask);
@@ -143,7 +183,7 @@ module icache_tb;
         @(negedge clk);
         #4  // account for read delay on neg edge (3)
         
-        $display("ICACHE DATAOUT: %0h", dut.data_out);
+        $display("4 ICACHE DATAOUT: %0h", dut.data_out);
         
         num_directed_tests++;
         if (icache_data_way_out == expected_output) begin
@@ -155,11 +195,50 @@ module icache_tb;
 
         num_directed_tests++;
         if (icache_hit == 1) begin
-            $display("Test 4.2 PASS: expected 1 got %0d", icache_hit);
+            $display("Test 4.2 PASS: expected 1 got %0d\n", icache_hit);
             num_directed_tests_passed++;
         end else begin
-            $display("Test 4.2 FAIL: expected 1 got %0d", icache_hit);
+            $display("Test 4.2 FAIL: expected 1 got %0d\n", icache_hit);
         end
+
+    // TEST WRITING TO CACHE SET WITH 2 VALID WAYS AND A DIFFERENT TAG (RANDOM EVICTION) ---------------------------------------    
+    icache_addr = 32'hF0000000;
+    dram_response_data = 64'hDDDDDDDDDDDDDDDD;
+    dram_response_valid = 1;
+    expected_output = dram_response_data;
+    
+    $display("5 ICACHE WE_MASK: %2b", dut.we_mask);
+    expected_we_mask = {dut.lfsr_out,dut.lfsr_inv.ZN};
+    num_directed_tests++;
+    if(dut.we_mask == expected_we_mask) begin
+        $display("Test 5.0 PASS: expected %2b, got %2b", dut.we_mask, expected_we_mask);
+        num_directed_tests_passed++;
+    end else begin
+        $display("Test 5.0 FAIL: expected %2b, got %2b", dut.we_mask, expected_we_mask);
+    end
+    @(negedge clk);
+
+    // now read
+    dram_response_valid = 0;
+    @(negedge clk);
+    #4  // account for read delay on neg edge (3)
+
+    $display("5 ICACHE DATAOUT: %0h", dut.data_out);
+    num_directed_tests++;       
+    if (icache_data_way_out == expected_output) begin
+        $display("Test 5.1 PASS: expected 0x%0h, got 0x%0h", expected_output, icache_data_way_out);
+        num_directed_tests_passed++;
+    end else begin
+        $display("Test 5.1 FAIL: expected 0x%0h, got 0x%0h", expected_output, icache_data_way_out);
+    end
+
+    num_directed_tests++;
+    if (icache_hit == 1) begin
+        $display("Test 5.2 PASS: expected 1 got %0d\n", icache_hit);
+        num_directed_tests_passed++;
+    end else begin
+        $display("Test 5.2 FAIL: expected 1 got %0d\n", icache_hit);
+    end
 
 
     endtask

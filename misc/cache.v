@@ -10,6 +10,8 @@
 `include "misc/cmp/cmp32.v"
 `include "misc/onehot_mux/onehot_mux2.v"
 `include "misc/mux/mux_.v"
+`include "misc/lfsr.v"
+
 
 // TODO: make this truly parametrizable?
 // TODO: change BLOCK_SIZE to be in terms of bytes, not bits?
@@ -62,7 +64,7 @@ sram_64x48_1rw_wsize24 tag_arr (
 // capture Tag Array outputs
 wire way0_v, way1_v;
 wire [TAG_ENTRY_SIZE-2:0] way0_tag, way1_tag;  // -2 for valid bit
-assign {way0_v, way0_tag, way1_v, way1_tag} = tag_out;
+assign {way1_v, way1_tag, way0_v, way0_tag} = tag_out;
 
 // For dirty bits - write 1 when completing ST instruction
 genvar i;
@@ -159,7 +161,7 @@ endgenerate
 
 // capture 2 data way outputs
 wire [BLOCK_SIZE_BITS-1:0] way0_data, way1_data;
-assign {way0_data, way1_data} = icache.i_cache_data_arr.dout0;
+assign {way1_data, way0_data} = icache.i_cache_data_arr.dout0;
 
 // END DATA ARRAY ::::::::::::::::::::::::::::::::::::
 
@@ -196,24 +198,52 @@ AND2_X1 way1_check_v(
 //     .A1(way0_tag_match),
 //     .A2(way1_tag_match)
 // );
+wire rst_aH;
+INV_X1 rst_inv (
+    .A(rst_aL),
+    .ZN(rst_aH)
+);
+wire lfsr_out;
+lfsr_1bit lfsr (
+    .clk(clk),
+    .reset(rst_aH),
+    .q(lfsr_out)
+);
+INV_X1 lfsr_inv (
+    .A(lfsr_out)
+);
+// truth tab
+// WAY1V WAY0V we_mask[1] we_mask[0]  
+//  0     0     0         1  // both invalid just write to 0
+//  0     1     1         0  // if way 0 valid, write to way 1
+//  1     0     0         1  // if way 1 valid, write to way 0
+//  1     1    1/2       1/2 (randomly evict)
+wire [1:0] intr_we_mask;
 mux_ #(
     .WIDTH(1),
     .N_INS(4)
 ) mux4_way_fill2 (
-    .ins({1'b1,1'b0,1'b1,1'b1}),  // if 0 valid, write to way 1  
+    .ins({lfsr_out, 1'b0, 1'b1, 1'b0}),  
     .sel({way1_v, way0_v}),
-    .out(we_mask[1])
+    .out(intr_we_mask[1])
 );
 mux_ #(
     .WIDTH(1),
     .N_INS(4)
 ) mux4_way_fill1 (
-    .ins({1'b1,1'b1,1'b0,1'b0}),  // if 1 valid , write to way 0
+    .ins({lfsr_inv.ZN, 1'b1, 1'b0, 1'b1}), 
     .sel({way1_v, way0_v}),
-    .out(we_mask[0])
+    .out(intr_we_mask[0])
 );
-// TODO: if and(we_mask[0], we_mask[1]) == 1, randomly choose to evict 
 
+mux_ #(
+    .WIDTH(2),
+    .N_INS(4)
+) mux4_way_fill (
+    .ins({intr_we_mask, 2'b10, 2'b01, intr_we_mask}),  
+    .sel({way1_tag_match, way0_tag_match}),
+    .out(we_mask)
+);
 
 // Cache hit - is either way selected and valid?
 OR2_X1 icache_hit_or_gate(
