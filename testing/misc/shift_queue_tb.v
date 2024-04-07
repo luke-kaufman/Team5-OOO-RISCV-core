@@ -27,6 +27,7 @@ reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] wr_data,
 wire enq_ready,
 wire deq_valid,
 wire [ENTRY_WIDTH-1:0] deq_data,
+wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts
 
 //clock generation
  localparam CLOCK_PERIOD = 10;
@@ -36,7 +37,6 @@ wire [ENTRY_WIDTH-1:0] deq_data,
         forever #HALF_PERIOD clk = ~clk;
     end
 
-wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts
 shift_queue_golden #(
     .N_ENTRIES(`IIQ_N_ENTRIES),
     .ENTRY_WIDTH(`IIQ_ENTRY_WIDTH)
