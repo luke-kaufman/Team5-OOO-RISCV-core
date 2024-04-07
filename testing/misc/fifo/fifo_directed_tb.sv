@@ -1,188 +1,231 @@
 `include "golden/misc/fifo_golden.sv"
 `include "misc/fifo.v"
 
-// directed testbench for fifo modules
 module fifo_directed_tb #(
-    parameter N_ENTRIES = 8,
-    parameter ENTRY_WIDTH = 32,
+    parameter DEBUG = 0,
+    parameter N_MAX_TESTCASES = 10000,
+    parameter N_ENTRIES = 4,
+    parameter ENTRY_WIDTH = 4,
     localparam PTR_WIDTH = $clog2(N_ENTRIES),
     localparam CTR_WIDTH = PTR_WIDTH + 1
 );
-    // inputs and outputs
-    reg clk;
-    reg rst_aL;
-    wire enq_ready;
-    reg enq_valid;
-    reg [ENTRY_WIDTH-1:0] enq_data;
-    reg deq_ready;
-    wire deq_valid;
-    wire [ENTRY_WIDTH-1:0] deq_data;
-    // for debugging
-    wire [PTR_WIDTH-1:0] count;
-    // for testing
-    reg init;
-
-    typedef reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_reg_state_t;
-    typedef reg [CTR_WIDTH-1:0] init_enq_up_counter_state_t;
-    typedef reg [CTR_WIDTH-1:0] init_deq_up_counter_state_t;
     typedef struct packed {
-        entry_reg_state_t entry_reg_state;
-        init_enq_up_counter_state_t init_enq_up_counter_state;
-        init_deq_up_counter_state_t init_deq_up_counter_state;
-    } init_state_t;
-    init_state_t init_state;
+        reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_reg;
+        reg [CTR_WIDTH-1:0] enq_up_counter;
+        reg [CTR_WIDTH-1:0] deq_up_counter;
+    } state_t;
+    typedef struct packed {
+        reg enq_valid;
+        reg [ENTRY_WIDTH-1:0] enq_data;
+        reg deq_ready;
+    } input_t;
+    typedef struct packed {
+        reg enq_ready;
+        reg deq_valid;
+        reg [ENTRY_WIDTH-1:0] deq_data;
+    } output_t;
+    typedef struct packed {
+        state_t init_state;
+        input_t input_stimuli;
+        output_t expected_output;
+        state_t expected_next_state;
+    } test_vector_t;
+
+    int num_testcases = 0;
+    int num_testcases_passed = 0;
+    test_vector_t test_vectors[1:N_MAX_TESTCASES];
+    bit testcases_passed[1:N_MAX_TESTCASES];
+    initial begin
+        // testcase 1: enqueue entry to empty fifo, don't try to dequeue
+        test_vectors[1] = '{
+            init_state: '{
+                entry_reg: 16'h0_0_0_0,
+                enq_up_counter: 3'b000,
+                deq_up_counter: 3'b000
+            },
+            input_stimuli: '{
+                enq_valid: 1'b1,
+                enq_data: 4'h1,
+                deq_ready: 1'b0
+            },
+            expected_output: '{
+                enq_ready: 1'b1,
+                deq_valid: 1'b0,
+                deq_data: 4'h0
+            },
+            expected_next_state: '{
+                entry_reg: 16'h0_0_0_1,
+                enq_up_counter: 3'b001,
+                deq_up_counter: 3'b000
+            }
+        };
+        // testcase 2: enqueue entry to fifo with one entry, don't try to dequeue
+        test_vectors[2] = '{
+            init_state: '{
+                entry_reg: 16'h0_0_0_f,
+                enq_up_counter: 3'b001,
+                deq_up_counter: 3'b000
+            },
+            input_stimuli: '{
+                enq_valid: 1'b1,
+                enq_data: 4'h2,
+                deq_ready: 1'b0
+            },
+            expected_output: '{
+                enq_ready: 1'b1,
+                deq_valid: 1'b1,
+                deq_data: 4'hf
+            },
+            expected_next_state: '{
+                entry_reg: 16'h0_0_2_f,
+                enq_up_counter: 3'b010,
+                deq_up_counter: 3'b000
+            }
+        };
+        // testcase 3: enqueue entry to fifo with two entries, don't try to dequeue
+        test_vectors[3] = '{
+            init_state: '{
+                entry_reg: 16'h0_0_0_f,
+                enq_up_counter: 3'b010,
+                deq_up_counter: 3'b000
+            },
+            input_stimuli: '{
+                enq_valid: 1'b1,
+                enq_data: 4'h3,
+                deq_ready: 1'b0
+            },
+            expected_output: '{
+                enq_ready: 1'b1,
+                deq_valid: 1'b1,
+                deq_data: 4'hf
+            },
+            expected_next_state: '{
+                entry_reg: 16'h0_3_0_f,
+                enq_up_counter: 3'b011,
+                deq_up_counter: 3'b000
+            }
+        };
+        // testcase 4: enqueue entry to fifo with three entries, don't try to dequeue
+        test_vectors[4] = '{
+            init_state: '{
+                entry_reg: 16'h0_e_0_f,
+                enq_up_counter: 3'b011,
+                deq_up_counter: 3'b000
+            },
+            input_stimuli: '{
+                enq_valid: 1'b1,
+                enq_data: 4'h4,
+                deq_ready: 1'b0
+            },
+            expected_output: '{
+                enq_ready: 1'b1,
+                deq_valid: 1'b1,
+                deq_data: 4'hf
+            },
+            expected_next_state: '{
+                entry_reg: 16'h4_e_0_f,
+                enq_up_counter: 3'b100,
+                deq_up_counter: 3'b000
+            }
+        };
+    end
+
+    // dut i/o
+    bit clk = 1;
+    reg rst_aL;
+    reg init;
+    test_vector_t test_vector;
+    wire output_t observed_output;
+    wire state_t observed_next_state;
 
     // clock generation
     localparam CLOCK_PERIOD = 10;
     localparam HALF_PERIOD = CLOCK_PERIOD / 2;
-    initial begin
-        clk = 1;
-        forever #HALF_PERIOD clk = ~clk;
-    end
+    initial forever #HALF_PERIOD clk = ~clk;
 
-    // design under test (dut)
     fifo #(
         .N_ENTRIES(N_ENTRIES),
         .ENTRY_WIDTH(ENTRY_WIDTH)
     ) dut (
         .clk(clk),
         .rst_aL(rst_aL),
-        .enq_ready(enq_ready),
-        .enq_valid(enq_valid),
-        .enq_data(enq_data),
-        .deq_ready(deq_ready),
-        .deq_valid(deq_valid),
-        .deq_data(deq_data),
-        // for debugging
-        .count(count),
-        // for testing
+        // input stimuli
+        .enq_valid(test_vector.input_stimuli.enq_valid),
+        .enq_data(test_vector.input_stimuli.enq_data),
+        .deq_ready(test_vector.input_stimuli.deq_ready),
+        // observed output
+        .enq_ready(observed_output.enq_ready),
+        .deq_valid(observed_output.deq_valid),
+        .deq_data(observed_output.deq_data),
+        // initial state
         .init(init),
-        .init_entry_reg_state(init_entry_reg_state),
-        .init_enq_up_counter_state(init_enq_up_counter_state),
-        .init_deq_up_counter_state(init_deq_up_counter_state)
+        .init_entry_reg_state(test_vector.init_state.entry_reg),
+        .init_enq_up_counter_state(test_vector.init_state.enq_up_counter),
+        .init_deq_up_counter_state(test_vector.init_state.deq_up_counter),
+        // observed next state
+        .current_entry_reg_state(observed_next_state.entry_reg),
+        .current_enq_up_counter_state(observed_next_state.enq_up_counter),
+        .current_deq_up_counter_state(observed_next_state.deq_up_counter)
     );
-    
-    int num_directed_tests = 0;
-    int num_directed_tests_passed = 0;
-    
-    reg [999:0] []
+
+    function void check_output(int i);
+        if ((observed_output !== test_vector.expected_output) || DEBUG) begin
+            $display("Testcase %0d observed output is %s:
+                    observed (enq_ready = %b, deq_valid = %b, deq_data = %h),
+                    expected (enq_ready = %b, deq_valid = %b, deq_data = %h)",
+                    i, (observed_output !== test_vector.expected_output) ? "wrong" : "correct",
+                    observed_output.enq_ready, observed_output.deq_valid, observed_output.deq_data,
+                    test_vector.expected_output.enq_ready, test_vector.expected_output.deq_valid, test_vector.expected_output.deq_data);
+        end
+        if (observed_output !== test_vector.expected_output) begin
+            testcases_passed[i] = 0;
+        end
+    endfunction
+
+    function void check_next_state(int i);
+        if ((observed_next_state !== test_vector.expected_next_state) || DEBUG) begin
+            $display("Testcase %0d observed next state is %s:
+                    observed (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b),
+                    expected (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)",
+                    i, (observed_next_state !== test_vector.expected_next_state) ? "wrong" : "correct",
+                    observed_next_state.entry_reg, observed_next_state.enq_up_counter, observed_next_state.deq_up_counter,
+                    test_vector.expected_next_state.entry_reg, test_vector.expected_next_state.enq_up_counter, test_vector.expected_next_state.deq_up_counter);
+        end
+        if (observed_next_state !== test_vector.expected_next_state) begin
+            testcases_passed[i] = 0;
+        end
+    endfunction
+
     initial begin
-        $readmemb("fifo_directed_tb.tv", init_entry_reg_state);
-        $monitor($time, " clk = %b, rst_aL = %b, deq_ready = %b, enq_valid = %b, enq_data = %h, enq_ready = %b, deq_valid = %b, deq_data = %h", clk, rst_aL, deq_ready, enq_valid, enq_data, enq_ready, deq_valid, deq_data);
-        // reset the design
-        @(negedge clk);
-        rst_aL = 0;
-        enq_valid = 0;
-        deq_ready = 0;
-        enq_data = 0;
-        @(negedge clk);
-        @(negedge clk);
-        @(negedge clk);
-        rst_aL = 1;
-        
-        // directed testcase 1: enqueue entry to empty fifo, don't try to dequeue
-        @(negedge clk);
-        enq_valid = 1;
-        deq_ready = 0;
-        enq_data = 32'h12345678;
-        @(negedge clk);
-        // check the output:
-        // - fifo should be ready to enqueue and valid to dequeue,
-        // - and output data should be the data just enqueued,
-        // - and the count should be 1
-        if ({enq_ready, deq_valid, deq_data} === {1'b1, 1'b1, 32'h12345678} && count == 1) begin
-            $display("Directed test 1 PASSED at time %0t: actual (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d), expected (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d)", $time, enq_ready, deq_valid, deq_data, count, 1'b1, 1'b1, 32'h12345678, 1);
-            num_directed_tests_passed++;
-        end else begin
-            $display("Directed test 1 FAILED at time %0t: actual (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d), expected (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d)", $time, enq_ready, deq_valid, deq_data, count, 1'b1, 1'b1, 32'h12345678, 1);
+        // main test loop
+        for (int i = 1; i <= N_MAX_TESTCASES; i++) begin
+            if (test_vectors[i] === 'x) break;
+            num_testcases++;
+            testcases_passed[i] = 1;
+            @(negedge clk);
+            test_vector.init_state = test_vectors[i].init_state;
+            init = 1; // initialize state at t = 5 (mod 10)
+            #1;
+            init = 0;
+            test_vector.input_stimuli = test_vectors[i].input_stimuli; // drive input at t = 6 (mod 10)
+            #1;
+            test_vector.expected_output = test_vectors[i].expected_output;
+            check_output(i); // check output at t = 7 (mod 10)
+            @(posedge clk);
+            #1;
+            test_vector.expected_next_state = test_vectors[i].expected_next_state;
+            check_next_state(i); // check next state at t = 11 (mod 10)
         end
-        num_directed_tests++;
-        // clear up the inputs
-        enq_valid = 0;
-        deq_ready = 0;
-        enq_data = 0;
-        
-        // directed testcase 2: enqueue entry to fifo with one entry, don't try to dequeue
-        @(negedge clk);
-        enq_valid = 1;
-        deq_ready = 0;
-        enq_data = 32'h87654321;
-        @(negedge clk);
-        // check the output:
-        // - fifo should be ready to enqueue and valid to dequeue,
-        // - and output data should be the data enqueued in testcase 1,
-        // - and the count should be 2
-        if ({enq_ready, deq_valid, deq_data} === {1'b1, 1'b1, 32'h12345678} && count == 2) begin
-            $display("Directed test 2 PASSED at time %0t: actual (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d), expected (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d)", $time, enq_ready, deq_valid, deq_data, count, 1'b1, 1'b1, 32'h12345678, 2);
-            num_directed_tests_passed++;
-        end else begin
-            $display("Directed test 2 FAILED at time %0t: actual (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d), expected (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d)", $time, enq_ready, deq_valid, deq_data, count, 1'b1, 1'b1, 32'h12345678, 2);
+        // display results
+        for (int i = 1; i <= N_MAX_TESTCASES; i++) begin
+            if (test_vectors[i] === 'x) break;
+            if (testcases_passed[i] === 0) begin
+                $display("Testcase %0d failed", i);
+            end else begin
+                num_testcases_passed++;
+            end
         end
-        num_directed_tests++;
-        // clear up the inputs
-        enq_valid = 0;
-        deq_ready = 0;
-        enq_data = 0;
-
-        // directed testcase 3: enqueue entry to fifo with two entries, don't try to dequeue
-        @(negedge clk);
-        enq_valid = 1;
-        deq_ready = 0;
-        enq_data = 32'habcdef01;
-        @(negedge clk);
-        // check the output:
-        // - fifo should be ready to enqueue and valid to dequeue,
-        // - and output data should be the data enqueued in testcase 1,
-        // - and the count should be 3
-        if ({enq_ready, deq_valid, deq_data} === {1'b1, 1'b1, 32'h12345678} && count == 3) begin
-            $display("Directed test 3 PASSED at time %0t: actual (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d), expected (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d)", $time, enq_ready, deq_valid, deq_data, count, 1'b1, 1'b1, 32'h12345678, 3);
-            num_directed_tests_passed++;
-        end else begin
-            $display("Directed test 3 FAILED at time %0t: actual (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d), expected (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d)", $time, enq_ready, deq_valid, deq_data, count, 1'b1, 1'b1, 32'h12345678, 3);
-        end
-        num_directed_tests++;
-        // clear up the inputs
-        enq_valid = 0;
-        deq_ready = 0;
-        enq_data = 0;
-
-        // directed testcase 4: don't try to enqueue, dequeue entry from fifo with three entries
-        @(negedge clk);
-        enq_valid = 0;
-        deq_ready = 1;
-        enq_data = 32'h12345678;
-        if (deq_data !== 32'h12345678 || count != 3) begin
-            $display("Directed test 4 FAILED at time %0t: actual (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d), expected (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d)", $time, enq_ready, deq_valid, deq_data, count, 1'b1, 1'b1, 32'h12345678, 3);
-        end
-        @(negedge clk);
-        // check the output:
-        // - fifo should be ready to enqueue and valid to dequeue,
-        // - and dequeued data should be the data enqueued in testcase 1,
-        // - and the count should be 2
-        if ({enq_ready, deq_valid, deq_data} === {1'b1, 1'b1, 32'h87654321} && count == 2) begin
-            $display("Directed test 4 PASSED at time %0t: actual (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d), expected (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d)", $time, enq_ready, deq_valid, deq_data, count, 1'b1, 1'b1, 32'h87654321, 2);
-            num_directed_tests_passed++;
-        end else begin
-            $display("Directed test 4 FAILED at time %0t: actual (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d), expected (enq_ready = %b, deq_valid = %b, deq_data = %h, count = %0d)", $time, enq_ready, deq_valid, deq_data, count, 1'b1, 1'b1, 32'h87654321, 2);
-        end
-        num_directed_tests++;
-        // clear up the inputs
-        enq_valid = 0;
-        deq_ready = 0;
-        enq_data = 0;
-
-        // directed testcase 5: don't try to enqueue, dequeue entry from fifo with two entries
-        @(negedge clk);
-        enq_valid = 0;
-        deq_ready = 1;
-        enq_data = 32'h12345678;
-        
-
-        if (num_directed_tests_passed == num_directed_tests) begin
-            $display("ALL %0d DIRECTED TESTS PASSED", num_directed_tests);
-        end else begin
-            $display("SOME DIRECTED TESTS FAILED: %0d/%0d passed", num_directed_tests_passed, num_directed_tests);
-        end
+        $display("%0d/%0d directed testcases passed", num_testcases_passed, num_testcases);
         $finish;
     end
 endmodule
