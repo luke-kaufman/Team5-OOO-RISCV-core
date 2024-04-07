@@ -1,5 +1,5 @@
 // IMPL STATUS: COMPLETE
-// TEST STATUS: MISSING
+// TEST STATUS: COMPLETE
 
 `include "freepdk-45nm/stdcells.v"
 `include "misc/global_defs.svh"

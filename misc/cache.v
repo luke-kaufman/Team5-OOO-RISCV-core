@@ -16,9 +16,9 @@
 // TODO: make this truly parametrizable?
 // TODO: change BLOCK_SIZE to be in terms of bytes, not bits?
 module cache #(
-    parameter BLOCK_SIZE_BITS = `ICACHE_DATA_BLOCK_SIZE,  // 64 bits
-    parameter NUM_SETS = `ICACHE_NUM_SETS,
-    parameter NUM_WAYS = `ICACHE_NUM_WAYS,
+    parameter BLOCK_SIZE_BITS = `ICACHE_DATA_BLOCK_SIZE,  // just defaults
+    parameter NUM_SETS = `ICACHE_NUM_SETS,  // just defaults
+    parameter NUM_WAYS = `ICACHE_NUM_WAYS,  // just defaults
     parameter NUM_TAG_CTRL_BITS = 1, // valid + dirty + etc.
     parameter WRITE_SIZE_BITS = 64,
     //::: local params ::: don't override
