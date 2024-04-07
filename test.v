@@ -1,27 +1,31 @@
-`include "freepdk-45nm/stdcells.v"
-`include "misc/dff_we.v"
-`include "misc/reg_.v"
-
-module test (
-    input wire clk,
-    input wire rst_aL,
-    input wire we,
-    input wire d,
-    output wire q
+module test #(
+    parameter N = 4
 );
-    dff_we dff (
-        .clk(clk),
-        .rst_aL(rst_aL),
-        .we(we),
-        .d(d),
-        .q(q)
-    );
+    typedef struct packed {
+        logic [43:0] x;
+        logic [30:0] y;
+        logic [37:0] z;
+    } my_struct;
+    my_struct my_array [1:10];
 
-    reg [2**32-1:0] [7:0] mem;
+    // reg [7:0] a = 8'b00_01_10_11;
+    logic [2:0] a = 3'b000;
+    logic [2:0] b = 3'b100;
 
     initial begin
-        mem[0] = 8'hFF;
-        $display("mem[0] = %h", mem[0]);
-        $display("mem[1] = %h", mem[1]);
+        // for (int i = 1; i <= 10; i = i + 1) begin
+        //     for (int j = 0; j < $bits(my_struct); j += 32) begin
+        //         my_array[i][j+:32] = $urandom();
+        //     end
+        // end
+
+        // for (int i = 1; i <= 10; i = i + 1) begin
+        //     $display("x: %b, y: %b, z: %b", my_array[i].x, my_array[i].y, my_array[i].z);
+        // end
+
+        // a[7+:2] = 2'b11;
+        // $display("a: %b", a[7]);
+
+        $display(a == (b + N));
     end
 endmodule

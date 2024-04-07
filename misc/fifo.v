@@ -23,19 +23,19 @@ module fifo #(
     output wire enq_ready,
     input wire enq_valid,
     input wire [ENTRY_WIDTH-1:0] enq_data,
-    
+
     input wire deq_ready,
     output wire deq_valid,
     output wire [ENTRY_WIDTH-1:0] deq_data,
-
-    // for debugging
-    output wire [PTR_WIDTH-1:0] count,
 
     // for testing
     input wire init,
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_entry_reg_state,
     input wire [CTR_WIDTH-1:0] init_enq_up_counter_state,
-    input wire [CTR_WIDTH-1:0] init_deq_up_counter_state
+    input wire [CTR_WIDTH-1:0] init_deq_up_counter_state,
+    output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] current_entry_reg_state,
+    output wire [CTR_WIDTH-1:0] current_enq_up_counter_state,
+    output wire [CTR_WIDTH-1:0] current_deq_up_counter_state
 );
     // counter that holds the enqueue pointer
     wire enq;
@@ -61,7 +61,7 @@ module fifo #(
         .init(init),
         .init_state(init_deq_up_counter_state)
     );
-    
+
     // comparator that disambiguates between full and empty conditions using the MSB
     wire eq_msb;
     cmp_ #(.WIDTH(1)) eq_msb_cmp (
@@ -69,7 +69,7 @@ module fifo #(
         .b(deq_ctr[CTR_WIDTH-1]),
         .eq(eq_msb)
     );
-    
+
     // pointers are the lower bits of the counters
     wire [PTR_WIDTH-1:0] enq_ptr;
     wire [PTR_WIDTH-1:0] deq_ptr;
@@ -83,7 +83,7 @@ module fifo #(
         .b(deq_ptr),
         .eq(eq_ptr)
     );
-    
+
     // logic that checks if the fifo is empty
     wire fifo_empty;
     and_ #(.N_INS(2)) fifo_empty_and (
@@ -160,7 +160,9 @@ module fifo #(
         .out(deq_data)
     );
 
-    assign count = enq_ctr[PTR_WIDTH-1:0] - deq_ctr[PTR_WIDTH-1:0]; // for debugging (NOTE: behavioral code)
+    assign current_entry_reg_state = entry_dout;
+    assign current_enq_up_counter_state = enq_ctr;
+    assign current_deq_up_counter_state = deq_ctr;
 endmodule
 
 `endif

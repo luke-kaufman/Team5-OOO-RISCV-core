@@ -7,7 +7,7 @@ fi
 TESTBENCH_PATH=$(find . -name ${1}.v -o -name ${1}.sv)
 
 if [[ "$(hostname)" == "vsc"* ]]; then
-    FLAGS='-sv -lint -suppress 2605,2623'
+    FLAGS='-sv -lint -suppress 2605,2623,2643'
     VERILOG=vlog
 else
     PARAMS=""
@@ -21,7 +21,7 @@ fi
 ${VERILOG} ${FLAGS} ${TESTBENCH_PATH}
 
 if [[ "$(hostname)" == "vsc"* ]]; then
-    vsim -c -do "run -all; quit" ${1}
+    vsim -c -sv_seed 1 -do "run -all; quit" ${1}
 else
     vvp ${1}.vvp
     rm ${1}.vvp
