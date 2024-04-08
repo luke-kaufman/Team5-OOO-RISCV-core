@@ -5,9 +5,7 @@
 `include "freepdk-45nm/stdcells.v"
 `include "misc/cache.v"
 `include "misc/fifo.v"
-`include "frontend/fetch/predicted_npc.v"
-`include "misc/mux/mux2.v"
-`include "misc/mux/mux4.v"
+`include "frontend/fetch/predicted_NPC.v"
 
 // Instruction Fetch Unit
 module ifu #(
@@ -22,12 +20,20 @@ module ifu #(
     input wire backend_stall, 
     input wire [I$_BLOCK_SIZE-1:0] dram_response,
     input wire dram_response_valid,
+
+    //testing
+    input wire csb0_in,
     
     // INTERFACE TO RENAME
     input wire dispatch_ready,
     output wire instr_valid,
     output wire [`IFIFO_ENTRY_WIDTH-1:0] instr_to_dispatch
 );
+
+// wires
+wire icache_miss;
+wire [`ADDR_WIDTH-1:0] next_PC;
+wire IFIFO_full_stall;
 
 // ::: PC MUX & PC :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Stall aggregator (OR-gate)
@@ -36,7 +42,10 @@ OR2_X1 stall_gate (
     .A2(IFIFO_full_stall)
 );
 
-mux4 #(.WIDTH(`ADDR_WIDTH)) PC_mux(   
+mux_ #(
+    .WIDTH(`ADDR_WIDTH),
+    .N_INS(4)
+) PC_mux(   
     .ins({recovery_PC, // if recovery
           recovery_PC, // if recovery
           PC.dout,     // if stall
@@ -56,7 +65,6 @@ reg_ #(.WIDTH(`ADDR_WIDTH)) PC (
 // END PC MUX & PC :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 // ::: ICACHE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-wire icache_miss;
 INV_X1 icmiss(
     .A(icache.cache_hit),
     .ZN(icache_miss)
@@ -79,12 +87,17 @@ cache #(
     .addr(PC_wire),
     .d_cache_is_ST(1'b0), // not used in icache
     .we_aL(icache_we_aL),
-    .write_data(dram_response)
+    .write_data(dram_response),
+
+    .csb0_in(csb0_in)
 );
 
 // select instruction within way
 wire [`INSTR_WIDTH-1:0] selected_instr;
-mux2 #(`ADDR_WIDTH) instr_in_way_mux (
+mux_ #(
+    .WIDTH(`ADDR_WIDTH),
+    .N_INS(2)
+) instr_in_way_mux (
     .ins({icache.selected_data_way[(I$_BLOCK_SIZE - 1):`ADDR_WIDTH],
           icache.selected_data_way[(`ADDR_WIDTH - 1):0]}),
     .sel(PC_wire[0]),
@@ -95,7 +108,6 @@ mux2 #(`ADDR_WIDTH) instr_in_way_mux (
 // ::: PREDICTED NEXT PC BLOCK :::::::::::::::::::::::::::::::::::::::::::::::::
 wire br_prediction;
 wire is_cond_branch;
-wire [`ADDR_WIDTH-1:0] next_PC;
 predicted_NPC #() pred_NPC (
     .instr(selected_instr),
     .PC(PC_wire),
@@ -104,6 +116,7 @@ predicted_NPC #() pred_NPC (
     .next_PC(next_PC)
 );
 // END PREDICTED NEXT PC BLOCK :::::::::::::::::::::::::::::::::::::::::::::::::
+
 
 // ::: INSTRUCTION FIFO ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -130,10 +143,9 @@ fifo #(
     .deq_data(instr_to_dispatch)
 );
 
-wire IFIFO_full_stall;
 NAND2_X1 instr_FIFO_stall (
     .A1(IFIFO_enq_ready),
-    .A2(icache_hit),
+    .A2(icache.cache_hit),
     .ZN(IFIFO_full_stall)
 );
 // END INSTRUCTION FIFO ::::::::::::::::::::::::::::::::::::::::::::::::::::::::

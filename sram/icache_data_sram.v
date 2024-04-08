@@ -65,7 +65,7 @@ module sram_64x128_1rw_wsize64(
       wmask0_reg = wmask0;
       addr0_reg = addr0;
       din0_reg = din0;
-      #(T_HOLD) dout0 = 128'bx;
+      // /*#(T_HOLD)*/ dout0 = 128'bx;
       if ( !csb0_reg && web0_reg && VERBOSE )
         $display($time," Reading %m addr0=%b dout0=%h",addr0_reg,mem[addr0_reg]);
       if ( !csb0_reg && !web0_reg && VERBOSE )
@@ -91,7 +91,7 @@ module sram_64x128_1rw_wsize64(
   always @ (negedge clk0)
   begin : MEM_READ0
     if (!csb0_reg && web0_reg)
-       dout0 <= #(DELAY) mem[addr0_reg];
+       dout0 <= /*#(DELAY)*/ mem[addr0_reg];
   end
 
 endmodule

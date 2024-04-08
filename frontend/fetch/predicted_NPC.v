@@ -3,7 +3,6 @@
 
 `include "misc/global_defs.svh"
 // `include "misc/adder.v"
-`include "misc/mux/mux4.v"
 `include "misc/sign_extend.v"
 
 module predicted_NPC (
@@ -80,8 +79,9 @@ AND3_X1 is_br_and_backwards_AND (
 );
 
 // Outputs assigned below
-mux4 #(
-    .WIDTH(`ADDR_WIDTH)
+mux_ #(
+    .WIDTH(`ADDR_WIDTH),
+    .N_INS(4)
 ) to_NPC_mux (
     .ins({
         (jal_add_out),

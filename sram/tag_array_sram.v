@@ -38,7 +38,7 @@ module sram_64x48_1rw_wsize24(
 
   reg  csb0_reg;
   reg  web0_reg;
-  reg [NUM_WMASKS-1:0]   wmask0_reg;
+  reg [NUM_WMASKS-1:0]  wmask0_reg;
   reg [ADDR_WIDTH-1:0]  addr0_reg;
   reg [DATA_WIDTH-1:0]  din0_reg;
   reg [DATA_WIDTH-1:0]  dout0;
@@ -65,12 +65,12 @@ module sram_64x48_1rw_wsize24(
       wmask0_reg = wmask0;
       addr0_reg = addr0;
       din0_reg = din0;
-      #(T_HOLD) dout0 = 48'bx;
+      // /*#(T_HOLD)*/ dout0 = 48'bx;
       if ( !csb0_reg && web0_reg && VERBOSE )
         // THIS IS SETUP FOR ICACHE, NEED TO DO FOR DCACHE (DIRTY BIT)
-        $display($time," Reading %m addr0=%h dout0: way1_v:%b, way1_tag:%b, way0_v:%b, way0_tag:%b",addr0_reg,mem[addr0_reg][47], mem[addr0_reg][46:24], mem[addr0_reg][23], mem[addr0_reg][22:0]);
+        $display($time," Reading %m addr0=%6b dout0: way1_v:%b, way1_tag:%b, way0_v:%b, way0_tag:%b",addr0_reg,mem[addr0_reg][47], mem[addr0_reg][46:24], mem[addr0_reg][23], mem[addr0_reg][22:0]);
       if ( !csb0_reg && !web0_reg && VERBOSE )
-        $display($time," Writing %m addr0=%h din0: way1_v:%b, way1_tag:%b, way0_v:%b, way0_tag:%b  wmask0=%b",addr0_reg, din0_reg[47], din0_reg[46:24], din0_reg[23], din0_reg[22:0], wmask0_reg);
+        $display($time," Writing %m addr0=%6b din0: way1_v:%b, way1_tag:%b, way0_v:%b, way0_tag:%b  wmask0=%2b",addr0_reg, din0_reg[47], din0_reg[46:24], din0_reg[23], din0_reg[22:0], wmask0_reg);
     end
   end
 
@@ -92,7 +92,7 @@ module sram_64x48_1rw_wsize24(
   always @ (negedge clk0)
   begin : MEM_READ0
     if (!csb0_reg && web0_reg)
-       dout0 <= #(DELAY) mem[addr0_reg];
+       dout0 <= /*#(DELAY)*/ mem[addr0_reg];
   end
 
 endmodule

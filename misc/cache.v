@@ -32,6 +32,9 @@ module cache #(
     input wire we_aL,
     input wire d_cache_is_ST,  // if reason for d-cache access is to store something (used for dirty bit)
     input wire [WRITE_SIZE_BITS-1:0] write_data,  // 64 for icache (DRAMresponse) 8 bits for dcache 
+    
+    input wire csb0_in,
+    
     output wire [BLOCK_SIZE_BITS-1:0] selected_data_way,
     output wire cache_hit
 );
@@ -41,6 +44,7 @@ module cache #(
 `define get_set_num  (NUM_SET_BITS+NUM_OFFSET_BITS-1) : NUM_OFFSET_BITS
 `define get_offset   NUM_OFFSET_BITS-1 : 0
 
+wire set_addr = addr[`get_set_num];
 INV_X1 we_aH (
     .A(we_aL)
 );
@@ -52,7 +56,7 @@ wire [NUM_WAYS-1:0] we_mask;
 wire [47:0] tag_out;
 sram_64x48_1rw_wsize24 tag_arr (
     .clk0(clk),
-    .csb0(1'b0),  // 1 chip
+    .csb0(csb0_in),  // 1 chip
     .web0(we_aL),
     .rst_aL(rst_aL),
     .wmask0(we_mask),
@@ -132,7 +136,7 @@ generate
     if (WRITE_SIZE_BITS == 64) begin: icache      // I-Cache
         sram_64x128_1rw_wsize64 i_cache_data_arr (
             .clk0(clk),
-            .csb0(1'b0),  // 1 chip
+            .csb0(csb0_in),  // 1 chip
             .web0(we_aL),
             .rst_aL(rst_aL),
             .wmask0(we_mask),

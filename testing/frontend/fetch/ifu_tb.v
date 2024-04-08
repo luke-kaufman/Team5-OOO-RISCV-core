@@ -5,16 +5,18 @@
 module ifu_tb #(
     parameter N_RANDOM_TESTS = 100
 ); 
-    /*input*/ reg clk;
-    /*input*/ reg rst_aL;
-    /*input*/ reg [`ADDR_WIDTH-1:0] recovery_PC;
-    /*input*/ reg recovery_PC_valid;
-    /*input*/ reg backend_stall; 
-    /*input*/ reg [`ICACHE_DATA_BLOCK_SIZE-1:0] dram_response;
-    /*input*/ reg dram_response_valid;
+    /*input*/ bit clk=1;
+    /*input*/ reg rst_aL=1;
+    /*input*/ reg [`ADDR_WIDTH-1:0] recovery_PC=0;
+    /*input*/ reg recovery_PC_valid=0;
+    /*input*/ reg backend_stall=0; 
+    /*input*/ reg [`ICACHE_DATA_BLOCK_SIZE-1:0] dram_response=0;
+    /*input*/ reg dram_response_valid=0;
+
+    /*input*/ bit csb0_in=1; 
     
     // INTERFACE TO RENAME
-    /*input*/ reg dispatch_ready;
+    /*input*/ reg dispatch_ready=0;
     // /*output*/ reg instr_valid;
     // /*output*/ reg [INSTR_WIDTH-1:0] instr_data;
 
@@ -22,7 +24,6 @@ module ifu_tb #(
     localparam CLOCK_PERIOD = 10;
     localparam HALF_PERIOD = CLOCK_PERIOD / 2;
     initial begin
-        clk = 0;
         forever #HALF_PERIOD clk = ~clk;
     end
 
@@ -35,7 +36,8 @@ module ifu_tb #(
         .backend_stall(backend_stall),
         .dram_response(dram_response),
         .dram_response_valid(dram_response_valid),
-        .dispatch_ready(dispatch_ready)
+        .dispatch_ready(dispatch_ready),
+        .csb0_in(csb0_in)
     );
 
     // // golden model
@@ -85,30 +87,41 @@ module ifu_tb #(
         
         // reset, wait, then start testing
         rst_aL = 0;
-        @(negedge clk);
-        @(negedge clk);
-        rst_aL = 1;
+        #1;
+        @(posedge clk);
 
-        backend_stall = 0;
-        dispatch_ready = 0;
-        @(negedge clk);
+        rst_aL = 1;
+        #1;
+        @(posedge clk);
         
         // FIRST NEED TO FILL THE ICACHE WITH CERTAIN INSTRUCTIONS
         $display("Filling icache with instructions:");
         for(int i=0; i<NUM_INSTRS; i=i+2) begin
+            $display("PC=0x%32b (%8h)", instr_locs[i], instr_locs[i]);
+            
             // force PC to instruction location thru recovery PC logic
-            $display("PC=0x%8h", instr_locs[i]);
-            $display("To Set in Icache: %d", dut.icache.tag_arr.addr0);
             recovery_PC = instr_locs[i];
             recovery_PC_valid = 1;
+            @(posedge clk);  // load PC in at posedge1
+            #1;
             // instruction data as dram response
+            @(negedge clk);
+            #1;
             dram_response = {instr_data[i+1],instr_data[i]};
             dram_response_valid = 1;
-            @(negedge clk);
-            // #4;
+            csb0_in = 0;  // turn on icache
+            @(posedge clk);  // load into addr sram
+
+            @(negedge clk);  // write at negedge1
+            #1;
+            $display("\n");
+            dram_response_valid = 0;  // turn off we
+            csb0_in = 1;  // turn off icache
         end
+
         dram_response_valid = 0;  // stop writing to icache
-        $display("DONE Filling icache with instructions:\n\n");
+        $display("DONE Filling icache with instructions:---------------------------------------------\n\n");
+
         // NOW START TESTING - get each instr from icache (no icache miss so far)
         // then watch the instructions flow to end of IFU, check data at the exit
         // of the IFIFO, also check branch metadata
@@ -117,7 +130,8 @@ module ifu_tb #(
         // force PC to instruction location thru recovery PC logic
         recovery_PC = instr_locs[0];
         recovery_PC_valid = 1;
-        @(negedge clk);
+        @(posedge clk); // pc latched into PC reg
+        #1;
         recovery_PC_valid = 0;
         $display("DONE Force first PC thru recovery PC logic\n\n");
 
@@ -129,10 +143,21 @@ module ifu_tb #(
             
             // read from icache
             $display("Reading from icache at PC=0x%8h", dut.PC.dout);
-            @(negedge clk);
-            #4; // delay for reading from icache
-            $display("Set from Icache: 0x%8h", dut.icache.selected_data_way);
-            $display("Instr from Icache: 0x%8h", dut.selected_instr);
+            csb0_in = 0;
+            @(posedge clk);
+
+            @(negedge clk);  // read actually happens here
+            #1;
+            csb0_in = 1;
+            $display("selected data way from Icache: 0x%16h", dut.icache.selected_data_way);
+            $display("FIFO ENTRY FOR THIS INSTRUCTION:");
+            $display("IFIFO_enq_data.instr: %8h" , dut.IFIFO_enq_data.instr);
+            $display("IFIFO_enq_data.pc: %8h" , dut.IFIFO_enq_data.pc);
+            $display("IFIFO_enq_data.is_cond_br: %1b" , dut.IFIFO_enq_data.is_cond_br);
+            $display("IFIFO_enq_data.br_dir_pred: %1b" , dut.IFIFO_enq_data.br_dir_pred);
+            $display("IFIFO_enq_data.br_target_pred: %8h" , dut.IFIFO_enq_data.br_target_pred);
+            $display();
+            $display();
 
             // check instr_valid and instr_data
             if(dut.instr_valid && dut.instr_to_dispatch == instr_data[i]) begin
@@ -140,7 +165,7 @@ module ifu_tb #(
             end
             num_directed_tests++;
         end
-        $display("DONE Starting to read instructions from icache:\n\n");
+        $display("DONE reading instructions from icache:\n\n");
     endtask
 
         // Task to display test results
@@ -166,4 +191,4 @@ module ifu_tb #(
         directed_testcases();
         display_test_results();
     end
-endmodule;
+endmodule
