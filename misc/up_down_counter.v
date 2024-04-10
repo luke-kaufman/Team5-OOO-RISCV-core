@@ -20,7 +20,11 @@ module up_down_counter #(
     // inc = 1, dec = 0: increment (+1)
     // inc = 1, dec = 1: no change (0)
     // use mux4 to select the correct input to the adder
-    output wire [WIDTH-1:0] count
+    output wire [WIDTH-1:0] count,
+
+    // for testing
+    input wire init,
+    input wire [WIDTH-1:0] init_state
 );
     wire [WIDTH-1:0] next_count;
     reg_ #(.WIDTH(WIDTH)) ctr (
@@ -28,7 +32,10 @@ module up_down_counter #(
         .rst_aL(rst_aL),
         .we(inc),
         .din(next_count),
-        .dout(count)
+        .dout(count),
+
+        .init(init),
+        .init_state(init_state)
     );
     wire [WIDTH-1:0] one = 'b1;
     adder #(.WIDTH(WIDTH)) add (

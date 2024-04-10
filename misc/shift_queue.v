@@ -15,11 +15,10 @@
 module shift_queue #(
     parameter N_ENTRIES = `IIQ_N_ENTRIES,
     parameter ENTRY_WIDTH = `IIQ_ENTRY_WIDTH,
-    localparam PTR_WIDTH = `IIQ_ID_WIDTH,
+    localparam PTR_WIDTH = $clog2(N_ENTRIES),
     localparam CTR_WIDTH = PTR_WIDTH + 1
 ) (
     input wire clk,
-    // input wire rst_aL, (NOTE: edited to suppress "coerced to input" warning)
     input wire rst_aL,
 
     // enqueue interface: ready & valid
@@ -36,7 +35,14 @@ module shift_queue #(
     input wire [N_ENTRIES-1:0] wr_en,
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] wr_data,
 
-    output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts
+    output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts,
+
+    // for testing
+    input wire init,
+    input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_entry_reg_state,
+    input wire [CTR_WIDTH-1:0] init_enq_up_down_counter_state,
+    output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] current_entry_reg_state,
+    output wire [CTR_WIDTH-1:0] current_enq_up_down_counter_state
 );
     // internal signal
     wire [CTR_WIDTH-1:0] enq_ctr; // one bit wider than the pointer width to allow for the full condition (we can still enqueue to the queue when it is full if there will be a dequeue in the same cycle)
@@ -156,10 +162,10 @@ module shift_queue #(
         .A(wr_en_ext),
         .ZN(wr_en_ext_not)
     );
-    
-    // 
+
+    //
     wire [N_ENTRIES-1:0] sel_data_behind; // sel[0]: entry_douts[i+1]
-    for (genvar i = 0; i < N_ENTRIES - 1; i++) begin
+    for (genvar i = 0; i < N_ENTRIES-1; i++) begin
         and_ #(.N_INS(3)) sel_data_behind_and (
             .a({shift_we[i], enq_we_not[i+1], wr_en_not[i+1]}),
             .y(sel_data_behind[i])
@@ -169,19 +175,19 @@ module shift_queue #(
         .a({shift_we[N_ENTRIES-1], enq_we_ext_not, wr_en_ext_not}),
         .y(sel_data_behind[N_ENTRIES-1])
     );
-    // 
-    
-    // 
+    //
+
+    //
     wire [N_ENTRIES-1:0] sel_enq_data_pre_from_this; // sel[1] -- ~shift_we[i] & enq_we[i]
     wire [N_ENTRIES-1:0] sel_enq_data_pre_from_behind; // sel[1] -- shift_we[i] & enq_we[i+1]
     wire [N_ENTRIES-1:0] sel_enq_data; // sel[1]: enq_data
-    for (genvar i = 0; i < N_ENTRIES - 1; i++) begin
+    for (genvar i = 0; i < N_ENTRIES-1; i++) begin
         and_ #(.N_INS(2)) sel_enq_data_pre_from_this_and (
             .a({enq_we[i], shift_we_not[i]}),
             .y(sel_enq_data_pre_from_this[i])
         );
         and_ #(.N_INS(2)) sel_enq_data_pre_from_behind_and (
-            .a({enq_we_not[i+1], shift_we[i]}),
+            .a({enq_we[i+1], shift_we[i]}), // TODO: verify enq_we[i+1] is correct
             .y(sel_enq_data_pre_from_behind[i])
         );
         or_ #(.N_INS(2)) sel_enq_data_or (
@@ -190,20 +196,20 @@ module shift_queue #(
         );
     end
     and_ #(.N_INS(2)) sel_enq_data_pre_from_this_last_and (
-            .a({enq_we[N_ENTRIES - 1], shift_we_not[N_ENTRIES - 1]}),
-            .y(sel_enq_data_pre_from_this[N_ENTRIES - 1])
+            .a({enq_we[N_ENTRIES-1], shift_we_not[N_ENTRIES-1]}),
+            .y(sel_enq_data_pre_from_this[N_ENTRIES-1])
         );
     and_ #(.N_INS(2)) sel_enq_data_pre_from_behind_last_and (
-        .a({enq_we_ext_not, shift_we[N_ENTRIES - 1]}),
-        .y(sel_enq_data_pre_from_behind[N_ENTRIES - 1])
+        .a({enq_we_ext, shift_we[N_ENTRIES-1]}), // TODO: verify enq_we_ext is correct
+        .y(sel_enq_data_pre_from_behind[N_ENTRIES-1])
     );
     or_ #(.N_INS(2)) sel_enq_data_last_or ( // sel[1]: enq_data
-        .a({sel_enq_data_pre_from_this[N_ENTRIES - 1], sel_enq_data_pre_from_behind[N_ENTRIES - 1]}),
-        .y(sel_enq_data[N_ENTRIES - 1])
+        .a({sel_enq_data_pre_from_this[N_ENTRIES-1], sel_enq_data_pre_from_behind[N_ENTRIES-1]}),
+        .y(sel_enq_data[N_ENTRIES-1])
     );
-    // 
+    //
 
-    // 
+    //
     wire [N_ENTRIES-1:0] sel_wr_data; // sel[2]: wr_data[i]
     for (genvar i = 0; i < N_ENTRIES; i++) begin
         and_ #(.N_INS(2)) sel_wr_data_and (
@@ -211,21 +217,21 @@ module shift_queue #(
             .y(sel_wr_data[i])
         );
     end
-    // 
+    //
 
-    // 
+    //
     wire [N_ENTRIES-1:0] sel_wr_data_behind; // sel[3]: wr_data[i+1]
-    for (genvar i = 0; i < N_ENTRIES - 1; i++) begin
+    for (genvar i = 0; i < N_ENTRIES-1; i++) begin
         and_ #(.N_INS(2)) sel_wr_data_behind_and (
             .a({wr_en[i+1], shift_we[i]}),
             .y(sel_wr_data_behind[i])
         );
     end
-    and_ #(.N_INS(2)) sel_wr_data_behind_last_and ( // sel[3]: wr_data[i+1] (always false for i = N_ENTRIES - 1)
-        .a({wr_en_ext, shift_we[N_ENTRIES - 1]}),
-        .y(sel_wr_data_behind[N_ENTRIES - 1])
+    and_ #(.N_INS(2)) sel_wr_data_behind_last_and ( // sel[3]: wr_data[i+1] (always false for i = N_ENTRIES-1)
+        .a({wr_en_ext, shift_we[N_ENTRIES-1]}),
+        .y(sel_wr_data_behind[N_ENTRIES-1])
     );
-    // 
+    //
 
     // if wr_en is true for empty entries (entries i where i >= enq_ptr), then throw an error
     // assert(!|wr_en[N_ENTRIES-1:enq_ptr]|) else $fatal(0, "shift_queue: wr_en is true for empty entries");
@@ -296,7 +302,7 @@ module shift_queue #(
         .a(deq_sel_onehot),
         .y(deq_valid)
     );
-    // select the entry to be dequeued (outputs ? when no entry is selected)
+    // select the entry to be dequeued (outputs {ENTRY_WIDTH{1'b0}} when no entry is selected)
     onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_ENTRIES)) deq_data_mux (
         .sel(deq_sel_onehot),
         .ins(entry_douts),
@@ -305,22 +311,31 @@ module shift_queue #(
     // entry_douts is already driven in each entry_reg instantiation
 
     // state elements
-    up_down_counter #(.WIDTH(CTR_WIDTH)) enq_up_down_counter (
+    up_down_counter #(.WIDTH(CTR_WIDTH)) enq_up_down_counter ( // NOTE: STATEFUL
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(enq_ctr_inc),
         .dec(enq_ctr_dec),
-        .count(enq_ctr)
+        .count(enq_ctr),
+
+        .init(init),
+        .init_state(init_enq_up_down_counter_state)
     );
     for (genvar i = 0; i < N_ENTRIES; i++) begin : queue
-        reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg (
+        reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg ( // NOTE: STATEFUL
             .clk(clk),
             .rst_aL(rst_aL),
             .we(entry_we[i]),
             .din(entry_din[i]),
-            .dout(entry_douts[i])
+            .dout(entry_douts[i]),
+
+            .init(init),
+            .init_state(init_entry_reg_state[i])
         );
     end
+
+    assign current_entry_reg_state = entry_douts;
+    assign current_enq_up_down_counter_state = enq_ctr;
 endmodule
 
 `endif
