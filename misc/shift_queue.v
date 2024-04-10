@@ -3,7 +3,7 @@
 
 `include "misc/reg_.v"
 `include "misc/up_down_counter.v"
-`include "misc/cmp/cmp_.v"
+`include "misc/cmp/unsigned_cmp_.v"
 `include "misc/onehot_mux/onehot_mux_.v"
 `include "misc/dec/dec_.v"
 `include "misc/and/and_.v"

@@ -3,7 +3,7 @@
 
 `include "misc/inv.v"
 `include "misc/and/and_.v"
-`include "misc/cmp/cmp_.v"
+`include "misc/cmp/unsigned_cmp_.v"
 `include "misc/dec/dec_.v"
 `include "misc/mux/mux_.v"
 `include "misc/onehot_mux/onehot_mux_.v"
@@ -29,7 +29,7 @@ module fifo_ram #(
     input wire enq_valid,
     input wire [ENTRY_WIDTH-1:0] enq_data,
     output wire [PTR_WIDTH-1:0] enq_addr, // to get the ROB tail ID for dispatch
-    
+
     input wire deq_ready,
     output wire deq_valid,
     output wire [ENTRY_WIDTH-1:0] deq_data,
@@ -37,7 +37,7 @@ module fifo_ram #(
 
     input wire [N_READ_PORTS-1:0] [PTR_WIDTH-1:0] rd_addr,
     output wire [N_READ_PORTS-1:0] [ENTRY_WIDTH-1:0] rd_data,
-    
+
     // NOTE: all writes are assumed to be to separate entries
     // writes are generalized to be optional and partial across all entries
     input wire [N_WRITE_PORTS-1:0] wr_en,
@@ -65,15 +65,15 @@ module fifo_ram #(
         .inc(deq),
         .count(deq_ctr)
     );
-    
+
     // comparator that disambiguates between full and empty conditions using the MSB
     wire eq_msb;
-    cmp_ #(.WIDTH(1)) eq_msb_cmp (
+    unsigned_cmp_ #(.WIDTH(1)) eq_msb_cmp (
         .a(enq_ctr[CTR_WIDTH-1]),
         .b(deq_ctr[CTR_WIDTH-1]),
         .y(eq_msb)
     );
-    
+
     // pointers are the lower bits of the counters
     wire [PTR_WIDTH-1:0] enq_ptr;
     wire [PTR_WIDTH-1:0] deq_ptr;
@@ -82,12 +82,12 @@ module fifo_ram #(
 
     // comparator that checks if the enqueue and dequeue pointers are equal (i.e. the fifo is empty or full)
     wire eq_ptr;
-    cmp_ #(.WIDTH(PTR_WIDTH)) eq_ptr_cmp (
+    unsigned_cmp_ #(.WIDTH(PTR_WIDTH)) eq_ptr_cmp (
         .a(enq_ptr),
         .b(deq_ptr),
         .y(eq_ptr)
     );
-    
+
     // logic that checks if the fifo is empty
     wire fifo_empty;
     and_ #(.N_INS(2)) fifo_empty_and (
@@ -221,7 +221,7 @@ module fifo_ram #(
     // assign the enqueue and dequeue addresses
     assign enq_addr = enq_ptr;
     assign deq_addr = deq_ptr;
-    
+
     // for debugging (NOTE: behavioral code)
     assign count = enq_ctr[PTR_WIDTH-1:0] - deq_ctr[PTR_WIDTH-1:0];
 endmodule
