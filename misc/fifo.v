@@ -3,7 +3,7 @@
 
 `include "misc/inv.v"
 `include "misc/and/and_.v"
-`include "misc/cmp/cmp_.v"
+`include "misc/cmp/unsigned_cmp_.v"
 `include "misc/dec/dec_.v"
 `include "misc/mux/mux_.v"
 `include "misc/reg_.v"
@@ -64,7 +64,7 @@ module fifo #(
 
     // comparator that disambiguates between full and empty conditions using the MSB
     wire eq_msb;
-    cmp_ #(.WIDTH(1)) eq_msb_cmp (
+    unsigned_cmp_ #(.WIDTH(1)) eq_msb_cmp (
         .a(enq_ctr[CTR_WIDTH-1]),
         .b(deq_ctr[CTR_WIDTH-1]),
         .eq(eq_msb)
@@ -78,7 +78,7 @@ module fifo #(
 
     // comparator that checks if the enqueue and dequeue pointers are equal (i.e. the fifo is empty or full)
     wire eq_ptr;
-    cmp_ #(.WIDTH(PTR_WIDTH)) eq_ptr_cmp (
+    unsigned_cmp_ #(.WIDTH(PTR_WIDTH)) eq_ptr_cmp (
         .a(enq_ptr),
         .b(deq_ptr),
         .eq(eq_ptr)

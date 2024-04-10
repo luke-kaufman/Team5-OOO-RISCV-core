@@ -3,11 +3,13 @@
 
 // use defines if these values are needed across multiple modules
 // just use parameters otherwise
-// can have parameters that are the same as these defines but 
+// can have parameters that are the same as these defines but
 // do use these global defines to initalize those parameters
 
 `define ADDR_WIDTH 32 // the width of a physical/virtual address (no virtual memory support yet)
 `define INSTR_WIDTH 32
+`define IMM_WIDTH 32
+`define WORD_WIDTH 32
 
 `define ICACHE_NUM_SETS 64
 `define ICACHE_TAG_ENTRY_SIZE 24
@@ -28,27 +30,33 @@
 `define ARF_ID_WIDTH $clog2(`ARF_N_ENTRIES)
 `define ROB_N_ENTRIES 16
 `define ROB_ID_WIDTH $clog2(`ROB_N_ENTRIES)
-`define IIQ_N_ENTRIES 16
+`define IIQ_N_ENTRIES 8
 `define IIQ_ID_WIDTH $clog2(`IIQ_N_ENTRIES)
+`define LSQ_N_ENTRIES 8
+`define LSQ_ID_WIDTH $clog2(`LSQ_N_ENTRIES)
 
+typedef logic [`ADDR_WIDTH-1:0] addr_t;
+typedef logic [`INSTR_WIDTH-1:0] instr_t;
+typedef logic [`IMM_WIDTH-1:0] imm_t;
+typedef logic [`WORD_WIDTH-1:0] word_t;
 typedef logic [`REG_DATA_WIDTH-1:0] reg_data_t;
 typedef logic [`ARF_ID_WIDTH-1:0] arf_id_t;
 typedef logic [`ROB_ID_WIDTH-1:0] rob_id_t;
 
 typedef struct packed {
-    logic [`INSTR_WIDTH-1:0] instr;
-    logic [`ADDR_WIDTH-1:0] pc;
+    instr_t instr;
+    addr_t pc;
     logic is_cond_br;
     logic br_dir_pred;
-    logic [`ADDR_WIDTH-1:0] br_target_pred;
+    addr_t br_target_pred;
 } ififo_entry_t;
 
 typedef struct packed {
     logic dst_valid;
     arf_id_t dst_arf_id;
-    logic [`ADDR_WIDTH-1:0] pc;
-    logic ld_mispredict;
-    logic br_mispredict;
+    addr_t pc_npc; // pc if a load instruction, npc if a branch instruction
+    logic ld_mispred;
+    logic br_mispred;
     logic reg_ready;
     reg_data_t reg_data;
 } rob_entry_t;
@@ -57,12 +65,12 @@ typedef struct packed {
 typedef struct packed {
     logic dst_valid;
     arf_id_t dst_arf_id;
-    logic [`ADDR_WIDTH-1:0] pc;
+    addr_t pc;
 } rob_dispatch_data_t;
 `define ROB_DISPATCH_DATA_WIDTH $bits(rob_dispatch_data_t)
 
 // typedef struct packed {
-//     logic mispredict;
+//     logic mispred;
 //     logic reg_ready;
 //     reg_data_t reg_data;
 // } rob_wb_data_t;
@@ -77,10 +85,12 @@ typedef struct packed {
     logic src2_ready;
     reg_data_t src2_data;
     logic dst_valid;
-    rob_id_t dst_rob_id;
+    rob_id_t instr_rob_id;
+    imm_t imm;
     logic [2:0] alu_ctrl; // FIXME
+    addr_t pc;
     logic br_dir_pred; // FIXME (0: not taken, 1: taken) (get this from fetch)
-    logic [31:0] jalr_target_pc; // FIXME (get this from fetch?)
+    addr_t br_target_pred; // FIXME is this the same thing as jalr target pc? (get this from fetch?)
 } iiq_entry_t;
 `define IIQ_ENTRY_WIDTH $bits(iiq_entry_t)
 
@@ -88,8 +98,8 @@ typedef struct packed { // FIXME
     logic ld_st; // 0: ld, 1: st
     rob_id_t base_rob_id;
     logic base_ready;
-    logic [`ADDR_WIDTH-1:0] base_addr;
-    rob_id_t st_data_ld_dst_rob_id;
+    addr_t base_addr;
+    rob_id_t st_data_or_ld_dst_rob_id;
     logic st_data_ready;
     reg_data_t st_data;
     logic [1:0] width; // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)

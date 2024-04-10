@@ -3,7 +3,7 @@
 
 `include "misc/reg_.v"
 `include "misc/up_down_counter.v"
-`include "misc/cmp/cmp_.v"
+`include "misc/cmp/unsigned_cmp_.v"
 `include "misc/onehot_mux/onehot_mux_.v"
 `include "misc/dec/dec_.v"
 `include "misc/and/and_.v"
@@ -19,7 +19,6 @@ module shift_queue #(
     localparam CTR_WIDTH = PTR_WIDTH + 1
 ) (
     input wire clk,
-    // input wire rst_aL, (NOTE: edited to suppress "coerced to input" warning)
     input wire rst_aL,
 
     // enqueue interface: ready & valid
@@ -156,8 +155,8 @@ module shift_queue #(
         .A(wr_en_ext),
         .ZN(wr_en_ext_not)
     );
-    
-    // 
+
+    //
     wire [N_ENTRIES-1:0] sel_data_behind; // sel[0]: entry_douts[i+1]
     for (genvar i = 0; i < N_ENTRIES - 1; i++) begin
         and_ #(.N_INS(3)) sel_data_behind_and (
@@ -169,9 +168,9 @@ module shift_queue #(
         .a({shift_we[N_ENTRIES-1], enq_we_ext_not, wr_en_ext_not}),
         .y(sel_data_behind[N_ENTRIES-1])
     );
-    // 
-    
-    // 
+    //
+
+    //
     wire [N_ENTRIES-1:0] sel_enq_data_pre_from_this; // sel[1] -- ~shift_we[i] & enq_we[i]
     wire [N_ENTRIES-1:0] sel_enq_data_pre_from_behind; // sel[1] -- shift_we[i] & enq_we[i+1]
     wire [N_ENTRIES-1:0] sel_enq_data; // sel[1]: enq_data
@@ -201,9 +200,9 @@ module shift_queue #(
         .a({sel_enq_data_pre_from_this[N_ENTRIES - 1], sel_enq_data_pre_from_behind[N_ENTRIES - 1]}),
         .y(sel_enq_data[N_ENTRIES - 1])
     );
-    // 
+    //
 
-    // 
+    //
     wire [N_ENTRIES-1:0] sel_wr_data; // sel[2]: wr_data[i]
     for (genvar i = 0; i < N_ENTRIES; i++) begin
         and_ #(.N_INS(2)) sel_wr_data_and (
@@ -211,9 +210,9 @@ module shift_queue #(
             .y(sel_wr_data[i])
         );
     end
-    // 
+    //
 
-    // 
+    //
     wire [N_ENTRIES-1:0] sel_wr_data_behind; // sel[3]: wr_data[i+1]
     for (genvar i = 0; i < N_ENTRIES - 1; i++) begin
         and_ #(.N_INS(2)) sel_wr_data_behind_and (
@@ -225,7 +224,7 @@ module shift_queue #(
         .a({wr_en_ext, shift_we[N_ENTRIES - 1]}),
         .y(sel_wr_data_behind[N_ENTRIES - 1])
     );
-    // 
+    //
 
     // if wr_en is true for empty entries (entries i where i >= enq_ptr), then throw an error
     // assert(!|wr_en[N_ENTRIES-1:enq_ptr]|) else $fatal(0, "shift_queue: wr_en is true for empty entries");

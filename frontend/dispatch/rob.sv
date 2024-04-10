@@ -10,6 +10,9 @@
 
 // IMPL STATUS: MISSING
 // TEST STATUS: MISSING
+// FIXME: convert int_wakeup -> iiq_wakeup
+// FIXME: convert lsu_wb -> ld_wb
+// FIXME: convert pc -> pc_npc, add npc_wb coming from alu
 module rob (
     input wire clk,
     input wire rst_aL,
@@ -38,8 +41,8 @@ module rob (
     output wire reg_data_t rob_reg_data_src2,
 
     // INTERFACE TO IIQ (INTEGER WAKEUP)
-    input wire int_wakeup_valid,
-    input wire rob_id_t int_wakeup_rob_id,
+    input wire iiq_wakeup_valid,
+    input wire rob_id_t iiq_wakeup_rob_id,
 
     // INTERFACE TO ALU (INTEGER WRITEBACK)
     input wire alu_wb_valid,
@@ -48,10 +51,10 @@ module rob (
     input wire alu_wb_br_mispred,
 
     // INTERFACE TO LSU (LOAD-STORE WRITEBACK + WAKEUP)
-    input wire lsu_wb_valid,
-    input wire rob_id_t lsu_wb_rob_id,
-    input wire reg_data_t lsu_wb_reg_data,
-    input wire lsu_wb_ld_mispred
+    input wire ld_wb_valid,
+    input wire rob_id_t ld_wb_rob_id,
+    input wire reg_data_t ld_wb_reg_data,
+    input wire ld_wb_ld_mispred
 );
     wire rob_entry_t [`ROB_N_ENTRIES-1:0] rob_state;
     wire rob_entry_t entry_rd_data_src1;
@@ -62,8 +65,8 @@ module rob (
     assign dispatch_entry_data.dst_valid = dispatch_data.dst_valid;
     assign dispatch_entry_data.dst_arf_id = dispatch_data.dst_arf_id;
     assign dispatch_entry_data.pc = dispatch_data.pc;
-    assign dispatch_entry_data.ld_mispredict = 1'b0;
-    assign dispatch_entry_data.br_mispredict = 1'b0;
+    assign dispatch_entry_data.ld_mispred = 1'b0;
+    assign dispatch_entry_data.br_mispred = 1'b0;
     assign dispatch_entry_data.reg_ready = 1'b0;
     assign dispatch_entry_data.reg_data = {`REG_DATA_WIDTH{1'b0}};
 
@@ -76,26 +79,26 @@ module rob (
         assign entry_wr_data_int_wakeup[i].dst_valid = rob_state[i].dst_valid;
         assign entry_wr_data_int_wakeup[i].dst_arf_id = rob_state[i].dst_arf_id;
         assign entry_wr_data_int_wakeup[i].pc = rob_state[i].pc;
-        assign entry_wr_data_int_wakeup[i].ld_mispredict = rob_state[i].ld_mispredict;
-        assign entry_wr_data_int_wakeup[i].br_mispredict = rob_state[i].br_mispredict;
+        assign entry_wr_data_int_wakeup[i].ld_mispred = rob_state[i].ld_mispred;
+        assign entry_wr_data_int_wakeup[i].br_mispred = rob_state[i].br_mispred;
         assign entry_wr_data_int_wakeup[i].reg_ready = 1'b1;
         assign entry_wr_data_int_wakeup[i].reg_data = rob_state[i].reg_data;
 
         assign entry_wr_data_alu_wb[i].dst_valid = rob_state[i].dst_valid;
         assign entry_wr_data_alu_wb[i].dst_arf_id = rob_state[i].dst_arf_id;
         assign entry_wr_data_alu_wb[i].pc = rob_state[i].pc;
-        assign entry_wr_data_alu_wb[i].ld_mispredict = rob_state[i].ld_mispredict;
-        assign entry_wr_data_alu_wb[i].br_mispredict = alu_wb_br_mispred;
+        assign entry_wr_data_alu_wb[i].ld_mispred = rob_state[i].ld_mispred;
+        assign entry_wr_data_alu_wb[i].br_mispred = alu_wb_br_mispred;
         assign entry_wr_data_alu_wb[i].reg_ready = rob_state[i].reg_ready; // NOTE: should already be 1'b1
         assign entry_wr_data_alu_wb[i].reg_data = alu_wb_reg_data;
 
         assign entry_wr_data_lsu_wb[i].dst_valid = rob_state[i].dst_valid;
         assign entry_wr_data_lsu_wb[i].dst_arf_id = rob_state[i].dst_arf_id;
         assign entry_wr_data_lsu_wb[i].pc = rob_state[i].pc;
-        assign entry_wr_data_lsu_wb[i].ld_mispredict = lsu_wb_ld_mispred;
-        assign entry_wr_data_lsu_wb[i].br_mispredict = rob_state[i].br_mispredict;
+        assign entry_wr_data_lsu_wb[i].ld_mispred = ld_wb_ld_mispred;
+        assign entry_wr_data_lsu_wb[i].br_mispred = rob_state[i].br_mispred;
         assign entry_wr_data_lsu_wb[i].reg_ready = 1'b1; // TODO: verify that ld wb and wakeup always happen in the same cycle
-        assign entry_wr_data_lsu_wb[i].reg_data = lsu_wb_reg_data;
+        assign entry_wr_data_lsu_wb[i].reg_data = ld_wb_reg_data;
 
         assign entry_wr_data[i][0] = entry_wr_data_int_wakeup[i];
         assign entry_wr_data[i][1] = entry_wr_data_alu_wb[i];
@@ -110,7 +113,7 @@ module rob (
     ) rob_mem (
         .clk(clk),
         .rst_aL(rst_aL),
-        
+
         .enq_ready(dispatch_ready),
         .enq_valid(dispatch_valid),
         .enq_data(dispatch_entry_data),
@@ -124,35 +127,35 @@ module rob (
         .rd_addr({rob_id_src1, rob_id_src2}),
         .rd_data({entry_rd_data_src1, entry_rd_data_src2}),
 
-        .wr_en({alu_wb_valid, lsu_wb_valid, int_wakeup_valid}),
-        .wr_addr({alu_wb_rob_id, lsu_wb_rob_id, int_wakeup_rob_id}),
+        .wr_en({alu_wb_valid, ld_wb_valid, iiq_wakeup_valid}),
+        .wr_addr({alu_wb_rob_id, ld_wb_rob_id, iiq_wakeup_rob_id}),
         .wr_data(d),
 
         .entry_douts(rob_state)
     );
 
-    // NOTE: currently ignoring load mispredicts while reading reg data
+    // NOTE: currently ignoring load mispreds while reading reg data
     assign rob_reg_ready_src1 = entry_rd_data_src1.reg_ready;
     assign rob_reg_data_src1 = entry_rd_data_src1.reg_data;
     assign rob_reg_ready_src2 = entry_rd_data_src2.reg_ready;
     assign rob_reg_data_src2 = entry_rd_data_src2.reg_data;
 
-    wire not_br_mispredict;
-    wire not_ld_mispredict;
-    inv br_mispredict_inv (
-        .a(retire_entry_data.br_mispredict),
-        .y(not_br_mispredict)
+    wire not_br_mispred;
+    wire not_ld_mispred;
+    inv br_mispred_inv (
+        .a(retire_entry_data.br_mispred),
+        .y(not_br_mispred)
     );
-    inv ld_mispredict_inv (
-        .a(retire_entry_data.ld_mispredict),
-        .y(not_ld_mispredict)
+    inv ld_mispred_inv (
+        .a(retire_entry_data.ld_mispred),
+        .y(not_ld_mispred)
     );
     and_ #(.N_INS(4)) retire_and (
         .a({
             retire_entry_data.dst_valid,
             retire_entry_data.reg_ready,
-            not_br_mispredict,
-            not_ld_mispredict
+            not_br_mispred,
+            not_ld_mispred
         }),
         .y(retire)
     );

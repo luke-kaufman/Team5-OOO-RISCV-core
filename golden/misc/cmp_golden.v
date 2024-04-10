@@ -1,4 +1,4 @@
-module cmp_golden #(
+module unsigned_cmp_golden #(
     parameter WIDTH = 1
 ) (
     input wire [WIDTH-1:0] a,

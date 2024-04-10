@@ -26,6 +26,6 @@ module test #(
         // a[7+:2] = 2'b11;
         // $display("a: %b", a[7]);
 
-        $display(a == (b + N));
+        $display(1'b1 || 1'bx);
     end
 endmodule

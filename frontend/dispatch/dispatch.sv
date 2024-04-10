@@ -7,6 +7,7 @@
 `include "misc/or/or_.v"
 `include "misc/reg_.v"
 
+// FIXME: convert pc -> pc_npc, add npc_wb coming from alu
 module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire clk,
     input wire rst_aL,
@@ -19,22 +20,22 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     output wire iiq_dispatch_valid,
     output wire iiq_entry_t iiq_dispatch_data,
     // integer wakeup (from IIQ)
-    input wire int_wakeup_valid,
-    input wire rob_id_t int_wakeup_rob_id,
+    input wire iiq_wakeup_valid,
+    input wire rob_id_t iiq_wakeup_rob_id,
     // INTERFACE TO LOAD-STORE QUEUE (LSQ)
     input wire lsq_dispatch_ready,
     output wire lsq_dispatch_valid,
     output wire lsq_entry_t lsq_dispatch_data,
     // INTERFACE TO ARITHMETIC-LOGIC UNIT (ALU)
-    input wire alu_valid,
-    input wire rob_id_t alu_rob_id,
-    input wire reg_data_t alu_out_data,
+    input wire alu_broadcast_valid,
+    input wire rob_id_t alu_broadcast_rob_id,
+    input wire reg_data_t alu_broadcast_reg_data,
     input wire alu_br_mispred,
     // INTERFACE TO LOAD-STORE UNIT (LSU)
-    input wire lsu_valid,
-    input wire rob_id_t lsu_rob_id,
-    input wire reg_data_t lsu_out_data,
-    input wire lsu_ld_mispred
+    input wire ld_broadcast_valid,
+    input wire rob_id_t ld_broadcast_rob_id,
+    input wire reg_data_t ld_broadcast_reg_data,
+    input wire ld_mispred
 );
     // decode signals
     wire is_int_instr; // is integer instruction?
@@ -46,7 +47,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire arf_id_t rs1;
     wire arf_id_t rs2;
     wire arf_id_t rd;
-    
+
     // TODO: implement
     // instr_decode instr_decode (
     //     .instr(instr),
@@ -91,7 +92,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire rob_id_t retire_rob_id;
     wire retire_arf_id_not_renamed;
     wire rob_id_t retire_arf_id_curr_rob_id;
-    cmp_ #(.WIDTH(`ROB_ID_WIDTH)) retire_arf_id_not_renamed_cmp (
+    unsigned_cmp_ #(.WIDTH(`ROB_ID_WIDTH)) retire_arf_id_not_renamed_cmp (
         .a(retire_rob_id),
         .b(retire_arf_id_curr_rob_id),
         .y(retire_arf_id_not_renamed)
@@ -125,7 +126,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
 
         .rd_addr({rs1, rs2}),
         .rd_data({rs1_retired, rs2_retired}),
-        
+
         // (synchronous) reset (1'b0) port to mark as retired (point to ARF)
         // (synchronous) set (1'b1) port to mark as speculative (point to ROB)
         .wr_en({retire_arf_id_mark_as_retired, rename_rd}),
@@ -154,7 +155,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .wr_addr(rd),
         .wr_data(dispatch_rob_id)
     );
-    
+
     wire rob_dispatch_data_t rob_dispatch_data;
     assign rob_dispatch_data.dst_valid = rd_valid;
     assign rob_dispatch_data.dst_arf_id = rd;
@@ -167,7 +168,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     rob _rob (
         .clk(clk),
         .rst_aL(rst_aL),
-        
+
         .dispatch_ready(rob_dispatch_ready),
         .dispatch_valid(dispatch),
         .dispatch_rob_id(dispatch_rob_id),
@@ -186,18 +187,18 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .rob_reg_ready_src2(rob_reg_ready_src2),
         .rob_reg_data_src2(rob_reg_data_src2),
 
-        .int_wakeup_valid(int_wakeup_valid),
-        .int_wakeup_rob_id(int_wakeup_rob_id),
+        .iiq_wakeup_valid(iiq_wakeup_valid),
+        .iiq_wakeup_rob_id(iiq_wakeup_rob_id),
 
-        .alu_valid(alu_valid),
-        .alu_rob_id(alu_rob_id),
-        .alu_out_data(alu_out_data),
+        .alu_wb_valid(alu_broadcast_valid),
+        .alu_wb_rob_id(alu_broadcast_rob_id),
+        .alu_wb_reg_data(alu_broadcast_reg_data),
         .alu_br_mispred(alu_br_mispred),
 
-        .lsu_valid(lsu_valid),
-        .lsu_rob_id(lsu_rob_id),
-        .lsu_out_data(lsu_out_data),
-        .lsu_ld_mispred(lsu_ld_mispred)
+        .ld_wb_valid(ld_broadcast_valid),
+        .ld_wb_rob_id(ld_broadcast_rob_id),
+        .ld_wb_reg_data(ld_broadcast_reg_data),
+        .ld_mispred(ld_mispred)
     );
 
     wire reg_data_t arf_reg_data_src1;
@@ -210,10 +211,10 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     ) arf (
         .clk(clk),
         .rst_aL(rst_aL),
-        
+
         .rd_addr({rs1, rs2}),
         .rd_data({arf_reg_data_src1, arf_reg_data_src2}),
-        
+
         .wr_en(retire),
         .wr_addr(retire_arf_id),
         .wr_data(retire_reg_data)
@@ -230,32 +231,33 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     assign iiq_dispatch_data.src1_valid = rs1_valid;
     assign iiq_dispatch_data.src1_rob_id = rob_id_src1;
     // issue2dispatch wakeup bypass
-    assign iiq_dispatch_data.src1_ready = (int_wakeup_valid & (int_wakeup_rob_id == rob_id_src1)) ?
+    assign iiq_dispatch_data.src1_ready = (iiq_wakeup_valid && rs1_valid && (iiq_wakeup_rob_id == rob_id_src1)) ?
                                             1'b1 :
                                             rob_reg_ready_src1;
     // execute2dispatch data bypass
-    assign iiq_dispatch_data.src1_data = (alu_valid & (alu_rob_id == rob_id_src1)) ?
-                                            alu_out_data :
+    assign iiq_dispatch_data.src1_data = (alu_broadcast_valid && rs1_valid && (alu_broadcast_rob_id == rob_id_src1)) ?
+                                            alu_broadcast_reg_data :
                                             (rs1_retired ?
                                                 arf_reg_data_src1 :
                                                 rob_reg_data_src1);
     assign iiq_dispatch_data.src2_valid = rs2_valid;
     assign iiq_dispatch_data.src2_rob_id = rob_id_src2;
     // issue2dispatch wakeup bypass
-    assign iiq_dispatch_data.src2_ready = (int_wakeup_valid & (int_wakeup_rob_id == rob_id_src2)) ?
+    assign iiq_dispatch_data.src2_ready = (iiq_wakeup_valid && rs2_valid && (iiq_wakeup_rob_id == rob_id_src2)) ?
                                             1'b1 :
                                             rob_reg_ready_src2;
     // execute2dispatch data bypass
-    assign iiq_dispatch_data.src2_data = (alu_valid & (alu_rob_id == rob_id_src2)) ?
-                                            alu_out_data :
+    assign iiq_dispatch_data.src2_data = (alu_broadcast_valid && rs2_valid && (alu_broadcast_rob_id == rob_id_src2)) ?
+                                            alu_broadcast_reg_data :
                                             (rs2_retired ?
                                                 arf_reg_data_src2 :
                                                 rob_reg_data_src2);
     assign iiq_dispatch_data.dst_valid = rd_valid;
-    assign iiq_dispatch_data.dst_rob_id = dispatch_rob_id;
+    assign iiq_dispatch_data.instr_rob_id = dispatch_rob_id;
     assign iiq_dispatch_data.alu_ctrl = 0; // FIXME
+    assign iiq_dispatch_data.pc = ififo_dispatch_data.pc;
     assign iiq_dispatch_data.br_dir_pred = 0; // FIXME
-    assign iiq_dispatch_data.jalr_target_pc = 0; // FIXME
+    assign iiq_dispatch_data.br_target_pred = 0; // FIXME
 
     // INTERFACE TO LOAD-STORE QUEUE (LSQ)
     assign lsq_dispatch_valid = 0; // FIXME
