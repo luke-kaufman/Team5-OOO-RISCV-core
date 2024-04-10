@@ -4,6 +4,8 @@ if [[ "$(hostname)" == "iam-ssh1" ]]; then
     exit 1
 fi
 
+rm -rf work/
+
 TESTBENCH_PATH=$(find . -name ${1}.v -o -name ${1}.sv)
 
 if [[ "$(hostname)" == "vsc"* ]]; then

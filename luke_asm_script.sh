@@ -12,8 +12,8 @@ riscv64-unknown-elf-objdump -d ${TEST_FOLDER_LOCATION}/test.out > ${TEST_FOLDER_
 line_count=$(awk '/<main>:/,/^$/{count++} END{print count}' ${TEST_FOLDER_LOCATION}/disasm)
 line_count_adj=$(($line_count-2))
 echo "int NUM_INSTRS=$line_count_adj;" > ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
-echo "int instr_locs[NUM_INSTRS];" >> ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
-echo "int instr_data[NUM_INSTRS];" >> ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
+echo "int instr_locs[$line_count_adj];" >> ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
+echo "int instr_data[$line_count_adj];" >> ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
 
 awk '/<main>:/,/^$/' ${TEST_FOLDER_LOCATION}/disasm | awk '!/<main>:/ {sub(/:/, ""); if ($1 != "") print "instr_locs[" NR-2 "]=" "32h"$1";"}' >> ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
 awk '/<main>:/,/^$/' ${TEST_FOLDER_LOCATION}/disasm | awk '!/<main>:/ {sub(/:/, ""); if ($2 != "") print "instr_data[" NR-2 "]=" "32h"$2"; // " $3,$4,$5,$6,$7,$8,$9,$10,$11,$12}' >> ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
