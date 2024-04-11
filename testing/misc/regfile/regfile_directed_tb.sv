@@ -53,9 +53,11 @@ module regfile_directed_tb #(
             },
 
             expected_next_state: '{
-                entry_reg[0]: 32'h12345678
+                entry_reg: '{ 32{ 32'h0 } }
             }
         };
+		test_vectors[1].expected_next_state.entry_reg[0] = 32'h12345678;
+
         // testcase 2: enqueue entry to fifo with one entry, don't try to dequeue
         test_vectors[2] = '{
             init_state: '{
@@ -71,9 +73,10 @@ module regfile_directed_tb #(
                 rd_data: 32'h12345678
             },
             expected_next_state: '{
-                entry_reg[0]: 32'h12345678
+                entry_reg: '{ 32{ 32'h0 } }
             }
         };
+		test_vectors[2].expected_next_state.entry_reg[0] = 32'h12345678;
     end
 
     // dut i/o
