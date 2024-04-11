@@ -137,27 +137,41 @@ module ifu_tb #(
 
         // now run for NUM_INSTRS cycles with prepopulated icache
         // starting at first PC 
-        $display("Starting to read instructions from icache:");
+        $display("START READING INSRUCTIONS FROM ICACHE TIME: %6d", $time);
         dispatch_ready = 1;  // so that we can get IFU output
         for(int i=0; i<NUM_INSTRS; i=i+1) begin
             
             // read from icache
-            $display("Reading from icache at PC=0x%8h", dut.PC.dout);
+            $display("%c[1;31m",27);
+            $display("Reading instruction %3d from icache at %6d PC=0x%8h", i, $time, dut.PC.dout);
+            $display("%c[0m",27);
             csb0_in = 0;
-            @(posedge clk);
+            @(posedge clk);  // latch into SRAM here
 
             @(negedge clk);  // read actually happens here
             #1;
             csb0_in = 1;
+            $display("%c[1;31m",27);
+            $display("READ, THEN TO IFIFO AT TIME: %6d", $time);
             $display("selected data way from Icache: 0x%16h", dut.icache.selected_data_way);
             $display("FIFO ENTRY FOR THIS INSTRUCTION:");
-            $display("IFIFO_enq_data.instr: %8h" , dut.IFIFO_enq_data.instr);
-            $display("IFIFO_enq_data.pc: %8h" , dut.IFIFO_enq_data.pc);
+            $display("IFIFO_enq_data.instr: 0x%8h" , dut.IFIFO_enq_data.instr);
+            $display("IFIFO_enq_data.pc: 0x%8h" , dut.IFIFO_enq_data.pc);
             $display("IFIFO_enq_data.is_cond_br: %1b" , dut.IFIFO_enq_data.is_cond_br);
             $display("IFIFO_enq_data.br_dir_pred: %1b" , dut.IFIFO_enq_data.br_dir_pred);
-            $display("IFIFO_enq_data.br_target_pred: %8h" , dut.IFIFO_enq_data.br_target_pred);
+            $display("IFIFO_enq_data.br_target_pred: 0x%8h" , dut.IFIFO_enq_data.br_target_pred);
+            $display("%c[0m",27);
             $display();
             $display();
+            @(posedge clk);  // let everything get latched in
+            
+            // TO MAKE THIS WORK: no longer feeding PC directly into cache
+            // now PC mux will go to both PC reg and the latches in the SRAM Module
+            // with the PC reg serving as an external mirror of whats latched into the
+            // SRAM module. Having to go thru the PC go directly into the cache adds an
+            // (unneccessary?) cycle.
+            // ^^ doing this actually causes infinite loop(?) when reading thru stall-gate
+            // and probably cache hit which stall depends on
 
             // check instr_valid and instr_data
             if(dut.instr_valid && dut.instr_to_dispatch == instr_data[i]) begin
