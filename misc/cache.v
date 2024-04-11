@@ -44,7 +44,6 @@ module cache #(
 `define get_set_num  (NUM_SET_BITS+NUM_OFFSET_BITS-1) : NUM_OFFSET_BITS
 `define get_offset   NUM_OFFSET_BITS-1 : 0
 
-wire set_addr = addr[`get_set_num];
 INV_X1 we_aH (
     .A(we_aL)
 );
@@ -113,20 +112,18 @@ generate
             assign dirty_sets[i][1] = way1_dirty.q;
 
         end
+
+        wire [NUM_WAYS-1:0] set_dirty_bits;
+        mux_ #(
+            .WIDTH(2),
+            .N_INS(NUM_SETS)
+        ) mux64_1 (
+            .ins(dirty_sets),
+            .sel(addr[`get_set_num]),
+            .out(set_dirty_bits)
+        );
     end
-
-    wire [NUM_WAYS-1:0] set_dirty_bits;
-    mux_ #(
-        .WIDTH(2),
-        .N_INS(NUM_SETS)
-    ) mux64_1 (
-        .ins(dirty_sets),
-        .sel(addr[`get_set_num]),
-        .out(set_dirty_bits)
-    );
 endgenerate
-
-
 // END TAG ARRAY :::::::::::::::::::::::::::::::::::::
 
 // ::: DATA ARRAY ::::::::::::::::::::::::::::::::::::

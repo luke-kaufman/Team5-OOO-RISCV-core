@@ -1,0 +1,69 @@
+#############  Autofindloop Analysis  ###############
+#############  Loop found at time 105 ns ###############
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk1[0]/inv/#OPTCELL#23 @ sub-iteration 0 to value St0
+#     Source: misc/mux/mux_.v:23
+#   OptCellEvent process: /ifu_tb/dut/instruction_FIFO/entry[0]/entry_we_and/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/stall_gate/#OPTCELL#40 @ sub-iteration 0 to value St0
+#     Source: frontend/fetch/ifu.v:40
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[16]/genblk1[1]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[8]/genblk1[1]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[7]/genblk1[1]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[3]/genblk1[1]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[2]/genblk1[1]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[31]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[30]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[29]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[28]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[27]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[26]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[25]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[16]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[8]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[4]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[1]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/instr_in_way_mux/genblk2[0]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
+#     Source: misc/and/and_.v:18
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk1[0]/inv/#OPTCELL#23 @ sub-iteration 1 to value St1
+#     Source: misc/mux/mux_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[16]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 1 to value St0
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[8]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 1 to value St0
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[7]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 1 to value St0
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[4]/genblk1[0]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 1 to value St0
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[16]/genblk1[1]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 1 to value St0
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[8]/genblk1[1]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 1 to value St0
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[7]/genblk1[1]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 1 to value St0
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[3]/genblk1[1]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 1 to value St0
+#     Source: misc/and/and_.v:23
+#   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[2]/genblk1[1]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 1 to value St0
+#     Source: misc/and/and_.v:23
+
+################# END OF LOOP #################
+# ** Error (suppressible): (vsim-3601) Iteration limit 10000000 reached at time 105 ns.
+#  quit
+# End time: 21:57:19 on Apr 10,2024, Elapsed time: 0:05:55
+# Errors: 1, Warnings: 42, Suppressed Warnings: 11
+[lukekaufman@vsc6 Team5-OOO-RISCV-core]$ 

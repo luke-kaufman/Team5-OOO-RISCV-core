@@ -6,6 +6,7 @@
 `include "misc/cache.v"
 `include "misc/fifo.v"
 `include "frontend/fetch/predicted_NPC.v"
+`include "golden/misc/mux_golden.v"
 
 // Instruction Fetch Unit
 module ifu #(
@@ -42,7 +43,8 @@ OR2_X1 stall_gate (
     .A2(IFIFO_full_stall)
 );
 
-mux_ #(
+// mux_ #(
+mux_golden #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(4)
 ) PC_mux(
@@ -84,7 +86,7 @@ cache #(
 ) icache (
     .clk(clk),
     .rst_aL(rst_aL),
-    .addr(PC_wire),
+    .addr(PC_mux.out),
     .d_cache_is_ST(1'b0), // not used in icache
     .we_aL(icache_we_aL),
     .write_data(dram_response),
@@ -94,13 +96,14 @@ cache #(
 
 // select instruction within way
 wire [`INSTR_WIDTH-1:0] selected_instr;
-mux_ #(
+// mux_ #(
+mux_golden #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(2)
 ) instr_in_way_mux (
     .ins({icache.selected_data_way[(I$_BLOCK_SIZE - 1):`ADDR_WIDTH],
           icache.selected_data_way[(`ADDR_WIDTH - 1):0]}),
-    .sel(PC_wire[0]),
+    .sel(PC_wire[2]),
     .out(selected_instr)
 );
 // END ICACHE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
