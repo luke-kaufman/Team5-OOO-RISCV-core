@@ -109,10 +109,6 @@ module regfile_directed_tb #(
         // observed output
 		.rd_data(observed_output.rd_data),
 
-        .enq_ready(observed_output.enq_ready),
-        .deq_valid(observed_output.deq_valid),
-        .deq_data(observed_output.deq_data),
-
         // initial state
         .init(init),
         .init_entry_reg_state(test_vector.init_state.entry_reg),
@@ -124,9 +120,7 @@ module regfile_directed_tb #(
 
     function void check_output(int i);
         if ((observed_output !== test_vector.expected_output) || DEBUG) begin
-            $display("Testcase %0d observed output is %s:
-                    observed (enq_ready = %b, deq_valid = %b, deq_data = %h),
-                    expected (enq_ready = %b, deq_valid = %b, deq_data = %h)",
+            $display("Testcase %0d observed output is %s",
                     i, (observed_output !== test_vector.expected_output) ? "wrong" : "correct");
         end
         if (observed_output !== test_vector.expected_output) begin
