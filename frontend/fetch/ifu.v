@@ -44,7 +44,7 @@ OR2_X1 stall_gate (
 );
 
 // mux_ #(
-mux_golden #(
+mux_ #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(4)
 ) PC_mux(   

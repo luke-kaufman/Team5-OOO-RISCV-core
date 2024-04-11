@@ -40,7 +40,7 @@ module ifu_tb #(
         .csb0_in(csb0_in)
     );
 
-    // // golden model
+    // // golden model - no golden model rn
     // ifu_golden golden (
     //     .clk(clk),
     //     .rst_aL(rst_aL),

@@ -92,7 +92,7 @@ module sram_64x48_1rw_wsize24(
   always @ (negedge clk0)
   begin : MEM_READ0
     if (!csb0_reg && web0_reg)
-       dout0 =/*<=*/ /*#(DELAY)*/ mem[addr0_reg];
+       dout0 <= /*#(DELAY)*/ mem[addr0_reg];
   end
 
 endmodule
