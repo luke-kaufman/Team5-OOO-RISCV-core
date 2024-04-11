@@ -2,6 +2,7 @@
 `define ONEHOT_MUX_V
 
 // `include "freepdk-45nm/stdcells.v"
+`include "misc/global_defs.svh"
 
 // IMPL STATUS: MISSING
 // TEST STATUS: MISSING
@@ -9,6 +10,8 @@ module onehot_mux_ #(
     parameter WIDTH = 1,
     parameter N_INS = 2
 ) (
+    input wire clk,
+    input wire rst_aL,
     input wire [N_INS-1:0] [WIDTH-1:0] ins,
     input wire [N_INS-1:0] sel,
     output logic [WIDTH-1:0] out // FIXME: change to wire by implementing in structural
@@ -33,8 +36,25 @@ module onehot_mux_ #(
         end
     end
 
-    // write a systemverilog assert that will continuously assert that only one bit is set in sel
-    assert property (|sel == 1'b1) else $error("sel must have exactly one bit set");
+    // assertions
+    function void no_double_select(edge_t _edge);
+        if (!$onehot0(sel)) begin
+            $error(
+                "Assertion failed: sel is not one-hot or all-zeros after %0s.\n\
+                sel = %0b",
+                _edge == NEGEDGE ? "setting init_state and driving inputs" : "state transition",
+                sel
+            );
+        end
+    endfunction
+
+
+    always @(negedge clk) begin #1
+        no_double_select(NEGEDGE);
+    end
+    always @(posedge clk) begin #1
+        no_double_select(POSEDGE);
+    end
 endmodule
 
 `endif

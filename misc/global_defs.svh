@@ -43,7 +43,7 @@ typedef logic [`REG_DATA_WIDTH-1:0] reg_data_t;
 typedef logic [`ARF_ID_WIDTH-1:0] arf_id_t;
 typedef logic [`ROB_ID_WIDTH-1:0] rob_id_t;
 
-// `define IFIFO_ENTRY_WIDTH = (`INSTR_WIDTH + `ADDR_WIDTH + 1 + 1 + `ADDR_WIDTH) 
+// `define IFIFO_ENTRY_WIDTH = (`INSTR_WIDTH + `ADDR_WIDTH + 1 + 1 + `ADDR_WIDTH)
 typedef struct packed {
     instr_t instr;
     addr_t pc;
@@ -52,7 +52,7 @@ typedef struct packed {
     addr_t br_target_pred;
 } ififo_entry_t;
 `define IFIFO_ENTRY_WIDTH $bits(ififo_entry_t)
-/*instruction*/ 
+/*instruction*/
 /*PC*/
 /*branch info valid bit*/
 /*Prediction bit - 1 taken, 0 not taken*/
@@ -120,5 +120,7 @@ typedef struct packed {
     reg_data_t src1_data;
     reg_data_t src2_data;
 } iiq_issue_data_t;
+
+typedef enum {POSEDGE, NEGEDGE} edge_t;
 
 `endif

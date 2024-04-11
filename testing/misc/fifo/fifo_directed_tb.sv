@@ -206,10 +206,10 @@ module fifo_directed_tb #(
             @(negedge clk);
             test_vector.init_state = test_vectors[i].init_state;
             init = 1; // initialize state at t = 5 (mod 10)
-            #1;
-            init = 0;
             test_vector.input_stimuli = test_vectors[i].input_stimuli; // drive input at t = 6 (mod 10)
             #1;
+            init = 0;
+            // #1;
             test_vector.expected_output = test_vectors[i].expected_output;
             check_output(i); // check output at t = 7 (mod 10)
             @(posedge clk);
