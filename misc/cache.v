@@ -44,7 +44,6 @@ module cache #(
 `define get_set_num  (NUM_SET_BITS+NUM_OFFSET_BITS-1) : NUM_OFFSET_BITS
 `define get_offset   NUM_OFFSET_BITS-1 : 0
 
-wire set_addr = addr[`get_set_num];
 INV_X1 we_aH (
     .A(we_aL)
 );

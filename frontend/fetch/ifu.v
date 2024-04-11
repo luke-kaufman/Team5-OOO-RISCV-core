@@ -103,7 +103,7 @@ mux_golden #(
 ) instr_in_way_mux (
     .ins({icache.selected_data_way[(I$_BLOCK_SIZE - 1):`ADDR_WIDTH],
           icache.selected_data_way[(`ADDR_WIDTH - 1):0]}),
-    .sel(PC_wire[0]),
+    .sel(PC_wire[2]),
     .out(selected_instr)
 );
 // END ICACHE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

@@ -60,14 +60,21 @@ adder #(.WIDTH(32)) PCplus4_adder (
 // END PCplus4 adder ::::::::::::::::::::::::::::::::::::::::::
 
 // "To next PC mux" mux :::::::::::::::::::::::::::::::::::::::::
-wire is_unconditional;
+wire is_unconditional_jal;
 // 00 - b-type (cond)
 // 01 - jalr (cond) 
 // 11 - jal  (uncond)
-AND2_X1 is_uncond (
+AND2_X1 is_uncond_AND (
     .A1(instr[2]),
     .A2(instr[3]),
-    .ZN(is_unconditional)
+    .ZN(is_unconditional_jal)
+);
+
+wire is_br;
+AND2_X1 is_br_AND (
+    .A1(instr[5]),
+    .A2(instr[6]),   // 5 & 6 = 1 if its a br/jal/jalr
+    .ZN(is_br)
 );
 
 wire is_br_and_backwards;
@@ -86,13 +93,21 @@ mux_ #(
     .ins({
         (jal_add_out),
         (btype_add_out),
-        (PCplus4_add_out),
+        (jal_add_out),
         (PCplus4_add_out)  
     }),
-    .sel({is_br_and_backwards,is_unconditional}),
+    .sel({is_br_and_backwards,is_unconditional_jal}),
     .out(next_PC)
 );
-assign is_cond_branch = is_unconditional;
+
+INV_X1 uncond_to_cond (
+    .A(is_unconditional_jal)
+);
+
+AND3_X1 is_cond_branch_AND (
+    .A1(),
+);
+assign is_cond_branch = uncond_to_cond.ZN;
 assign br_prediction = is_br_and_backwards;  
 
 endmodule
