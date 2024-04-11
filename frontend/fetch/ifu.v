@@ -84,7 +84,7 @@ cache #(
 ) icache (
     .clk(clk),
     .rst_aL(rst_aL),
-    .addr(PC_wire),
+    .addr(PC_mux.out),
     .d_cache_is_ST(1'b0), // not used in icache
     .we_aL(icache_we_aL),
     .write_data(dram_response),
