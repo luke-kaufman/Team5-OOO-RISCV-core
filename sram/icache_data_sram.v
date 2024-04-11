@@ -67,9 +67,9 @@ module sram_64x128_1rw_wsize64(
       din0_reg = din0;
       // /*#(T_HOLD)*/ dout0 = 128'bx;
       if ( !csb0_reg && web0_reg && VERBOSE )
-        $display($time," Reading %m addr0=%b dout0=%h",addr0_reg,mem[addr0_reg]);
+        $display("%6d Reading %m addr0=%b dout0=%h", $time, addr0_reg,mem[addr0_reg]);
       if ( !csb0_reg && !web0_reg && VERBOSE )
-        $display($time," Writing %m addr0=%b din0=%h wmask0=%h",addr0_reg,din0_reg,wmask0_reg);
+        $display("%6d Writing %m addr0=%b din0=%h wmask0=%h", $time, addr0_reg,din0_reg,wmask0_reg);
     end
   end
 
