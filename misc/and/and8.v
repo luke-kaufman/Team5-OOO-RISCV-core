@@ -1,7 +1,7 @@
 `ifndef AND8_V
 `define AND8_V
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING

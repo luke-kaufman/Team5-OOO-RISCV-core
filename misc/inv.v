@@ -1,7 +1,7 @@
 `ifndef INV_V
 `define INV_V
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 
 module inv (
     input wire a,

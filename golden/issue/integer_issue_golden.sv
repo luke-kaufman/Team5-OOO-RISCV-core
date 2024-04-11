@@ -1,12 +1,12 @@
 `include "misc/global_defs.svh"
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/regfile.v"
 `include "misc/fifo.v"
 `include "misc/fifo_ram.v"
 
 /*
     - Integer Issue Unit consists of a shift queue and a wakeup feedback mechanism.
-    
+
 */
 
 module integer_issue_golden (
@@ -21,4 +21,3 @@ module integer_issue_golden (
     output wire [ISSUE_DATA_WIDTH-1:0] issue_data
 );
     // state elements
-    

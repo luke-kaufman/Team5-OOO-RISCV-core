@@ -60,40 +60,86 @@ adder #(.WIDTH(32)) PCplus4_adder (
 // END PCplus4 adder ::::::::::::::::::::::::::::::::::::::::::
 
 // "To next PC mux" mux :::::::::::::::::::::::::::::::::::::::::
-wire is_unconditional;
+wire is_unconditional_jal;
 // 00 - b-type (cond)
-// 01 - jalr (cond) 
+// 01 - jalr (uncond) 
 // 11 - jal  (uncond)
-AND2_X1 is_uncond (
+// if its a branch, instr[2] will be 1 if unconditional
+OR2_X1 is_uncond_jal_AND (
     .A1(instr[2]),
     .A2(instr[3]),
-    .ZN(is_unconditional)
+    .ZN(is_unconditional_jal)
 );
 
-wire is_br_and_backwards;
-AND3_X1 is_br_and_backwards_AND (
+wire is_br;
+AND2_X1 is_br_AND (
     .A1(instr[5]),
     .A2(instr[6]),   // 5 & 6 = 1 if its a br/jal/jalr
-    .A3(instr[31]),  // 0 if forwards
-    .ZN(is_br_and_backwards)
+    .ZN(is_br)
+);
+
+INV_X1 uncond_to_cond (
+    .A(is_unconditional_jal)
+);
+
+AND3_X1 is_cond_branch_AND (
+    .A1(uncond_to_cond.ZN),
+    .A2(is_br)
 );
 
 // Outputs assigned below
+// is branch but unconditional: jal_add_out
+// is branch and conditional and backwards: btype_add_out
+// is branch and conditional and forwards: PC+4
+// is not a branch: PC+4
+mux_ #(
+    .WIDTH(`ADDR_WIDTH),
+    .N_INS(2)
+) uncond_br_type (
+    .ins({
+        (jal_add_out),    // jal add if jal
+        (PCplus4_add_out) // just mispredict with PC+4 if jalr
+    }),
+    .sel(is_unconditional_jal)
+);
+
 mux_ #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(4)
-) to_NPC_mux (
+) br_type_mux (
     .ins({
-        (jal_add_out),
+        (uncond_br_type.out),
+        (uncond_br_type.out),
         (btype_add_out),
-        (PCplus4_add_out),
         (PCplus4_add_out)  
     }),
-    .sel({is_br_and_backwards,is_unconditional}),
+    .sel({instr[2] /*is_unconditional*/, instr[31] /*is_backwards*/})
+);
+
+mux_ #(
+    .WIDTH(`ADDR_WIDTH),
+    .N_INS(2)
+) to_NPC_mux (
+    .ins({
+        (br_type_mux.out),
+        (PCplus4_add_out)  
+    }),
+    .sel(is_br),
     .out(next_PC)
 );
-assign is_cond_branch = is_unconditional;
-assign br_prediction = is_br_and_backwards;  
+
+assign is_cond_branch = is_cond_branch_AND.ZN;
+
+AND2_X1 is_backwards_branch_AND (
+    .A1(is_br),
+    .A2(is_br && instr[31])
+); 
+
+OR2_X1 br_prediction_AND (
+    .A1(is_backwards_branch_AND.ZN),
+    .A2(is_cond_branch_AND.ZN),
+    .ZN(br_prediction)
+);
 
 endmodule
 

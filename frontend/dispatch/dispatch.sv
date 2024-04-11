@@ -1,5 +1,5 @@
 `include "misc/global_defs.svh"
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/regfile.v"
 `include "frontend/dispatch/rob.sv"
 `include "misc/mux/mux_.v"

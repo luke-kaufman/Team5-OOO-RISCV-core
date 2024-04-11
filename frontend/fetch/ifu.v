@@ -2,10 +2,11 @@
 `define IFU_V
 
 `include "misc/global_defs.svh"
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/cache.v"
 `include "misc/fifo.v"
 `include "frontend/fetch/predicted_NPC.v"
+`include "golden/misc/mux_golden.v"
 
 // Instruction Fetch Unit
 module ifu #(
@@ -17,13 +18,13 @@ module ifu #(
     input wire rst_aL,
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
     input wire recovery_PC_valid,
-    input wire backend_stall, 
+    input wire backend_stall,
     input wire [I$_BLOCK_SIZE-1:0] dram_response,
     input wire dram_response_valid,
 
     //testing
     input wire csb0_in,
-    
+
     // INTERFACE TO RENAME
     input wire dispatch_ready,
     output wire instr_valid,
@@ -31,42 +32,49 @@ module ifu #(
 );
 
 // wires
+wire icache_hit;
 wire icache_miss;
+wire [I$_BLOCK_SIZE-1:0] icache_data_way;
+wire [`ADDR_WIDTH-1:0] PC_mux_out;
 wire [`ADDR_WIDTH-1:0] next_PC;
+wire [`ADDR_WIDTH-1:0] PC_wire;
 wire IFIFO_full_stall;
 
 // ::: PC MUX & PC :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Stall aggregator (OR-gate)
+wire stall;
 OR2_X1 stall_gate (
     .A1(icache_miss),
-    .A2(IFIFO_full_stall)
+    .A2(IFIFO_full_stall),
+    .ZN(stall)
 );
 
-mux_ #(
+// mux_ #(
+mux_golden #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(4)
-) PC_mux(   
+) PC_mux(
     .ins({recovery_PC, // if recovery
           recovery_PC, // if recovery
-          PC.dout,     // if stall
+          PC_wire,     // if stall
           next_PC      // predicted nextPC
           }),
-    .sel({recovery_PC_valid, stall_gate.ZN})
+    .sel({recovery_PC_valid, stall}),
+    .out(PC_mux_out)
 );
 
-wire [`ADDR_WIDTH-1:0] PC_wire;
 reg_ #(.WIDTH(`ADDR_WIDTH)) PC (
     .clk(clk),
     .rst_aL(rst_aL),
     .we(1'b1),  // always write since PC_mux will feed PC itself when stalling
-    .din(PC_mux.out),
+    .din(PC_mux_out),
     .dout(PC_wire)
 );
 // END PC MUX & PC :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 // ::: ICACHE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 INV_X1 icmiss(
-    .A(icache.cache_hit),
+    .A(icache_hit),
     .ZN(icache_miss)
 );
 
@@ -76,7 +84,7 @@ INV_X1 response_v_to_we_aL (
     .ZN(icache_we_aL)
 );
 cache #(
-    .BLOCK_SIZE_BITS(I$_BLOCK_SIZE),  
+    .BLOCK_SIZE_BITS(I$_BLOCK_SIZE),
     .NUM_SETS(I$_NUM_SETS),
     .NUM_WAYS(I$_NUM_WAYS),
     .NUM_TAG_CTRL_BITS(`ICACHE_NUM_TAG_CTRL_BITS),  // 1 for valid bit
@@ -84,23 +92,26 @@ cache #(
 ) icache (
     .clk(clk),
     .rst_aL(rst_aL),
-    .addr(PC_wire),
+    .addr(PC_mux_out),
     .d_cache_is_ST(1'b0), // not used in icache
     .we_aL(icache_we_aL),
     .write_data(dram_response),
+    .csb0_in(csb0_in),
 
-    .csb0_in(csb0_in)
+    .cache_hit(icache_hit),
+    .selected_data_way(icache_data_way)
 );
 
 // select instruction within way
 wire [`INSTR_WIDTH-1:0] selected_instr;
-mux_ #(
+// mux_ #(
+mux_golden #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(2)
 ) instr_in_way_mux (
-    .ins({icache.selected_data_way[(I$_BLOCK_SIZE - 1):`ADDR_WIDTH],
-          icache.selected_data_way[(`ADDR_WIDTH - 1):0]}),
-    .sel(PC_wire[0]),
+    .ins({icache_data_way[(I$_BLOCK_SIZE - 1):`ADDR_WIDTH],
+          icache_data_way[(`ADDR_WIDTH - 1):0]}),
+    .sel(PC_wire[2]),
     .out(selected_instr)
 );
 // END ICACHE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -108,7 +119,7 @@ mux_ #(
 // ::: PREDICTED NEXT PC BLOCK :::::::::::::::::::::::::::::::::::::::::::::::::
 wire br_prediction;
 wire is_cond_branch;
-predicted_NPC #() pred_NPC (
+predicted_NPC pred_NPC (
     .instr(selected_instr),
     .PC(PC_wire),
     .is_cond_branch(is_cond_branch),
@@ -136,7 +147,7 @@ fifo #(
     .clk(clk),
     .rst_aL(rst_aL),
     .enq_ready(IFIFO_enq_ready), // output
-    .enq_valid(icache.cache_hit),  // input
+    .enq_valid(icache_hit),  // input
     .enq_data(IFIFO_enq_data),
     .deq_ready(dispatch_ready),   // input
     .deq_valid(instr_valid),  // output
@@ -145,7 +156,7 @@ fifo #(
 
 NAND2_X1 instr_FIFO_stall (
     .A1(IFIFO_enq_ready),
-    .A2(icache.cache_hit),
+    .A2(icache_hit),
     .ZN(IFIFO_full_stall)
 );
 // END INSTRUCTION FIFO ::::::::::::::::::::::::::::::::::::::::::::::::::::::::

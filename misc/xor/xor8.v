@@ -3,7 +3,7 @@
 
 `ifndef XOR8_V
 `define XOR8_V
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 
 module xor8 (
     input wire [7:0] a,

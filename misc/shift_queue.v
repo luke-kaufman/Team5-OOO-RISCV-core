@@ -240,6 +240,8 @@ module shift_queue #(
     wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_din;
     for (genvar i = 0; i < N_ENTRIES-1; i++) begin
         onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(4)) entry_din_mux (
+            .clk(clk),
+            .rst_aL(rst_aL),
             .ins({entry_douts[i+1], enq_data, wr_data[i], wr_data[i+1]}),
             .sel({sel_data_behind[i], sel_enq_data[i], sel_wr_data[i], sel_wr_data_behind[i]}),
             .out(entry_din[i])
@@ -248,6 +250,8 @@ module shift_queue #(
     onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(4)) entry_din_last_mux (
         // if sel_data_behind[N_ENTRIES-1] is true, then shift in fresh all 0s
         // sel_wr_data_behind[N_ENTRIES-1] is always false anyway
+        .clk(clk),
+        .rst_aL(rst_aL),
         .ins({{ENTRY_WIDTH{1'b0}}, enq_data, wr_data[N_ENTRIES-1], {ENTRY_WIDTH{1'b0}}}),
         .sel({sel_data_behind[N_ENTRIES-1], sel_enq_data[N_ENTRIES-1], sel_wr_data[N_ENTRIES-1], sel_wr_data_behind[N_ENTRIES-1]}),
         .out(entry_din[N_ENTRIES-1])
@@ -288,6 +292,7 @@ module shift_queue #(
     // if the queue is not full OR there will be a dequeue, then enq_ready is true
     // WARNING: with this implementation, now the enqueue interface depends on the dequeue interface
     // TODO: check this for feasibility
+    wire queue_not_full;
     INV_X1 inv (
         .A(queue_full),
         .ZN(queue_not_full)
@@ -304,6 +309,8 @@ module shift_queue #(
     );
     // select the entry to be dequeued (outputs {ENTRY_WIDTH{1'b0}} when no entry is selected)
     onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_ENTRIES)) deq_data_mux (
+        .clk(clk),
+        .rst_aL(rst_aL),
         .sel(deq_sel_onehot),
         .ins(entry_douts),
         .out(deq_data)
@@ -336,6 +343,25 @@ module shift_queue #(
 
     assign current_entry_reg_state = entry_douts;
     assign current_enq_up_down_counter_state = enq_ctr;
+
+    // assertions
+    function void enq_ctr_max_value(edge_t _edge);
+        if (enq_ctr > N_ENTRIES) begin
+            $error(
+                "Assertion failed: enq_ctr is larger than max value after %0s.\n\
+                enq_ctr = %0d, max value = %0d",
+                _edge == NEGEDGE ? "setting init_state and driving inputs" : "state transition",
+                enq_ctr, N_ENTRIES
+            );
+        end
+    endfunction
+
+    always @(negedge clk) begin #1
+        enq_ctr_max_value(NEGEDGE);
+    end
+    always @(posedge clk) begin #1
+        enq_ctr_max_value(POSEDGE);
+    end
 endmodule
 
 `endif

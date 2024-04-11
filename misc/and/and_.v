@@ -1,7 +1,7 @@
 `ifndef AND_V
 `define AND_V
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/and/and8.v"
 `include "misc/and/and16.v"
 `include "misc/and/and32.v"

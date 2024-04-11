@@ -20,7 +20,7 @@ module shift_queue_golden #(
     input wire deq_ready,
     input wire [N_ENTRIES-1:0] deq_sel_onehot, // can be either one-hot or all 0s
     output wire deq_valid,
-    output wire [ENTRY_WIDTH-1:0] deq_data,
+    output logic [ENTRY_WIDTH-1:0] deq_data,
 
     input wire [N_ENTRIES-1:0] wr_en,
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] wr_data,
@@ -118,13 +118,13 @@ module shift_queue_golden #(
 
     // select the entry to be dequeued from queue_r using the one-hot deq_sel_onehot
     always_comb begin
-       for (int i = 0; i < N_ENTRIES; i++) begin
-            deq_data = {ENTRY_WIDTH{1'b0}};
+        deq_data = {ENTRY_WIDTH{1'b0}};
+        for (int i = 0; i < N_ENTRIES; i++) begin
             if (deq_sel_onehot[i]) begin
                 deq_data = queue_r[i];
-                // break; // NOTE: icarus does not support break
+                break; // NOTE: icarus does not support break
             end
-       end
+        end
     end
 
     assign entry_douts = queue_r;
@@ -153,4 +153,39 @@ module shift_queue_golden #(
 
     assign current_entry_reg_state = queue_r;
     assign current_enq_up_down_counter_state = enq_ctr_r;
+
+    // assertions
+    function void entry_din_no_double_select(edge_t _edge, int i);
+        if (!$onehot0({sel_data_behind[i], sel_enq_data[i], sel_wr_data[i], sel_wr_data_behind[i]})) begin
+                $error(
+                    "Assertion failed: entry_din[%0d] sel is not one-hot or all-zeros after %0s.\n\
+                    sel_data_behind[%0d] = %0b, sel_enq_data[%0d] = %0b, sel_wr_data[%0d] = %0b, sel_wr_data_behind[%0d] = %0b",
+                    i, _edge == NEGEDGE ? "setting init_state and driving inputs" : "state transition",
+                    i, sel_data_behind[i], i, sel_enq_data[i], i, sel_wr_data[i], i, sel_wr_data_behind[i]
+                );
+        end
+    endfunction
+    function void enq_ctr_max_value(edge_t _edge);
+        if (enq_ctr_r > N_ENTRIES) begin
+            $error(
+                "Assertion failed: enq_ctr_r is larger than max value after %0s.\n\
+                enq_ctr_r = %0d, max value = %0d",
+                _edge == NEGEDGE ? "setting init_state and driving inputs" : "state transition",
+                enq_ctr_r, N_ENTRIES
+            );
+        end
+    endfunction
+
+    always @(negedge clk) begin #1
+        for (int i = 0; i < N_ENTRIES; i++) begin
+            entry_din_no_double_select(NEGEDGE, i);
+        end
+        enq_ctr_max_value(NEGEDGE);
+    end
+    always @(posedge clk) begin #1
+        for (int i = 0; i < N_ENTRIES; i++) begin
+            entry_din_no_double_select(POSEDGE, i);
+        end
+        enq_ctr_max_value(POSEDGE);
+    end
 endmodule
