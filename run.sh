@@ -4,12 +4,12 @@ if [[ "$(hostname)" == "iam-ssh1" ]]; then
     exit 1
 fi
 
-rm -rf work/
-
 TESTBENCH_PATH=$(find . -name ${1}.v -o -name ${1}.sv)
 
 if [[ "$(hostname)" == "vsc"* ]]; then
-    FLAGS='-sv -lint -suppress 2605,2623,2643'
+    FLAGS='-sv -lint'
+    # FLAGS+=' -suppress 2605'
+    # FLAGS+=',2623'
     VERILOG=vlog
 else
     PARAMS=""
@@ -20,10 +20,11 @@ else
     VERILOG=iverilog
 fi
 
+rm -rf $(find . -type d -name work)
 ${VERILOG} ${FLAGS} ${TESTBENCH_PATH}
 
 if [[ "$(hostname)" == "vsc"* ]]; then
-    vsim -c -sv_seed 1 -do "run -all; quit" ${1}
+    vsim -c -L stdcells -sv_seed 1 -do "run -all; quit" ${1}
 else
     vvp ${1}.vvp
     rm ${1}.vvp

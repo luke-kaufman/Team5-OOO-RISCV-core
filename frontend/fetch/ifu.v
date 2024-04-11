@@ -2,7 +2,7 @@
 `define IFU_V
 
 `include "misc/global_defs.svh"
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/cache.v"
 `include "misc/fifo.v"
 `include "frontend/fetch/predicted_NPC.v"
@@ -18,13 +18,13 @@ module ifu #(
     input wire rst_aL,
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
     input wire recovery_PC_valid,
-    input wire backend_stall, 
+    input wire backend_stall,
     input wire [I$_BLOCK_SIZE-1:0] dram_response,
     input wire dram_response_valid,
 
     //testing
     input wire csb0_in,
-    
+
     // INTERFACE TO RENAME
     input wire dispatch_ready,
     output wire instr_valid,
@@ -47,7 +47,7 @@ OR2_X1 stall_gate (
 mux_ #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(4)
-) PC_mux(   
+) PC_mux(
     .ins({recovery_PC, // if recovery
           recovery_PC, // if recovery
           PC.dout,     // if stall
@@ -78,7 +78,7 @@ INV_X1 response_v_to_we_aL (
     .ZN(icache_we_aL)
 );
 cache #(
-    .BLOCK_SIZE_BITS(I$_BLOCK_SIZE),  
+    .BLOCK_SIZE_BITS(I$_BLOCK_SIZE),
     .NUM_SETS(I$_NUM_SETS),
     .NUM_WAYS(I$_NUM_WAYS),
     .NUM_TAG_CTRL_BITS(`ICACHE_NUM_TAG_CTRL_BITS),  // 1 for valid bit

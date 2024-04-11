@@ -3,7 +3,7 @@
 
 `ifndef XNOR8_V
 `define XNOR8_V
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 
 module xnor8 (
     input wire [7:0] a,

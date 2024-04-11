@@ -3,7 +3,7 @@
 
 `ifndef XNOR16_V
 `define XNOR16_V
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/xnor/xnor8.v"
 
 module xnor16 (

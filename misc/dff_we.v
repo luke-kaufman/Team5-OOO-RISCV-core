@@ -1,7 +1,7 @@
 `ifndef DFF_WE_V
 `define DFF_WE_V
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 
 // IMPL STATUS: COMPLETE
 // TEST STATUS: FAILING (doesn't reset properly)

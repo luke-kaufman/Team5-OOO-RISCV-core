@@ -76,7 +76,7 @@ module regfile #(
     // the register file entries
     wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts;
     for (genvar i = 0; i < N_ENTRIES; i++) begin
-        reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg (
+        reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg ( // NOTE: STATEFUL
             .clk(clk),
             .rst_aL(rst_aL),
             .we(we[i]),

@@ -3,7 +3,7 @@
 
 `ifndef DEC4_V
 `define DEC4_V
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 
 module dec4(in, out);
     // declare input and output ports

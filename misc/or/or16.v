@@ -3,7 +3,7 @@
 
 `ifndef OR16_V
 `define OR16_V
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/or/or8.v"
 
 module or16 (

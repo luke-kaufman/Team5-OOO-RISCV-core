@@ -1,7 +1,7 @@
 `ifndef COUNTER_V
 `define COUNTER_V
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/reg_.v"
 `include "misc/adder.v"
 

@@ -1,7 +1,7 @@
 `include "golden/misc/shift_queue_golden.sv"
 `include "misc/shift_queue.v"
 
-module shift_queue_random_tb #(
+module shift_queue_directed_tb #(
     parameter DEBUG = 0,
     parameter N_TESTCASES = 100,
     parameter N_ENTRIES = 4,
@@ -30,6 +30,8 @@ module shift_queue_random_tb #(
     typedef struct packed {
         state_t init_state;
         input_t inputs;
+        output_t expected_outputs;
+        state_t expected_next_state;
     } test_vector_t;
 
     int num_testcases = 0;
@@ -37,32 +39,54 @@ module shift_queue_random_tb #(
     test_vector_t test_vectors[1:N_TESTCASES];
     bit testcases_passed[1:N_TESTCASES];
     initial begin
-        for (int i = 1; i <= N_TESTCASES; i++) begin
-            // for (int j = 0; j < $bits(test_vector_t); j += 32) begin
-            //     test_vectors[i][j+:32] = $urandom();
-            // end
-            test_vectors[i].init_state.enq_up_down_counter = $urandom_range(0, N_ENTRIES);
-            // randomize entry_reg up until enq_up_down_counter, rest is 0
-            for (int j = 0; j < test_vectors[i].init_state.enq_up_down_counter; j++) begin
-                test_vectors[i].init_state.entry_reg[j] = $urandom();
-            end
-            for (int j = test_vectors[i].init_state.enq_up_down_counter; j < N_ENTRIES; j++) begin
-                test_vectors[i].init_state.entry_reg[j] = 0;
-            end
-            test_vectors[i].inputs.enq_valid = $urandom();
-            test_vectors[i].inputs.enq_data = $urandom();
-            test_vectors[i].inputs.deq_ready = $urandom();
-            test_vectors[i].inputs.deq_sel_onehot = 1 << $urandom_range(0, N_ENTRIES-1);
-            // randomize wr_en and wr_data up until enq_up_down_counter, rest is 0
-            for (int j = 0; j < test_vectors[i].init_state.enq_up_down_counter; j++) begin
-                test_vectors[i].inputs.wr_en[j] = $urandom();
-                test_vectors[i].inputs.wr_data[j] = $urandom();
-            end
-            for (int j = test_vectors[i].init_state.enq_up_down_counter; j < N_ENTRIES; j++) begin
-                test_vectors[i].inputs.wr_en[j] = 0;
-                test_vectors[i].inputs.wr_data[j] = 0;
-            end
-        end
+        // init_state (entry_reg = bd17, enq_up_down_counter = 100)
+        // inputs     (enq_valid = 1, enq_data = f, deq_ready = 1, deq_sel_onehot = 0010, wr_en = 1111, wr_data = 7cb7)
+        // next_state (entry_reg = f7c7, enq_up_down_counter = 100)
+        test_vectors[1] = '{
+            init_state: '{
+                entry_reg: 16'hb_d_1_7,
+                enq_up_down_counter: 3'b100
+            },
+            inputs: '{
+                enq_valid: 1'b1,
+                enq_data: 4'hf,
+                deq_ready: 1'b1,
+                deq_sel_onehot: 4'b0010,
+                wr_en: 4'b1111,
+                wr_data: 16'h7cb7
+            },
+            expected_outputs: '{
+
+            },
+            expected_next_state: '{
+                entry_reg: 16'hf_7_c_7,
+                enq_up_down_counter: 3'b100
+            }
+        };
+        // init_state (entry_reg = 5425, enq_up_down_counter = 100)
+        // inputs     (enq_valid = 1, enq_data = b, deq_ready = 1, deq_sel_onehot = 1000, wr_en = 0101, wr_data = d813)
+        // next_state (entry_reg = b823, enq_up_down_counter = 100)
+        test_vectors[2] = '{
+            init_state: '{
+                entry_reg: 16'h5_4_2_5,
+                enq_up_down_counter: 3'b100
+            },
+            inputs: '{
+                enq_valid: 1'b1,
+                enq_data: 4'hb,
+                deq_ready: 1'b1,
+                deq_sel_onehot: 4'b1000,
+                wr_en: 4'b0101,
+                wr_data: 16'hd813
+            },
+            expected_outputs: '{
+
+            },
+            expected_next_state: '{
+                entry_reg: 16'hb_8_2_3,
+                enq_up_down_counter: 3'b100
+            }
+        };
     end
 
     // dut i/o
@@ -70,10 +94,10 @@ module shift_queue_random_tb #(
     bit init = 0;
     test_vector_t tv;
     input_t inputs;
-    wire output_t dut_outputs;
-    wire output_t golden_outputs;
-    wire state_t dut_state;
-    wire state_t golden_state;
+    wire output_t observed_outputs;
+    wire output_t expected_outputs;
+    wire state_t observed_next_state;
+    wire state_t expected_next_state;
 
     // clock generation
     localparam CLOCK_PERIOD = 10;

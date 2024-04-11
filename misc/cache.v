@@ -1,7 +1,7 @@
 `ifndef CACHE_V
 `define CACHE_V
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/global_defs.svh"
 `include "sram/icache_data_sram.v"
 `include "sram/dcache_data_sram_netlist_only.v"
@@ -31,10 +31,10 @@ module cache #(
     input wire [`ADDR_WIDTH-1:0] addr,
     input wire we_aL,
     input wire d_cache_is_ST,  // if reason for d-cache access is to store something (used for dirty bit)
-    input wire [WRITE_SIZE_BITS-1:0] write_data,  // 64 for icache (DRAMresponse) 8 bits for dcache 
-    
+    input wire [WRITE_SIZE_BITS-1:0] write_data,  // 64 for icache (DRAMresponse) 8 bits for dcache
+
     input wire csb0_in,
-    
+
     output wire [BLOCK_SIZE_BITS-1:0] selected_data_way,
     output wire cache_hit
 );
@@ -74,7 +74,7 @@ genvar i;
 wire [NUM_SETS-1:0][NUM_WAYS-1:0] dirty_sets;
 generate
     if(WRITE_SIZE_BITS == 8) begin  // FOR D-CACHE ONLY
-        
+
         AND2_X1 way0_dirty_we (
             .A(we_aH.ZN),
             .B(read_way0_selected)  // loops around from after ways tags are checked (increases crit path)
@@ -214,7 +214,7 @@ INV_X1 lfsr_inv (
     .A(lfsr_out)
 );
 // truth tab
-// WAY1V WAY0V we_mask[1] we_mask[0]  
+// WAY1V WAY0V we_mask[1] we_mask[0]
 //  0     0     0         1  // both invalid just write to 0
 //  0     1     1         0  // if way 0 valid, write to way 1
 //  1     0     0         1  // if way 1 valid, write to way 0
@@ -224,7 +224,7 @@ mux_ #(
     .WIDTH(1),
     .N_INS(4)
 ) mux4_way_fill2 (
-    .ins({lfsr_out, 1'b0, 1'b1, 1'b0}),  
+    .ins({lfsr_out, 1'b0, 1'b1, 1'b0}),
     .sel({way1_v, way0_v}),
     .out(intr_we_mask[1])
 );
@@ -232,7 +232,7 @@ mux_ #(
     .WIDTH(1),
     .N_INS(4)
 ) mux4_way_fill1 (
-    .ins({lfsr_inv.ZN, 1'b1, 1'b0, 1'b1}), 
+    .ins({lfsr_inv.ZN, 1'b1, 1'b0, 1'b1}),
     .sel({way1_v, way0_v}),
     .out(intr_we_mask[0])
 );
@@ -241,7 +241,7 @@ mux_ #(
     .WIDTH(2),
     .N_INS(4)
 ) mux4_way_fill (
-    .ins({intr_we_mask, 2'b10, 2'b01, intr_we_mask}),  
+    .ins({intr_we_mask, 2'b10, 2'b01, intr_we_mask}),
     .sel({way1_tag_match, way0_tag_match}),
     .out(we_mask)
 );

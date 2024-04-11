@@ -30,9 +30,7 @@ module test #(
         // $display("a: %b", a[7]);
 
 
-        $display("hello %d",
-                 1,
-                 " world %d",
-                 2);
+        repeat (10)
+            $display("%5b", 1 << $urandom_range(0, 4));
     end
 endmodule

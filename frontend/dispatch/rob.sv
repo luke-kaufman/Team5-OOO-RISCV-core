@@ -2,7 +2,7 @@
 `define ROB_V
 
 `include "misc/global_defs.svh"
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/fifo_ram.v"
 `include "misc/mux/mux_.v"
 `include "misc/and/and_.v"

@@ -1,5 +1,5 @@
 `include "issue/integer_issue.sv"
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/global_defs.svh"
 
 module integer_issue_tb();
@@ -12,5 +12,5 @@ module integer_issue_tb();
     wire issue_valid;
     wire [ISSUE_DATA_WIDTH-1:0] issue_data;
     integer_issue dut(clk, rst_aL, dispatch_ready, dispatch_valid, dispatch_data, issue_valid, issue_data);
-    
+
 endmodule
