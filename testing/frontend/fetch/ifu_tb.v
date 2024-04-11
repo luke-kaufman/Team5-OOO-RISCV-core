@@ -51,28 +51,44 @@ module ifu_tb #(
 
     // int num_random_tests_passed = 0;
     // int num_random_tests = 0;
-    int NUM_INSTRS=13;
-    int instr_locs[13];
-    int instr_data[13];
+    int NUM_INSTRS=22-6;
+    int instr_locs[22-6];
+    int instr_data[22-6];
     int num_directed_tests_passed = 0;
     int num_directed_tests = 0;
 
     task directed_testcases();
 
-        // program to load
-        instr_locs[0]=32'h1018c;  instr_data[0]=32'hfe010113; // add sp,sp,-32
-        instr_locs[1]=32'h10190;  instr_data[1]=32'h00112e23; // sw ra,28(sp)
-        instr_locs[2]=32'h10194;  instr_data[2]=32'h00812c23; // sw s0,24(sp)
-        instr_locs[3]=32'h10198;  instr_data[3]=32'h02010413; // add s0,sp,32
-        instr_locs[4]=32'h1019c;  instr_data[4]=32'hfea42623; // sw a0,-20(s0)
-        instr_locs[5]=32'h101a0;  instr_data[5]=32'hfeb42423; // sw a1,-24(s0)
-        instr_locs[6]=32'h101a4;  instr_data[6]=32'h01c000ef; // jal 101c0 <hello>
-        instr_locs[7]=32'h101a8;  instr_data[7]=32'h00050793; // mv a5,a0
-        instr_locs[8]=32'h101ac;  instr_data[8]=32'h00078513; // mv a0,a5
-        instr_locs[9]=32'h101b0;  instr_data[9]=32'h01c12083; // lw ra,28(sp)
-        instr_locs[10]=32'h101b4; instr_data[10]=32'h01812403; // lw s0,24(sp)
-        instr_locs[11]=32'h101b8; instr_data[11]=32'h02010113; // add sp,sp,32
-        instr_locs[12]=32'h101bc; instr_data[12]=32'h00008067; // ret
+        // remove LD and ST ops because will break
+        //instr_data[1]=32'h00812e23; // sw s0,28(sp)        
+        //instr_data[2]=32'h00912c23; // sw s1,24(sp)        
+        //instr_data[4]=32'hfea42623; // sw a0,-20(s0)        
+        //instr_data[5]=32'hfeb42423; // sw a1,-24(s0)        
+        //instr_data[18]=32'h01c12403; // lw s0,28(sp)        
+        //instr_data[19]=32'h01812483; // lw s1,24(sp)        
+        // program to load ****
+        instr_locs[0]=32'h1018c; instr_data[0]=32'hfe010113; // add sp,sp,-32        
+        instr_locs[1]=32'h10190; instr_data[1]=32'h02010413; // add s0,sp,32v
+        instr_locs[2]=32'h10194; instr_data[2]=32'h00f00493; // li s1,15        
+        instr_locs[3]=32'h10198; instr_data[3]=32'h01348493; // add s1,s1,19                
+        instr_locs[4]=32'h1019c; instr_data[4]=32'hffc48493; // add s1,s1,-4        
+        instr_locs[5]=32'h101a0; instr_data[5]=32'h00048713; // mv a4,s1        
+        instr_locs[6]=32'h101a4;  instr_data[6]=32'h800007b7; // lui a5,0x80000        
+        instr_locs[7]=32'h101a8;  instr_data[7]=32'h00f747b3; // xor a5,a4,a5        
+        instr_locs[8]=32'h101ac;  instr_data[8]=32'h00078493; // mv s1,a5        
+        instr_locs[9]=32'h101b0;  instr_data[9]=32'h800007b7; // lui a5,0x80000        
+        instr_locs[10]=32'h101b4; instr_data[10]=32'hfff78793; // add a5,a5,-1 # 7fffffff <__BSS_END__+0x7ffed77f>     
+        instr_locs[11]=32'h101b8; instr_data[11]=32'h00f4f4b3; // and s1,s1,a5        
+        instr_locs[12]=32'h101bc; instr_data[12]=32'h00048793; // mv a5,s1        
+        instr_locs[13]=32'h101c0; instr_data[13]=32'h00078513; // mv a0,a5        
+        instr_locs[14]=32'h101c4; instr_data[14]=32'h02010113; // add sp,sp,32        
+        instr_locs[15]=32'h101c8; instr_data[15]=32'h00008067; // ret           
+        // instr_locs[16]=32'h101cc;
+        // instr_locs[17]=32'h101d0;
+        // instr_locs[18]=32'h101d4; 
+        // instr_locs[19]=32'h101d8; 
+        // instr_locs[20]=32'h101dc; 
+        // instr_locs[21]=32'h101e0; 
         // end of program to load
 
         // reset, wait, then start testing
