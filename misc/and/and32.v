@@ -1,7 +1,7 @@
 `ifndef AND32_V
 `define AND32_V
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING

@@ -4,7 +4,7 @@
 // IMPL STATUS: COMPLETE
 // TEST STATUS: COMPLETE
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/and/and32.v"
 
 module cmp32 (

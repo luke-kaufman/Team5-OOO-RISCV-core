@@ -3,7 +3,7 @@
 
 `ifndef XOR16_V
 `define XOR16_V
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/xor/xor8.v"
 
 module xor16 (

@@ -1,7 +1,7 @@
 `ifndef AND16_V
 `define AND16_V
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING

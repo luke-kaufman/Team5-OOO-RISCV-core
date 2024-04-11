@@ -1,7 +1,7 @@
 // IMPL STATUS: COMPLETE
 // TEST STATUS: COMPLETE
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/global_defs.svh"
 
 module adder #(
@@ -9,11 +9,11 @@ module adder #(
 ) (
     input wire [WIDTH-1:0] a,
     input wire [WIDTH-1:0] b,
-    output wire [WIDTH-1:0] sum,
-    output wire cout
+    output wire [WIDTH-1:0] sum
 );
     // internal carry wires
     wire [WIDTH-2:0] C;
+    wire cout; // NOTE: this last carry-out is ignored
 
     // generate the full adders for each bit
     for (genvar i = 0; i < WIDTH; i = i + 1) begin : fa_gen

@@ -1,20 +1,20 @@
 `include "frontend/fetch/ifu.v"
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/global_defs.svh"
 
 module ifu_tb #(
     parameter N_RANDOM_TESTS = 100
-); 
+);
     /*input*/ bit clk=1;
     /*input*/ reg rst_aL=1;
     /*input*/ reg [`ADDR_WIDTH-1:0] recovery_PC=0;
     /*input*/ reg recovery_PC_valid=0;
-    /*input*/ reg backend_stall=0; 
+    /*input*/ reg backend_stall=0;
     /*input*/ reg [`ICACHE_DATA_BLOCK_SIZE-1:0] dram_response=0;
     /*input*/ reg dram_response_valid=0;
 
-    /*input*/ bit csb0_in=1; 
-    
+    /*input*/ bit csb0_in=1;
+
     // INTERFACE TO RENAME
     /*input*/ reg dispatch_ready=0;
     // /*output*/ reg instr_valid;
@@ -71,20 +71,20 @@ module ifu_tb #(
         instr_locs[10]=32'h101b4;
         instr_locs[11]=32'h101b8;
         instr_locs[12]=32'h101bc;
-        instr_data[0]=32'hfe010113; // add sp,sp,-32        
-        instr_data[1]=32'h00112e23; // sw ra,28(sp)        
-        instr_data[2]=32'h00812c23; // sw s0,24(sp)        
-        instr_data[3]=32'h02010413; // add s0,sp,32        
-        instr_data[4]=32'hfea42623; // sw a0,-20(s0)        
-        instr_data[5]=32'hfeb42423; // sw a1,-24(s0)        
-        instr_data[6]=32'h01c000ef; // jal 101c0 <hello>       
-        instr_data[7]=32'h00050793; // mv a5,a0        
-        instr_data[8]=32'h00078513; // mv a0,a5        
-        instr_data[9]=32'h01c12083; // lw ra,28(sp)        
-        instr_data[10]=32'h01812403; // lw s0,24(sp)        
-        instr_data[11]=32'h02010113; // add sp,sp,32        
-        instr_data[12]=32'h00008067; // ret  
-        
+        instr_data[0]=32'hfe010113; // add sp,sp,-32
+        instr_data[1]=32'h00112e23; // sw ra,28(sp)
+        instr_data[2]=32'h00812c23; // sw s0,24(sp)
+        instr_data[3]=32'h02010413; // add s0,sp,32
+        instr_data[4]=32'hfea42623; // sw a0,-20(s0)
+        instr_data[5]=32'hfeb42423; // sw a1,-24(s0)
+        instr_data[6]=32'h01c000ef; // jal 101c0 <hello>
+        instr_data[7]=32'h00050793; // mv a5,a0
+        instr_data[8]=32'h00078513; // mv a0,a5
+        instr_data[9]=32'h01c12083; // lw ra,28(sp)
+        instr_data[10]=32'h01812403; // lw s0,24(sp)
+        instr_data[11]=32'h02010113; // add sp,sp,32
+        instr_data[12]=32'h00008067; // ret
+
         // reset, wait, then start testing
         rst_aL = 0;
         #1;
@@ -93,12 +93,12 @@ module ifu_tb #(
         rst_aL = 1;
         #1;
         @(posedge clk);
-        
+
         // FIRST NEED TO FILL THE ICACHE WITH CERTAIN INSTRUCTIONS
         $display("Filling icache with instructions:");
         for(int i=0; i<NUM_INSTRS; i=i+2) begin
             $display("PC=0x%32b (%8h)", instr_locs[i], instr_locs[i]);
-            
+
             // force PC to instruction location thru recovery PC logic
             recovery_PC = instr_locs[i];
             recovery_PC_valid = 1;
@@ -136,11 +136,11 @@ module ifu_tb #(
         $display("DONE Force first PC thru recovery PC logic\n\n");
 
         // now run for NUM_INSTRS cycles with prepopulated icache
-        // starting at first PC 
+        // starting at first PC
         $display("Starting to read instructions from icache:");
         dispatch_ready = 1;  // so that we can get IFU output
         for(int i=0; i<NUM_INSTRS; i=i+1) begin
-            
+
             // read from icache
             $display("Reading from icache at PC=0x%8h", dut.PC.dout);
             csb0_in = 0;

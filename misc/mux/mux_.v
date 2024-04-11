@@ -1,7 +1,7 @@
 `ifndef MUX_V
 `define MUX_V
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/and/and_.v"
 `include "misc/or/or_.v"
 
@@ -29,10 +29,10 @@ module mux_ #(
     // the gated inputs
     wire [N_INS-1:0][WIDTH-1:0] gated_ins;
     genvar i,j,k;
-    // for each bit 
+    // for each bit
     generate
         for (i = 0; i < WIDTH; i = i + 1) begin
-            
+
             // ith bit of input j
             wire [N_INS-1:0] gated_ins_i;
             for(j = 0; j < N_INS; j = j + 1) begin

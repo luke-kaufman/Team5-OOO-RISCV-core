@@ -288,6 +288,7 @@ module shift_queue #(
     // if the queue is not full OR there will be a dequeue, then enq_ready is true
     // WARNING: with this implementation, now the enqueue interface depends on the dequeue interface
     // TODO: check this for feasibility
+    wire queue_not_full;
     INV_X1 inv (
         .A(queue_full),
         .ZN(queue_not_full)

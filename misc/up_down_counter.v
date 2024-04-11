@@ -1,7 +1,7 @@
 `ifndef UP_DOWN_COUNTER_V
 `define UP_DOWN_COUNTER_V
 
-`include "freepdk-45nm/stdcells.v"
+// `include "freepdk-45nm/stdcells.v"
 `include "misc/reg_.v"
 `include "misc/adder.v"
 
@@ -30,7 +30,7 @@ module up_down_counter #(
     reg_ #(.WIDTH(WIDTH)) ctr (
         .clk(clk),
         .rst_aL(rst_aL),
-        .we(inc),
+        .we(inc ^ dec), // FIXME: change to structural
         .din(next_count),
         .dout(count),
 
@@ -38,12 +38,13 @@ module up_down_counter #(
         .init_state(init_state)
     );
     wire [WIDTH-1:0] one = 'b1;
-    adder #(.WIDTH(WIDTH)) add (
+    wire [WIDTH-1:0] minus_one = {WIDTH{1'b1}};
+    wire [WIDTH-1:0] b = inc ? one : minus_one; // FIXME: change to structural
+    adder #(.WIDTH(WIDTH)) inc_adder (
         .a(count),
-        .b(one),
+        .b(b),
         .sum(next_count)
     );
-    // TODO: implement the decrement
 endmodule
 
 `endif
