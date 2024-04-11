@@ -35,6 +35,7 @@ module fifo_directed_tb #(
     int num_testcases_passed = 0;
     test_vector_t test_vectors[1:N_MAX_TESTCASES];
     bit testcases_passed[1:N_MAX_TESTCASES];
+    // directed testcases
     initial begin
         // testcase 1: enqueue entry to empty fifo, don't try to dequeue
         test_vectors[1] = '{
