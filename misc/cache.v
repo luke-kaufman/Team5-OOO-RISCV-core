@@ -113,20 +113,18 @@ generate
             assign dirty_sets[i][1] = way1_dirty.q;
 
         end
+
+        wire [NUM_WAYS-1:0] set_dirty_bits;
+        mux_ #(
+            .WIDTH(2),
+            .N_INS(NUM_SETS)
+        ) mux64_1 (
+            .ins(dirty_sets),
+            .sel(addr[`get_set_num]),
+            .out(set_dirty_bits)
+        );
     end
-
-    wire [NUM_WAYS-1:0] set_dirty_bits;
-    mux_ #(
-        .WIDTH(2),
-        .N_INS(NUM_SETS)
-    ) mux64_1 (
-        .ins(dirty_sets),
-        .sel(addr[`get_set_num]),
-        .out(set_dirty_bits)
-    );
 endgenerate
-
-
 // END TAG ARRAY :::::::::::::::::::::::::::::::::::::
 
 // ::: DATA ARRAY ::::::::::::::::::::::::::::::::::::

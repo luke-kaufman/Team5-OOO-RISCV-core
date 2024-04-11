@@ -1,5 +1,5 @@
 #############  Autofindloop Analysis  ###############
-#############  Loop found at time 210 ns ###############
+#############  Loop found at time 105 ns ###############
 #   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk1[0]/inv/#OPTCELL#23 @ sub-iteration 0 to value St0
 #     Source: misc/mux/mux_.v:23
 #   OptCellEvent process: /ifu_tb/dut/instruction_FIFO/entry[0]/entry_we_and/genblk1/and_gate/#OPTCELL#18 @ sub-iteration 0 to value St1
@@ -60,8 +60,10 @@
 #     Source: misc/and/and_.v:23
 #   OptCellEvent process: /ifu_tb/dut/PC_mux/genblk2[2]/genblk1[1]/and_gate/genblk1/and_gate/#OPTCELL#23 @ sub-iteration 1 to value St0
 #     Source: misc/and/and_.v:23
+
 ################# END OF LOOP #################
-# ** Error (suppressible): (vsim-3601) Iteration limit 10000000 reached at time 210 ns.
+# ** Error (suppressible): (vsim-3601) Iteration limit 10000000 reached at time 105 ns.
 #  quit
-# End time: 22:51:18 on Apr 10,2024, Elapsed time: 0:02:26
+# End time: 21:57:19 on Apr 10,2024, Elapsed time: 0:05:55
 # Errors: 1, Warnings: 42, Suppressed Warnings: 11
+[lukekaufman@vsc6 Team5-OOO-RISCV-core]$ 

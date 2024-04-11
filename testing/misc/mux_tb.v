@@ -27,7 +27,7 @@ module mux_tb #(
 
     // instantiate the golden model
     mux_golden #(
-        .N(N_INS),
+        .N_INS(N_INS),
         .WIDTH(WIDTH)
     ) golden (
         .inputs(a),

@@ -6,6 +6,7 @@
 `include "misc/cache.v"
 `include "misc/fifo.v"
 `include "frontend/fetch/predicted_NPC.v"
+`include "golden/misc/mux_golden.v"
 
 // Instruction Fetch Unit
 module ifu #(
@@ -42,7 +43,8 @@ OR2_X1 stall_gate (
     .A2(IFIFO_full_stall)
 );
 
-mux_ #(
+// mux_ #(
+mux_golden #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(4)
 ) PC_mux(   
@@ -94,7 +96,8 @@ cache #(
 
 // select instruction within way
 wire [`INSTR_WIDTH-1:0] selected_instr;
-mux_ #(
+// mux_ #(
+mux_golden #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(2)
 ) instr_in_way_mux (
