@@ -173,7 +173,12 @@ module ifu_tb #(
                 end
                 else begin
                     $display("FAILED CASE:");
-                    
+                    $display("dut.instr_valid %1b", dut.instr_valid);
+                    $display("dut.IFIFO_deq_data.instr 0x%8h EXPECTED: 0x%8h", dut.IFIFO_deq_data.instr, instr_out[s_i][i].instr);
+                    $display("dut.IFIFO_deq_data.pc 0x%8h EXPECTED: 0x%8h", dut.IFIFO_deq_data.pc, instr_out[s_i][i].pc);
+                    $display("dut.IFIFO_deq_data.is_cond_br %1b EXPECTED: %1b", dut.IFIFO_deq_data.is_cond_br, instr_out[s_i][i].is_cond_br);
+                    $display("dut.IFIFO_deq_data.br_dir_pred %1b EXPECTED: %1b", dut.IFIFO_deq_data.br_dir_pred, instr_out[s_i][i].br_dir_pred);
+                    $display("dut.IFIFO_deq_data.br_target_pred 0x%8h EXPECTED: 0x%8h", dut.IFIFO_deq_data.br_target_pred, instr_out[s_i][i].br_target_pred);       
                 end
             end
         end
