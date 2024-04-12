@@ -6,7 +6,6 @@
 `include "misc/cache.v"
 `include "misc/fifo.v"
 `include "frontend/fetch/predicted_NPC.v"
-`include "golden/misc/mux_golden.v"
 
 // Instruction Fetch Unit
 module ifu #(
@@ -38,19 +37,20 @@ wire [I$_BLOCK_SIZE-1:0] icache_data_way;
 wire [`ADDR_WIDTH-1:0] PC_mux_out;
 wire [`ADDR_WIDTH-1:0] next_PC;
 wire [`ADDR_WIDTH-1:0] PC_wire;
-wire IFIFO_full_stall;
+wire IFIFO_stall;
 
 // ::: PC MUX & PC :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Stall aggregator (OR-gate)
 wire stall;
-OR2_X1 stall_gate (
+OR3_X1 stall_gate (
     .A1(icache_miss),
-    .A2(IFIFO_full_stall),
+    .A2(IFIFO_stall),
+    .A3(backend_stall),
     .ZN(stall)
 );
 
 // mux_ #(
-mux_golden #(
+mux_ #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(4)
 ) PC_mux(
@@ -93,6 +93,7 @@ cache #(
     .clk(clk),
     .rst_aL(rst_aL),
     .addr(PC_mux_out),
+    .PC_addr(PC.dout),
     .d_cache_is_ST(1'b0), // not used in icache
     .we_aL(icache_we_aL),
     .write_data(dram_response),
@@ -105,7 +106,7 @@ cache #(
 // select instruction within way
 wire [`INSTR_WIDTH-1:0] selected_instr;
 // mux_ #(
-mux_golden #(
+mux_ #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(2)
 ) instr_in_way_mux (
@@ -146,18 +147,17 @@ fifo #(
 ) instruction_FIFO (
     .clk(clk),
     .rst_aL(rst_aL),
-    .enq_ready(IFIFO_enq_ready), // output
-    .enq_valid(icache_hit),  // input
-    .enq_data(IFIFO_enq_data),
-    .deq_ready(dispatch_ready),   // input
-    .deq_valid(instr_valid),  // output
-    .deq_data(instr_to_dispatch)
+    .enq_data(IFIFO_enq_data),   // input - data
+    .enq_ready(IFIFO_enq_ready), // output - can fifo receive data?
+    .enq_valid(icache_hit),      // input - enqueue if icache hit
+    .deq_ready(dispatch_ready),  // input - interface from dispatch
+    .deq_valid(instr_valid),     // output - interface to dispatch
+    .deq_data(instr_to_dispatch) // output - dispatched instr
 );
 
-NAND2_X1 instr_FIFO_stall (
-    .A1(IFIFO_enq_ready),
-    .A2(icache_hit),
-    .ZN(IFIFO_full_stall)
+INV_X1 instr_FIFO_stall (
+    .A(IFIFO_enq_ready),
+    .ZN(IFIFO_stall)
 );
 // END INSTRUCTION FIFO ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

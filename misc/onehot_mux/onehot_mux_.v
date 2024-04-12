@@ -11,7 +11,6 @@ module onehot_mux_ #(
     parameter N_INS = 2
 ) (
     input wire clk,
-    input wire rst_aL,
     input wire [N_INS-1:0] [WIDTH-1:0] ins,
     input wire [N_INS-1:0] sel,
     output logic [WIDTH-1:0] out // FIXME: change to wire by implementing in structural

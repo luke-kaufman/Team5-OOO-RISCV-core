@@ -82,7 +82,7 @@ INV_X1 uncond_to_cond (
     .A(is_unconditional_jal)
 );
 
-AND3_X1 is_cond_branch_AND (
+AND2_X1 is_cond_branch_AND (
     .A1(uncond_to_cond.ZN),
     .A2(is_br)
 );

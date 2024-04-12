@@ -8,7 +8,7 @@
 `include "sram/tag_array_sram.v"
 `include "misc/dff_we.v"
 `include "misc/cmp/cmp32.v"
-`include "misc/onehot_mux/onehot_mux2.v"
+`include "misc/onehot_mux/onehot_mux_.v"
 `include "misc/mux/mux_.v"
 `include "misc/lfsr.v"
 
@@ -29,6 +29,7 @@ module cache #(
     input wire clk,
     input wire rst_aL,
     input wire [`ADDR_WIDTH-1:0] addr,
+    input wire [`ADDR_WIDTH-1:0] PC_addr,
     input wire we_aL,
     input wire d_cache_is_ST,  // if reason for d-cache access is to store something (used for dirty bit)
     input wire [WRITE_SIZE_BITS-1:0] write_data,  // 64 for icache (DRAMresponse) 8 bits for dcache
@@ -44,8 +45,10 @@ module cache #(
 `define get_set_num  (NUM_SET_BITS+NUM_OFFSET_BITS-1) : NUM_OFFSET_BITS
 `define get_offset   NUM_OFFSET_BITS-1 : 0
 
-INV_X1 we_aH (
-    .A(we_aL)
+wire we_aH;
+INV_X1 we_aH_INV (
+    .A(we_aL),
+    .ZN(we_aH)
 );
 
 wire [NUM_WAYS-1:0] we_mask;
@@ -68,6 +71,7 @@ sram_64x48_1rw_wsize24 tag_arr (
 wire way0_v, way1_v;
 wire [TAG_ENTRY_SIZE-2:0] way0_tag, way1_tag;  // -2 for valid bit
 assign {way1_v, way1_tag, way0_v, way0_tag} = tag_out;
+wire read_way0_selected, read_way1_selected;
 
 // For dirty bits - write 1 when completing ST instruction
 genvar i;
@@ -76,11 +80,11 @@ generate
     if(WRITE_SIZE_BITS == 8) begin  // FOR D-CACHE ONLY
 
         AND2_X1 way0_dirty_we (
-            .A(we_aH.ZN),
+            .A(we_aH),
             .B(read_way0_selected)  // loops around from after ways tags are checked (increases crit path)
         );
         AND2_X1 way1_dirty_we (
-            .A(we_aH.ZN),
+            .A(we_aH),
             .B(read_way1_selected)
         );
 
@@ -119,7 +123,7 @@ generate
             .N_INS(NUM_SETS)
         ) mux64_1 (
             .ins(dirty_sets),
-            .sel(addr[`get_set_num]),
+            .sel(PC_addr[`get_set_num]),
             .out(set_dirty_bits)
         );
     end
@@ -172,17 +176,16 @@ assign {way1_data, way0_data} = icache.i_cache_data_arr.dout0;
 wire way0_tag_match, way1_tag_match;
 cmp32 way0_tag_check (
     .a({9'b0, way0_tag}),
-    .b({9'b0, addr[`get_tag]}),
+    .b({9'b0, PC_addr[`get_tag]}),
     .y(way0_tag_match)
 );
 cmp32 way1_tag_check (
     .a({9'b0, way1_tag}),
-    .b({9'b0, addr[`get_tag]}),
+    .b({9'b0, PC_addr[`get_tag]}),
     .y(way1_tag_match)
 );
 
 // check tag matches with valid bits
-wire read_way0_selected, read_way1_selected;
 AND2_X1 way0_check_v(
     .A1(way0_tag_match),
     .A2(way0_v),
@@ -254,11 +257,15 @@ OR2_X1 icache_hit_or_gate(
 );
 
 // select which data way
-onehot_mux2 #(.WIDTH(BLOCK_SIZE_BITS)) way_data_mux (
-    .d0(way0_data),
-    .d1(way1_data),
-    .s({read_way1_selected, read_way0_selected}),
-    .y(selected_data_way)
+onehot_mux_ #(
+    .WIDTH(BLOCK_SIZE_BITS),
+    .N_INS(2)
+) 
+way_data_mux (
+    .clk(clk),
+    .ins({way1_data, way0_data}),
+    .sel({read_way1_selected, read_way0_selected}),
+    .out(selected_data_way)
 );
 
 // END process cache tag and data bank outputs ::::::::
