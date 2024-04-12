@@ -98,7 +98,7 @@ module fifo_random_tb #(
 
     function void check_output(int i);
         if ((dut_output !== golden_output) || DEBUG) begin
-            $display("Testcase %0d dut_output is %s:
+            $display("Testcase %0d dut_output is %0s:
                     golden_state      (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)
                     dut_state         (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)
                     input_stimul      (enq_valid = %b, enq_data = %h, deq_ready = %b)
@@ -118,7 +118,7 @@ module fifo_random_tb #(
 
     function void check_state(int i);
         if ((dut_state !== golden_state) || DEBUG) begin
-            $display("Testcase %0d dut_next_state is %s:
+            $display("Testcase %0d dut_next_state is %0s:
                     golden_state      (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)
                     dut_state         (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)
                     input_stimuli     (enq_valid = %b, enq_data = %h, deq_ready = %b)

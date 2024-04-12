@@ -1,6 +1,6 @@
 `include "misc/global_defs.svh"
 // `include "freepdk-45nm/stdcells.v"
-`include "misc/regfile.v"
+`include "misc/regfile.sv"
 `include "misc/fifo.v"
 `include "misc/fifo_ram.v"
 

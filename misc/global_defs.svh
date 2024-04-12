@@ -94,14 +94,23 @@ typedef struct packed {
     logic dst_valid;
     rob_id_t instr_rob_id;
     imm_t imm;
-    logic [2:0] alu_ctrl; // FIXME
     addr_t pc;
-    logic br_dir_pred; // FIXME (0: not taken, 1: taken) (get this from fetch)
-    addr_t br_target_pred; // FIXME is this the same thing as jalr target pc? (get this from fetch?)
+    logic [2:0] funct3; // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
+    logic is_r_type;
+    logic is_i_type;
+    logic is_u_type; // lui and auipc only
+    logic is_b_type;
+    logic is_j_type; // jal only
+    logic is_sub; // if is_r_type, 0 = add, 1 = sub
+    logic is_sra_srai; // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
+    logic is_lui; // if is_u_type, 0 = auipc, 1 = lui
+    logic is_jalr; // if is_i_type, 0 = else, 1 = jalr
+    logic br_dir_pred; // (0: not taken, 1: taken) (get this from fetch)
+    // addr_t br_target_pred; // FIXME (do we need this right now?) is this the same thing as jalr target pc? (get this from fetch?)
 } iiq_entry_t;
 `define IIQ_ENTRY_WIDTH $bits(iiq_entry_t)
 
-typedef struct packed { // FIXME
+typedef struct packed {
     logic ld_st; // 0: ld, 1: st
     rob_id_t base_rob_id;
     logic base_ready;
@@ -116,11 +125,124 @@ typedef struct packed { // FIXME
 `define LSQ_ENTRY_WIDTH $bits(lsq_entry_t)
 
 typedef struct packed {
-    logic [2:0] alu_ctrl; // FIXME
     reg_data_t src1_data;
     reg_data_t src2_data;
+    rob_id_t instr_rob_id; // received from issue
+    imm_t imm;
+    addr_t pc;
+    logic [2:0] funct3; // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
+    logic is_r_type;
+    logic is_i_type;
+    logic is_u_type; // lui and auipc only
+    logic is_b_type;
+    logic is_j_type; // jal only
+    logic is_sub; // if is_r_type, 0 = add, 1 = sub
+    logic is_sra_srai; // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
+    logic is_lui; // if is_u_type, 0 = auipc, 1 = lui
+    logic is_jalr; // if is_i_type, 0 = else, 1 = jalr
+    logic br_dir_pred; // (0: not taken, 1: taken) (get this from fetch)
 } iiq_issue_data_t;
+`define IIQ_ISSUE_DATA_WIDTH $bits(iiq_issue_data_t)
 
 typedef enum {POSEDGE, NEGEDGE} edge_t;
+
+`define LUI_OPCODE    7'b0110111
+`define AUIPC_OPCODE  7'b0010111
+`define JAL_OPCODE    7'b1101111
+`define JALR_OPCODE   7'b1100111
+`define BR_OPCODE     7'b1100011
+`define LD_OPCODE     7'b0000011
+`define ST_OPCODE     7'b0100011
+`define OP_IMM_OPCODE 7'b0010011
+`define OP_OPCODE     7'b0110011
+
+`define BEQ_FUNCT3 3'b000
+`define BNE_FUNCT3 3'b001
+`define BLT_FUNCT3 3'b100
+`define BGE_FUNCT3 3'b101
+`define BLTU_FUNCT3 3'b110
+`define BGEU_FUNCT3 3'b111
+
+`define LB_FUNCT3 3'b000
+`define LH_FUNCT3 3'b001
+`define LW_FUNCT3 3'b010
+`define LBU_FUNCT3 3'b100
+`define LHU_FUNCT3 3'b101
+
+`define SB_FUNCT3 3'b000
+`define SH_FUNCT3 3'b001
+`define SW_FUNCT3 3'b010
+
+`define ADD_FUNCT3 3'b000
+`define ADDI_FUNCT3 3'b000
+`define SUB_FUNCT3 3'b000
+`define SLL_FUNCT3 3'b001
+`define SLLI_FUNCT3 3'b001
+`define SLT_FUNCT3 3'b010
+`define SLTI_FUNCT3 3'b010
+`define SLTU_FUNCT3 3'b011
+`define SLTIU_FUNCT3 3'b011
+`define XOR_FUNCT3 3'b100
+`define XORI_FUNCT3 3'b100
+`define SRL_FUNCT3 3'b101
+`define SRLI_FUNCT3 3'b101
+`define SRA_FUNCT3 3'b101
+`define SRAI_FUNCT3 3'b101
+`define OR_FUNCT3 3'b110
+`define ORI_FUNCT3 3'b110
+`define AND_FUNCT3 3'b111
+`define ANDI_FUNCT3 3'b111
+
+typedef struct packed {
+    logic [6:0] funct7;
+    logic [4:0] rs2;
+    logic [4:0] rs1;
+    logic [2:0] funct3;
+    logic [4:0] rd;
+    logic [6:0] opcode;
+} r_type_instr_t;
+
+typedef struct packed {
+    logic [11:0] imm;
+    logic [4:0] rs1;
+    logic [2:0] funct3;
+    logic [4:0] rd;
+    logic [6:0] opcode;
+} i_type_instr_t;
+
+typedef struct packed {
+    logic [11:5] imm11_5;
+    logic [4:0] rs2;
+    logic [4:0] rs1;
+    logic [2:0] funct3;
+    logic [4:0] imm4_0;
+    logic [6:0] opcode;
+} s_type_instr_t;
+
+typedef struct packed {
+    logic imm12;
+    logic [10:5] imm10_5;
+    logic [4:0] rs2;
+    logic [4:0] rs1;
+    logic [2:0] funct3;
+    logic [4:0] imm4_1;
+    logic imm11;
+    logic [6:0] opcode;
+} b_type_instr_t;
+
+typedef struct packed {
+    logic [31:12] imm31_12;
+    logic [4:0] rd;
+    logic [6:0] opcode;
+} u_type_instr_t;
+
+typedef struct packed {
+    logic imm20;
+    logic [10:1] imm10_1;
+    logic imm11;
+    logic [19:12] imm19_12;
+    logic [4:0] rd;
+    logic [6:0] opcode;
+} j_type_instr_t;
 
 `endif

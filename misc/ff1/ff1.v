@@ -1,3 +1,6 @@
+`ifndef FF1_V
+`define FF1_V
+
 // IMPL STATUS: COMPLETE
 // TEST STATUS: MISSING
 module ff1 #(
@@ -25,3 +28,5 @@ module ff1 #(
         assign y[i] = ~|a[i-1:0] & a[i];
     end
 endmodule
+
+`endif

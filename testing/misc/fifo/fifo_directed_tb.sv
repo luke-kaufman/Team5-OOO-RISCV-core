@@ -171,7 +171,7 @@ module fifo_directed_tb #(
 
     function void check_output(int i);
         if ((observed_output !== test_vector.expected_output) || DEBUG) begin
-            $display("Testcase %0d observed output is %s:
+            $display("Testcase %0d observed output is %0s:
                     observed (enq_ready = %b, deq_valid = %b, deq_data = %h),
                     expected (enq_ready = %b, deq_valid = %b, deq_data = %h)",
                     i, (observed_output !== test_vector.expected_output) ? "wrong" : "correct",
@@ -185,7 +185,7 @@ module fifo_directed_tb #(
 
     function void check_next_state(int i);
         if ((observed_next_state !== test_vector.expected_next_state) || DEBUG) begin
-            $display("Testcase %0d observed next state is %s:
+            $display("Testcase %0d observed next state is %0s:
                     observed (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b),
                     expected (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)",
                     i, (observed_next_state !== test_vector.expected_next_state) ? "wrong" : "correct",

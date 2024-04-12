@@ -3,6 +3,10 @@
 
 `include "misc/dec/dec_.v"
 `include "misc/and/and_.v"
+`include "misc/or/or_.v"
+`include "misc/mux/mux_.v"
+`include "misc/onehot_mux/onehot_mux_.v"
+`include "misc/reg_.v"
 `include "misc/ff1/ff1.v"
 
 // IMPL STATUS: COMPLETE
@@ -13,7 +17,7 @@ module regfile #(
     localparam PTR_WIDTH = $clog2(N_ENTRIES),
 
     parameter N_READ_PORTS = 2,
-    parameter N_WRITE_PORTS = 1
+    parameter N_WRITE_PORTS = 2
 ) (
     input wire clk,
     input wire rst_aL,
@@ -23,7 +27,12 @@ module regfile #(
 
     input wire [N_WRITE_PORTS-1:0] wr_en,
     input wire [N_WRITE_PORTS-1:0] [PTR_WIDTH-1:0] wr_addr,
-    input wire [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data
+    input wire [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data,
+
+    // for testing
+    input wire init,
+    input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_regfile_state,
+    output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] current_regfile_state
 );
     // decode the write address(es) to a one-hot representation
     wire [N_WRITE_PORTS-1:0] [N_ENTRIES-1:0] wr_addr_onehot;
@@ -67,6 +76,8 @@ module regfile #(
     wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] din;
     for (genvar i = 0; i < N_ENTRIES; i++) begin
         onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_WRITE_PORTS)) din_onehot_mux (
+            .clk(clk),
+            .rst_aL(rst_aL),
             .ins(wr_data),
             .sel(din_onehot_mux_sel[i]),
             .out(din[i])
@@ -81,7 +92,10 @@ module regfile #(
             .rst_aL(rst_aL),
             .we(we[i]),
             .din(din[i]),
-            .dout(entry_douts[i])
+            .dout(entry_douts[i]),
+
+            .init(init),
+            .init_state(init_regfile_state[i])
         );
     end
 
@@ -94,8 +108,11 @@ module regfile #(
         );
     end
 
+    // for testing
+    assign current_regfile_state = entry_douts;
+
     // assertions
-    // check that all write ports are to different addresses
+    // check that all write ports are to different addresses FIXME
     for (genvar i = 0; i < N_WRITE_PORTS; i++) begin
         for (genvar j = i + 1; j < N_WRITE_PORTS; j++) begin
             assert property (@(posedge clk) disable iff (!rst_aL) wr_en[i] && wr_en[j] |-> wr_addr[i] != wr_addr[j]);

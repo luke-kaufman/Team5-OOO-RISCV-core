@@ -152,4 +152,42 @@ module integer_issue (
     end
 
     // TODO: add integer issue buffer here
+    wire iiq_issue_data_t integer_issue_buffer_din;
+    // select between the issue data from iiq and bypass data from alu and load
+    assign integer_issue_buffer_din = '{
+        src1_data: alu_broadcast_valid && (alu_broadcast_rob_id == scheduled_entry.src1_rob_id) ?
+                        alu_broadcast_reg_data :
+                        ld_broadcast_valid && (ld_broadcast_rob_id == scheduled_entry.src1_rob_id) ?
+                            ld_broadcast_reg_data :
+                            scheduled_entry.src1_data,
+        src2_data: alu_broadcast_valid && (alu_broadcast_rob_id == scheduled_entry.src2_rob_id) ?
+                        alu_broadcast_reg_data :
+                        ld_broadcast_valid && (ld_broadcast_rob_id == scheduled_entry.src2_rob_id) ?
+                            ld_broadcast_reg_data :
+                            scheduled_entry.src2_data,
+        imm: scheduled_entry.imm,
+        pc: scheduled_entry.pc,
+        rob_id_t: instr_rob_id_in, // received from issue
+        funct3: scheduled_entry.funct3, // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
+        is_r_type: scheduled_entry.is_r_type,
+        is_i_type: scheduled_entry.is_i_type,
+        is_u_type: scheduled_entry.is_u_type, // lui and auipc only
+        is_b_type: scheduled_entry.is_b_type,
+        is_j_type: scheduled_entry.is_j_type, // jal only
+        is_sub: scheduled_entry.is_sub, // if is_r_type, 0 = add, 1 = sub
+        is_sra_srai: scheduled_entry.is_sra_srai, // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
+        is_lui: scheduled_entry.is_lui, // if is_u_type, 0 = auipc, 1 = lui
+        is_jalr: scheduled_entry.is_jalr, // if is_i_type, 0 = else, 1 = jalr
+        br_dir_pred:  // received from issue (0: not taken, 1: taken)
+    }
+
+    reg_ #(
+        .WIDTH(`IIQ_ISSUE_DATA_WIDTH)
+    ) integer_issue_buffer (
+        .clk(clk),
+        .rst_aL(rst_aL),
+        .we(issue_valid),
+        .din(integer_issue_buffer_din),
+        .dout(issue_data)
+    )
 endmodule

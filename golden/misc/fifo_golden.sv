@@ -73,6 +73,7 @@ module fifo_golden #(
         end
     end
 
+    // for testing
     assign current_entry_reg_state = fifo_r;
     assign current_enq_up_counter_state = enq_ctr_r;
     assign current_deq_up_counter_state = deq_ctr_r;

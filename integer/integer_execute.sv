@@ -141,7 +141,7 @@ module integer_execute (
     wire word_t and_out;
     bitwise_and #(
         .WIDTH(`WORD_WIDTH)
-    ) and (
+    ) _bitwise_and (
         .a(and_op1),
         .b(and_op2),
         .y(and_out)
@@ -151,7 +151,7 @@ module integer_execute (
     wire word_t or_out;
     bitwise_or #(
         .WIDTH(`WORD_WIDTH)
-    ) or (
+    ) _bitwise_or (
         .a(or_op1),
         .b(or_op2),
         .y(or_out)
@@ -161,7 +161,7 @@ module integer_execute (
     wire word_t xor_out;
     bitwise_xor #(
         .WIDTH(`WORD_WIDTH)
-    ) xor (
+    ) _bitwise_xor (
         .a(xor_op1),
         .b(xor_op2),
         .y(xor_out)
@@ -221,8 +221,6 @@ module integer_execute (
         .out(dst)
     );
 
-    assign br_wb_valid = is_b_type | is_jalr; // only write to rob.pc_npc (change pc to npc) if instr is b_type or jalr
-    assign npc = {main_adder_sum[31:1], is_jalr ? 1'b0 : main_adder_sum[0]};
     wire sel_beq_taken = ~|funct3; // funct3 = 3'b000
     wire sel_bne_taken = ~funct3[2] & ~funct3[1] & funct3[0]; // funct3 = 3'b001
     wire sel_blt_taken = funct3[2] & ~funct3[1] & ~funct3[0]; // funct3 = 3'b100
@@ -252,5 +250,7 @@ module integer_execute (
         }),
         .out(br_taken)
     );
+    assign br_wb_valid = is_b_type | is_jalr; // only write to rob.pc_npc (change pc to npc) if instr is b_type or jalr
+    assign npc = {main_adder_sum[31:1], is_jalr ? 1'b0 : main_adder_sum[0]};
     assign br_mispred = (br_dir_pred ^ br_taken) | is_jalr;
 endmodule

@@ -160,7 +160,7 @@ module shift_queue_directed_tb #(
 
     function void check_output(int i);
         if ((dut_outputs !== golden_outputs) || DEBUG) begin
-            $display("Testcase %0d dut_outputs is %s:\n\
+            $display("Testcase %0d dut_outputs is %0s:\n\
                     init_state     (entry_reg = %h, enq_up_down_counter = %b)\n\
                     inputs         (enq_valid = %b, enq_data = %h, deq_ready = %b, deq_sel_onehot = %b, wr_en = %b, wr_data = %h)\n\
                     golden_outputs (enq_ready = %b, deq_valid = %b, deq_data = %h, entry_douts = %h)\n\
@@ -178,7 +178,7 @@ module shift_queue_directed_tb #(
 
     function void check_next_state(int i);
         if ((dut_state !== golden_state) || DEBUG) begin
-            $display("Testcase %0d dut_next_state is %s:\n\
+            $display("Testcase %0d dut_next_state is %0s:\n\
                     init_state        (entry_reg = %h, enq_up_down_counter = %b)\n\
                     inputs            (enq_valid = %b, enq_data = %h, deq_ready = %b, deq_sel_onehot = %b, wr_en = %b, wr_data = %h)\n\
                     golden_next_state (entry_reg = %h, enq_up_down_counter = %b)\n\

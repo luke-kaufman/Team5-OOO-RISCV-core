@@ -150,6 +150,7 @@ module shift_queue_golden #(
         end
     end
 
+    // for testing
     assign current_entry_reg_state = queue_r;
     assign current_enq_up_down_counter_state = enq_ctr_r;
 

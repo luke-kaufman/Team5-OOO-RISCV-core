@@ -1,6 +1,6 @@
 `include "misc/global_defs.svh"
 // `include "freepdk-45nm/stdcells.v"
-`include "misc/regfile.v"
+`include "misc/regfile.sv"
 `include "frontend/dispatch/rob.sv"
 `include "misc/mux/mux_.v"
 `include "misc/onehot_mux/onehot_mux_.v"
@@ -49,20 +49,20 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire arf_id_t rd;
 
     // TODO: implement
-    // instr_decode instr_decode (
-    //     .instr(instr),
-    //     .is_int_instr(is_int_instr),
-    //     .is_ls_instr(is_ls_instr),
-    //     .rs1_valid(rs1_valid),
-    //     .rs2_valid(rs2_valid),
-    //     .rd_valid(rd_valid),
-    //     .rs1(rs1),
-    //     .rs2(rs2),
-    //     .rd(rd)
-    //     // .imm(imm),
-    //     // .branch(branch),
-    //     // .branch_target(branch_target),
-    // );
+    decode _decode (
+        .instr(instr),
+        .is_int_instr(is_int_instr),
+        .is_ls_instr(is_ls_instr),
+        .rs1_valid(rs1_valid),
+        .rs2_valid(rs2_valid),
+        .rd_valid(rd_valid),
+        .rs1(rs1),
+        .rs2(rs2),
+        .rd(rd)
+        // .imm(imm),
+        // .branch(branch),
+        // .branch_target(branch_target),
+    );
 
     // triple dispatch handshake (IFIFO vs. ROB, IIQ, LSQ)
     wire iiq_dispatch_ok;

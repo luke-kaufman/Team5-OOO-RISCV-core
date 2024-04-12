@@ -1,20 +1,17 @@
-//`include "golden/misc/regfile_golden.sv"
-`include "misc/regfile.v"
+`include "golden/misc/regfile_golden.sv"
+`include "misc/regfile.sv"
 
 module regfile_directed_tb #(
-    parameter DEBUG = 0,
+    parameter DEBUG = 1,
     parameter N_MAX_TESTCASES = 10000,
-    parameter N_ENTRIES = 32,
-    parameter ENTRY_WIDTH = 32,
+    parameter N_ENTRIES = 4,
+    parameter ENTRY_WIDTH = 4,
 	parameter N_READ_PORTS = 2,
-	parameter N_WRITE_PORTS = 1,
-    localparam PTR_WIDTH = $clog2(N_ENTRIES),
-    localparam CTR_WIDTH = PTR_WIDTH + 1,
-    parameter N_READ_PORTS = 2,
-    parameter N_WRITE_PORTS = 1
+	parameter N_WRITE_PORTS = 2,
+    localparam PTR_WIDTH = $clog2(N_ENTRIES)
 );
     typedef struct packed {
-        reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_reg;
+        reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] regfile;
     } state_t;
     typedef struct packed {
 		reg [N_READ_PORTS-1:0] [PTR_WIDTH-1:0] rd_addr;
@@ -39,45 +36,45 @@ module regfile_directed_tb #(
     bit testcases_passed[1:N_MAX_TESTCASES];
     // directed testcases
     initial begin
-        // testcase 1: enqueue entry to empty fifo, don't try to dequeue
+        // testcase 1: read from different entries, write to different entries
         test_vectors[1] = '{
             init_state: '{
-                entry_reg: '{ 32{ 32'h0 } }
+                regfile: 16'hd_c_b_a
             },
             input_stimuli: '{
-				rd_addr: 32'h0,
-				wr_en: 1'b1,
-				wr_addr: 32'h0,
-				wr_data: 32'h12345678
+				rd_addr: 4'b01_00,
+				wr_en: 2'b1_1,
+				wr_addr: 4'b11_10,
+				wr_data: 8'hf_e
             },
             expected_output: '{
-                rd_data: 32'h0
+                rd_data: 8'hb_a
             },
             expected_next_state: '{
-                entry_reg: '{ 32{ 32'h0 } }
+                regfile: 16'hf_e_b_a
             }
         };
-		test_vectors[1].expected_next_state.entry_reg[0] = 32'h12345678;
 
-        // testcase 2: enqueue entry to fifo with one entry, don't try to dequeue
+        // testcase 2: read from the same entry being written to
         test_vectors[2] = '{
             init_state: '{
-                entry_reg: '{ 32{ 32'h12345678 } }
+                regfile: 16'hd_c_b_a
             },
             input_stimuli: '{
-				rd_addr: 32'h0,
-				wr_en: 1'b0,
-				wr_addr: 32'h0,
-				wr_data: 32'h12345678
+				rd_addr: 4'b01_00,
+				wr_en: 2'b1_1,
+				wr_addr: 4'b01_00,
+				wr_data: 8'hf_e
             },
             expected_output: '{
-                rd_data: 32'h12345678
+                rd_data: 8'hb_a
             },
             expected_next_state: '{
-                entry_reg: '{ 32{ 32'h0 } }
+                regfile: 16'hd_c_f_e
             }
         };
-		test_vectors[2].expected_next_state.entry_reg[0] = 32'h12345678;
+
+        // testcase 3: write to same entries (SHOULD THROW ERROR)
     end
 
     // dut i/o
@@ -95,7 +92,9 @@ module regfile_directed_tb #(
 
     regfile #(
         .N_ENTRIES(N_ENTRIES),
-        .ENTRY_WIDTH(ENTRY_WIDTH)
+        .ENTRY_WIDTH(ENTRY_WIDTH),
+        .N_READ_PORTS(N_READ_PORTS),
+        .N_WRITE_PORTS(N_WRITE_PORTS)
     ) dut (
         .clk(clk),
         .rst_aL(rst_aL),
@@ -112,21 +111,26 @@ module regfile_directed_tb #(
 
         // initial state
         .init(init),
-        .init_entry_reg_state(test_vector.init_state.entry_reg),
+        .init_regfile_state(test_vector.init_state.regfile),
 
         // observed next state
-        .current_entry_reg_state(observed_next_state.entry_reg)
-
+        .current_regfile_state(observed_next_state.regfile)
     );
 
     function void check_output(int i);
         if ((observed_output !== test_vector.expected_output) || DEBUG) begin
-            $display("Testcase %0d observed output is %s:
-					init_state (entry_reg = %h)
-					inputs: (rd_addr = %h, wr_en = %b, wr_addr = %h, wr_data = %h)",
-                    i, (observed_output !== test_vector.expected_output) ? "wrong" : "correct",
-					test_vector.init_state.entry_reg,
-					test_vector.input_stimuli.rd_addr, test_vector.input_stimuli.wr_en, test_vector.input_stimuli.wr_addr, test_vector.input_stimuli.wr_data);
+            $display(
+                "Testcase %0d observed output is %0s:\n\
+                init_state (regfile = %h)\n\
+                inputs (rd_addr = %h, wr_en = %b, wr_addr = %h, wr_data = %h)\n\
+                expected_outputs (rd_data = %h)\n\
+                observed_outputs (rd_data = %h)\n",
+                i, (observed_output !== test_vector.expected_output) ? "wrong" : "correct",
+                test_vector.init_state.regfile,
+                test_vector.input_stimuli.rd_addr, test_vector.input_stimuli.wr_en, test_vector.input_stimuli.wr_addr, test_vector.input_stimuli.wr_data,
+                test_vector.expected_output.rd_data,
+                observed_output.rd_data
+            );
         end
         if (observed_output !== test_vector.expected_output) begin
             testcases_passed[i] = 0;
@@ -135,16 +139,18 @@ module regfile_directed_tb #(
 
     function void check_next_state(int i);
         if ((observed_next_state !== test_vector.expected_next_state) || DEBUG) begin
-            $display("Testcase %0d observed next state is %s:
-                    observed (entry_reg = %h),
-                    expected (entry_reg = %h)
-					init_state (entry_reg = %h)
-					inputs: (rd_addr = %h, wr_en = %b, wr_addr = %h, wr_data = %h)",
-                    i, (observed_next_state !== test_vector.expected_next_state) ? "wrong" : "correct",
-                    observed_next_state.entry_reg,
-                    test_vector.expected_next_state.entry_reg,
-					test_vector.init_state.entry_reg,
-					test_vector.input_stimuli.rd_addr, test_vector.input_stimuli.wr_en, test_vector.input_stimuli.wr_addr, test_vector.input_stimuli.wr_data);
+            $display(
+                "Testcase %0d observed next state is %0s:\n\
+                init_state (regfile = %h)\n\
+                inputs: (rd_addr = %h, wr_en = %b, wr_addr = %h, wr_data = %h)\n\
+                expected_next_state (regfile = %h)\n\
+                observed_next_state (regfile = %h)\n",
+                i, (observed_next_state !== test_vector.expected_next_state) ? "wrong" : "correct",
+                test_vector.init_state.regfile,
+                test_vector.input_stimuli.rd_addr, test_vector.input_stimuli.wr_en, test_vector.input_stimuli.wr_addr, test_vector.input_stimuli.wr_data,
+                test_vector.expected_next_state.regfile,
+                observed_next_state.regfile
+            );
         end
         if (observed_next_state !== test_vector.expected_next_state) begin
             testcases_passed[i] = 0;
