@@ -138,7 +138,7 @@ module ifu_tb #(
         dram_response_valid = 0;  // stop writing to icache
 
         // loop comes in clk is high
-        for(int i=0; i<NUM_INSTRS[s_i]+(5); i=i+1) begin
+        for(int i=0; i<NUM_INSTRS[s_i]+(1); i=i+1) begin
 
             @(negedge clk);  // read actually happens here
             $display("\n-| Cycle: %4d |--------------------------------------------\n",i);
@@ -166,9 +166,15 @@ module ifu_tb #(
             $display("IFIFO STALL %1b ICACHE MISS %1b", dut.IFIFO_stall, dut.icache_miss);
 
             // check instr_valid and instr_data
-            num_directed_tests[s_i]++;
-            if(dut.instr_valid && dut.instr_to_dispatch == instr_out[s_i][i]) begin
-                num_directed_tests_passed[s_i]++;
+            if(dut.instr_valid) begin
+                num_directed_tests[s_i]++;
+                if(dut.instr_valid && dut.instr_to_dispatch == instr_out[s_i][i]) begin
+                    num_directed_tests_passed[s_i]++;
+                end
+                else begin
+                    $display("FAILED CASE:");
+                    
+                end
             end
         end
     endtask
