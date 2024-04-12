@@ -15,5 +15,6 @@ echo "int NUM_INSTRS=$line_count_adj;" > ${TEST_FOLDER_LOCATION}/main_disasm_arr
 echo "int instr_locs[$line_count_adj];" >> ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
 echo "int instr_data[$line_count_adj];" >> ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
 
-awk '/<main>:/,/^$/' ${TEST_FOLDER_LOCATION}/disasm | awk '!/<main>:/ {sub(/:/, ""); if ($1 != "") print "instr_locs[" NR-2 "]=" "32h"$1  instr_data[" NR-2 "]=" "32h"$2"; // " $3,$4,$5,$6,$7,$8,$9,$10,$11,$12";"}' >> ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
+awk '/<main>:/,/^$/' ${TEST_FOLDER_LOCATION}/disasm | awk '!/<main>:/ {sub(/:/, ""); if ($1 != "") print "instr_locs[" NR-2 "]=" "32h"$1";  instr_data[" NR-2 "]=" "32h"$2"; // " $3,$4,$5,$6,$7,$8,$9,$10,$11,$12}' >> ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
 # awk '/<main>:/,/^$/' ${TEST_FOLDER_LOCATION}/disasm | awk '!/<main>:/ {sub(/:/, ""); if ($2 != "") print "}' >> ${TEST_FOLDER_LOCATION}/main_disasm_arr.v
+
