@@ -136,10 +136,14 @@ module regfile_directed_tb #(
         if ((observed_next_state !== test_vector.expected_next_state) || DEBUG) begin
             $display("Testcase %0d observed next state is %s:
                     observed (entry_reg = %h),
-                    expected (entry_reg = %h)",
+                    expected (entry_reg = %h)
+					init_state (entry_reg = %h)
+					inputs: (rd_addr = %h, wr_en = %b, wr_addr = %h, wr_data = %h)",
                     i, (observed_next_state !== test_vector.expected_next_state) ? "wrong" : "correct",
                     observed_next_state.entry_reg,
-                    test_vector.expected_next_state.entry_reg);
+                    test_vector.expected_next_state.entry_reg,
+					test_vector.init_state.entry_reg,
+					test_vector.input_stimuli.rd_addr, test_vector.input_stimuli.wr_en, test_vector.input_stimuli.wr_addr, test_vector.input_stimuli.wr_data);
         end
         if (observed_next_state !== test_vector.expected_next_state) begin
             testcases_passed[i] = 0;
