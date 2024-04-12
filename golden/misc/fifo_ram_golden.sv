@@ -28,6 +28,14 @@ module fifo_ram_golden #(
     output logic [FIFO_DEPTH-1:0] [DATA_WIDTH-1:0] fifo_state, // for updating entries by partial writes
 
     output logic [PTR_WIDTH-1:0] count // for debugging
+    
+    input wire init,
+    input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_fifo_r_state,
+    input wire [CTR_WIDTH-1:0] init_enq_ctr_r_state,
+    input wire [CTR_WIDTH-1:0] init_deq_ctr_r_state,
+    output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] current_fifo_r_state,
+    output wire [CTR_WIDTH-1:0] current_enq_ctr_r_state,
+    output wire [CTR_WIDTH-1:0] current_deq_ctr_r_state
 );
     // state elements
     logic [CTR_WIDTH-1:0] enq_ctr_r;
@@ -72,7 +80,12 @@ module fifo_ram_golden #(
     end
     
     // state update
-    always_ff @(posedge clk or negedge rst_aL) begin
+    always_ff @(posedge clk or negedge rst_aL or posedge init) begin
+        if(init) begin
+            enq_ctr_r <= init_enq_ctr_r_state;
+            deq_ctr_r <= init_deq_ctr_r_state;
+            fifo_r <= init_fifo_r_state;
+        end else
         if (!rst_aL) begin
             enq_ctr_r <= 0;
             deq_ctr_r <= 0;
@@ -83,4 +96,8 @@ module fifo_ram_golden #(
             fifo_r <= next_fifo;
         end
     end
+
+    assign current_fifo_r_state = fifo_r;
+    assign current_enq_ctr_r_state = enq_ctr_r;
+    assign current_deq_ctr_r_state = deq_ctr_r;
 endmodule

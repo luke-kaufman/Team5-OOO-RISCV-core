@@ -6,6 +6,8 @@ module regfile_directed_tb #(
     parameter N_MAX_TESTCASES = 10000,
     parameter N_ENTRIES = 32,
     parameter ENTRY_WIDTH = 32,
+	parameter N_READ_PORTS = 2,
+	parameter N_WRITE_PORTS = 1,
     localparam PTR_WIDTH = $clog2(N_ENTRIES),
     localparam CTR_WIDTH = PTR_WIDTH + 1,
     parameter N_READ_PORTS = 2,
@@ -55,6 +57,8 @@ module regfile_directed_tb #(
                 entry_reg: '{ 32{ 32'h0 } }
             }
         };
+		test_vectors[1].expected_next_state.entry_reg[0] = 32'h12345678;
+
         // testcase 2: enqueue entry to fifo with one entry, don't try to dequeue
         test_vectors[2] = '{
             init_state: '{
@@ -70,9 +74,10 @@ module regfile_directed_tb #(
                 rd_data: 32'h12345678
             },
             expected_next_state: '{
-                entry_reg[0]: 32'h12345678
+                entry_reg: '{ 32{ 32'h0 } }
             }
         };
+		test_vectors[2].expected_next_state.entry_reg[0] = 32'h12345678;
     end
 
     // dut i/o
@@ -105,27 +110,23 @@ module regfile_directed_tb #(
         // observed output
 		.rd_data(observed_output.rd_data),
 
-        .enq_ready(observed_output.enq_ready),
-        .deq_valid(observed_output.deq_valid),
-        .deq_data(observed_output.deq_data),
-
         // initial state
         .init(init),
         .init_entry_reg_state(test_vector.init_state.entry_reg),
 
         // observed next state
-        .current_entry_reg_state(observed_next_state.entry_reg),
+        .current_entry_reg_state(observed_next_state.entry_reg)
 
     );
 
     function void check_output(int i);
         if ((observed_output !== test_vector.expected_output) || DEBUG) begin
             $display("Testcase %0d observed output is %s:
-                    observed (enq_ready = %b, deq_valid = %b, deq_data = %h),
-                    expected (enq_ready = %b, deq_valid = %b, deq_data = %h)",
+					init_state (entry_reg = %h)
+					inputs: (rd_addr = %h, wr_en = %b, wr_addr = %h, wr_data = %h)",
                     i, (observed_output !== test_vector.expected_output) ? "wrong" : "correct",
-                    observed_output.enq_ready, observed_output.deq_valid, observed_output.deq_data,
-                    test_vector.expected_output.enq_ready, test_vector.expected_output.deq_valid, test_vector.expected_output.deq_data);
+					test_vector.init_state.entry_reg,
+					test_vector.input_stimuli.rd_addr, test_vector.input_stimuli.wr_en, test_vector.input_stimuli.wr_addr, test_vector.input_stimuli.wr_data);
         end
         if (observed_output !== test_vector.expected_output) begin
             testcases_passed[i] = 0;
@@ -135,11 +136,15 @@ module regfile_directed_tb #(
     function void check_next_state(int i);
         if ((observed_next_state !== test_vector.expected_next_state) || DEBUG) begin
             $display("Testcase %0d observed next state is %s:
-                    observed (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b),
-                    expected (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)",
+                    observed (entry_reg = %h),
+                    expected (entry_reg = %h)
+					init_state (entry_reg = %h)
+					inputs: (rd_addr = %h, wr_en = %b, wr_addr = %h, wr_data = %h)",
                     i, (observed_next_state !== test_vector.expected_next_state) ? "wrong" : "correct",
-                    observed_next_state.entry_reg, observed_next_state.enq_up_counter, observed_next_state.deq_up_counter,
-                    test_vector.expected_next_state.entry_reg, test_vector.expected_next_state.enq_up_counter, test_vector.expected_next_state.deq_up_counter);
+                    observed_next_state.entry_reg,
+                    test_vector.expected_next_state.entry_reg,
+					test_vector.init_state.entry_reg,
+					test_vector.input_stimuli.rd_addr, test_vector.input_stimuli.wr_en, test_vector.input_stimuli.wr_addr, test_vector.input_stimuli.wr_data);
         end
         if (observed_next_state !== test_vector.expected_next_state) begin
             testcases_passed[i] = 0;
