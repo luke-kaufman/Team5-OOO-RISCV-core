@@ -82,7 +82,7 @@ module fifo_ram #(
     unsigned_cmp_ #(.WIDTH(1)) eq_msb_cmp (
         .a(enq_ctr[CTR_WIDTH-1]),
         .b(deq_ctr[CTR_WIDTH-1]),
-        .y(eq_msb)
+        .eq(eq_msb)
     );
 
     // pointers are the lower bits of the counters
@@ -96,7 +96,7 @@ module fifo_ram #(
     unsigned_cmp_ #(.WIDTH(PTR_WIDTH)) eq_ptr_cmp (
         .a(enq_ptr),
         .b(deq_ptr),
-        .y(eq_ptr)
+        .eq(eq_ptr)
     );
 
     // logic that checks if the fifo is empty
