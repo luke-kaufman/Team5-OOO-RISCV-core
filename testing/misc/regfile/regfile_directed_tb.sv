@@ -120,8 +120,12 @@ module regfile_directed_tb #(
 
     function void check_output(int i);
         if ((observed_output !== test_vector.expected_output) || DEBUG) begin
-            $display("Testcase %0d observed output is %s",
-                    i, (observed_output !== test_vector.expected_output) ? "wrong" : "correct");
+            $display("Testcase %0d observed output is %s:
+					init_state (entry_reg = %h)
+					inputs: (rd_addr = %h, wr_en = %b, wr_addr = %h, wr_data = %h)",
+                    i, (observed_output !== test_vector.expected_output) ? "wrong" : "correct",
+					test_vector.init_state.entry_reg,
+					test_vector.input_stimuli.rd_addr, test_vector.input_stimuli.wr_en, test_vector.input_stimuli.wr_addr, test_vector.input_stimuli.wr_data);
         end
         if (observed_output !== test_vector.expected_output) begin
             testcases_passed[i] = 0;
