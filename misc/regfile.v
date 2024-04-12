@@ -76,6 +76,8 @@ module regfile #(
     wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] din;
     for (genvar i = 0; i < N_ENTRIES; i++) begin
         onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_WRITE_PORTS)) din_onehot_mux (
+            .clk(clk),
+            .rst_aL(rst_aL),
             .ins(wr_data),
             .sel(din_onehot_mux_sel[i]),
             .out(din[i])
