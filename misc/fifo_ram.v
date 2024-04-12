@@ -22,7 +22,6 @@ module fifo_ram #(
     parameter N_WRITE_PORTS = 2
 ) (
     input wire clk,
-    // input wire rst_aL, (NOTE: edited to suppress "coerced to input" warning)
     input wire rst_aL,
 
     output wire enq_ready,
@@ -45,7 +44,7 @@ module fifo_ram #(
     input wire [N_ENTRIES-1:0] [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data,
     output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts,
 
-    output wire [PTR_WIDTH-1:0] count // for debugging
+    output wire [PTR_WIDTH-1:0] count, // for debugging
 
     input wire init,
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_entry_reg_state,
@@ -73,7 +72,7 @@ module fifo_ram #(
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(deq),
-        .count(deq_ctr)
+        .count(deq_ctr),
         .init(init),
         .init_state(init_deq_up_counter_state)
     );

@@ -60,22 +60,22 @@ module ifu_tb #(
         case (s_i)
             0 : begin // TEST SET 1
                 // program to load ****
-                instr_locs[s_i][0]=32'h1018c; instr_data[s_i][0]=32'hfe010113; // add sp,sp,-32        
+                instr_locs[s_i][0]=32'h1018c; instr_data[s_i][0]=32'hfe010113; // add sp,sp,-32
                 instr_locs[s_i][1]=32'h10190; instr_data[s_i][1]=32'h02010413; // add s0,sp,32v
-                instr_locs[s_i][2]=32'h10194; instr_data[s_i][2]=32'h00f00493; // li s1,15        
-                instr_locs[s_i][3]=32'h10198; instr_data[s_i][3]=32'h01348493; // add s1,s1,19                
-                instr_locs[s_i][4]=32'h1019c; instr_data[s_i][4]=32'hffc48493; // add s1,s1,-4        
-                instr_locs[s_i][5]=32'h101a0; instr_data[s_i][5]=32'h00048713; // mv a4,s1        
-                instr_locs[s_i][6]=32'h101a4;  instr_data[s_i][6]=32'h800007b7; // lui a5,0x80000        
-                instr_locs[s_i][7]=32'h101a8;  instr_data[s_i][7]=32'h00f747b3; // xor a5,a4,a5        
-                instr_locs[s_i][8]=32'h101ac;  instr_data[s_i][8]=32'h00078493; // mv s1,a5        
-                instr_locs[s_i][9]=32'h101b0;  instr_data[s_i][9]=32'h800007b7; // lui a5,0x80000        
-                instr_locs[s_i][10]=32'h101b4; instr_data[s_i][10]=32'hfff78793; // add a5,a5,-1 # 7fffffff <__BSS_END__+0x7ffed77f>     
-                instr_locs[s_i][11]=32'h101b8; instr_data[s_i][11]=32'h00f4f4b3; // and s1,s1,a5        
-                instr_locs[s_i][12]=32'h101bc; instr_data[s_i][12]=32'h00048793; // mv a5,s1        
-                instr_locs[s_i][13]=32'h101c0; instr_data[s_i][13]=32'h00078513; // mv a0,a5        
-                instr_locs[s_i][14]=32'h101c4; instr_data[s_i][14]=32'h02010113; // add sp,sp,32        
-                instr_locs[s_i][15]=32'h101c8; instr_data[s_i][15]=32'h00008067; // ret           
+                instr_locs[s_i][2]=32'h10194; instr_data[s_i][2]=32'h00f00493; // li s1,15
+                instr_locs[s_i][3]=32'h10198; instr_data[s_i][3]=32'h01348493; // add s1,s1,19
+                instr_locs[s_i][4]=32'h1019c; instr_data[s_i][4]=32'hffc48493; // add s1,s1,-4
+                instr_locs[s_i][5]=32'h101a0; instr_data[s_i][5]=32'h00048713; // mv a4,s1
+                instr_locs[s_i][6]=32'h101a4;  instr_data[s_i][6]=32'h800007b7; // lui a5,0x80000
+                instr_locs[s_i][7]=32'h101a8;  instr_data[s_i][7]=32'h00f747b3; // xor a5,a4,a5
+                instr_locs[s_i][8]=32'h101ac;  instr_data[s_i][8]=32'h00078493; // mv s1,a5
+                instr_locs[s_i][9]=32'h101b0;  instr_data[s_i][9]=32'h800007b7; // lui a5,0x80000
+                instr_locs[s_i][10]=32'h101b4; instr_data[s_i][10]=32'hfff78793; // add a5,a5,-1 # 7fffffff <__BSS_END__+0x7ffed77f>
+                instr_locs[s_i][11]=32'h101b8; instr_data[s_i][11]=32'h00f4f4b3; // and s1,s1,a5
+                instr_locs[s_i][12]=32'h101bc; instr_data[s_i][12]=32'h00048793; // mv a5,s1
+                instr_locs[s_i][13]=32'h101c0; instr_data[s_i][13]=32'h00078513; // mv a0,a5
+                instr_locs[s_i][14]=32'h101c4; instr_data[s_i][14]=32'h02010113; // add sp,sp,32
+                instr_locs[s_i][15]=32'h101c8; instr_data[s_i][15]=32'h00008067; // ret
 
                 // construct output to check against
                 for(int i = 0; i < NUM_INSTRS[s_i]; i++) begin
@@ -85,13 +85,13 @@ module ifu_tb #(
                     instr_out[s_i][i].br_dir_pred = 0;
                     instr_out[s_i][i].br_target_pred = instr_locs[s_i][i] + 4;
                 end
-            end 
-            // default: 
-        endcase 
+            end
+            // default:
+        endcase
     endtask
 
     task run_directed_testcases(int s_i);
-        
+
         // reset, wait, then start testing
         rst_aL = 0;
         @(posedge clk);
@@ -178,12 +178,12 @@ module ifu_tb #(
                     $display("dut.instr_to_dispatch.pc 0x%8h EXPECTED: 0x%8h", dut.instr_to_dispatch[65:34], instr_out[s_i][i][65:34]);
                     $display("dut.instr_to_dispatch.is_cond_br %1b EXPECTED: %1b", dut.instr_to_dispatch[33], instr_out[s_i][i][33]);
                     $display("dut.instr_to_dispatch.br_dir_pred %1b EXPECTED: %1b", dut.instr_to_dispatch[32], instr_out[s_i][i][32]);
-                    $display("dut.instr_to_dispatch.br_target_pred 0x%8h EXPECTED: 0x%8h", dut.instr_to_dispatch[31:0], instr_out[s_i][i][31:0]);       
+                    $display("dut.instr_to_dispatch.br_target_pred 0x%8h EXPECTED: 0x%8h", dut.instr_to_dispatch[31:0], instr_out[s_i][i][31:0]);
                 end
             end
         end
     endtask
-   
+
     // Task to display test results
     task display_test_results(int s_i);
         if (num_directed_tests_passed[s_i] == num_directed_tests[s_i]) begin

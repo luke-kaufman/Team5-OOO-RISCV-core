@@ -41,27 +41,47 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire is_int_instr; // is integer instruction?
     wire is_ls_instr; // is load-store instruction?
     // NOTE: is_int_instr and is_ls_instr should be mutually exclusive
+
     wire rs1_valid;
     wire rs2_valid;
     wire rd_valid;
     wire arf_id_t rs1;
     wire arf_id_t rs2;
     wire arf_id_t rd;
+    wire imm_t imm;
+    wire addr_t pc;
+    wire [2:0] funct3; // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
+    wire is_r_type;
+    wire is_i_type;
+    wire is_s_type;
+    wire is_b_type;
+    wire is_u_type; // lui and auipc only
+    wire is_j_type; // jal only
+    wire is_sub; // if is_r_type, 0 = add, 1 = sub
+    wire is_sra_srai; // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
+    wire is_lui; // if is_u_type, 0 = auipc, 1 = lui
+    wire is_jalr; // if is_i_type, 0 = else, 1 = jalr
+    wire br_dir_pred; // (0: not taken, 1: taken) (get this from fetch)
 
-    // TODO: implement
     decode _decode (
-        .instr(instr),
-        .is_int_instr(is_int_instr),
-        .is_ls_instr(is_ls_instr),
-        .rs1_valid(rs1_valid),
-        .rs2_valid(rs2_valid),
-        .rd_valid(rd_valid),
-        .rs1(rs1),
-        .rs2(rs2),
-        .rd(rd)
-        // .imm(imm),
-        // .branch(branch),
-        // .branch_target(branch_target),
+        .ififo_dispatch_data(ififo_dispatch_data),
+        .src1_valid(rs1_valid), // valid stands for "exists"
+        .src2_valid(rs2_valid),
+        .dst_valid(rd_valid),
+        .imm(imm),
+        .pc(pc),
+        .funct3(funct3), // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
+        .is_r_type(is_r_type),
+        .is_i_type(is_i_type),
+        .is_s_type(is_s_type),
+        .is_b_type(is_b_type),
+        .is_u_type(is_u_type), // lui and auipc only
+        .is_j_type(is_j_type), // jal only
+        .is_sub(is_sub), // if is_r_type, 0 = add, 1 = sub
+        .is_sra_srai(is_sra_srai), // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
+        .is_lui(is_lui), // if is_u_type, 0 = auipc, 1 = lui
+        .is_jalr(is_jalr), // if is_i_type, 0 = else, 1 = jalr
+        .br_dir_pred(br_dir_pred) // (0: not taken, 1: taken) (get this from fetch)
     );
 
     // triple dispatch handshake (IFIFO vs. ROB, IIQ, LSQ)
