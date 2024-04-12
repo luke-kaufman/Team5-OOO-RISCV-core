@@ -45,7 +45,7 @@ module fifo_ram #(
     input wire [N_ENTRIES-1:0] [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data,
     output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts,
 
-    output wire [PTR_WIDTH-1:0] count // for debugging
+    output wire [PTR_WIDTH-1:0] count, // for debugging
 
     input wire init,
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_entry_reg_state,
@@ -73,7 +73,7 @@ module fifo_ram #(
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(deq),
-        .count(deq_ctr)
+        .count(deq_ctr),
         .init(init),
         .init_state(init_deq_up_counter_state)
     );
@@ -83,7 +83,7 @@ module fifo_ram #(
     unsigned_cmp_ #(.WIDTH(1)) eq_msb_cmp (
         .a(enq_ctr[CTR_WIDTH-1]),
         .b(deq_ctr[CTR_WIDTH-1]),
-        .y(eq_msb)
+        .eq(eq_msb)
     );
 
     // pointers are the lower bits of the counters
@@ -97,7 +97,7 @@ module fifo_ram #(
     unsigned_cmp_ #(.WIDTH(PTR_WIDTH)) eq_ptr_cmp (
         .a(enq_ptr),
         .b(deq_ptr),
-        .y(eq_ptr)
+        .eq(eq_ptr)
     );
 
     // logic that checks if the fifo is empty
