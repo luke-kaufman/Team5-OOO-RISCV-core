@@ -66,11 +66,12 @@ module sram_64x48_1rw_wsize24(
       addr0_reg = addr0;
       din0_reg = din0;
       // /*#(T_HOLD)*/ dout0 = 48'bx;
+      #1
       if ( !csb0_reg && web0_reg && VERBOSE )
         // THIS IS SETUP FOR ICACHE, NEED TO DO FOR DCACHE (DIRTY BIT)
-        $display("%6d Reading %m addr0=%6b dout0: way1_v:%b, way1_tag:%b, way0_v:%b, way0_tag:%b", $time, addr0_reg,mem[addr0_reg][47], mem[addr0_reg][46:24], mem[addr0_reg][23], mem[addr0_reg][22:0]);
+        $display("%6d Reading %m addr0=%6b dout0: way1_v:%b, way1_tag:%b, way0_v:%b, way0_tag:%b", $time-1, addr0_reg,mem[addr0_reg][47], mem[addr0_reg][46:24], mem[addr0_reg][23], mem[addr0_reg][22:0]);
       if ( !csb0_reg && !web0_reg && VERBOSE )
-        $display("%6d Writing %m addr0=%6b din0: way1_v:%b, way1_tag:%b, way0_v:%b, way0_tag:%b  wmask0=%2b", $time, addr0_reg, din0_reg[47], din0_reg[46:24], din0_reg[23], din0_reg[22:0], wmask0_reg);
+        $display("%6d Writing %m addr0=%6b din0: way1_v:%b, way1_tag:%b, way0_v:%b, way0_tag:%b  wmask0=%2b", $time-1, addr0_reg, din0_reg[47], din0_reg[46:24], din0_reg[23], din0_reg[22:0], wmask0_reg);
     end
   end
 

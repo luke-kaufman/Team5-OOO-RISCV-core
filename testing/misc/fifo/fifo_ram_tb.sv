@@ -6,7 +6,7 @@ module fifo_ram_tb #(
     parameter N_TESTCASES = 100,
     parameter DATA_WIDTH = 32,
     parameter FIFO_DEPTH = 8,
-    localparam PTR_WIDTH = $clog2(N_ENTRIES),
+    localparam PTR_WIDTH = $clog2(FIFO_DEPTH),
     localparam CTR_WIDTH = PTR_WIDTH + 1
 );
     typedef struct packed {
@@ -15,16 +15,20 @@ module fifo_ram_tb #(
     } state_t;
     typedef struct packed {
         reg enq_valid;
-        reg [ENTRY_WIDTH-1:0] enq_data;
+        reg [DATA_WIDTH-1:0] enq_data;
         reg deq_ready;
-        reg [N_ENTRIES-1:0] deq_sel_onehot;
-        reg [N_ENTRIES-1:0] wr_en;
-        reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] wr_data;
+        reg [N_READ_PORTS-1:0] [PTR_WIDTH-1:0] rd_addr;
+        reg [N_WRITE_PORTS-1:0] wr_en;
+        reg [N_WRITE_PORTS-1:0] [PTR_WIDTH-1:0] wr_addr;
+        reg [N_WRITE_PORTS-1:0] [DATA_WIDTH-1:0] wr_data;
     } input_t;
     typedef struct packed {
         reg enq_ready;
+        reg [PTR_WIDTH-1:0] enq_addr;
         reg deq_valid;
-        reg [ENTRY_WIDTH-1:0] deq_data;
+        reg [DATA_WIDTH-1:0] deq_data;
+        reg [PTR_WIDTH-1:0] deq_addr;
+        reg [N_READ_PORTS-1:0] [DATA_WIDTH-1:0] rd_data;
         reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts;
     } output_t;
     typedef struct packed {
@@ -94,14 +98,18 @@ module fifo_ram_tb #(
         // inputs
         .enq_valid(tv.inputs.enq_valid),
         .enq_data(tv.inputs.enq_data),
-        .deq_ready(tv.inputs.deq_ready),
+        .rd_addr(tv.inputs.rd_addr),
         .deq_sel_onehot(tv.inputs.deq_sel_onehot),
         .wr_en(tv.inputs.wr_en),
+        .wr_addr(tv.inputs.wr_addr),
         .wr_data(tv.inputs.wr_data),
         // dut outputs
         .enq_ready(dut_outputs.enq_ready),
+        .enq_addr(dut_outputs.enq_addr),
         .deq_valid(dut_outputs.deq_valid),
         .deq_data(dut_outputs.deq_data),
+        .deq_addr(dut_outputs.deq_addr),
+        .rd_data(dut_outputs.rd_data),
         .entry_douts(dut_outputs.entry_douts),
         // dut state
         .current_entry_reg_state(dut_state.entry_reg),
@@ -120,14 +128,18 @@ module fifo_ram_tb #(
         // inputs
         .enq_valid(tv.inputs.enq_valid),
         .enq_data(tv.inputs.enq_data),
-        .deq_ready(tv.inputs.deq_ready),
+        .rd_addr(tv.inputs.rd_addr),
         .deq_sel_onehot(tv.inputs.deq_sel_onehot),
         .wr_en(tv.inputs.wr_en),
+        .wr_addr(tv.inputs.wr_addr),
         .wr_data(tv.inputs.wr_data),
         // golden outputs
         .enq_ready(golden_outputs.enq_ready),
+        .enq_addr(golden_outputs.enq_addr),
         .deq_valid(golden_outputs.deq_valid),
         .deq_data(golden_outputs.deq_data),
+        .deq_addr(golden_outputs.deq_addr),
+        .rd_data(golden_outputs.rd_data),
         .entry_douts(golden_outputs.entry_douts),
         // golden state
         .current_entry_reg_state(golden_state.entry_reg),
