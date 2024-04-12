@@ -174,11 +174,11 @@ module ifu_tb #(
                 else begin
                     $display("FAILED CASE:");
                     $display("dut.instr_valid %1b", dut.instr_valid);
-                    $display("dut.IFIFO_deq_data.instr 0x%8h EXPECTED: 0x%8h", dut.IFIFO_deq_data.instr, instr_out[s_i][i].instr);
-                    $display("dut.IFIFO_deq_data.pc 0x%8h EXPECTED: 0x%8h", dut.IFIFO_deq_data.pc, instr_out[s_i][i].pc);
-                    $display("dut.IFIFO_deq_data.is_cond_br %1b EXPECTED: %1b", dut.IFIFO_deq_data.is_cond_br, instr_out[s_i][i].is_cond_br);
-                    $display("dut.IFIFO_deq_data.br_dir_pred %1b EXPECTED: %1b", dut.IFIFO_deq_data.br_dir_pred, instr_out[s_i][i].br_dir_pred);
-                    $display("dut.IFIFO_deq_data.br_target_pred 0x%8h EXPECTED: 0x%8h", dut.IFIFO_deq_data.br_target_pred, instr_out[s_i][i].br_target_pred);       
+                    $display("dut.instr_to_dispatch.instr 0x%8h EXPECTED: 0x%8h", dut.instr_to_dispatch[97:66], instr_out[s_i][i][97:66]);
+                    $display("dut.instr_to_dispatch.pc 0x%8h EXPECTED: 0x%8h", dut.instr_to_dispatch[65:34], instr_out[s_i][i][65:34]);
+                    $display("dut.instr_to_dispatch.is_cond_br %1b EXPECTED: %1b", dut.instr_to_dispatch[33], instr_out[s_i][i][33]);
+                    $display("dut.instr_to_dispatch.br_dir_pred %1b EXPECTED: %1b", dut.instr_to_dispatch[32], instr_out[s_i][i][32]);
+                    $display("dut.instr_to_dispatch.br_target_pred 0x%8h EXPECTED: 0x%8h", dut.instr_to_dispatch[31:0], instr_out[s_i][i][31:0]);       
                 end
             end
         end
