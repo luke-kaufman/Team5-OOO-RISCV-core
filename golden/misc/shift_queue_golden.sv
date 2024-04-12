@@ -55,9 +55,8 @@ module shift_queue_golden #(
         end
     end
     wire [N_ENTRIES-1:0] shift_we = shift_we_pre & {N_ENTRIES{deq}};
-    wire [N_ENTRIES-1:0] enq_we_pre = 1 << enq_ptr;
-    wire [N_ENTRIES-1:0] enq_we = enq_we_pre & {N_ENTRIES{enq}};
-    wire [N_ENTRIES:0] enq_we_ext = {queue_full & enq, enq_we}; // extended enq_we
+    wire [N_ENTRIES:0] enq_we_ext_pre = 1 << enq_ctr_r; // extended enq_we precursor
+    wire [N_ENTRIES:0] enq_we_ext = enq_we_ext_pre & {N_ENTRIES+1{enq}}; // extended enq_we
     wire [N_ENTRIES:0] wr_en_ext = {1'b0, wr_en}; // extended wr_en
 
     // so, the (one-hot) din_mux of register i chooses between:
@@ -66,8 +65,8 @@ module shift_queue_golden #(
     // - 2: wr_data[i] (if shift_we[i] is false and wr_en_ext[i] is true)
     // - 3: wr_data[i+1] (if shift_we[i] is true and wr_en_ext[i+1] is true)
     // sel[0] = shift_we[i] & ~enq_we_ext[i+1] & ~wr_en_ext[i+1] (sel_data_behind)
-    // sel[1] = ~shift_we[i] & enq_we[i] | shift_we[i] & enq_we_ext[i+1] (sel_enq_data)
-    // sel[2] = ~shift_we[i] & wr_en[i] (sel_wr_data)
+    // sel[1] = ~shift_we[i] & enq_we_ext[i] | shift_we[i] & enq_we_ext[i+1] (sel_enq_data)
+    // sel[2] = ~shift_we[i] & wr_en_ext[i] (sel_wr_data)
     // sel[3] = shift_we[i] & wr_en_ext[i+1] (sel_wr_data_behind)
     logic [N_ENTRIES-1:0] sel_data_behind;
     always_comb begin
@@ -78,7 +77,7 @@ module shift_queue_golden #(
     logic [N_ENTRIES-1:0] sel_enq_data;
     always_comb begin
         for (int i = 0; i < N_ENTRIES; i++) begin
-            sel_enq_data[i] = ~shift_we[i] & enq_we[i] | shift_we[i] & enq_we_ext[i+1];
+            sel_enq_data[i] = ~shift_we[i] & enq_we_ext[i] | shift_we[i] & enq_we_ext[i+1];
         end
     end
     wire [N_ENTRIES-1:0] sel_wr_data = ~shift_we & wr_en;
@@ -157,19 +156,19 @@ module shift_queue_golden #(
     // assertions
     function void entry_din_no_double_select(edge_t _edge, int i);
         if (!$onehot0({sel_data_behind[i], sel_enq_data[i], sel_wr_data[i], sel_wr_data_behind[i]})) begin
-                $error(
-                    "Assertion failed: entry_din[%0d] sel is not one-hot or all-zeros after %0s.\n\
-                    sel_data_behind[%0d] = %0b, sel_enq_data[%0d] = %0b, sel_wr_data[%0d] = %0b, sel_wr_data_behind[%0d] = %0b",
-                    i, _edge == NEGEDGE ? "setting init_state and driving inputs" : "state transition",
-                    i, sel_data_behind[i], i, sel_enq_data[i], i, sel_wr_data[i], i, sel_wr_data_behind[i]
-                );
+            $error(
+                "Assertion failed: entry_din[%0d] sel is not one-hot or all-zeros after %0s.\n\
+                sel_data_behind[%0d] = %b, sel_enq_data[%0d] = %b, sel_wr_data[%0d] = %b, sel_wr_data_behind[%0d] = %b\n",
+                i, _edge == NEGEDGE ? "setting init_state and driving inputs" : "state transition",
+                i, sel_data_behind[i], i, sel_enq_data[i], i, sel_wr_data[i], i, sel_wr_data_behind[i]
+            );
         end
     endfunction
     function void enq_ctr_max_value(edge_t _edge);
         if (enq_ctr_r > N_ENTRIES) begin
             $error(
                 "Assertion failed: enq_ctr_r is larger than max value after %0s.\n\
-                enq_ctr_r = %0d, max value = %0d",
+                enq_ctr_r = %0d, max value = %0d\n",
                 _edge == NEGEDGE ? "setting init_state and driving inputs" : "state transition",
                 enq_ctr_r, N_ENTRIES
             );

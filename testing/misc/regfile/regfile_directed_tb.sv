@@ -7,7 +7,9 @@ module regfile_directed_tb #(
     parameter N_ENTRIES = 32,
     parameter ENTRY_WIDTH = 32,
     localparam PTR_WIDTH = $clog2(N_ENTRIES),
-    localparam CTR_WIDTH = PTR_WIDTH + 1
+    localparam CTR_WIDTH = PTR_WIDTH + 1,
+    parameter N_READ_PORTS = 2,
+    parameter N_WRITE_PORTS = 1
 );
     typedef struct packed {
         reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_reg;
@@ -20,7 +22,7 @@ module regfile_directed_tb #(
 		reg [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data;
     } input_t;
     typedef struct packed {
-		output wire [N_READ_PORTS-1:0] [ENTRY_WIDTH-1:0] rd_data;
+		reg [N_READ_PORTS-1:0] [ENTRY_WIDTH-1:0] rd_data;
     } output_t;
     typedef struct packed {
         state_t init_state;
@@ -44,14 +46,13 @@ module regfile_directed_tb #(
 				rd_addr: 32'h0,
 				wr_en: 1'b1,
 				wr_addr: 32'h0,
-				wr_data: 32'h12345678.
+				wr_data: 32'h12345678
             },
             expected_output: '{
                 rd_data: 32'h0
             },
-
             expected_next_state: '{
-                entry_reg[0]: 32'h12345678
+                entry_reg: '{ 32{ 32'h0 } }
             }
         };
         // testcase 2: enqueue entry to fifo with one entry, don't try to dequeue
@@ -63,7 +64,7 @@ module regfile_directed_tb #(
 				rd_addr: 32'h0,
 				wr_en: 1'b0,
 				wr_addr: 32'h0,
-				wr_data: 32'h12345678.
+				wr_data: 32'h12345678
             },
             expected_output: '{
                 rd_data: 32'h12345678

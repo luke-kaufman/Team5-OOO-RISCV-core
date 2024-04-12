@@ -41,7 +41,7 @@ module onehot_mux_ #(
         if (!$onehot0(sel)) begin
             $error(
                 "Assertion failed: sel is not one-hot or all-zeros after %0s.\n\
-                sel = %0b",
+                sel = %b\n",
                 _edge == NEGEDGE ? "setting init_state and driving inputs" : "state transition",
                 sel
             );
