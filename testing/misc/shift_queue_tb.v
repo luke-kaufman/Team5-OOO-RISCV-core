@@ -2,7 +2,7 @@
 `include "misc/global_defs.svh"
 
 
-module shift_queue_tb #(    
+module shift_queue_tb #(
     parameter N_ENTRIES = `IIQ_N_ENTRIES,
     parameter ENTRY_WIDTH = `IIQ_ENTRY_WIDTH,
     localparam PTR_WIDTH = `IIQ_ID_WIDTH,
@@ -51,7 +51,7 @@ shift_queue_golden #(
     .deq_ready(deq_ready),
     .deq_sel_onehot(deq_sel_onehot),
     .deq_valid(deq_valid),
-    .deq_data(deq_data),  
+    .deq_data(deq_data),
 
     .wr_en(wr_en),
     .wr_data(wr_data),
@@ -65,9 +65,9 @@ shift_queue_golden #(
     initial begin
         $dumpfile("fifo_directed_tb.vcd");
         $dumpvars(0, fifo_directed_tb);
-        $monitor($time, " clk = %b, rst_aL = %b, enq_ready = %b, enq_valid = %b, enq_data = %h, 
-        deq_ready = %b, deq_sel_onehot = %h, deq_valid = %d, deq_data = %h, 
-        wr_en = %h, wr_data = %h, entry_douts = %h", 
+        $monitor($time, " clk = %b, rst_aL = %b, enq_ready = %b, enq_valid = %b, enq_data = %h,
+        deq_ready = %b, deq_sel_onehot = %h, deq_valid = %0d, deq_data = %h,
+        wr_en = %h, wr_data = %h, entry_douts = %h",
         clk, rst_aL, enq_ready, enq_valid, enq_data, deq_ready, deq_sel_onehot, deq_valid, deq_data,
         wr_en, wr_data, entry_douts);
         // reset the design
@@ -80,7 +80,7 @@ shift_queue_golden #(
         @(negedge clk);
         @(negedge clk);
         rst_aL = 1;
-        
+
         // directed testcase 1: enqueue entry to empty fifo, don't try to dequeue
         @(negedge clk);
         enq_valid = 1;
@@ -102,7 +102,7 @@ shift_queue_golden #(
         enq_valid = 0;
         deq_ready = 0;
         enq_data = 0;
-        
+
         // directed testcase 2: enqueue entry to fifo with one entry, don't try to dequeue
         @(negedge clk);
         enq_valid = 1;
@@ -177,7 +177,7 @@ shift_queue_golden #(
         enq_valid = 0;
         deq_ready = 1;
         enq_data = 32'h12345678;
-        
+
 
         if (num_directed_tests_passed == num_directed_tests) begin
             $display("ALL %0d DIRECTED TESTS PASSED", num_directed_tests);
