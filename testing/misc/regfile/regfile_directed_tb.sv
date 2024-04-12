@@ -9,7 +9,9 @@ module regfile_directed_tb #(
 	parameter N_READ_PORTS = 2,
 	parameter N_WRITE_PORTS = 1,
     localparam PTR_WIDTH = $clog2(N_ENTRIES),
-    localparam CTR_WIDTH = PTR_WIDTH + 1
+    localparam CTR_WIDTH = PTR_WIDTH + 1,
+    parameter N_READ_PORTS = 2,
+    parameter N_WRITE_PORTS = 1
 );
     typedef struct packed {
         reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_reg;
@@ -51,7 +53,6 @@ module regfile_directed_tb #(
             expected_output: '{
                 rd_data: 32'h0
             },
-
             expected_next_state: '{
                 entry_reg: '{ 32{ 32'h0 } }
             }

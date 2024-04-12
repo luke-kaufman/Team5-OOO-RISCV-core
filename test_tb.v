@@ -9,11 +9,11 @@ module test_tb #(
 );
     reg clk;
     reg rst_aL;
-    
+
     wire enq_ready;
     reg enq_valid;
     reg [ENTRY_WIDTH-1:0] enq_data;
-    
+
     reg deq_ready;
     wire deq_valid;
     wire [ENTRY_WIDTH-1:0] deq_data;
@@ -35,12 +35,12 @@ module test_tb #(
         .enq_ready(enq_ready),
         .enq_valid(enq_valid),
         .enq_data(enq_data),
-        
+
         .deq_ready(deq_ready),
         .deq_valid(deq_valid),
         .deq_data(deq_data),
 
-        .count(count),
+        // .count(count),
 
         .init(init),
         .init_entry_reg_state(init_entry_reg_state),
@@ -62,8 +62,8 @@ module test_tb #(
         init_deq_up_counter_state = 4'b0110;
         init = 1;
         @(negedge clk);
-        $display("enq_up_counter: %d", dut.enq_up_counter.counter_reg.dout);
-        $display("deq_up_counter: %d", dut.deq_up_counter.counter_reg.dout);
+        $display("enq_up_counter: %0d", dut.enq_up_counter.counter_reg.dout);
+        $display("deq_up_counter: %0d", dut.deq_up_counter.counter_reg.dout);
         $finish;
     end
 endmodule

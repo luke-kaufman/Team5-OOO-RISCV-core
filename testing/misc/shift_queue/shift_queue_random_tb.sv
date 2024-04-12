@@ -3,7 +3,7 @@
 
 module shift_queue_random_tb #(
     parameter DEBUG = 0,
-    parameter N_TESTCASES = 100,
+    parameter N_TESTCASES = 10000,
     parameter N_ENTRIES = 4,
     parameter ENTRY_WIDTH = 4,
     localparam PTR_WIDTH = $clog2(N_ENTRIES),
@@ -52,7 +52,7 @@ module shift_queue_random_tb #(
             test_vectors[i].inputs.enq_valid = $urandom();
             test_vectors[i].inputs.enq_data = $urandom();
             test_vectors[i].inputs.deq_ready = $urandom();
-            test_vectors[i].inputs.deq_sel_onehot = 1 << $urandom_range(0, N_ENTRIES-1);
+            test_vectors[i].inputs.deq_sel_onehot = 1 << $urandom_range(0, test_vectors[i].init_state.enq_up_down_counter-1);
             // randomize wr_en and wr_data up until enq_up_down_counter, rest is 0
             for (int j = 0; j < test_vectors[i].init_state.enq_up_down_counter; j++) begin
                 test_vectors[i].inputs.wr_en[j] = $urandom();
@@ -134,18 +134,29 @@ module shift_queue_random_tb #(
         .current_enq_up_down_counter_state(golden_state.enq_up_down_counter)
     );
 
+    // function void dump_testcase;
+    //     $display("init_state (entry_reg = %h, enq_up_down_counter = %b)",
+    //         tv.init_state.entry_reg, tv.init_state.enq_up_down_counter);
+    //     $display("inputs     (enq_valid = %b, enq_data = %h, deq_ready = %b, deq_sel_onehot = %b, wr_en = %b, wr_data = %h)",
+    //         tv.inputs.enq_valid, tv.inputs.enq_data, tv.inputs.deq_ready, tv.inputs.deq_sel_onehot, tv.inputs.wr_en, tv.inputs.wr_data);
+    //     // $display("golden_outputs (enq_ready = %b, deq_valid = %b, deq_data = %h, entry_douts = %h)", golden_outputs.enq_ready, golden_outputs.deq_valid, golden_outputs.deq_data, golden_outputs.entry_douts);
+    //     // $display("dut_outputs    (enq_ready = %b, deq_valid = %b, deq_data = %h, entry_douts = %h)", dut_outputs.enq_ready, dut_outputs.deq_valid, dut_outputs.deq_data, dut_outputs.entry_douts);
+    // endfunction
+
     function void check_output(int i);
         if ((dut_outputs !== golden_outputs) || DEBUG) begin
-            $display("Testcase %0d dut_outputs is %0s at time %0t:\n\
+            $error(
+                "Testcase %0d dut_outputs is %0s at time %0t:\n\
                 init_state     (entry_reg = %h, enq_up_down_counter = %b)\n\
                 inputs         (enq_valid = %b, enq_data = %h, deq_ready = %b, deq_sel_onehot = %b, wr_en = %b, wr_data = %h)\n\
                 golden_outputs (enq_ready = %b, deq_valid = %b, deq_data = %h, entry_douts = %h)\n\
-                dut_outputs    (enq_ready = %b, deq_valid = %b, deq_data = %h, entry_douts = %h)",
+                dut_outputs    (enq_ready = %b, deq_valid = %b, deq_data = %h, entry_douts = %h)\n",
                 i, (dut_outputs !== golden_outputs) ? "wrong" : "correct", $time,
                 tv.init_state.entry_reg, tv.init_state.enq_up_down_counter,
                 tv.inputs.enq_valid, tv.inputs.enq_data, tv.inputs.deq_ready, tv.inputs.deq_sel_onehot, tv.inputs.wr_en, tv.inputs.wr_data,
                 golden_outputs.enq_ready, golden_outputs.deq_valid, golden_outputs.deq_data, golden_outputs.entry_douts,
-                dut_outputs.enq_ready, dut_outputs.deq_valid, dut_outputs.deq_data, dut_outputs.entry_douts);
+                dut_outputs.enq_ready, dut_outputs.deq_valid, dut_outputs.deq_data, dut_outputs.entry_douts
+            );
         end
         if (dut_outputs !== golden_outputs) begin
             testcases_passed[i] = 0;
@@ -154,16 +165,18 @@ module shift_queue_random_tb #(
 
     function void check_next_state(int i);
         if ((dut_state !== golden_state) || DEBUG) begin
-            $display("Testcase %0d dut_next_state is %0s at time %0t:\n\
+            $error(
+                "Testcase %0d dut_next_state is %0s at time %0t:\n\
                 init_state        (entry_reg = %h, enq_up_down_counter = %b)\n\
                 inputs            (enq_valid = %b, enq_data = %h, deq_ready = %b, deq_sel_onehot = %b, wr_en = %b, wr_data = %h)\n\
                 golden_next_state (entry_reg = %h, enq_up_down_counter = %b)\n\
-                dut_next_state    (entry_reg = %h, enq_up_down_counter = %b)",
+                dut_next_state    (entry_reg = %h, enq_up_down_counter = %b)\n",
                 i, (dut_state !== golden_state) ? "wrong" : "correct", $time,
                 tv.init_state.entry_reg, tv.init_state.enq_up_down_counter,
                 tv.inputs.enq_valid, tv.inputs.enq_data, tv.inputs.deq_ready, tv.inputs.deq_sel_onehot, tv.inputs.wr_en, tv.inputs.wr_data,
                 golden_state.entry_reg, golden_state.enq_up_down_counter,
-                dut_state.entry_reg, dut_state.enq_up_down_counter);
+                dut_state.entry_reg, dut_state.enq_up_down_counter
+            );
         end
         if (dut_state !== golden_state) begin
             testcases_passed[i] = 0;

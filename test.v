@@ -31,6 +31,6 @@ module test #(
 
 
         repeat (10)
-            $display("%5b", 1 << $urandom_range(0, 4));
+            $display("%b", 1 << $urandom_range(0, -1));
     end
 endmodule
