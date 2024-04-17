@@ -34,6 +34,10 @@
 `define IIQ_ID_WIDTH $clog2(`IIQ_N_ENTRIES)
 `define LSQ_N_ENTRIES 8
 `define LSQ_ID_WIDTH $clog2(`LSQ_N_ENTRIES)
+`define ST_BUF_N_ENTRIES 4
+`define ST_BUF_ID_WIDTH $clog2(`ST_BUF_N_ENTRIES)
+`define LD_BUF_N_ENTRIES 4
+`define LD_BUF_ID_WIDTH $clog2(`LD_BUF_N_ENTRIES)
 
 typedef logic [`ADDR_WIDTH-1:0] addr_t;
 typedef logic [`INSTR_WIDTH-1:0] instr_t;
@@ -153,6 +157,7 @@ typedef struct packed {
     rob_id_t instr_rob_id;
     reg_data_t ld_data; // NOTE: already (sign/zero) extended for the destination register
 } ldb_entry_t;
+`define LDB_ENTRY_WIDTH $bits()
 
 typedef struct packed {
     addr_t eff_addr;

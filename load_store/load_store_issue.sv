@@ -59,8 +59,9 @@ module load_store_issue #(
     wire [`IIQ_N_ENTRIES-1:0] entries_st_data_ld_capture;
 
     shift_queue #(
-
-    ) ldb (
+        .N_ENTRIES(`LDB_N_ENTRIES),
+        .ENTRY_WIDTH(`LDB_ENTRY_WIDTH)
+    ) ld_buf (
         .clk(clk),
         .rst_aL(rst_aL),
 
@@ -86,9 +87,10 @@ module load_store_issue #(
     );
 
     fifo_ram #(
-
-    ) stb (
-
+        .N_ENTRIES(`ST_BUF_N_ENTRIES),
+        .ENTRY_WIDTH(`ST_BUF_ENTRY_WIDTH)
+    ) st_buf (
+        
     );
 
     matrix_ram #(

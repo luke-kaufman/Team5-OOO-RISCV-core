@@ -1,3 +1,5 @@
+`define x (3 + 4)
+
 module test #(
     parameter N = 4
 );
@@ -69,6 +71,6 @@ module test #(
         // end
         // repeat (10)
         y = 0;
-            $display("%b", 3'b111 < 4'b1000);
+            $display("%b", `x);
     end
 endmodule
