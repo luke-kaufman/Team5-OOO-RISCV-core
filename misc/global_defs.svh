@@ -47,7 +47,12 @@ typedef logic [`REG_DATA_WIDTH-1:0] reg_data_t;
 typedef logic [`ARF_ID_WIDTH-1:0] arf_id_t;
 typedef logic [`ROB_ID_WIDTH-1:0] rob_id_t;
 
-// `define IFIFO_ENTRY_WIDTH = (`INSTR_WIDTH + `ADDR_WIDTH + 1 + 1 + `ADDR_WIDTH)
+`define I_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[24:21], instr[20] })
+`define S_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[11:8] , instr[7]  })
+`define B_IMM(instr) ({            {20{instr[31]}}           , instr[7] , instr[30:25], instr[11:8] ,   1'b0    })
+`define U_IMM(instr) ({ instr[31], instr[30:20], instr[19:12],                    12'b0                         })
+`define J_IMM(instr) ({     {12{instr[31]}}    , instr[19:12], instr[20], instr[30:25], instr[24:21],   1'b0    })
+
 typedef struct packed {
     instr_t instr;
     addr_t pc;

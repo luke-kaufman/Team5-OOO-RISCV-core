@@ -15,8 +15,8 @@ module icache_tb;
 
     // icache signals
     reg [31:0] icache_addr;
-    reg [63:0] dram_response_data;
-    reg dram_response_valid;
+    reg [63:0] recv_main_mem_data;
+    reg recv_main_mem_valid;
 
     // dut outputs
     wire [63:0] icache_data_way_out;
@@ -43,9 +43,9 @@ module icache_tb;
         .clk(clk),
         .rst_aL(reset_aL),
         .addr(icache_addr),
-        .write_data(dram_response_data),
+        .write_data(recv_main_mem_data),
         .d_cache_is_ST(1'b0),
-        .we_aL(!dram_response_valid),
+        .we_aL(!recv_main_mem_valid),
         .selected_data_way(icache_data_way_out),
         .cache_hit(icache_hit)
     );
@@ -73,14 +73,14 @@ module icache_tb;
 
         // write into the cache SET 0 WAY 0
         icache_addr = 32'h10000000;
-        dram_response_data = 64'hAAAAAAAAAAAAAAAA;
-        dram_response_valid = 1;
-        expected_output = dram_response_data;
+        recv_main_mem_data = 64'hAAAAAAAAAAAAAAAA;
+        recv_main_mem_valid = 1;
+        expected_output = recv_main_mem_data;
         $display("ICACHE WE_MASK: %2b", dut.we_mask);
         @(negedge clk);
 
         // now read
-        dram_response_valid = 0;
+        recv_main_mem_valid = 0;
         @(negedge clk);
         #4  // account for read delay on neg edge (3)
 
@@ -123,9 +123,9 @@ module icache_tb;
         // this write is the same addr that just missed
         // (pretending this is the dram response orginially triggered by cache miss signal)
         icache_addr = 32'h80000000;
-        dram_response_data = 64'hBBBBBBBBBBBBBBBB;
-        dram_response_valid = 1;
-        expected_output = dram_response_data;
+        recv_main_mem_data = 64'hBBBBBBBBBBBBBBBB;
+        recv_main_mem_valid = 1;
+        expected_output = recv_main_mem_data;
         $display("3 ICACHE TAG OUT: %48b", dut.tag_out);
         $display("3 ICACHE WAY1_V: %1b WAY0_V: %1b", dut.way1_v, dut.way0_v);
         $display("3 ICACHE WAY1_tag_match: %1b WAY0_tag_match: %1b", dut.way1_tag_match, dut.way0_tag_match);
@@ -140,7 +140,7 @@ module icache_tb;
         @(negedge clk);
 
         // now read
-        dram_response_valid = 0;
+        recv_main_mem_valid = 0;
         @(negedge clk);
         #4  // account for read delay on neg edge (3)
 
@@ -172,14 +172,14 @@ module icache_tb;
 
         // write: should already have data here - should overwrite it with new data
         icache_addr = 32'h80000000;
-        dram_response_data = 64'hCCCCCCCCCCCCCCCC;
-        dram_response_valid = 1;
-        expected_output = dram_response_data;
+        recv_main_mem_data = 64'hCCCCCCCCCCCCCCCC;
+        recv_main_mem_valid = 1;
+        expected_output = recv_main_mem_data;
         $display("4 ICACHE WE_MASK: %2b", dut.we_mask);
         @(negedge clk);
 
         // now read
-        dram_response_valid = 0;
+        recv_main_mem_valid = 0;
         @(negedge clk);
         #4  // account for read delay on neg edge (3)
 
@@ -203,9 +203,9 @@ module icache_tb;
 
     // TEST WRITING TO CACHE SET WITH 2 VALID WAYS AND A DIFFERENT TAG (RANDOM EVICTION) ---------------------------------------
     icache_addr = 32'hF0000000;
-    dram_response_data = 64'hDDDDDDDDDDDDDDDD;
-    dram_response_valid = 1;
-    expected_output = dram_response_data;
+    recv_main_mem_data = 64'hDDDDDDDDDDDDDDDD;
+    recv_main_mem_valid = 1;
+    expected_output = recv_main_mem_data;
 
     $display("5 ICACHE WE_MASK: %2b", dut.we_mask);
     expected_we_mask = {dut.lfsr_out,dut.lfsr_inv.ZN};
@@ -219,7 +219,7 @@ module icache_tb;
     @(negedge clk);
 
     // now read
-    dram_response_valid = 0;
+    recv_main_mem_valid = 0;
     @(negedge clk);
     #4  // account for read delay on neg edge (3)
 
