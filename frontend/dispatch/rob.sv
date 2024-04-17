@@ -129,7 +129,7 @@ module rob (
 
         .wr_en({alu_wb_valid, ld_wb_valid, iiq_wakeup_valid}),
         .wr_addr({alu_wb_rob_id, ld_wb_rob_id, iiq_wakeup_rob_id}),
-        .wr_data(d),
+        .wr_data(entry_write_data),
 
         .entry_douts(rob_state)
     );

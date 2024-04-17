@@ -10,19 +10,19 @@ module fifo_random_tb #(
     localparam CTR_WIDTH = PTR_WIDTH + 1
 );
     typedef struct packed {
-        reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_reg;
-        reg [CTR_WIDTH-1:0] enq_up_counter;
-        reg [CTR_WIDTH-1:0] deq_up_counter;
+        logic [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_reg;
+        logic [CTR_WIDTH-1:0] enq_up_counter;
+        logic [CTR_WIDTH-1:0] deq_up_counter;
     } state_t;
     typedef struct packed {
-        reg enq_valid;
-        reg [ENTRY_WIDTH-1:0] enq_data;
-        reg deq_ready;
+        logic enq_valid;
+        logic [ENTRY_WIDTH-1:0] enq_data;
+        logic deq_ready;
     } input_t;
     typedef struct packed {
-        reg enq_ready;
-        reg deq_valid;
-        reg [ENTRY_WIDTH-1:0] deq_data;
+        logic enq_ready;
+        logic deq_valid;
+        logic [ENTRY_WIDTH-1:0] deq_data;
     } output_t;
     typedef struct packed {
         input_t input_stimuli;
@@ -42,8 +42,8 @@ module fifo_random_tb #(
 
     // dut i/o
     bit clk = 1;
-    reg rst_aL;
-    // reg init;
+    bit rst_aL = 1;
+    bit init = 0;
     test_vector_t test_vector;
     wire output_t dut_output;
     wire output_t golden_output;
@@ -98,18 +98,20 @@ module fifo_random_tb #(
 
     function void check_output(int i);
         if ((dut_output !== golden_output) || DEBUG) begin
-            $display("Testcase %0d dut_output is %0s:
-                    golden_state      (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)
-                    dut_state         (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)
-                    input_stimul      (enq_valid = %b, enq_data = %h, deq_ready = %b)
-                    golden_output     (enq_ready = %b, deq_valid = %b, deq_data = %h)
-                    dut_output        (enq_ready = %b, deq_valid = %b, deq_data = %h)",
-                    i, (dut_output !== golden_output) ? "wrong" : "correct",
-                    golden_state.entry_reg, golden_state.enq_up_counter, golden_state.deq_up_counter,
-                    dut_state.entry_reg, dut_state.enq_up_counter, dut_state.deq_up_counter,
-                    test_vector.input_stimuli.enq_valid, test_vector.input_stimuli.enq_data, test_vector.input_stimuli.deq_ready,
-                    golden_output.enq_ready, golden_output.deq_valid, golden_output.deq_data,
-                    dut_output.enq_ready, dut_output.deq_valid, dut_output.deq_data);
+            $display(
+                "Testcase %0d dut_output is %0s:\n\
+                golden_state      (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)\n\
+                dut_state         (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)\n\
+                input_stimul      (enq_valid = %b, enq_data = %h, deq_ready = %b)\n\
+                golden_output     (enq_ready = %b, deq_valid = %b, deq_data = %h)\n\
+                dut_output        (enq_ready = %b, deq_valid = %b, deq_data = %h)\n",
+                i, (dut_output !== golden_output) ? "wrong" : "correct",
+                golden_state.entry_reg, golden_state.enq_up_counter, golden_state.deq_up_counter,
+                dut_state.entry_reg, dut_state.enq_up_counter, dut_state.deq_up_counter,
+                test_vector.input_stimuli.enq_valid, test_vector.input_stimuli.enq_data, test_vector.input_stimuli.deq_ready,
+                golden_output.enq_ready, golden_output.deq_valid, golden_output.deq_data,
+                dut_output.enq_ready, dut_output.deq_valid, dut_output.deq_data
+            );
         end
         if (dut_output !== golden_output) begin
             testcases_passed[i] = 0;
@@ -118,18 +120,20 @@ module fifo_random_tb #(
 
     function void check_state(int i);
         if ((dut_state !== golden_state) || DEBUG) begin
-            $display("Testcase %0d dut_next_state is %0s:
-                    golden_state      (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)
-                    dut_state         (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)
-                    input_stimuli     (enq_valid = %b, enq_data = %h, deq_ready = %b)
-                    golden_next_state (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)
-                    dut_next_state    (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)",
-                    i, (dut_state !== golden_state) ? "wrong" : "correct",
-                    golden_prev_state.entry_reg, golden_prev_state.enq_up_counter, golden_prev_state.deq_up_counter,
-                    dut_prev_state.entry_reg, dut_prev_state.enq_up_counter, dut_prev_state.deq_up_counter,
-                    test_vector.input_stimuli.enq_valid, test_vector.input_stimuli.enq_data, test_vector.input_stimuli.deq_ready,
-                    golden_state.entry_reg, golden_state.enq_up_counter, golden_state.deq_up_counter,
-                    dut_state.entry_reg, dut_state.enq_up_counter, dut_state.deq_up_counter);
+            $display(
+                "Testcase %0d dut_next_state is %0s:\n\
+                golden_state      (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)\n\
+                dut_state         (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)\n\
+                input_stimuli     (enq_valid = %b, enq_data = %h, deq_ready = %b)\n\
+                golden_next_state (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)\n\
+                dut_next_state    (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)\n",
+                i, (dut_state !== golden_state) ? "wrong" : "correct",
+                golden_prev_state.entry_reg, golden_prev_state.enq_up_counter, golden_prev_state.deq_up_counter,
+                dut_prev_state.entry_reg, dut_prev_state.enq_up_counter, dut_prev_state.deq_up_counter,
+                test_vector.input_stimuli.enq_valid, test_vector.input_stimuli.enq_data, test_vector.input_stimuli.deq_ready,
+                golden_state.entry_reg, golden_state.enq_up_counter, golden_state.deq_up_counter,
+                dut_state.entry_reg, dut_state.enq_up_counter, dut_state.deq_up_counter
+            );
         end
         if (dut_state !== golden_state) begin
             testcases_passed[i] = 0;

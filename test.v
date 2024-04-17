@@ -12,8 +12,20 @@ module test #(
     // logic [2:0] a = 3'b000;
     // logic [2:0] b = 3'b100;
 
-    wire [1:0] sel = 2'b01;
-    wire [3:0] [1:0] ins = {2'b11, 2'b10, 2'b01, 2'b00};
+    // wire [1:0] sel = 2'b01;
+    // wire [3:0] [1:0] ins = {2'b11, 2'b10, 2'b01, 2'b00};
+
+    // logic [74:0] a;
+    // logic [17:0] b;
+
+    // function automatic void randomize(output t_t data);
+    //     for (int i = 0; i < $bits(data); i += 32) begin
+    //         data[i+:32] = $urandom();
+    //     end
+    // endfunction
+    wire [1:0] deq = 2'b10;
+    wire [1:0] enq = 2'b10;
+    logic [3:0] y = 4'b1010;
 
     initial begin
         // for (int i = 1; i <= 10; i = i + 1) begin
@@ -30,7 +42,33 @@ module test #(
         // $display("a: %b", a[7]);
 
 
-        repeat (10)
-            $display("%b", 1 << $urandom_range(0, -1));
+        // repeat (10)
+        //     $display("%b", 1 << $urandom_range(0, -1));
+
+        // randomize(a);
+        // randomize(b);
+
+        // $display("a: %b", a);
+        // $display("b: %b", b);
+        // int y = 5;
+        // bit [4:0] x = 0;
+
+        // repeat (10) begin
+        //     // if ($urandom_range(0,1))
+        //     //     $display("yes");
+        //     // else
+        //     //     $display("no");
+        //     x = y;
+        //     y++;
+            // $display("x: %b, y: %d", x, y);
+        // while (1) begin : hello
+        //     for (int i = 0; i < 5; i++) begin
+        //         $display("world");
+        //         disable hello;
+        //     end
+        // end
+        // repeat (10)
+        y = 0;
+            $display("%b", 3'b111 < 4'b1000);
     end
 endmodule

@@ -2,72 +2,123 @@
 `include "misc/fifo_ram.v"
 
 module fifo_ram_tb #(
-    parameter DEBUG = 0,
-    parameter N_TESTCASES = 100,
-    parameter ENTRY_WIDTH = 32,
-    parameter N_ENTRIES = 8,
-    parameter N_READ_PORTS = 2,
-	parameter N_WRITE_PORTS = 2,
-    localparam PTR_WIDTH = $clog2(N_ENTRIES),
-    localparam CTR_WIDTH = PTR_WIDTH + 1
+    parameter  int unsigned N_TESTCASES = 10000,
+    parameter  int unsigned N_ENTRIES = 4,
+    parameter  int unsigned ENTRY_WIDTH = 4,
+    parameter  int unsigned N_READ_PORTS = 2,
+	parameter  int unsigned N_WRITE_PORTS = 2,
+    localparam int unsigned PTR_WIDTH = $clog2(N_ENTRIES),
+    localparam int unsigned CTR_WIDTH = PTR_WIDTH + 1
 );
     typedef struct packed {
-        reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_reg;
-        reg [CTR_WIDTH-1:0] enq_up_counter;
+        logic [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_reg;
+        logic [CTR_WIDTH-1:0] enq_up_counter;
+        logic [CTR_WIDTH-1:0] deq_up_counter;
     } state_t;
     typedef struct packed {
-        reg enq_valid;
-        reg [ENTRY_WIDTH-1:0] enq_data;
-        reg deq_ready;
-        reg [N_READ_PORTS-1:0] [PTR_WIDTH-1:0] rd_addr;
-        reg [N_WRITE_PORTS-1:0] wr_en;
-        reg [N_WRITE_PORTS-1:0] [PTR_WIDTH-1:0] wr_addr;
-        reg [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data;
+        logic enq_valid;
+        logic [ENTRY_WIDTH-1:0] enq_data;
+        logic deq_ready;
+        logic [N_READ_PORTS-1:0] [PTR_WIDTH-1:0] rd_addr;
+        logic [N_WRITE_PORTS-1:0] wr_en;
+        logic [N_WRITE_PORTS-1:0] [PTR_WIDTH-1:0] wr_addr;
+        logic [N_ENTRIES-1:0] [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data;
     } input_t;
     typedef struct packed {
-        reg enq_ready;
-        reg [PTR_WIDTH-1:0] enq_addr;
-        reg deq_valid;
-        reg [ENTRY_WIDTH-1:0] deq_data;
-        reg [PTR_WIDTH-1:0] deq_addr;
-        reg [N_READ_PORTS-1:0] [ENTRY_WIDTH-1:0] rd_data;
-        reg [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts;
+        logic enq_ready;
+        logic [PTR_WIDTH-1:0] enq_addr;
+        logic deq_valid;
+        logic [ENTRY_WIDTH-1:0] deq_data;
+        logic [PTR_WIDTH-1:0] deq_addr;
+        logic [N_READ_PORTS-1:0] [ENTRY_WIDTH-1:0] rd_data;
+        logic [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts;
     } output_t;
     typedef struct packed {
         state_t init_state;
-        input_t inputs;
+        input_t in;
     } test_vector_t;
 
     int num_testcases = 0;
     int num_testcases_passed = 0;
-    test_vector_t test_vectors[1:N_TESTCASES];
+    test_vector_t tv_arr[1:N_TESTCASES];
     bit testcases_passed[1:N_TESTCASES];
+
     initial begin
+        automatic bit [PTR_WIDTH-1:0] n_curr_entries;
+        automatic bit [CTR_WIDTH-1:0] enq_ctr;
+        automatic bit [CTR_WIDTH-1:0] deq_ctr;
+        automatic bit [PTR_WIDTH-1:0] enq_ptr;
+        automatic bit [PTR_WIDTH-1:0] deq_ptr;
+        automatic bit fifo_empty;
+        automatic bit fifo_full;
+        automatic bit [N_ENTRIES-1:0] valid_entries;
+        automatic bit same_addr;
         for (int i = 1; i <= N_TESTCASES; i++) begin
-            // for (int j = 0; j < $bits(test_vector_t); j += 32) begin
-            //     test_vectors[i][j+:32] = $urandom();
-            // end
-            test_vectors[i].init_state.enq_up_counter = $urandom_range(0, N_ENTRIES);
-            // randomize entry_reg up until enq_up_counter, rest is 0
-            for (int j = 0; j < test_vectors[i].init_state.enq_up_counter; j++) begin
-                test_vectors[i].init_state.entry_reg[j] = $urandom();
+            n_curr_entries = $urandom_range(0, N_ENTRIES);
+            tv_arr[i].init_state.entry_reg = $urandom();
+            tv_arr[i].init_state.deq_up_counter = $urandom();
+            tv_arr[i].init_state.enq_up_counter = tv_arr[i].init_state.deq_up_counter + n_curr_entries;
+
+            enq_ctr = tv_arr[i].init_state.enq_up_counter[CTR_WIDTH-1:0];
+            deq_ctr = tv_arr[i].init_state.deq_up_counter[CTR_WIDTH-1:0];
+            enq_ptr = enq_ctr[PTR_WIDTH-1:0];
+            deq_ptr = deq_ctr[PTR_WIDTH-1:0];
+            fifo_empty = enq_ctr == deq_ctr;
+            fifo_full = (enq_ctr[PTR_WIDTH] != deq_ctr[PTR_WIDTH]) && (enq_ctr[PTR_WIDTH-1:0] == deq_ctr[PTR_WIDTH-1:0]);
+
+            valid_entries = 0;
+            if (deq_ctr <= enq_ctr) begin
+                for (int j = deq_ctr; j < enq_ctr; j++) begin
+                    valid_entries[j[PTR_WIDTH-1:0]] = 1;
+                end
+            end else begin
+                for (int j = deq_ctr; j < 2*N_ENTRIES; j++) begin
+                    valid_entries[j[PTR_WIDTH-1:0]] = 1;
+                end
+                for (int j = 0; j < enq_ctr; j++) begin
+                    valid_entries[j[PTR_WIDTH-1:0]] = 1;
+                end
             end
-            for (int j = test_vectors[i].init_state.enq_up_counter; j < N_ENTRIES; j++) begin
-                test_vectors[i].init_state.entry_reg[j] = 0;
+
+            tv_arr[i].in.enq_valid = $urandom();
+            tv_arr[i].in.enq_data = $urandom();
+            tv_arr[i].in.deq_ready = $urandom();
+
+            for (int j = 0; j < N_READ_PORTS; j++) begin
+                while (1) begin
+                    tv_arr[i].in.rd_addr[j] = $urandom_range(0, N_ENTRIES-1);
+                    if (fifo_empty || valid_entries[tv_arr[i].in.rd_addr[j]]) break;
+                end
             end
-            test_vectors[i].inputs.enq_valid = $urandom();
-            test_vectors[i].inputs.enq_data = $urandom();
-            test_vectors[i].inputs.deq_ready = $urandom();
-            //test_vectors[i].inputs.deq_sel_onehot = 1 << $urandom_range(0, N_ENTRIES-1);
-            // randomize wr_en and wr_data up until enq_up_counter, rest is 0
-            for (int j = 0; j < test_vectors[i].init_state.enq_up_counter; j++) begin
-                test_vectors[i].inputs.wr_en[j] = $urandom();
-                test_vectors[i].inputs.wr_data[j] = $urandom();
+
+            if (!fifo_empty) begin
+                while (1) begin
+                    for (int j = 0; j < N_WRITE_PORTS; j++) begin
+                        while (1) begin
+                            tv_arr[i].in.wr_en[j] = $urandom();
+                            tv_arr[i].in.wr_addr[j] = $urandom_range(0, N_ENTRIES-1);
+                            if (!tv_arr[i].in.wr_en[j] || valid_entries[tv_arr[i].in.wr_addr[j]]) break;
+                        end
+                    end
+                    same_addr = 0;
+                    for (int j = 0; j < N_WRITE_PORTS; j++) begin
+                        for (int k = j + 1; k < N_WRITE_PORTS; k++) begin
+                            if (tv_arr[i].in.wr_en[j] &&
+                                tv_arr[i].in.wr_en[k] &&
+                                (tv_arr[i].in.wr_addr[j] == tv_arr[i].in.wr_addr[k]))
+                            begin
+                                same_addr = 1;
+                            end
+                        end
+                    end
+                    if (!same_addr) break;
+                end
+            end else begin
+                tv_arr[i].in.wr_en = 0;
+                tv_arr[i].in.wr_addr = $urandom_range(0, N_ENTRIES-1);
             end
-            for (int j = test_vectors[i].init_state.enq_up_counter; j < N_ENTRIES; j++) begin
-                test_vectors[i].inputs.wr_en[j] = 0;
-                test_vectors[i].inputs.wr_data[j] = 0;
-            end
+
+            rng#($bits(tv_arr[i].in.wr_data))::rng(tv_arr[i].in.wr_data);
         end
     end
 
@@ -75,11 +126,11 @@ module fifo_ram_tb #(
     bit rst_aL = 1;
     bit init = 0;
     test_vector_t tv;
-    input_t inputs;
-    wire output_t dut_outputs;
-    wire output_t golden_outputs;
+    input_t in;
+    wire output_t dut_out;
+    wire output_t gold_out;
     wire state_t dut_state;
-    wire state_t golden_state;
+    wire state_t gold_state;
 
     // clock generation
     localparam CLOCK_PERIOD = 10;
@@ -89,7 +140,9 @@ module fifo_ram_tb #(
 
     fifo_ram #(
         .N_ENTRIES(N_ENTRIES),
-        .ENTRY_WIDTH(ENTRY_WIDTH)
+        .ENTRY_WIDTH(ENTRY_WIDTH),
+        .N_READ_PORTS(N_READ_PORTS),
+        .N_WRITE_PORTS(N_WRITE_PORTS)
     ) dut (
         .clk(clk),
         .rst_aL(rst_aL),
@@ -97,29 +150,33 @@ module fifo_ram_tb #(
         .init(init),
         .init_entry_reg_state(tv.init_state.entry_reg),
         .init_enq_up_counter_state(tv.init_state.enq_up_counter),
-        // inputs
-        .enq_valid(tv.inputs.enq_valid),
-        .enq_data(tv.inputs.enq_data),
-        .rd_addr(tv.inputs.rd_addr),
-        //.deq_sel_onehot(tv.inputs.deq_sel_onehot),
-        .wr_en(tv.inputs.wr_en),
-        .wr_addr(tv.inputs.wr_addr),
-        .wr_data(tv.inputs.wr_data),
+        .init_deq_up_counter_state(tv.init_state.deq_up_counter),
+        // in
+        .enq_valid(tv.in.enq_valid),
+        .enq_data(tv.in.enq_data),
+        .deq_ready(tv.in.deq_ready),
+        .rd_addr(tv.in.rd_addr),
+        .wr_en(tv.in.wr_en),
+        .wr_addr(tv.in.wr_addr),
+        .wr_data(tv.in.wr_data),
         // dut outputs
-        .enq_ready(dut_outputs.enq_ready),
-        .enq_addr(dut_outputs.enq_addr),
-        .deq_valid(dut_outputs.deq_valid),
-        .deq_data(dut_outputs.deq_data),
-        .deq_addr(dut_outputs.deq_addr),
-        .rd_data(dut_outputs.rd_data),
-        .entry_douts(dut_outputs.entry_douts),
+        .enq_ready(dut_out.enq_ready),
+        .enq_addr(dut_out.enq_addr),
+        .deq_valid(dut_out.deq_valid),
+        .deq_data(dut_out.deq_data),
+        .deq_addr(dut_out.deq_addr),
+        .rd_data(dut_out.rd_data),
+        .entry_douts(dut_out.entry_douts),
         // dut state
         .current_entry_reg_state(dut_state.entry_reg),
-        .current_enq_up_counter_state(dut_state.enq_up_counter)
+        .current_enq_up_counter_state(dut_state.enq_up_counter),
+        .current_deq_up_counter_state(dut_state.deq_up_counter)
     );
     fifo_ram_golden #(
         .N_ENTRIES(N_ENTRIES),
-        .ENTRY_WIDTH(ENTRY_WIDTH)
+        .ENTRY_WIDTH(ENTRY_WIDTH),
+        .N_READ_PORTS(N_READ_PORTS),
+        .N_WRITE_PORTS(N_WRITE_PORTS)
     ) golden (
         .clk(clk),
         .rst_aL(rst_aL),
@@ -127,59 +184,65 @@ module fifo_ram_tb #(
         .init(init),
         .init_entry_reg_state(tv.init_state.entry_reg),
         .init_enq_up_counter_state(tv.init_state.enq_up_counter),
-        // inputs
-        .enq_valid(tv.inputs.enq_valid),
-        .enq_data(tv.inputs.enq_data),
-        .rd_addr(tv.inputs.rd_addr),
-        //.deq_sel_onehot(tv.inputs.deq_sel_onehot),
-        .wr_en(tv.inputs.wr_en),
-        .wr_addr(tv.inputs.wr_addr),
-        .wr_data(tv.inputs.wr_data),
+        .init_deq_up_counter_state(tv.init_state.deq_up_counter),
+        // in
+        .enq_valid(tv.in.enq_valid),
+        .enq_data(tv.in.enq_data),
+        .deq_ready(tv.in.deq_ready),
+        .rd_addr(tv.in.rd_addr),
+        .wr_en(tv.in.wr_en),
+        .wr_addr(tv.in.wr_addr),
+        .wr_data(tv.in.wr_data),
         // golden outputs
-        .enq_ready(golden_outputs.enq_ready),
-        .enq_addr(golden_outputs.enq_addr),
-        .deq_valid(golden_outputs.deq_valid),
-        .deq_data(golden_outputs.deq_data),
-        .deq_addr(golden_outputs.deq_addr),
-        .rd_data(golden_outputs.rd_data),
-        .entry_douts(golden_outputs.entry_douts),
+        .enq_ready(gold_out.enq_ready),
+        .enq_addr(gold_out.enq_addr),
+        .deq_valid(gold_out.deq_valid),
+        .deq_data(gold_out.deq_data),
+        .deq_addr(gold_out.deq_addr),
+        .rd_data(gold_out.rd_data),
+        .entry_douts(gold_out.entry_douts),
         // golden state
-        .current_entry_reg_state(golden_state.entry_reg),
-        .current_enq_up_counter_state(golden_state.enq_up_counter)
+        .current_entry_reg_state(gold_state.entry_reg),
+        .current_enq_up_counter_state(gold_state.enq_up_counter),
+        .current_deq_up_counter_state(gold_state.deq_up_counter)
     );
 
-    function void check_output(int i);
-        if ((dut_outputs !== golden_outputs) || DEBUG) begin
-            $display("Testcase %0d dut_outputs is %0s at time %0t:\n\
-                init_state     (entry_reg = %h, enq_up_counter = %b)\n\
-                inputs         (enq_valid = %b, enq_data = %h, deq_ready = %b, wr_en = %b, wr_data = %h)\n\
-                golden_outputs (enq_ready = %b, deq_valid = %b, deq_data = %h, entry_douts = %h)\n\
-                dut_outputs    (enq_ready = %b, deq_valid = %b, deq_data = %h, entry_douts = %h)",
-                i, (dut_outputs !== golden_outputs) ? "wrong" : "correct", $time,
-                tv.init_state.entry_reg, tv.init_state.enq_up_counter,
-                tv.inputs.enq_valid, tv.inputs.enq_data, tv.inputs.deq_ready, tv.inputs.wr_en, tv.inputs.wr_data,
-                golden_outputs.enq_ready, golden_outputs.deq_valid, golden_outputs.deq_data, golden_outputs.entry_douts,
-                dut_outputs.enq_ready, dut_outputs.deq_valid, dut_outputs.deq_data, dut_outputs.entry_douts);
+    function void check_output(int i, bit DEBUG = 0);
+        if ((dut_out !== gold_out) || DEBUG) begin
+            $display(
+"Testcase %0d dut_out is %0s at time %0t:\n\
+init_state (entry_reg=%h, enq_up_counter=%b, deq_up_counter=%b)\n\
+in         (enq_valid=%b, enq_data=%h, deq_ready=%b, rd_addr=%b, wr_en=%b, wr_addr=%b, wr_data=%h)\n\
+gold_out   (enq_ready=%b, enq_addr=%b, deq_valid=%b, deq_data=%h, deq_addr=%b, rd_data=%h, entry_douts=%h)\n\
+dut_out    (enq_ready=%b, enq_addr=%b, deq_valid=%b, deq_data=%h, deq_addr=%b, rd_data=%h, entry_douts=%h)\n",
+                i, (dut_out !== gold_out) ? "wrong" : "correct", $time,
+                tv.init_state.entry_reg, tv.init_state.enq_up_counter, tv.init_state.deq_up_counter,
+                tv.in.enq_valid, tv.in.enq_data, tv.in.deq_ready, tv.in.rd_addr, tv.in.wr_en, tv.in.wr_addr, tv.in.wr_data,
+                gold_out.enq_ready, gold_out.enq_addr, gold_out.deq_valid, gold_out.deq_data, gold_out.deq_addr, gold_out.rd_data, gold_out.entry_douts,
+                dut_out.enq_ready, dut_out.enq_addr, dut_out.deq_valid, dut_out.deq_data, dut_out.deq_addr, dut_out.rd_data, dut_out.entry_douts
+            );
         end
-        if (dut_outputs !== golden_outputs) begin
+        if (dut_out !== gold_out) begin
             testcases_passed[i] = 0;
         end
     endfunction
 
-    function void check_next_state(int i);
-        if ((dut_state !== golden_state) || DEBUG) begin
-            $display("Testcase %0d dut_next_state is %0s at time %0t:\n\
-                init_state        (entry_reg = %h, enq_up_counter = %b)\n\
-                inputs            (enq_valid = %b, enq_data = %h, deq_ready = %b, wr_en = %b, wr_data = %h)\n\
-                golden_next_state (entry_reg = %h, enq_up_counter = %b)\n\
-                dut_next_state    (entry_reg = %h, enq_up_counter = %b)",
-                i, (dut_state !== golden_state) ? "wrong" : "correct", $time,
-                tv.init_state.entry_reg, tv.init_state.enq_up_counter,
-                tv.inputs.enq_valid, tv.inputs.enq_data, tv.inputs.deq_ready, tv.inputs.wr_en, tv.inputs.wr_data,
-                golden_state.entry_reg, golden_state.enq_up_counter,
-                dut_state.entry_reg, dut_state.enq_up_counter);
+    function void check_next_state(int i, bit DEBUG = 0);
+        if ((dut_state !== gold_state) || DEBUG) begin
+            $display(
+"Testcase %0d dut_next_state is %0s at time %0t:\n\
+init_state      (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)\n\
+in              (enq_valid = %b, enq_data = %h, deq_ready = %b, rd_addr = %b, wr_en = %b, wr_addr = %b, wr_data = %h)\n\
+gold_next_state (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)\n\
+dut_next_state  (entry_reg = %h, enq_up_counter = %b, deq_up_counter = %b)\n",
+                i, (dut_state !== gold_state) ? "wrong" : "correct", $time,
+                tv.init_state.entry_reg, tv.init_state.enq_up_counter, tv.init_state.deq_up_counter,
+                tv.in.enq_valid, tv.in.enq_data, tv.in.deq_ready, tv.in.rd_addr, tv.in.wr_en, tv.in.wr_addr, tv.in.wr_data,
+                gold_state.entry_reg, gold_state.enq_up_counter, gold_state.deq_up_counter,
+                dut_state.entry_reg, dut_state.enq_up_counter, dut_state.deq_up_counter
+            );
         end
-        if (dut_state !== golden_state) begin
+        if (dut_state !== gold_state) begin
             testcases_passed[i] = 0;
         end
     endfunction
@@ -190,9 +253,9 @@ module fifo_ram_tb #(
             num_testcases++;
             testcases_passed[i] = 1;
             @(negedge clk);
-            tv.init_state = test_vectors[i].init_state;
+            tv.init_state = tv_arr[i].init_state;
             init = 1; // initialize state at t = 5 (mod 10)
-            tv.inputs = test_vectors[i].inputs; // drive input at t = 5 (mod 10)
+            tv.in = tv_arr[i].in; // drive input at t = 5 (mod 10)
             #1;
             init = 0;
             check_output(i); // check output at t = 6 (mod 10)
@@ -212,12 +275,7 @@ module fifo_ram_tb #(
         $finish;
     end
 
-    initial begin
-        // $monitor("deq_data = %h\
-        //           deq_sel_onehot = %b\
-        //           entry_douts = %h",
-        //           dut.deq_data,
-        //           dut.deq_sel_onehot,
-        //           dut.entry_douts);
-    end
+    // initial begin
+
+    // end
 endmodule

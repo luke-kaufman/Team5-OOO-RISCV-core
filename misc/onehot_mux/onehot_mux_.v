@@ -51,9 +51,9 @@ module onehot_mux_ #(
     always @(negedge clk) begin #1
         no_double_select(NEGEDGE);
     end
-    always @(posedge clk) begin #1
-        no_double_select(POSEDGE);
-    end
+    // always @(posedge clk) begin #1
+    //     no_double_select(POSEDGE);
+    // end
 endmodule
 
 `endif

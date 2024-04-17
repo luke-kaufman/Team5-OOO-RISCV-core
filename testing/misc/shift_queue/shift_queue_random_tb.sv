@@ -38,9 +38,6 @@ module shift_queue_random_tb #(
     bit testcases_passed[1:N_TESTCASES];
     initial begin
         for (int i = 1; i <= N_TESTCASES; i++) begin
-            // for (int j = 0; j < $bits(test_vector_t); j += 32) begin
-            //     test_vectors[i][j+:32] = $urandom();
-            // end
             test_vectors[i].init_state.enq_up_down_counter = $urandom_range(0, N_ENTRIES);
             // randomize entry_reg up until enq_up_down_counter, rest is 0
             for (int j = 0; j < test_vectors[i].init_state.enq_up_down_counter; j++) begin

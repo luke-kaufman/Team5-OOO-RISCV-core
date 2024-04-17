@@ -7,9 +7,7 @@ fi
 TESTBENCH_PATH=$(find . -name ${1}.v -o -name ${1}.sv)
 
 if [[ "$(hostname)" == "vsc"* ]]; then
-    FLAGS='-sv -lint'
-    # FLAGS+=' -suppress 2605'
-    # FLAGS+=',2623'
+    FLAGS='-sv -lint -suppress 13314'
     VERILOG=vlog
 else
     PARAMS=""

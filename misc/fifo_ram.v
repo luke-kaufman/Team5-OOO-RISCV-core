@@ -11,15 +11,12 @@
 `include "misc/up_counter.v"
 
 module fifo_ram #(
-    parameter ENTRY_WIDTH = 32,
-    parameter N_ENTRIES = 8,
-    localparam PTR_WIDTH = $clog2(N_ENTRIES),
-    localparam CTR_WIDTH = PTR_WIDTH + 1,
-
-    // RAM parameters
+    parameter  int unsigned ENTRY_WIDTH = 32,
+    parameter  int unsigned N_ENTRIES = 8,
+    localparam int unsigned PTR_WIDTH = $clog2(N_ENTRIES),
+    localparam int unsigned CTR_WIDTH = PTR_WIDTH + 1,
     parameter N_READ_PORTS = 2,
-    // NOTE: all writes are assumed to be to separate entries
-    parameter N_WRITE_PORTS = 2
+    parameter N_WRITE_PORTS = 2 // NOTE: all writes are assumed to be to separate entries
 ) (
     input wire clk,
     input wire rst_aL,
@@ -44,8 +41,7 @@ module fifo_ram #(
     input wire [N_ENTRIES-1:0] [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data,
     output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts,
 
-    output wire [PTR_WIDTH-1:0] count, // for debugging
-
+    // for testing
     input wire init,
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_entry_reg_state,
     input wire [CTR_WIDTH-1:0] init_enq_up_counter_state,
@@ -57,7 +53,7 @@ module fifo_ram #(
     // counter that holds the enqueue pointer
     wire enq;
     wire [CTR_WIDTH-1:0] enq_ctr;
-    up_counter #(.WIDTH(CTR_WIDTH)) enq_up_counter (
+    up_counter #(.WIDTH(CTR_WIDTH)) enq_up_counter ( // NOTE: STATEFUL
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(enq),
@@ -68,7 +64,7 @@ module fifo_ram #(
     // counter that holds the dequeue pointer
     wire deq;
     wire [CTR_WIDTH-1:0] deq_ctr;
-    up_counter #(.WIDTH(CTR_WIDTH)) deq_up_counter (
+    up_counter #(.WIDTH(CTR_WIDTH)) deq_up_counter ( // NOTE: STATEFUL
         .clk(clk),
         .rst_aL(rst_aL),
         .inc(deq),
@@ -82,7 +78,9 @@ module fifo_ram #(
     unsigned_cmp_ #(.WIDTH(1)) eq_msb_cmp (
         .a(enq_ctr[CTR_WIDTH-1]),
         .b(deq_ctr[CTR_WIDTH-1]),
-        .eq(eq_msb)
+        .eq(eq_msb),
+        .lt(),
+        .ge()
     );
 
     // pointers are the lower bits of the counters
@@ -96,7 +94,9 @@ module fifo_ram #(
     unsigned_cmp_ #(.WIDTH(PTR_WIDTH)) eq_ptr_cmp (
         .a(enq_ptr),
         .b(deq_ptr),
-        .eq(eq_ptr)
+        .eq(eq_ptr),
+        .lt(),
+        .ge()
     );
 
     // logic that checks if the fifo is empty
@@ -155,7 +155,7 @@ module fifo_ram #(
         );
     end
 
-    // NOTE: current assumption is that there won't ever be a race condition between enq_we and wr_en_we(s)
+    // TODO: current assumption is that there won't ever be a race condition between enq_we and wr_en_we(s) (WRITE AN ASSERT TO CHECK)
     // i.e., they are supposed to be mutually exclusive
     // there won't be a race condition among the wr_en_we(s) either
 
@@ -194,26 +194,26 @@ module fifo_ram #(
     // memory that holds fifo entries
     wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_dins;
     for (genvar i = 0; i < N_ENTRIES; i++) begin
-        // NOTE: current assumption is that there won't ever be a race condition between the enq_data and wr_data(s)
+        // TODO: current assumption is that there won't ever be a race condition between the enq_data and wr_data(s) (WRITE AN ASSERT TO CHECK)
         // mux that selects the din for each fifo entry
         // NOTE: mux_ only works with power-of-2 N_INS
         // if all selects are 0, the output is don't care (physically all 0s), entry_we in this case is 0 anyway
         onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_WRITE_PORTS+1)) entry_din_mux (
+            .clk(clk),
             .ins({wr_data[i], enq_data}),
             .sel({wr_en_we_transposed[i], enq_we[i]}),
             .out(entry_dins[i])
         );
         // register that holds each fifo entry
-        reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg (
+        reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg ( // NOTE: STATEFUL
             .clk(clk),
             .rst_aL(rst_aL),
             .we(entry_we[i]),
             .din(entry_dins[i]),
             .dout(entry_douts[i]),
-
             .init(init),
             .init_state(init_entry_reg_state[i])
-        ); //add init portion
+        );
     end
 
     // mux that drives the dequeue data using the dequeue pointer
@@ -236,11 +236,74 @@ module fifo_ram #(
     assign enq_addr = enq_ptr;
     assign deq_addr = deq_ptr;
 
-    // for debugging (NOTE: behavioral code)
-    assign count = enq_ctr[PTR_WIDTH-1:0] - deq_ctr[PTR_WIDTH-1:0];
-    assign current_deq_up_counter_state = deq_ctr;
+    // for testing
     assign current_enq_up_counter_state = enq_ctr;
+    assign current_deq_up_counter_state = deq_ctr;
     assign current_entry_reg_state = entry_douts;
+
+    // assertions
+    // enq_ctr should not be distant from deq_ctr by more than N_ENTRIES
+    function void assert_enq_ctr_not_distant_from_deq_ctr();
+        automatic int ctr_distance = enq_ctr - deq_ctr;
+        if (ctr_distance < 0) ctr_distance += 2 * N_ENTRIES;
+        if (ctr_distance > N_ENTRIES) begin
+            $error("ERROR: enq_ctr is distant from deq_ctr by more than N_ENTRIES");
+        end
+    endfunction
+    // wr_addrs should not be equal to each other when both their respective wr_ens are true
+    function void assert_wr_addrs_not_eq();
+        for (int i = 0; i < N_WRITE_PORTS; i++) begin
+            for (int j = i + 1; j < N_WRITE_PORTS; j++) begin
+                if (wr_en[i] && wr_en[j] && (wr_addr[i] == wr_addr[j])) begin
+                    $error("ERROR: wr_addr[%0d] is equal to wr_addr[%0d]", i, j);
+                end
+            end
+        end
+    endfunction
+    // wr_addr should be to a valid entry when wr_en is true
+    function bit [N_ENTRIES-1:0] valid_entries();
+        if (deq_ctr <= enq_ctr) begin
+            for (int i = deq_ctr; i < enq_ctr; i++) begin
+                valid_entries[i[PTR_WIDTH-1:0]] = 1;
+            end
+        end else begin
+            for (int i = deq_ctr; i < 2*N_ENTRIES; i++) begin
+                valid_entries[i[PTR_WIDTH-1:0]] = 1;
+            end
+            for (int i = 0; i < enq_ctr; i++) begin
+                valid_entries[i[PTR_WIDTH-1:0]] = 1;
+            end
+        end
+    endfunction
+    function void assert_wr_addr_valid();
+        for (int i = 0; i < N_WRITE_PORTS; i++) begin
+            if (wr_en[i] && !(valid_entries()[wr_addr[i]])) begin
+                $error("ERROR: wr_addr[%0d] is not to a valid entry\n\
+                        wr_addr[%0d] = %b, deq_ctr = %b, enq_ctr = %b\n",
+                        i,
+                        i, wr_addr[i], deq_ctr, enq_ctr);
+            end
+        end
+    endfunction
+    // rd_addr should be to a valid entry
+    function void assert_rd_addr_valid();
+        for (int i = 0; i < N_READ_PORTS; i++) begin
+            if (!(valid_entries()[rd_addr[i]])) begin
+                $error("ERROR: rd_addr[%0d] is not to a valid entry", i);
+            end
+        end
+    endfunction
+
+    always @(negedge clk) begin #1
+        assert_enq_ctr_not_distant_from_deq_ctr();
+        assert_wr_addrs_not_eq();
+        assert_wr_addr_valid();
+        // assert_rd_addr_valid(); // FIXME
+    end
+
+    // always @(posedge clk) begin #1
+    //     assert_enq_ctr_not_distant_from_deq_ctr();
+    // end
 endmodule
 
 `endif
