@@ -18,8 +18,9 @@ module ifu #(
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
     input wire recovery_PC_valid,
     input wire backend_stall,
-    input wire [I$_BLOCK_SIZE-1:0] dram_response,
-    input wire dram_response_valid,
+    input wire recv_main_mem_valid,
+    input wire [`ADDR_WIDTH-1] recv_main_mem_addr,
+    input wire [I$_BLOCK_SIZE-1:0] recv_main_mem_data,
 
     //testing
     input wire csb0_in,
@@ -49,17 +50,26 @@ OR3_X1 stall_gate (
     .ZN(stall)
 );
 
-// mux_ #(
+wire [`ADDR_WIDTH-1:0] PC_mux_local_out;
 mux_ #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(4)
-) PC_mux(
+) PC_mux_local(
     .ins({recovery_PC, // if recovery
           recovery_PC, // if recovery
           PC_wire,     // if stall
           next_PC      // predicted nextPC
           }),
     .sel({recovery_PC_valid, stall}),
+    .out(PC_mux_local_out)
+);
+
+mux_ #(
+    .WIDTH(`ADDR_WIDTH),
+    .N_INS(2)
+) PC_mux (
+    .ins({recv_main_mem_addr, PC_mux_local_out}),
+    .sel(recv_main_mem_valid),
     .out(PC_mux_out)
 );
 
@@ -80,7 +90,7 @@ INV_X1 icmiss(
 
 wire icache_we_aL;
 INV_X1 response_v_to_we_aL (
-    .A(dram_response_valid),
+    .A(recv_main_mem_valid),
     .ZN(icache_we_aL)
 );
 cache #(
@@ -96,7 +106,7 @@ cache #(
     .PC_addr(PC.dout),
     .d_cache_is_ST(1'b0), // not used in icache
     .we_aL(icache_we_aL),
-    .write_data(dram_response),
+    .write_data(recv_main_mem_data),
     .csb0_in(csb0_in),
 
     .cache_hit(icache_hit),

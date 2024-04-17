@@ -1,681 +1,227 @@
 Questa Intel FPGA Edition-64 vlog 2021.3 Compiler 2021.07 Jul 13 2021
-Start time: 23:26:09 on Apr 11,2024
-vlog -sv -lint ./testing/frontend/fetch/ifu_tb.v 
--- Compiling package ifu_tb_v_unit
+Start time: 20:09:27 on Apr 16,2024
+vlog -sv -lint -suppress 13314 ./testing/frontend/fetch/ifu_tb.v ./testing/frontend/fetch/ifu_tb.sv 
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.v(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(131): (vlog-2163) Macro `ST_BUF_ID_WIDTH is undefined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(38): Typedef 'addr_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(39): Typedef 'instr_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(40): Typedef 'imm_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(41): Typedef 'word_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(42): Typedef 'reg_data_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(43): Typedef 'arf_id_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(44): Typedef 'rob_id_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(59): Typedef 'ififo_entry_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(75): Typedef 'rob_entry_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(82): Typedef 'rob_dispatch_data_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(116): Typedef 'iiq_entry_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(131): (vlog-2163) Macro `ST_BUF_ID_WIDTH is undefined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(132): Typedef 'lsq_entry_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(152): Typedef 'iiq_issue_data_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(161): Typedef 'ldb_entry_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(167): Typedef 'stb_entry_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(169): Enum literal name 'POSEDGE' already exists.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(169): Enum literal name 'NEGEDGE' already exists.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(169): Typedef 'edge_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(225): Typedef 'r_type_instr_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(233): Typedef 'i_type_instr_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(242): Typedef 's_type_instr_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(253): Typedef 'b_type_instr_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(259): Typedef 'u_type_instr_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(268): Typedef 'j_type_instr_t' multiply defined.
+** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(4)
+** at misc/global_defs.svh(270): Typedef 'rng' multiply defined.
 -- Compiling module sram_64x128_1rw_wsize64
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(6)
+** at sram/icache_data_sram.v(6): (vlog-2275) Existing module 'sram_64x128_1rw_wsize64' at line 6 will be overwritten.
 -- Compiling module sram_64x128_1rw_wsize8
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(7)
+** at sram/dcache_data_sram_netlist_only.v(6): (vlog-2275) Existing module 'sram_64x128_1rw_wsize8' at line 6 will be overwritten.
 -- Compiling module sram_64x48_1rw_wsize24
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(8)
+** at sram/tag_array_sram.v(6): (vlog-2275) Existing module 'sram_64x48_1rw_wsize24' at line 6 will be overwritten.
 -- Compiling module dff_we
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(9)
+** at misc/dff_we.v(8): (vlog-2275) Existing module 'dff_we' at line 8 will be overwritten.
 -- Compiling module and32
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(10)
+** while parsing file included at misc/cmp/cmp32.v(8)
+** at misc/and/and32.v(8): (vlog-2275) Existing module 'and32' at line 8 will be overwritten.
 -- Compiling module cmp32
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(10)
+** at misc/cmp/cmp32.v(10): (vlog-2275) Existing module 'cmp32' at line 10 will be overwritten.
 -- Compiling module onehot_mux_
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(11)
+** at misc/onehot_mux/onehot_mux_.v(9): (vlog-2275) Existing module 'onehot_mux_' at line 9 will be overwritten.
 -- Compiling module and8
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(12)
+** while parsing file included at misc/mux/mux_.v(5)
+** while parsing file included at misc/and/and_.v(5)
+** at misc/and/and8.v(8): (vlog-2275) Existing module 'and8' at line 8 will be overwritten.
 -- Compiling module and16
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(12)
+** while parsing file included at misc/mux/mux_.v(5)
+** while parsing file included at misc/and/and_.v(6)
+** at misc/and/and16.v(8): (vlog-2275) Existing module 'and16' at line 8 will be overwritten.
 -- Compiling module and_
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(12)
+** while parsing file included at misc/mux/mux_.v(5)
+** at misc/and/and_.v(11): (vlog-2275) Existing module 'and_' at line 11 will be overwritten.
 -- Compiling module or_
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(12)
+** while parsing file included at misc/mux/mux_.v(6)
+** at misc/or/or_.v(4): (vlog-2275) Existing module 'or_' at line 4 will be overwritten.
 -- Compiling module mux_
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(12)
+** at misc/mux/mux_.v(11): (vlog-2275) Existing module 'mux_' at line 11 will be overwritten.
 -- Compiling module lfsr_1bit
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** while parsing file included at misc/cache.v(13)
+** at misc/lfsr.v(1): (vlog-2275) Existing module 'lfsr_1bit' at line 1 will be overwritten.
 -- Compiling module cache
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(6)
+** at misc/cache.v(18): (vlog-2275) Existing module 'cache' at line 18 will be overwritten.
 -- Compiling module inv
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(7)
+** while parsing file included at misc/fifo.v(4)
+** at misc/inv.v(6): (vlog-2275) Existing module 'inv' at line 6 will be overwritten.
 -- Compiling module unsigned_cmp_
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(7)
+** while parsing file included at misc/fifo.v(6)
+** at misc/cmp/unsigned_cmp_.v(4): (vlog-2275) Existing module 'unsigned_cmp_' at line 4 will be overwritten.
 -- Compiling module dec_
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(7)
+** while parsing file included at misc/fifo.v(7)
+** at misc/dec/dec_.v(4): (vlog-2275) Existing module 'dec_' at line 4 will be overwritten.
 -- Compiling module reg_
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(7)
+** while parsing file included at misc/fifo.v(9)
+** at misc/reg_.v(8): (vlog-2275) Existing module 'reg_' at line 8 will be overwritten.
 -- Compiling module adder
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(7)
+** while parsing file included at misc/fifo.v(10)
+** while parsing file included at misc/up_counter.v(6)
+** at misc/adder.v(7): (vlog-2275) Existing module 'adder' at line 7 will be overwritten.
 -- Compiling module up_counter
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(7)
+** while parsing file included at misc/fifo.v(10)
+** at misc/up_counter.v(10): (vlog-2275) Existing module 'up_counter' at line 10 will be overwritten.
 -- Compiling module fifo
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(7)
+** at misc/fifo.v(14): (vlog-2275) Existing module 'fifo' at line 14 will be overwritten.
 -- Compiling module sign_extend
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(8)
+** while parsing file included at frontend/fetch/predicted_NPC.v(6)
+** at misc/sign_extend.v(3): (vlog-2275) Existing module 'sign_extend' at line 3 will be overwritten.
 -- Compiling module predicted_NPC
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** while parsing file included at frontend/fetch/ifu.v(8)
+** at frontend/fetch/predicted_NPC.v(8): (vlog-2275) Existing module 'predicted_NPC' at line 8 will be overwritten.
 -- Compiling module ifu
+** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
+** at frontend/fetch/ifu.v(11): (vlog-2275) Existing module 'ifu' at line 11 will be overwritten.
 -- Compiling module ifu_tb
-
-Top level modules:
-	ifu_tb
-End time: 23:26:09 on Apr 11,2024, Elapsed time: 0:00:00
-Errors: 0, Warnings: 0
+** Warning: ./testing/frontend/fetch/ifu_tb.sv(5): (vlog-2275) Existing module 'ifu_tb' at ./testing/frontend/fetch/ifu_tb.v(5) will be overwritten.
+End time: 20:09:27 on Apr 16,2024, Elapsed time: 0:00:00
+Errors: 27, Warnings: 25
 Reading pref.tcl
 
 # 2021.3
 
 # vsim -c -L stdcells -sv_seed 1 -do "run -all; quit" ifu_tb 
-# Start time: 23:26:10 on Apr 11,2024
+# Start time: 20:09:29 on Apr 16,2024
 # ** Note: (vsim-3812) Design is being optimized...
-# ** Warning: misc/cache.v(216): (vopt-2685) [TFMPC] - Too few port connections for 'lfsr_inv'.  Expected 2, found 1.
-# ** Warning: misc/cache.v(216): (vopt-2718) [TFMPC] - Missing connection for port 'ZN'.
-# ** Warning: frontend/fetch/predicted_NPC.v(81): (vopt-2685) [TFMPC] - Too few port connections for 'uncond_to_cond'.  Expected 2, found 1.
-# ** Warning: frontend/fetch/predicted_NPC.v(81): (vopt-2718) [TFMPC] - Missing connection for port 'ZN'.
-# ** Warning: frontend/fetch/predicted_NPC.v(85): (vopt-2685) [TFMPC] - Too few port connections for 'is_cond_branch_AND'.  Expected 3, found 2.
-# ** Warning: frontend/fetch/predicted_NPC.v(85): (vopt-2718) [TFMPC] - Missing connection for port 'ZN'.
-# ** Warning: frontend/fetch/predicted_NPC.v(98): (vopt-2685) [TFMPC] - Too few port connections for 'uncond_br_type'.  Expected 3, found 2.
-# ** Warning: frontend/fetch/predicted_NPC.v(98): (vopt-2718) [TFMPC] - Missing connection for port 'out'.
-# ** Warning: frontend/fetch/predicted_NPC.v(109): (vopt-2685) [TFMPC] - Too few port connections for 'br_type_mux'.  Expected 3, found 2.
-# ** Warning: frontend/fetch/predicted_NPC.v(109): (vopt-2718) [TFMPC] - Missing connection for port 'out'.
-# ** Warning: frontend/fetch/predicted_NPC.v(133): (vopt-2685) [TFMPC] - Too few port connections for 'is_backwards_branch_AND'.  Expected 3, found 2.
-# ** Warning: frontend/fetch/predicted_NPC.v(133): (vopt-2718) [TFMPC] - Missing connection for port 'ZN'.
-# ** Warning: misc/fifo.v(67): (vopt-2685) [TFMPC] - Too few port connections for 'eq_msb_cmp'.  Expected 5, found 3.
-# ** Warning: misc/fifo.v(67): (vopt-2718) [TFMPC] - Missing connection for port 'ge'.
-# ** Warning: misc/fifo.v(67): (vopt-2718) [TFMPC] - Missing connection for port 'lt'.
-# ** Warning: misc/fifo.v(81): (vopt-2685) [TFMPC] - Too few port connections for 'eq_ptr_cmp'.  Expected 5, found 3.
-# ** Warning: misc/fifo.v(81): (vopt-2718) [TFMPC] - Missing connection for port 'ge'.
-# ** Warning: misc/fifo.v(81): (vopt-2718) [TFMPC] - Missing connection for port 'lt'.
-# ** Warning: frontend/fetch/ifu.v(66): (vopt-2685) [TFMPC] - Too few port connections for 'PC'.  Expected 7, found 5.
-# ** Warning: frontend/fetch/ifu.v(66): (vopt-2718) [TFMPC] - Missing connection for port 'init_state'.
-# ** Warning: frontend/fetch/ifu.v(66): (vopt-2718) [TFMPC] - Missing connection for port 'init'.
-# ** Warning: frontend/fetch/ifu.v(147): (vopt-2685) [TFMPC] - Too few port connections for 'instruction_FIFO'.  Expected 15, found 8.
-# ** Warning: frontend/fetch/ifu.v(147): (vopt-2718) [TFMPC] - Missing connection for port 'current_deq_up_counter_state'.
-# ** Warning: frontend/fetch/ifu.v(147): (vopt-2718) [TFMPC] - Missing connection for port 'current_enq_up_counter_state'.
-# ** Warning: frontend/fetch/ifu.v(147): (vopt-2718) [TFMPC] - Missing connection for port 'current_entry_reg_state'.
-# ** Warning: frontend/fetch/ifu.v(147): (vopt-2718) [TFMPC] - Missing connection for port 'init_deq_up_counter_state'.
-# ** Warning: frontend/fetch/ifu.v(147): (vopt-2718) [TFMPC] - Missing connection for port 'init_enq_up_counter_state'.
-# ** Warning: frontend/fetch/ifu.v(147): (vopt-2718) [TFMPC] - Missing connection for port 'init_entry_reg_state'.
-# ** Warning: frontend/fetch/ifu.v(147): (vopt-2718) [TFMPC] - Missing connection for port 'init'.
-# ** Warning: ./testing/frontend/fetch/ifu_tb.v(31): (vopt-2685) [TFMPC] - Too few port connections for 'dut'.  Expected 11, found 9.
-# ** Warning: ./testing/frontend/fetch/ifu_tb.v(31): (vopt-2718) [TFMPC] - Missing connection for port 'instr_to_dispatch'.
-# ** Warning: ./testing/frontend/fetch/ifu_tb.v(31): (vopt-2718) [TFMPC] - Missing connection for port 'instr_valid'.
-# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=32.
-# //  Questa Intel FPGA Edition-64
-# //  Version 2021.3 linux_x86_64 Jul 13 2021
-# //
-# //  Copyright 1991-2021 Mentor Graphics Corporation
-# //  All Rights Reserved.
-# //
-# //  QuestaSim and its associated documentation contain trade
-# //  secrets and commercial or financial information that are the property of
-# //  Mentor Graphics Corporation and are privileged, confidential,
-# //  and exempt from disclosure under the Freedom of Information Act,
-# //  5 U.S.C. Section 552. Furthermore, this information
-# //  is prohibited from disclosure under the Trade Secrets Act,
-# //  18 U.S.C. Section 1905.
-# //
-# Loading sv_std.std
-# Loading work.ifu_tb_v_unit(fast)
-# Loading work.ifu_tb(fast)
-# Loading stdcells.OR3_X1(fast)
-# Loading stdcells.INV_X1(fast)
-# Loading stdcells.AND3_X1(fast)
-# Loading stdcells.XNOR2_X1(fast)
-# Loading stdcells.AND4_X1(fast)
-# Loading stdcells.AND2_X1(fast)
-# Loading stdcells.INV_X1(fast__1)
-# Loading work.mux_(fast__1)
-# Loading stdcells.OR2_X1(fast)
-# Loading stdcells.FA_X1(fast)
-# Loading stdcells.AND2_X1(fast__1)
-# Loading work.mux_(fast__5)
-# Loading work.mux_(fast__3)
-# ** Warning: (vsim-2685) [TFMPC] - Too few port connections for 'lfsr_inv'.  Expected 2, found 1.
-#    Time: 0 ns  Iteration: 0  Instance: /ifu_tb/dut/icache/lfsr_inv File: misc/cache.v Line: 216
-# ** Warning: (vsim-2685) [TFMPC] - Too few port connections for 'uncond_to_cond'.  Expected 2, found 1.
-#    Time: 0 ns  Iteration: 0  Instance: /ifu_tb/dut/pred_NPC/uncond_to_cond File: frontend/fetch/predicted_NPC.v Line: 81
-# ** Warning: (vsim-2685) [TFMPC] - Too few port connections for 'is_cond_branch_AND'.  Expected 3, found 2.
-#    Time: 0 ns  Iteration: 0  Instance: /ifu_tb/dut/pred_NPC/is_cond_branch_AND File: frontend/fetch/predicted_NPC.v Line: 85
-# ** Warning: (vsim-2685) [TFMPC] - Too few port connections for 'is_backwards_branch_AND'.  Expected 3, found 2.
-#    Time: 0 ns  Iteration: 0  Instance: /ifu_tb/dut/pred_NPC/is_backwards_branch_AND File: frontend/fetch/predicted_NPC.v Line: 133
-# run -all
-# Filling icache with instructions:
-# PC=0x00000000000000010000000110001100 (0001018c)
-#     30 Writing ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110001 din0=fe01011300000000fe01011300000000 wmask0=1
-#     30 Writing ifu_tb.dut.icache.tag_arr addr0=110001 din0: way1_v:1, way1_tag:00000000000000010000000, way0_v:1, way0_tag:00000000000000010000000  wmask0=01
-# 
-# 
-# PC=0x00000000000000010000000110010000 (00010190)
-#     40 Writing ifu_tb.dut.icache.tag_arr addr0=110010 din0: way1_v:1, way1_tag:00000000000000010000000, way0_v:1, way0_tag:00000000000000010000000  wmask0=01
-#     40 Writing ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110010 din0=00f004930201041300f0049302010413 wmask0=1
-# 
-# 
-# PC=0x00000000000000010000000110011000 (00010198)
-#     50 Writing ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110011 din0=ffc4849301348493ffc4849301348493 wmask0=1
-#     50 Writing ifu_tb.dut.icache.tag_arr addr0=110011 din0: way1_v:1, way1_tag:00000000000000010000000, way0_v:1, way0_tag:00000000000000010000000  wmask0=01
-# 
-# 
-# PC=0x00000000000000010000000110100000 (000101a0)
-#     60 Writing ifu_tb.dut.icache.tag_arr addr0=110100 din0: way1_v:1, way1_tag:00000000000000010000000, way0_v:1, way0_tag:00000000000000010000000  wmask0=01
-#     60 Writing ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110100 din0=800007b700048713800007b700048713 wmask0=1
-# 
-# 
-# PC=0x00000000000000010000000110101000 (000101a8)
-#     70 Writing ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110101 din0=0007849300f747b30007849300f747b3 wmask0=1
-#     70 Writing ifu_tb.dut.icache.tag_arr addr0=110101 din0: way1_v:1, way1_tag:00000000000000010000000, way0_v:1, way0_tag:00000000000000010000000  wmask0=01
-# 
-# 
-# PC=0x00000000000000010000000110110000 (000101b0)
-#     80 Writing ifu_tb.dut.icache.tag_arr addr0=110110 din0: way1_v:1, way1_tag:00000000000000010000000, way0_v:1, way0_tag:00000000000000010000000  wmask0=01
-#     80 Writing ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110110 din0=fff78793800007b7fff78793800007b7 wmask0=1
-# 
-# 
-# PC=0x00000000000000010000000110111000 (000101b8)
-#     90 Writing ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110111 din0=0004879300f4f4b30004879300f4f4b3 wmask0=1
-#     90 Writing ifu_tb.dut.icache.tag_arr addr0=110111 din0: way1_v:1, way1_tag:00000000000000010000000, way0_v:1, way0_tag:00000000000000010000000  wmask0=01
-# 
-# 
-# PC=0x00000000000000010000000111000000 (000101c0)
-#    100 Writing ifu_tb.dut.icache.tag_arr addr0=111000 din0: way1_v:1, way1_tag:00000000000000010000000, way0_v:1, way0_tag:00000000000000010000000  wmask0=01
-#    100 Writing ifu_tb.dut.icache.icache.i_cache_data_arr addr0=111000 din0=02010113000785130201011300078513 wmask0=1
-# 
-# 
-# PC=0x00000000000000010000000111001000 (000101c8)
-#    110 Writing ifu_tb.dut.icache.icache.i_cache_data_arr addr0=111001 din0=00000000000080670000000000008067 wmask0=1
-#    110 Writing ifu_tb.dut.icache.tag_arr addr0=111001 din0: way1_v:1, way1_tag:00000000000000010000000, way0_v:1, way0_tag:00000000000000010000000  wmask0=01
-# 
-# 
-# DONE Filling icache with instructions:---------------------------------------------
-# 
-# 
-# Force first PC thru recovery PC logic
-# START READING INSRUCTIONS FROM ICACHE TIME:    120
-#    120 Reading ifu_tb.dut.icache.tag_arr addr0=110001 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-#    120 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110001 dout0=0000000000000000fe01011300000000
-# DONE Force first PC thru recovery PC logic
-# 
-# 
-# 
-# -| Cycle:    0 |--------------------------------------------
-# 
-# *****| AT   125ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110001
-# IFIFO_enq_data.instr: 0xfe010113
-# IFIFO_enq_data.pc: 0x0001018c
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x00010190
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 0
-# deq_data 00000000
-#  
-# *****| AT   130ns POSEDGE |*****
-#    130 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110010 dout0=000000000000000000f0049302010413
-#    130 Reading ifu_tb.dut.icache.tag_arr addr0=110010 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-# LATCHED SRAM ADDR 0x00010194 at time    131
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:    1 |--------------------------------------------
-# 
-# *****| AT   135ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110010
-# IFIFO_enq_data.instr: 0x02010413
-# IFIFO_enq_data.pc: 0x00010190
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x00010194
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 3f804044c0004063000010190
-#  
-# *****| AT   140ns POSEDGE |*****
-#    140 Reading ifu_tb.dut.icache.tag_arr addr0=110010 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-#    140 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110010 dout0=000000000000000000f0049302010413
-# LATCHED SRAM ADDR 0x00010198 at time    141
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:    2 |--------------------------------------------
-# 
-# *****| AT   145ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110010
-# IFIFO_enq_data.instr: 0x00f00493
-# IFIFO_enq_data.pc: 0x00010194
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x00010198
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 804104c0004064000010194
-#  
-# *****| AT   150ns POSEDGE |*****
-#    150 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110011 dout0=0000000000000000ffc4849301348493
-#    150 Reading ifu_tb.dut.icache.tag_arr addr0=110011 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-# LATCHED SRAM ADDR 0x0001019c at time    151
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:    3 |--------------------------------------------
-# 
-# *****| AT   155ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110011
-# IFIFO_enq_data.instr: 0x01348493
-# IFIFO_enq_data.pc: 0x00010198
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x0001019c
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 3c0124c0004065000010198
-#  
-# *****| AT   160ns POSEDGE |*****
-#    160 Reading ifu_tb.dut.icache.tag_arr addr0=110011 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-#    160 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110011 dout0=0000000000000000ffc4849301348493
-# LATCHED SRAM ADDR 0x000101a0 at time    161
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:    4 |--------------------------------------------
-# 
-# *****| AT   165ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110011
-# IFIFO_enq_data.instr: 0xffc48493
-# IFIFO_enq_data.pc: 0x0001019c
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000101a0
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 4d2124c000406600001019c
-#  
-# *****| AT   170ns POSEDGE |*****
-#    170 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110100 dout0=0000000000000000800007b700048713
-#    170 Reading ifu_tb.dut.icache.tag_arr addr0=110100 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-# LATCHED SRAM ADDR 0x000101a4 at time    171
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:    5 |--------------------------------------------
-# 
-# *****| AT   175ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110100
-# IFIFO_enq_data.instr: 0x00048713
-# IFIFO_enq_data.pc: 0x000101a0
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000101a4
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 3ff12124c00040670000101a0
-#  
-# *****| AT   180ns POSEDGE |*****
-#    180 Reading ifu_tb.dut.icache.tag_arr addr0=110100 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-#    180 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110100 dout0=0000000000000000800007b700048713
-# LATCHED SRAM ADDR 0x000101a8 at time    181
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:    6 |--------------------------------------------
-# 
-# *****| AT   185ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110100
-# IFIFO_enq_data.instr: 0x800007b7
-# IFIFO_enq_data.pc: 0x000101a4
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000101a8
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 121c4c00040680000101a4
-#  
-# *****| AT   190ns POSEDGE |*****
-#    190 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110101 dout0=00000000000000000007849300f747b3
-#    190 Reading ifu_tb.dut.icache.tag_arr addr0=110101 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-# LATCHED SRAM ADDR 0x000101ac at time    191
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:    7 |--------------------------------------------
-# 
-# *****| AT   195ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110101
-# IFIFO_enq_data.instr: 0x00f747b3
-# IFIFO_enq_data.pc: 0x000101a8
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000101ac
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 200001edc00040690000101a8
-#  
-# *****| AT   200ns POSEDGE |*****
-#    200 Reading ifu_tb.dut.icache.tag_arr addr0=110101 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-#    200 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110101 dout0=00000000000000000007849300f747b3
-# LATCHED SRAM ADDR 0x000101b0 at time    201
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:    8 |--------------------------------------------
-# 
-# *****| AT   205ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110101
-# IFIFO_enq_data.instr: 0x00078493
-# IFIFO_enq_data.pc: 0x000101ac
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000101b0
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 3dd1ecc000406a0000101ac
-#  
-# *****| AT   210ns POSEDGE |*****
-#    210 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110110 dout0=0000000000000000fff78793800007b7
-#    210 Reading ifu_tb.dut.icache.tag_arr addr0=110110 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-# LATCHED SRAM ADDR 0x000101b4 at time    211
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:    9 |--------------------------------------------
-# 
-# *****| AT   215ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110110
-# IFIFO_enq_data.instr: 0x800007b7
-# IFIFO_enq_data.pc: 0x000101b0
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000101b4
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 1e124c000406b0000101b0
-#  
-# *****| AT   220ns POSEDGE |*****
-#    220 Reading ifu_tb.dut.icache.tag_arr addr0=110110 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-#    220 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110110 dout0=0000000000000000fff78793800007b7
-# LATCHED SRAM ADDR 0x000101b8 at time    221
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:   10 |--------------------------------------------
-# 
-# *****| AT   225ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110110
-# IFIFO_enq_data.instr: 0xfff78793
-# IFIFO_enq_data.pc: 0x000101b4
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000101b8
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 200001edc000406c0000101b4
-#  
-# *****| AT   230ns POSEDGE |*****
-#    230 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110111 dout0=00000000000000000004879300f4f4b3
-#    230 Reading ifu_tb.dut.icache.tag_arr addr0=110111 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-# LATCHED SRAM ADDR 0x000101bc at time    231
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:   11 |--------------------------------------------
-# 
-# *****| AT   235ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110111
-# IFIFO_enq_data.instr: 0x00f4f4b3
-# IFIFO_enq_data.pc: 0x000101b8
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000101bc
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 3ffde1e4c000406d0000101b8
-#  
-# *****| AT   240ns POSEDGE |*****
-#    240 Reading ifu_tb.dut.icache.tag_arr addr0=110111 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-#    240 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=110111 dout0=00000000000000000004879300f4f4b3
-# LATCHED SRAM ADDR 0x000101c0 at time    241
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:   12 |--------------------------------------------
-# 
-# *****| AT   245ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 110111
-# IFIFO_enq_data.instr: 0x00048793
-# IFIFO_enq_data.pc: 0x000101bc
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000101c0
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 3d3d2cc000406e0000101bc
-#  
-# *****| AT   250ns POSEDGE |*****
-#    250 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=111000 dout0=00000000000000000201011300078513
-#    250 Reading ifu_tb.dut.icache.tag_arr addr0=111000 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-# LATCHED SRAM ADDR 0x000101c4 at time    251
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:   13 |--------------------------------------------
-# 
-# *****| AT   255ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 111000
-# IFIFO_enq_data.instr: 0x00078513
-# IFIFO_enq_data.pc: 0x000101c0
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000101c4
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 121e4c000406f0000101c0
-#  
-# *****| AT   260ns POSEDGE |*****
-#    260 Reading ifu_tb.dut.icache.tag_arr addr0=111000 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-#    260 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=111000 dout0=00000000000000000201011300078513
-# LATCHED SRAM ADDR 0x000101c8 at time    261
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:   14 |--------------------------------------------
-# 
-# *****| AT   265ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 111000
-# IFIFO_enq_data.instr: 0x02010113
-# IFIFO_enq_data.pc: 0x000101c4
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000101c8
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 1e144c00040700000101c4
-#  
-# *****| AT   270ns POSEDGE |*****
-#    270 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=111001 dout0=00000000000000000000000000008067
-#    270 Reading ifu_tb.dut.icache.tag_arr addr0=111001 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-# LATCHED SRAM ADDR 0x000101cc at time    271
-# recovery_PC_valid 0, stall_gate.ZN 0
-# IFIFO STALL 0 ICACHE MISS 0
-# 
-# -| Cycle:   15 |--------------------------------------------
-# 
-# *****| AT   275ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 111001
-# IFIFO_enq_data.instr: 0x00008067
-# IFIFO_enq_data.pc: 0x000101c8
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000181c9
-#  
-# enq_ready 1
-# enq_valid 1
-# deq_ready 1
-# deq_valid 1
-# deq_data 804044c00040710000101c8
-#  
-# *****| AT   280ns POSEDGE |*****
-#    280 Reading ifu_tb.dut.icache.tag_arr addr0=111001 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-#    280 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=111001 dout0=00000000000000000000000000008067
-# LATCHED SRAM ADDR 0x000181c9 at time    281
-# recovery_PC_valid 0, stall_gate.ZN 1
-# IFIFO STALL 0 ICACHE MISS 1
-# 
-# -| Cycle:   16 |--------------------------------------------
-# 
-# *****| AT   285ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 111001
-# IFIFO_enq_data.instr: 0x00000000
-# IFIFO_enq_data.pc: 0x000181c9
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000181cd
-#  
-# enq_ready 1
-# enq_valid 0
-# deq_ready 1
-# deq_valid 1
-# deq_data 2019c00040720000181c9
-#  
-# *****| AT   290ns POSEDGE |*****
-#    290 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=111001 dout0=00000000000000000000000000008067
-#    290 Reading ifu_tb.dut.icache.tag_arr addr0=111001 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-# LATCHED SRAM ADDR 0x000181c9 at time    291
-# recovery_PC_valid 0, stall_gate.ZN 1
-# IFIFO STALL 0 ICACHE MISS 1
-# 
-# -| Cycle:   17 |--------------------------------------------
-# 
-# *****| AT   295ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 111001
-# IFIFO_enq_data.instr: 0x00000000
-# IFIFO_enq_data.pc: 0x000181c9
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000181cd
-#  
-# enq_ready 1
-# enq_valid 0
-# deq_ready 1
-# deq_valid 0
-# deq_data 1e124c000406b0000101b0
-#  
-# *****| AT   300ns POSEDGE |*****
-#    300 Reading ifu_tb.dut.icache.tag_arr addr0=111001 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-#    300 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=111001 dout0=00000000000000000000000000008067
-# LATCHED SRAM ADDR 0x000181c9 at time    301
-# recovery_PC_valid 0, stall_gate.ZN 1
-# IFIFO STALL 0 ICACHE MISS 1
-# 
-# -| Cycle:   18 |--------------------------------------------
-# 
-# *****| AT   305ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 111001
-# IFIFO_enq_data.instr: 0x00000000
-# IFIFO_enq_data.pc: 0x000181c9
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000181cd
-#  
-# enq_ready 1
-# enq_valid 0
-# deq_ready 1
-# deq_valid 0
-# deq_data 1e124c000406b0000101b0
-#  
-# *****| AT   310ns POSEDGE |*****
-#    310 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=111001 dout0=00000000000000000000000000008067
-#    310 Reading ifu_tb.dut.icache.tag_arr addr0=111001 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-# LATCHED SRAM ADDR 0x000181c9 at time    311
-# recovery_PC_valid 0, stall_gate.ZN 1
-# IFIFO STALL 0 ICACHE MISS 1
-# 
-# -| Cycle:   19 |--------------------------------------------
-# 
-# *****| AT   315ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 111001
-# IFIFO_enq_data.instr: 0x00000000
-# IFIFO_enq_data.pc: 0x000181c9
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000181cd
-#  
-# enq_ready 1
-# enq_valid 0
-# deq_ready 1
-# deq_valid 0
-# deq_data 1e124c000406b0000101b0
-#  
-# *****| AT   320ns POSEDGE |*****
-#    320 Reading ifu_tb.dut.icache.tag_arr addr0=111001 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-#    320 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=111001 dout0=00000000000000000000000000008067
-# LATCHED SRAM ADDR 0x000181c9 at time    321
-# recovery_PC_valid 0, stall_gate.ZN 1
-# IFIFO STALL 0 ICACHE MISS 1
-# 
-# -| Cycle:   20 |--------------------------------------------
-# 
-# *****| AT   325ns NEGEDGE |*****
-# FIFO ENTRY FOR THIS INSTRUCTION:
-# Set accessed: 111001
-# IFIFO_enq_data.instr: 0x00000000
-# IFIFO_enq_data.pc: 0x000181c9
-# IFIFO_enq_data.is_cond_br: 0
-# IFIFO_enq_data.br_dir_pred: 0
-# IFIFO_enq_data.br_target_pred: 0x000181cd
-#  
-# enq_ready 1
-# enq_valid 0
-# deq_ready 1
-# deq_valid 0
-# deq_data 1e124c000406b0000101b0
-#  
-# *****| AT   330ns POSEDGE |*****
-#    330 Reading ifu_tb.dut.icache.icache.i_cache_data_arr addr0=111001 dout0=00000000000000000000000000008067
-#    330 Reading ifu_tb.dut.icache.tag_arr addr0=111001 dout0: way1_v:0, way1_tag:00000000000000000000000, way0_v:1, way0_tag:00000000000000010000000
-# LATCHED SRAM ADDR 0x000181c9 at time    331
-# recovery_PC_valid 0, stall_gate.ZN 1
-# IFIFO STALL 0 ICACHE MISS 1
-# DONE reading instructions from icache:
-# 
-# 
-# SOME DIRECTED TESTS FAILED: 0/16 passed
-# ** Note: $finish    : ./testing/frontend/fetch/ifu_tb.v(207)
-#    Time: 331 ns  Iteration: 0  Instance: /ifu_tb
-# End time: 23:26:13 on Apr 11,2024, Elapsed time: 0:00:03
-# Errors: 0, Warnings: 36
+# ** Error: ./testing/frontend/fetch/ifu_tb.sv(54): Invalid type 'ififo_entry_t'. Please check the type of the variable 'ifu_out'.
+# ** Error: (vopt-13069) ./testing/frontend/fetch/ifu_tb.sv(54): near "[": syntax error, unexpected '[', expecting function or task.
+# ** Error: ./testing/frontend/fetch/ifu_tb.sv(66): (vopt-2730) Undefined variable: 'test_programs'.
+# ** Error: ./testing/frontend/fetch/ifu_tb.sv(126): (vopt-2730) Undefined variable: 'test_programs'.
+# Optimization failed
+# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=4, Warnings=0.
+# Error loading design
+# End time: 20:09:29 on Apr 16,2024, Elapsed time: 0:00:00
+# Errors: 4, Warnings: 0

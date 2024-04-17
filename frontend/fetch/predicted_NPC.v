@@ -15,37 +15,19 @@ module predicted_NPC (
 );
 
 // ::: JAL adder ::::::::::::::::::::::::::::::::::::::::::
-wire [`ADDR_WIDTH-1:0] sext_jal_off;
-sign_extend # (
-    .IN_WIDTH(1+8+11+1),
-    .OUT_WIDTH(`ADDR_WIDTH)
-) sext32_1 (
-    .in({instr[31],instr[19:12],instr[30:20],instr[0]}),
-    .out(sext_jal_off)
-);
-
 wire [`ADDR_WIDTH-1:0] jal_add_out;
 adder #(.WIDTH(32)) jal_adder (
     .a(PC),
-    .b(sext_jal_off),
+    .b(`J_IMM(instr)),
     .sum(jal_add_out)
 );
 // END JAL adder ::::::::::::::::::::::::::::::::::::::::::
 
 // ::: B-TYPE adder ::::::::::::::::::::::::::::::::::::::::::
-wire [`ADDR_WIDTH-1:0] sext32_btype_off;
-sign_extend # (
-    .IN_WIDTH(1+6+4+1),
-    .OUT_WIDTH(`ADDR_WIDTH)
-) sext32_2 (
-    .in({instr[31],instr[30:25],instr[11:8],instr[0]}),
-    .out(sext32_btype_off)
-);
-
 wire [`ADDR_WIDTH-1:0] btype_add_out;
 adder #(.WIDTH(32)) btype_adder (
     .a(PC),
-    .b(sext32_btype_off),
+    .b(`B_IMM(instr)),
     .sum(btype_add_out)
 );
 // END B-TYPE adder ::::::::::::::::::::::::::::::::::::::::::
@@ -65,7 +47,7 @@ wire is_unconditional_jal;
 // 01 - jalr (uncond) 
 // 11 - jal  (uncond)
 // if its a branch, instr[2] will be 1 if unconditional
-OR2_X1 is_uncond_jal_AND (
+AND2_X1 is_uncond_jal_AND (
     .A1(instr[2]),
     .A2(instr[3]),
     .ZN(is_unconditional_jal)
@@ -78,12 +60,24 @@ AND2_X1 is_br_AND (
     .ZN(is_br)
 );
 
-INV_X1 uncond_to_cond (
-    .A(is_unconditional_jal)
+wire is_uncond_br;
+AND2_X1 is_uncond_br_AND (
+    .A1(is_br),
+    .A2(instr[2]),   // 3 = 1 if its a jal/jalr
+    .ZN(is_uncond_br)
 );
 
+wire is_conditional; // both ir[2] and ir[3] must be 0 for conditional
+OR2_X1 is_conditional_OR (
+    .A1(instr[2]),
+    .A2(instr[3])
+);
+INV_X1 is_conditional_INV (
+    .A(is_conditional_OR.ZN),
+    .ZN(is_conditional)
+);
 AND2_X1 is_cond_branch_AND (
-    .A1(uncond_to_cond.ZN),
+    .A1(is_conditional),
     .A2(is_br)
 );
 
@@ -98,7 +92,7 @@ mux_ #(
 ) uncond_br_type (
     .ins({
         (jal_add_out),    // jal add if jal
-        (PCplus4_add_out) // just mispredict with PC+4 if jalr
+        (PCplus4_add_out) // just mispredict target with PC+4 if jalr
     }),
     .sel(is_unconditional_jal)
 );
@@ -137,7 +131,7 @@ AND2_X1 is_backwards_branch_AND (
 
 OR2_X1 br_prediction_AND (
     .A1(is_backwards_branch_AND.ZN),
-    .A2(is_cond_branch_AND.ZN),
+    .A2(is_uncond_br),
     .ZN(br_prediction)
 );
 

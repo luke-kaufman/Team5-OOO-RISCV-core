@@ -27,11 +27,11 @@ module decode (
     wire addr_t br_target_pred;
     assign {instr, pc, is_cond_br, br_dir_pred, br_target_pred} = ififo_dispatch_data;
 
-    wire imm_t i_imm = {                  {21{instr[31]}}                , instr[30:25], instr[24:21], instr[20] } ;
-    wire imm_t s_imm = {                  {21{instr[31]}}                , instr[30:25], instr[11:8] , instr[7]  } ;
-    wire imm_t b_imm = {            {20{instr[31]}}           , instr[7] , instr[30:25], instr[11:8] ,   1'b0    } ;
-    wire imm_t u_imm = { instr[31], instr[30:20], instr[19:12],                    12'b0                         } ;
-    wire imm_t j_imm = {     {12{instr[31]}}    , instr[19:12], instr[20], instr[30:25], instr[24:21],   1'b0    } ;
+    wire imm_t i_imm = `I_IMM(instr);
+    wire imm_t s_imm = `S_IMM(instr);
+    wire imm_t b_imm = `B_IMM(instr);
+    wire imm_t u_imm = `U_IMM(instr);
+    wire imm_t j_imm = `J_IMM(instr);
 
     assign src1_valid = is_r_type || is_i_type || is_s_type || is_b_type ;
     assign src2_valid = is_r_type || is_s_type || is_b_type              ;
