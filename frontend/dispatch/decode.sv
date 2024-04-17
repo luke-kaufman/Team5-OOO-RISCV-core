@@ -17,7 +17,8 @@ module decode (
     output logic is_sra_srai, // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
     output logic is_lui, // if is_u_type, 0 = auipc, 1 = lui
     output logic is_jalr, // if is_i_type, 0 = else, 1 = jalr
-    output logic br_dir_pred // (0: not taken, 1: taken) (get this from fetch)
+    output logic is_int_instr,
+    output logic is_ls_instr
 );
     // FIXME: convert to structural
     wire instr_t instr;
@@ -49,8 +50,9 @@ module decode (
 
     assign is_r_type =  instr.opcode == `OP_OPCODE;
     assign is_i_type =  instr.opcode == `OP_IMM_OPCODE;
-    assign is_u_type = (instr.opcode == `LUI_OPCODE) || (instr.opcode == `AUIPC_OPCODE);
+    assign is_s_type =  instr.opcode == `ST_OPCODE;
     assign is_b_type =  instr.opcode == `BR_OPCODE;
+    assign is_u_type = (instr.opcode == `LUI_OPCODE) || (instr.opcode == `AUIPC_OPCODE);
     assign is_j_type =  instr.opcode == `JAL_OPCODE;
 
     assign is_sub = (instr.opcode == `OP_OPCODE) && (instr.funct3 == `SUB_FUNCT3) && (instr.funct7[5]);
@@ -58,4 +60,7 @@ module decode (
                          ((instr.opcode == `OP_IMM_OPCODE) && (instr.funct3 == `SRAI_FUNCT3) && (instr.funct7[5]));
     assign is_lui = instr.opcode == `LUI_OPCODE
     assign is_jalr = instr.opcode == `JALR_OPCODE
+
+    assign is_ls_instr = (instr.opcode == `LD_OPCODE)  || (instr.opcode == `ST_OPCODE);
+    assign is_int_instr = ~is_ls_instr;
 endmodule

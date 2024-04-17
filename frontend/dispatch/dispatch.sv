@@ -38,10 +38,6 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire ld_mispred
 );
     // decode signals
-    wire is_int_instr; // is integer instruction?
-    wire is_ls_instr; // is load-store instruction?
-    // NOTE: is_int_instr and is_ls_instr should be mutually exclusive
-
     wire rs1_valid;
     wire rs2_valid;
     wire rd_valid;
@@ -61,7 +57,9 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire is_sra_srai; // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
     wire is_lui; // if is_u_type, 0 = auipc, 1 = lui
     wire is_jalr; // if is_i_type, 0 = else, 1 = jalr
-    wire br_dir_pred; // (0: not taken, 1: taken) (get this from fetch)
+    wire is_int_instr; // is integer instruction?
+    wire is_ls_instr; // is load-store instruction?
+    // NOTE: is_int_instr and is_ls_instr should be mutually exclusive
 
     decode _decode (
         .ififo_dispatch_data(ififo_dispatch_data),
@@ -81,7 +79,8 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .is_sra_srai(is_sra_srai), // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
         .is_lui(is_lui), // if is_u_type, 0 = auipc, 1 = lui
         .is_jalr(is_jalr), // if is_i_type, 0 = else, 1 = jalr
-        .br_dir_pred(br_dir_pred) // (0: not taken, 1: taken) (get this from fetch)
+        .is_int_instr(is_int_instr),
+        .is_ls_instr(is_ls_instr)
     );
 
     // triple dispatch handshake (IFIFO vs. ROB, IIQ, LSQ)
