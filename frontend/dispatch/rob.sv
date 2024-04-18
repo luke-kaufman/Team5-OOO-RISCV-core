@@ -64,7 +64,7 @@ module rob (
 
     assign dispatch_entry_data.dst_valid = dispatch_data.dst_valid;
     assign dispatch_entry_data.dst_arf_id = dispatch_data.dst_arf_id;
-    assign dispatch_entry_data.pc = dispatch_data.pc;
+    assign dispatch_entry_data.pc_npc = dispatch_data.pc;
     assign dispatch_entry_data.ld_mispred = 1'b0;
     assign dispatch_entry_data.br_mispred = 1'b0;
     assign dispatch_entry_data.reg_ready = 1'b0;
@@ -78,7 +78,7 @@ module rob (
     for (genvar i = 0; i < `ROB_N_ENTRIES; i++) begin
         assign entry_wr_data_int_wakeup[i].dst_valid = rob_state[i].dst_valid;
         assign entry_wr_data_int_wakeup[i].dst_arf_id = rob_state[i].dst_arf_id;
-        assign entry_wr_data_int_wakeup[i].pc = rob_state[i].pc;
+        assign entry_wr_data_int_wakeup[i].pc_npc = rob_state[i].pc_npc;
         assign entry_wr_data_int_wakeup[i].ld_mispred = rob_state[i].ld_mispred;
         assign entry_wr_data_int_wakeup[i].br_mispred = rob_state[i].br_mispred;
         assign entry_wr_data_int_wakeup[i].reg_ready = 1'b1;
@@ -86,7 +86,7 @@ module rob (
 
         assign entry_wr_data_alu_wb[i].dst_valid = rob_state[i].dst_valid;
         assign entry_wr_data_alu_wb[i].dst_arf_id = rob_state[i].dst_arf_id;
-        assign entry_wr_data_alu_wb[i].pc = rob_state[i].pc;
+        assign entry_wr_data_alu_wb[i].pc_npc = rob_state[i].pc_npc;
         assign entry_wr_data_alu_wb[i].ld_mispred = rob_state[i].ld_mispred;
         assign entry_wr_data_alu_wb[i].br_mispred = alu_wb_br_mispred;
         assign entry_wr_data_alu_wb[i].reg_ready = rob_state[i].reg_ready; // NOTE: should already be 1'b1
@@ -94,7 +94,7 @@ module rob (
 
         assign entry_wr_data_lsu_wb[i].dst_valid = rob_state[i].dst_valid;
         assign entry_wr_data_lsu_wb[i].dst_arf_id = rob_state[i].dst_arf_id;
-        assign entry_wr_data_lsu_wb[i].pc = rob_state[i].pc;
+        assign entry_wr_data_lsu_wb[i].pc_npc = rob_state[i].pc_npc;
         assign entry_wr_data_lsu_wb[i].ld_mispred = ld_wb_ld_mispred;
         assign entry_wr_data_lsu_wb[i].br_mispred = rob_state[i].br_mispred;
         assign entry_wr_data_lsu_wb[i].reg_ready = 1'b1; // TODO: verify that ld wb and wakeup always happen in the same cycle
@@ -129,7 +129,7 @@ module rob (
 
         .wr_en({alu_wb_valid, ld_wb_valid, iiq_wakeup_valid}),
         .wr_addr({alu_wb_rob_id, ld_wb_rob_id, iiq_wakeup_rob_id}),
-        .wr_data(entry_write_data),
+        .wr_data(entry_wr_data),
 
         .entry_douts(rob_state)
     );

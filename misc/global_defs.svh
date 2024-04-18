@@ -46,6 +46,8 @@ typedef logic [`WORD_WIDTH-1:0] word_t;
 typedef logic [`REG_DATA_WIDTH-1:0] reg_data_t;
 typedef logic [`ARF_ID_WIDTH-1:0] arf_id_t;
 typedef logic [`ROB_ID_WIDTH-1:0] rob_id_t;
+// TODO: iiq_id and lsq_id? where would they be used?
+typedef logic [`ST_BUF_ID_WIDTH-1:0] st_buf_id_t;
 
 `define I_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[24:21], instr[20] })
 `define S_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[11:8] , instr[7]  })
@@ -115,7 +117,7 @@ typedef struct packed {
     logic is_lui; // if is_u_type, 0 = auipc, 1 = lui
     logic is_jalr; // if is_i_type, 0 = else, 1 = jalr
     logic br_dir_pred; // (0: not taken, 1: taken) (get this from fetch)
-    // addr_t br_target_pred; // FIXME (do we need this right now?) is this the same thing as jalr target pc? (get this from fetch?)
+    addr_t br_target_pred; // FIXME (do we need this right now?) is this the same thing as jalr target pc? (get this from fetch?)
 } iiq_entry_t;
 `define IIQ_ENTRY_WIDTH $bits(iiq_entry_t)
 
@@ -131,7 +133,7 @@ typedef struct packed {
     rob_id_t instr_rob_id;
     logic [1:0] width; // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
     logic ld_sign; // 0: unsigned (LBU, LHU), 1: signed (LB, LH, LW)
-    logic [`ST_BUF_ID_WIDTH-1:0] st_buf_id; // FIXME? (which of ld_buf and st_buf are allocated during dispatch?)
+    logic [`ST_BUF_ID_WIDTH-1:0] st_buf_id; // (only st_buf is allocated during dispatch, not ld_buf)
 } lsq_entry_t;
 `define LSQ_ENTRY_WIDTH $bits(lsq_entry_t)
 
@@ -161,14 +163,15 @@ typedef struct packed {
     logic is_dcache_initiated; // FIXME the name TODO plan how to use it
     rob_id_t instr_rob_id;
     reg_data_t ld_data; // NOTE: already (sign/zero) extended for the destination register
-} ldb_entry_t;
-`define LDB_ENTRY_WIDTH $bits()
+} ld_buf_entry_t;
+`define LD_BUF_ENTRY_WIDTH $bits(ld_buf_entry_t)
 
 typedef struct packed {
     addr_t eff_addr;
     reg_data_t st_data;
     logic [2:0] st_width;
-} stb_entry_t;
+} st_buf_entry_t;
+`define ST_BUF_ENTRY_WIDTH $bits(st_buf_entry_t)
 
 typedef enum {POSEDGE, NEGEDGE} edge_t;
 
@@ -219,57 +222,67 @@ typedef enum {POSEDGE, NEGEDGE} edge_t;
 `define AND_FUNCT3 3'b111
 `define ANDI_FUNCT3 3'b111
 
-typedef struct packed {
-    logic [6:0] funct7;
-    logic [4:0] rs2;
-    logic [4:0] rs1;
-    logic [2:0] funct3;
-    logic [4:0] rd;
-    logic [6:0] opcode;
-} r_type_instr_t;
+`define opcode_bits 6:0
+`define rd_bits 11:7
+`define funct3_bits 14:12
+`define rs1_bits 19:15
+`define rs2_bits 24:20
+`define funct7_bits 31:25
+typedef logic [6:0] opcode_t;
+typedef logic [2:0] funct3_t;
+typedef logic [6:0] funct7_t;
 
-typedef struct packed {
-    logic [11:0] imm;
-    logic [4:0] rs1;
-    logic [2:0] funct3;
-    logic [4:0] rd;
-    logic [6:0] opcode;
-} i_type_instr_t;
+// typedef struct packed {
+//     logic [6:0] funct7;
+//     logic [4:0] rs2;
+//     logic [4:0] rs1;
+//     logic [2:0] funct3;
+//     logic [4:0] rd;
+//     logic [6:0] opcode;
+// } r_type_instr_t;
 
-typedef struct packed {
-    logic [11:5] imm11_5;
-    logic [4:0] rs2;
-    logic [4:0] rs1;
-    logic [2:0] funct3;
-    logic [4:0] imm4_0;
-    logic [6:0] opcode;
-} s_type_instr_t;
+// typedef struct packed {
+//     logic [11:0] imm;
+//     logic [4:0] rs1;
+//     logic [2:0] funct3;
+//     logic [4:0] rd;
+//     logic [6:0] opcode;
+// } i_type_instr_t;
 
-typedef struct packed {
-    logic imm12;
-    logic [10:5] imm10_5;
-    logic [4:0] rs2;
-    logic [4:0] rs1;
-    logic [2:0] funct3;
-    logic [4:0] imm4_1;
-    logic imm11;
-    logic [6:0] opcode;
-} b_type_instr_t;
+// typedef struct packed {
+//     logic [11:5] imm11_5;
+//     logic [4:0] rs2;
+//     logic [4:0] rs1;
+//     logic [2:0] funct3;
+//     logic [4:0] imm4_0;
+//     logic [6:0] opcode;
+// } s_type_instr_t;
 
-typedef struct packed {
-    logic [31:12] imm31_12;
-    logic [4:0] rd;
-    logic [6:0] opcode;
-} u_type_instr_t;
+// typedef struct packed {
+//     logic imm12;
+//     logic [10:5] imm10_5;
+//     logic [4:0] rs2;
+//     logic [4:0] rs1;
+//     logic [2:0] funct3;
+//     logic [4:1] imm4_1;
+//     logic imm11;
+//     logic [6:0] opcode;
+// } b_type_instr_t;
 
-typedef struct packed {
-    logic imm20;
-    logic [10:1] imm10_1;
-    logic imm11;
-    logic [19:12] imm19_12;
-    logic [4:0] rd;
-    logic [6:0] opcode;
-} j_type_instr_t;
+// typedef struct packed {
+//     logic [31:12] imm31_12;
+//     logic [4:0] rd;
+//     logic [6:0] opcode;
+// } u_type_instr_t;
+
+// typedef struct packed {
+//     logic imm20;
+//     logic [10:1] imm10_1;
+//     logic imm11;
+//     logic [19:12] imm19_12;
+//     logic [4:0] rd;
+//     logic [6:0] opcode;
+// } j_type_instr_t;
 
 virtual class rng #(parameter WIDTH);
     static function void rng(output [WIDTH-1:0] data);

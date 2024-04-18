@@ -26,6 +26,11 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire lsq_dispatch_ready,
     output wire lsq_dispatch_valid,
     output wire lsq_entry_t lsq_dispatch_data,
+    // INTERFACE TO STORE BUFFER (ST_BUF)
+    input wire st_buf_dispatch_ready,
+    output wire st_buf_dispatch_valid,
+    output wire st_buf_entry_t st_buf_dispatch_data,
+    input wire st_buf_id_t st_buf_dispatch_id,
     // INTERFACE TO ARITHMETIC-LOGIC UNIT (ALU)
     input wire alu_broadcast_valid,
     input wire rob_id_t alu_broadcast_rob_id,
@@ -37,6 +42,13 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire reg_data_t ld_broadcast_reg_data,
     input wire ld_mispred
 );
+    // ififo_dispatch_data fields
+    wire instr_t instr         = ififo_dispatch_data.instr;
+    wire addr_t pc             = ififo_dispatch_data.pc;
+    wire is_cond_br            = ififo_dispatch_data.is_cond_br;
+    wire br_dir_pred           = ififo_dispatch_data.br_dir_pred;
+    wire addr_t br_target_pred = ififo_dispatch_data.br_target_pred;
+
     // decode signals
     wire rs1_valid;
     wire rs2_valid;
@@ -44,9 +56,8 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire arf_id_t rs1;
     wire arf_id_t rs2;
     wire arf_id_t rd;
+    wire funct3_t funct3; // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
     wire imm_t imm;
-    wire addr_t pc;
-    wire [2:0] funct3; // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
     wire is_r_type;
     wire is_i_type;
     wire is_s_type;
@@ -59,16 +70,20 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire is_jalr; // if is_i_type, 0 = else, 1 = jalr
     wire is_int_instr; // is integer instruction?
     wire is_ls_instr; // is load-store instruction?
+    wire [1:0] ls_width;
+    wire ld_sign;
     // NOTE: is_int_instr and is_ls_instr should be mutually exclusive
 
     decode _decode (
-        .ififo_dispatch_data(ififo_dispatch_data),
-        .src1_valid(rs1_valid), // valid stands for "exists"
-        .src2_valid(rs2_valid),
-        .dst_valid(rd_valid),
-        .imm(imm),
-        .pc(pc),
+        .instr(instr),
+        .rs1_valid(rs1_valid), // valid stands for "exists"
+        .rs2_valid(rs2_valid),
+        .rd_valid(rd_valid),
+        .rs1(rs1),
+        .rs2(rs2),
+        .rd(rd),
         .funct3(funct3), // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
+        .imm(imm),
         .is_r_type(is_r_type),
         .is_i_type(is_i_type),
         .is_s_type(is_s_type),
@@ -80,12 +95,15 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .is_lui(is_lui), // if is_u_type, 0 = auipc, 1 = lui
         .is_jalr(is_jalr), // if is_i_type, 0 = else, 1 = jalr
         .is_int_instr(is_int_instr),
-        .is_ls_instr(is_ls_instr)
+        .is_ls_instr(is_ls_instr),
+        .ls_width(ls_width),
+        .ld_sign(ld_sign)
     );
 
-    // triple dispatch handshake (IFIFO vs. ROB, IIQ, LSQ)
+    // quadruple dispatch handshake (IFIFO vs. ROB, IIQ, LSQ, ST_BUF)
     wire iiq_dispatch_ok;
     wire lsq_dispatch_ok;
+    wire st_buf_dispatch_ok;
     or_ #(.N_INS(2)) iiq_dispatch_ok_or (
         .a({iiq_dispatch_ready, is_ls_instr}),
         .y(iiq_dispatch_ok)
@@ -94,14 +112,16 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .a({lsq_dispatch_ready, is_int_instr}),
         .y(lsq_dispatch_ok)
     );
+    assign st_buf_dispatch_ok = ~is_s_type | st_buf_dispatch_ready; // FIXME: convert to structural
     wire rob_dispatch_ready;
     wire dispatch;
-    and_ #(.N_INS(4)) dispatch_and (
+    and_ #(.N_INS(5)) dispatch_and (
         .a({
             ififo_dispatch_valid,
             rob_dispatch_ready,
             iiq_dispatch_ok,
-            lsq_dispatch_ok
+            lsq_dispatch_ok,
+            st_buf_dispatch_ok
         }),
         .y(dispatch)
     );
@@ -175,10 +195,11 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .wr_data(dispatch_rob_id)
     );
 
-    wire rob_dispatch_data_t rob_dispatch_data;
-    assign rob_dispatch_data.dst_valid = rd_valid;
-    assign rob_dispatch_data.dst_arf_id = rd;
-    assign rob_dispatch_data.pc = ififo_dispatch_data.pc;
+    wire rob_dispatch_data_t rob_dispatch_data = '{
+        dst_valid: rd_valid,
+        dst_arf_id: rd,
+        pc: pc
+    };
     wire reg_data_t retire_reg_data;
     wire rob_reg_ready_src1;
     wire reg_data_t rob_reg_data_src1;
@@ -243,42 +264,82 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     assign ififo_dispatch_ready = dispatch;
 
     // INTERFACE TO INTEGER ISSUE QUEUE (IIQ)
-    assign iiq_dispatch_valid = dispatch && is_int_instr; // FIXME: convert to structural
-
-    // TODO: add lsu wakeup & data bypass (simultaneous wakeup and data bypass)
     // FIXME: convert to structural
-    assign iiq_dispatch_data.src1_valid = rs1_valid;
-    assign iiq_dispatch_data.src1_rob_id = rob_id_src1;
-    // issue2dispatch wakeup bypass
-    assign iiq_dispatch_data.src1_ready = (iiq_wakeup_valid && rs1_valid && (iiq_wakeup_rob_id == rob_id_src1)) ?
-                                            1'b1 :
-                                            rob_reg_ready_src1;
-    // execute2dispatch data bypass
-    assign iiq_dispatch_data.src1_data = (alu_broadcast_valid && rs1_valid && (alu_broadcast_rob_id == rob_id_src1)) ?
-                                            alu_broadcast_reg_data :
-                                            (rs1_retired ?
-                                                arf_reg_data_src1 :
-                                                rob_reg_data_src1);
-    assign iiq_dispatch_data.src2_valid = rs2_valid;
-    assign iiq_dispatch_data.src2_rob_id = rob_id_src2;
-    // issue2dispatch wakeup bypass
-    assign iiq_dispatch_data.src2_ready = (iiq_wakeup_valid && rs2_valid && (iiq_wakeup_rob_id == rob_id_src2)) ?
-                                            1'b1 :
-                                            rob_reg_ready_src2;
-    // execute2dispatch data bypass
-    assign iiq_dispatch_data.src2_data = (alu_broadcast_valid && rs2_valid && (alu_broadcast_rob_id == rob_id_src2)) ?
-                                            alu_broadcast_reg_data :
-                                            (rs2_retired ?
-                                                arf_reg_data_src2 :
-                                                rob_reg_data_src2);
-    assign iiq_dispatch_data.dst_valid = rd_valid;
-    assign iiq_dispatch_data.instr_rob_id = dispatch_rob_id;
-    assign iiq_dispatch_data.alu_ctrl = 0; // FIXME
-    assign iiq_dispatch_data.pc = ififo_dispatch_data.pc;
-    assign iiq_dispatch_data.br_dir_pred = 0; // FIXME
-    assign iiq_dispatch_data.br_target_pred = 0; // FIXME
+    assign iiq_dispatch_valid = dispatch && is_int_instr;
+    assign iiq_dispatch_data = '{
+        src1_valid: rs1_valid,
+        src1_rob_id: rob_id_src1,
+        // issue2dispatch wakeup bypass
+        src1_ready: (iiq_wakeup_valid   && rs1_valid && (iiq_wakeup_rob_id   == rob_id_src1))  ? 1'b1 :
+                    (ld_broadcast_valid && rs1_valid && (ld_broadcast_rob_id == rob_id_src1))  ? 1'b1 :
+                                                                                                 rob_reg_ready_src1,
+        // execute2dispatch data bypass
+        src1_data: (alu_broadcast_valid && rs1_valid && (alu_broadcast_rob_id == rob_id_src1)) ? alu_broadcast_reg_data :
+                   (ld_broadcast_valid  && rs1_valid && (ld_broadcast_rob_id  == rob_id_src1)) ? ld_broadcast_reg_data  :
+                                                                                   rs1_retired ? arf_reg_data_src1      :
+                                                                                                 rob_reg_data_src1,
+        src2_valid: rs2_valid,
+        src2_rob_id: rob_id_src2,
+        // issue2dispatch wakeup bypass
+        src2_ready: (iiq_wakeup_valid   && rs2_valid && (iiq_wakeup_rob_id   == rob_id_src2))  ? 1'b1 :
+                    (ld_broadcast_valid && rs2_valid && (ld_broadcast_rob_id == rob_id_src2))  ? 1'b1 :
+                                                                                                 rob_reg_ready_src2,
+        // execute2dispatch data bypass
+        src2_data: (alu_broadcast_valid && rs2_valid && (alu_broadcast_rob_id == rob_id_src2)) ? alu_broadcast_reg_data :
+                   (ld_broadcast_valid  && rs2_valid && (ld_broadcast_rob_id  == rob_id_src2)) ? ld_broadcast_reg_data  :
+                                                                                   rs2_retired ? arf_reg_data_src2      :
+                                                                                                 rob_reg_data_src2,
+        dst_valid: rd_valid,
+        instr_rob_id: dispatch_rob_id,
+        imm: imm,
+        pc: pc,
+        funct3: funct3, // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
+        is_r_type: is_r_type,
+        is_i_type: is_i_type,
+        is_u_type: is_u_type, // lui and auipc only
+        is_b_type: is_b_type,
+        is_j_type: is_j_type, // jal only
+        is_sub: is_sub, // if is_r_type, 0 = add, 1 = sub
+        is_sra_srai: is_sra_srai, // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
+        is_lui: is_lui, // if is_u_type, 0 = auipc, 1 = lui
+        is_jalr: is_jalr, // if is_i_type, 0 = else, 1 = jalr
+        br_dir_pred: br_dir_pred, // (0: not taken, 1: taken) (get this from fetch)
+        br_target_pred: br_target_pred // FIXME (do we need this right now?) is this the same thing as jalr target pc? (get this from fetch?)
+    };
 
     // INTERFACE TO LOAD-STORE QUEUE (LSQ)
-    assign lsq_dispatch_valid = 0; // FIXME
-    assign lsq_dispatch_data = 0; // FIXME
+    assign lsq_dispatch_valid = dispatch & is_ls_instr;
+    assign lsq_dispatch_data = '{
+        ld_st: is_s_type, // 0: ld, 1: st
+        base_addr_rob_id: rob_id_src1,
+        base_addr_ready: (iiq_wakeup_valid    && (iiq_wakeup_rob_id    == rob_id_src1))  ? 1'b1 :
+                         (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src1))  ? 1'b1 :
+                                                                                           rob_reg_ready_src1,
+        base_addr:       (alu_broadcast_valid && (alu_broadcast_rob_id == rob_id_src1))  ? alu_broadcast_reg_data :
+                         (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src1))  ? ld_broadcast_reg_data  :
+                                                                            rs1_retired  ? arf_reg_data_src1      :
+                                                                                           rob_reg_data_src1,
+        imm: imm,
+        st_data_rob_id:   rob_id_src2,
+        st_data_ready:   (iiq_wakeup_valid    && (iiq_wakeup_rob_id    == rob_id_src1))  ? 1'b1 :
+                         (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src1))  ? 1'b1 :
+                                                                                           rob_reg_ready_src1,
+        st_data:         (alu_broadcast_valid && (alu_broadcast_rob_id == rob_id_src2))  ? alu_broadcast_reg_data :
+                         (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src2))  ? ld_broadcast_reg_data  :
+                                                                            rs2_retired  ? arf_reg_data_src2      :
+                                                                                           rob_reg_data_src2,
+        instr_rob_id: dispatch_rob_id,
+        width: ls_width,   // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
+        ld_sign: ld_sign,  // 0: signed (LB, LH, LW), 1: unsigned (LBU, LHU)
+        st_buf_id: st_buf_dispatch_id // (only st_buf is allocated during dispatch, not ld_buf)
+    };
+
+    // INTERFACE TO STORE BUFFE (ST_BUF)
+    assign st_buf_dispatch_valid = dispatch & is_s_type;
+    // st_buf_entry is initialized to zero during dispatch (it is written during load_store_issue)
+    assign st_buf_dispatch_data = '{
+        eff_addr: 0,
+        st_data: 0,
+        st_width: 0
+    };
 endmodule
