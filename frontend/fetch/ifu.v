@@ -13,22 +13,22 @@ module ifu #(
     parameter I$_NUM_SETS = `ICACHE_NUM_SETS,
     parameter I$_NUM_WAYS = `ICACHE_NUM_WAYS
 ) (
+    // from top.sv
     input wire clk,
     input wire rst_aL,
+    input wire csb0_in,
+    // backend interactions
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
     input wire recovery_PC_valid,
     input wire backend_stall,
+    // main memory interactions
     input wire recv_main_mem_valid,
     input wire [`ADDR_WIDTH-1] recv_main_mem_addr,
     input wire [I$_BLOCK_SIZE-1:0] recv_main_mem_data,
-
-    //testing
-    input wire csb0_in,
-
-    // INTERFACE TO RENAME
-    input wire dispatch_ready,
-    output wire instr_valid,
-    output wire [`IFIFO_ENTRY_WIDTH-1:0] instr_to_dispatch
+    // IFU <-> DISPATCH
+    input wire ififo_dispatch_ready,
+    output wire ififo_dispatch_valid,
+    output wire [`IFIFO_ENTRY_WIDTH-1:0] ififo_dispatch_data
 );
 
 // wires
@@ -160,9 +160,9 @@ fifo #(
     .enq_data(IFIFO_enq_data),   // input - data
     .enq_ready(IFIFO_enq_ready), // output - can fifo receive data?
     .enq_valid(icache_hit),      // input - enqueue if icache hit
-    .deq_ready(dispatch_ready),  // input - interface from dispatch
-    .deq_valid(instr_valid),     // output - interface to dispatch
-    .deq_data(instr_to_dispatch) // output - dispatched instr
+    .deq_ready(ififo_dispatch_ready),  // input - interface from dispatch
+    .deq_valid(ififo_dispatch_valid),     // output - interface to dispatch
+    .deq_data(ififo_dispatch_data) // output - dispatched instr
 );
 
 INV_X1 instr_FIFO_stall (

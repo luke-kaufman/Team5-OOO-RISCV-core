@@ -57,72 +57,68 @@ module top_tb #(
     end
     /*input*/ bit clk=1;
     /*input*/ reg rst_aL=1;
-    /*input*/ reg [`ICACHE_DATA_BLOCK_SIZE-1:0] recv_main_mem_data=0;
-    /*input*/ reg recv_main_mem_valid=0;
-    /*input*/ reg recv_main_mem_addr=0;
     /*input*/ bit csb0_in=1;
+
+    // ARF OUT from core
+    wire [ARF_N_ENTRIES-1:0][REG_DATA_WIDTH-1:0] arf_out_data;
+
+    // RESPONSE FROM MAIN MEMORY TO CORE
+    wire                               mem2core_valid;
+    wire                               mem2core_lsu_aL_ifu_aH;
+    wire [`ADDR_WIDTH-1:0]             mem2core_addr;
+    wire [2:0]                         mem2core_data_size;
+    wire [`ICACHE_DATA_BLOCK_SIZE-1:0] mem2core_data;
+    
+    // REQUEST FROM CORE TO MAIN MEMORY
+    wire                   core2mem_valid;
+    wire [`ADDR_WIDTH-1:0] core2mem_addr;
+    wire [2:0]             core2mem_data_size; // {Word, Halfword, Byte}
+    wire [`WORD_WIDTH-1:0] core2mem_data;
 
     // CORE INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     core core_dut (
         .clk(clk), // input wire 
         .rst_aL(rst_aL), // input wire 
-        // Main memory interaction for both LOADS and ICACHE (rd only)
-        .recv_main_mem_valid(recv_main_mem_valid), // input wire 
-        .recv_main_mem_addr(recv_main_mem_addr), // input wire 
-        .recv_main_mem_data(recv_main_mem_data), // input wire 
         .csb0_in(csb0_in), // input wire 
+        // Main memory interaction for both LOADS and ICACHE (rd only)
+        .recv_main_mem_valid(mem2core_valid), // input wire 
+        .recv_main_mem_lsu_aL_ifu_aH(mem2core_lsu_aL_ifu_aH),  // if main mem data is meant for LSU or IFU
+        .recv_main_mem_addr(mem2core_addr), // input wire
+        .recv_size_main_mem(mem2core_data_size), // {Word, Halfword, Byte} 
+        .recv_main_mem_data(mem2core_data), // input wire 
         // Main memory interaction only for STORES (wr only)
-        .send_en_main_mem(), // output wire 
-        .wr_main_mem_addr(), // output wire 
-        .wr_size_main_mem(), // output wire 
-        .wr_main_mem_data() // output wire 
+        .send_en_main_mem(core2mem_valid), // output wire 
+        .send_main_mem_addr(core2mem_addr), // output wire 
+        .send_size_main_mem(core2mem_data_size), // output wire 
+        .send_main_mem_data(core2mem_data) // output wire 
+
+        // ARF OUT to check architectural state
+
     );
     // END CORE INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
     // MEMORY INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    main_mem 
+    main_mem main_mem_dut (
+        .clk(clk), // input wire 
+        .rst_aL(rst_aL), // input wire 
+        // FROM CORE TO MAIN MEM (RECEIVE)
+        .recv_core_valid(core2mem_valid), // input wire 
+        .recv_core_addr(core2mem_addr), // input wire
+        .recv_size_core(core2mem_data_size), // {$block, Word, Halfword, Byte} 
+        .recv_core_data(core2mem_data), // input wire 
+        // FROM MAIN MEM TO CORE (SEND)
+        .send_en_core(mem2core_valid), // output wire 
+        .send_core_lsu_aL_ifu_aH(mem2core_lsu_aL_ifu_aH), // output wire 
+        .send_core_addr(mem2core_addr),  // if main mem data is meant for LSU or IFU
+        .send_size_core(mem2core_data_size), // output wire 
+        .send_core_data(mem2core_data) // output wire 
+    );
     // END MEMORY INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-    // IFU INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-    // END IFU INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-    // DISPTACH INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-        dispatch dispatch_dut (
-            .clk(clk), // input wire 
-            .rst_aL(rst_aL), // input wire 
-            // INTERFACE TO INSRUCTION FIFO (IFIFO)
-            .ififo_dispatch_ready(), // output wire 
-            .ififo_dispatch_valid(), // input wire 
-            .ififo_dispatch_data(), // input wire ififo_entry_t 
-            // INTERFACE TO INTEGER ISSUE QUEUE (IIQ)
-            .iiq_dispatch_ready(), // input wire 
-            .iiq_dispatch_valid(), // output wire 
-            .iiq_dispatch_data(), // output wire iiq_entry_t 
-            // integer wakeup (from IIQ)
-            .iiq_wakeup_valid(), // input wire 
-            .iiq_wakeup_rob_id(), // input wire rob_id_t 
-            // INTERFACE TO LOAD-STORE QUEUE (LSQ)
-            .lsq_dispatch_ready(), // input wire 
-            .lsq_dispatch_valid(), // output wire 
-            .lsq_dispatch_data(), // output wire lsq_entry_t 
-            // INTERFACE TO ARITHMETIC-LOGIC UNIT (ALU)
-            .alu_broadcast_valid(), // input wire 
-            .alu_broadcast_rob_id(), // input wire rob_id_t 
-            .alu_broadcast_reg_data(), // input wire reg_data_t 
-            .alu_br_mispred(), // input wire 
-            // INTERFACE TO LOAD-STORE UNIT (LSU)
-            .ld_broadcast_valid(), // input wire 
-            .ld_broadcast_rob_id(), // input wire rob_id_t 
-            .ld_broadcast_reg_data(), // input wire reg_data_t 
-            .ld_mispred() // input wire 
-        );
-    // END DISPATCH INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
     task build_testcases(int s_i);
         case (s_i)
             0 : begin // TEST SET 1: just instructions
-                dispatch_ready = 1;
+                ififo_dispatch_ready = 1;
                 test_programs[s_i] = new();
                 test_programs[s_i].num_instrs=22;
                 test_programs[s_i].start_PC=32'h1018c;
@@ -182,7 +178,7 @@ module top_tb #(
                 end 
             end
             1 : begin // TEST SET 2: BREAKS BECASUE DYNAM FOR LOOP - Correctly predicted branches 
-                dispatch_ready = 1;
+                ififo_dispatch_ready = 1;
                 test_programs[s_i] = new();
                 test_programs[s_i].num_instrs=27;
                 test_programs[s_i].start_PC=32'h1018c;
@@ -285,9 +281,9 @@ module top_tb #(
         $display();
         $display("FETCH: enq_ready %1b", ifu_dut.IFIFO_enq_ready); // output - can fifo receive data?
         $display("FETCH: enq_valid %1b", ifu_dut.icache_hit);      // input - enqueue if icache hit
-        $display("FETCH: deq_ready %1b", ifu_dut.dispatch_ready);  // input - interface from dispatch
-        $display("FETCH: deq_valid %1b", ifu_dut.instr_valid);     // output - interface to dispatch
-        $display("FETCH: deq_data 0x%8h", ifu_dut.instr_to_dispatch); // output - dispatched instr
+        $display("FETCH: deq_ready %1b", ifu_dut.ififo_dispatch_ready);  // input - interface from dispatch
+        $display("FETCH: deq_valid %1b", ifu_dut.ififo_dispatch_valid);     // output - interface to dispatch
+        $display("FETCH: deq_data 0x%8h", ifu_dut.ififo_dispatch_data); // output - dispatched instr
     endtask
     task fetch_posedge_dump(int cycle);
         $display();
@@ -301,19 +297,19 @@ module top_tb #(
     task check_stage(int stage);
         case(stage)
             IFU_STAGE: begin
-                if(ifu_dut.instr_valid) begin
+                if(ifu_dut.ififo_dispatch_valid) begin
                     num_directed_tests[s_i][IFU_STAGE]++;
-                    if(ifu_dut.instr_valid && ifu_dut.instr_to_dispatch == test_ifu_outs[s_i].ifu_out[curr_PC]) begin
+                    if(ifu_dut.ififo_dispatch_valid && ifu_dut.ififo_dispatch_data == test_ifu_outs[s_i].ifu_out[curr_PC]) begin
                         num_directed_tests_passed[s_i][IFU_STAGE]++;
                     end
                     else begin
                         $display("FETCH: FAILED CASE:");
-                        $display("FETCH: ifu_dut.instr_valid %1b", ifu_dut.instr_valid);
-                        $display("FETCH: ifu_dut.instr_to_dispatch.instr 0x%8h EXPECTED: 0x%8h", ifu_dut.instr_to_dispatch[97:66], test_ifu_outs[s_i].ifu_out[curr_PC][97:66]);
-                        $display("FETCH: ifu_dut.instr_to_dispatch.pc 0x%8h EXPECTED: 0x%8h", ifu_dut.instr_to_dispatch[65:34], test_ifu_outs[s_i].ifu_out[curr_PC][65:34]);
-                        $display("FETCH: ifu_dut.instr_to_dispatch.is_cond_br %1b EXPECTED: %1b", ifu_dut.instr_to_dispatch[33], test_ifu_outs[s_i].ifu_out[curr_PC][33]);
-                        $display("FETCH: ifu_dut.instr_to_dispatch.br_dir_pred %1b EXPECTED: %1b", ifu_dut.instr_to_dispatch[32], test_ifu_outs[s_i].ifu_out[curr_PC][32]);
-                        $display("FETCH: ifu_dut.instr_to_dispatch.br_target_pred 0x%8h EXPECTED: 0x%8h", ifu_dut.instr_to_dispatch[31:0], test_ifu_outs[s_i].ifu_out[curr_PC][31:0]);       
+                        $display("FETCH: ifu_dut.ififo_dispatch_valid %1b", ifu_dut.ififo_dispatch_valid);
+                        $display("FETCH: ifu_dut.ififo_dispatch_data.instr 0x%8h EXPECTED: 0x%8h", ifu_dut.ififo_dispatch_data[97:66], test_ifu_outs[s_i].ifu_out[curr_PC][97:66]);
+                        $display("FETCH: ifu_dut.ififo_dispatch_data.pc 0x%8h EXPECTED: 0x%8h", ifu_dut.ififo_dispatch_data[65:34], test_ifu_outs[s_i].ifu_out[curr_PC][65:34]);
+                        $display("FETCH: ifu_dut.ififo_dispatch_data.is_cond_br %1b EXPECTED: %1b", ifu_dut.ififo_dispatch_data[33], test_ifu_outs[s_i].ifu_out[curr_PC][33]);
+                        $display("FETCH: ifu_dut.ififo_dispatch_data.br_dir_pred %1b EXPECTED: %1b", ifu_dut.ififo_dispatch_data[32], test_ifu_outs[s_i].ifu_out[curr_PC][32]);
+                        $display("FETCH: ifu_dut.ififo_dispatch_data.br_target_pred 0x%8h EXPECTED: 0x%8h", ifu_dut.ififo_dispatch_data[31:0], test_ifu_outs[s_i].ifu_out[curr_PC][31:0]);       
                     end
                 end
             end
