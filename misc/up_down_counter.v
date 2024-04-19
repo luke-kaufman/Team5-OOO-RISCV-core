@@ -22,12 +22,15 @@ module up_down_counter #(
     // use mux4 to select the correct input to the adder
     output wire [WIDTH-1:0] count,
 
+    input wire flush,
+
     // for testing
     input wire init,
     input wire [WIDTH-1:0] init_state
 );
     wire [WIDTH-1:0] next_count;
     reg_ #(.WIDTH(WIDTH)) ctr (
+        .flush(flush),
         .clk(clk),
         .rst_aL(rst_aL),
         .we(inc ^ dec), // FIXME: change to structural

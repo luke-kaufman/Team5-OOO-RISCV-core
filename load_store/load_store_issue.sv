@@ -16,8 +16,9 @@ module load_store_issue #(
     // load broadcast:
     input wire ld_broadcast_valid,
     input wire rob_id_t ld_broadcast_rob_id,
-    input wire reg_data_t ld_broadcast_reg_data
+    input wire reg_data_t ld_broadcast_reg_data,
 
+    input wire fetch_redirect_valid,
     // for testing
     input wire init // TODO
 );
@@ -87,7 +88,9 @@ module load_store_issue #(
         .wr_data(lsq_entries_wr_data),
 
         .entry_douts(lsq_entries),
-
+        
+        .flush(fetch_redirect_valid),
+        
         .init(),
         .init_entry_reg_state(),
         .init_enq_up_down_counter_state(),
@@ -138,6 +141,8 @@ module load_store_issue #(
 
         .entry_douts(ld_buf_entry_douts),
 
+        .flush(fetch_redirect_valid),
+
         .init(),
         .init_entry_reg_state(),
         .init_enq_up_down_counter_state(),
@@ -170,6 +175,8 @@ module load_store_issue #(
         .wr_data(st_buf_wr_data),
 
         .entry_douts(st_buf_entry_douts),
+
+        .flush(fetch_redirect_valid),
 
         .init(),
         .init_entry_reg_state(),

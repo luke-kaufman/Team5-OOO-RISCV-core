@@ -141,8 +141,7 @@ module rob (
         .entry_douts(rob_state),
 
         // flush on redirect
-        .init(fetch_redirect_valid),
-        .init_state(0)
+        .flush(fetch_redirect_valid)
     );
 
     // NOTE: currently ignoring load mispreds while reading reg data

@@ -28,7 +28,9 @@ module ifu #(
     // IFU <-> DISPATCH
     input wire ififo_dispatch_ready,
     output wire ififo_dispatch_valid,
-    output wire [`IFIFO_ENTRY_WIDTH-1:0] ififo_dispatch_data
+    output wire [`IFIFO_ENTRY_WIDTH-1:0] ififo_dispatch_data,
+
+    input wire fetch_redirect_valid
 );
 
 // wires
@@ -74,6 +76,7 @@ mux_ #(
 );
 
 reg_ #(.WIDTH(`ADDR_WIDTH)) PC (
+    // NO FLUSH HERE, NEED TO WRITE NEW PC DURING THAT
     .clk(clk),
     .rst_aL(rst_aL),
     .we(1'b1),  // always write since PC_mux will feed PC itself when stalling
@@ -155,6 +158,7 @@ fifo #(
     .ENTRY_WIDTH(`IFIFO_ENTRY_WIDTH),
     .N_ENTRIES(8)
 ) instruction_FIFO (
+    .flush(fetch_redirect_valid),
     .clk(clk),
     .rst_aL(rst_aL),
     .enq_data(IFIFO_enq_data),   // input - data

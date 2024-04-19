@@ -1,9 +1,9 @@
 `ifndef CORE_V
 `define CORE_V
 
+`include "misc/global_defs.svh"
 `include "frontend/fetch/ifu.v"
 `include "frontend/dispatch/dispatch.sv"
-`include "misc/global_defs.svh"
 
 module core #() (
     input wire clk,
@@ -137,6 +137,7 @@ module core #() (
     integer_issue integer_issue_dut (
         .clk(clk),        /*input*/
         .rst_aL(rst_aL),  /*input*/
+        .flush(fetch_redirect_valid),
         // dispatch interface: ready & valid
         .dispatch_ready(iiq_dispatch_ready),  /*output*/
         .dispatch_valid(iiq_dispatch_valid),  /*input*/

@@ -59,8 +59,7 @@ module integer_issue (
         .entry_douts(entries),
 
         // FLUSH ON REDIRECT
-        .init(fetch_redirect_valid),
-        .init_state(0)
+        .flush(fetch_redirect_valid)
     );
 
     // issue scheduling
@@ -196,6 +195,7 @@ module integer_issue (
     reg_ #(
         .WIDTH(`IIQ_ISSUE_DATA_WIDTH)
     ) integer_issue_buffer (
+        .flush(fetch_redirect_valid),
         .clk(clk),
         .rst_aL(rst_aL),
         .we(issue_valid),
@@ -203,8 +203,7 @@ module integer_issue (
         .dout(issue_data),
 
         // FLUSH ON REDIRECT
-        .init(fetch_redirect_valid),
-        .init_state(0)
+        .flush(fetch_redirect_valid)
     );
 
     assign issue_rob_id = scheduled_entry.instr_rob_id;

@@ -37,6 +37,8 @@ module shift_queue #(
 
     output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts,
 
+    input wire flush,
+
     // for testing
     input wire init,
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_entry_reg_state,
@@ -298,12 +300,13 @@ module shift_queue #(
         .inc(enq_ctr_inc),
         .dec(enq_ctr_dec),
         .count(enq_ctr),
-
+        .flush(flush),
         .init(init),
         .init_state(init_enq_up_down_counter_state)
     );
     for (genvar i = 0; i < N_ENTRIES; i++) begin : queue
         reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg ( // NOTE: STATEFUL
+            .flush(flush),
             .clk(clk),
             .rst_aL(rst_aL),
             .we(entry_we[i]),

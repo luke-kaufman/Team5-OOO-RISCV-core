@@ -28,6 +28,8 @@ module fifo #(
     output wire deq_valid,
     output wire [ENTRY_WIDTH-1:0] deq_data,
 
+    input wire flush,
+
     // for testing
     input wire init,
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_entry_reg_state,
@@ -45,7 +47,7 @@ module fifo #(
         .rst_aL(rst_aL),
         .inc(enq),
         .count(enq_ctr),
-
+        .flush(flush),
         .init(init),
         .init_state(init_enq_up_counter_state)
     );
@@ -57,7 +59,7 @@ module fifo #(
         .rst_aL(rst_aL),
         .inc(deq),
         .count(deq_ctr),
-
+        .flush(flush),
         .init(init),
         .init_state(init_deq_up_counter_state)
     );
@@ -142,6 +144,7 @@ module fifo #(
         );
         // register that holds each fifo entry
         reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg ( // NOTE: STATEFUL
+            .flush(fetch_redirect_valid),
             .clk(clk),
             .rst_aL(rst_aL),
             .we(entry_we[i]),
