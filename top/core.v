@@ -12,17 +12,18 @@ module core #() (
     // Main memory interaction for both LOADS and ICACHE (rd only)
     input wire                               recv_main_mem_valid,
     input wire                               recv_main_mem_lsu_aL_ifu_aH,  // if main mem data is meant for LSU or IFU
-    input wire [`ICACHE_DATA_BLOCK_SIZE-1:0] recv_main_mem_data,
+    input wire [`ADDR_WIDTH-1:0]             recv_main_mem_addr,
+    input wire [2:0]                         recv_size_main_mem, // {Word, Halfword, Byte}
+    input wire [`ICACHE_DATA_BLOCK_SIZE-1:0] recv_main_mem_data, // NOTE: `ICACHE_DATA_BLOCK_SIZE == `DCACHE_DATA_BLOCK_SIZE
     // Main memory interaction only for STORES (wr only)
     output wire                   send_en_main_mem,
-    output wire                   send_main_mem_lsu_aL_ifu_aH,
     output wire [`ADDR_WIDTH-1:0] send_main_mem_addr,
     output wire [2:0]             send_size_main_mem, // {Word, Halfword, Byte}
     output wire [`WORD_WIDTH-1:0] send_main_mem_data, // write up to a word
     // ARF out - for checking archiectural state
     output wire [ARF_N_ENTRIES-1:0][REG_DATA_WIDTH-1:0] ARF_OUT
-);  
-    // IFU <-> DISPATCH 
+);
+    // IFU <-> DISPATCH
     wire               ififo_dispatch_ready;  /*DIS->IFU*/
     wire               ififo_dispatch_valid;  /*IFU->DIS*/
     wire ififo_entry_t ififo_dispatch_data;   /*IFU->DIS*/
@@ -57,7 +58,7 @@ module core #() (
     wire            ld_mispred;
 
     // IIQ -> ALU and wakeup to dispatch
-    wire iiq_issue_data_t iiq_issue_data; 
+    wire iiq_issue_data_t iiq_issue_data;
     wire                  iiq_issue_valid;  // ALSO TO DISPATCH wakeup from IIQ
     wire rob_id_t         iiq_issue_rob_id; // ALSO TO DISPATCH wakeup from IIQ
     wire iiq_entry_t      iiq_issue_data
@@ -75,15 +76,9 @@ module core #() (
         .recovery_PC_valid(fetch_redirect_valid),
         .backend_stall(fetch_redirect_valid),
         // main memory interactions
-        .recv_main_mem_valid(recv_main_mem_valid),
-        .recv_main_mem_lsu_aL_ifu_aH(recv_main_mem_lsu_aL_ifu_aH),  // if main mem data is meant for LSU or IFU
         .recv_main_mem_data(recv_main_mem_data),
-        // Main memory interaction only for STORES (wr only)
-        .send_en_main_mem(send_en_main_mem),
-        .send_main_mem_lsu_aL_ifu_aH(send_main_mem_lsu_aL_ifu_aH),
-        .send_main_mem_addr(send_main_mem_addr),
-        .send_size_main_mem(send_size_main_mem), // {Word, Halfword, Byte}
-        .send_main_mem_data(send_main_mem_data), // write up to a word
+        .recv_main_mem_valid(recv_main_mem_valid),
+        .recv_main_mem_addr(recv_main_mem_addr),
         // IFU <-> DISPATCH
         .ififo_dispatch_ready(ififo_dispatch_ready),  // input
         .ififo_dispatch_valid(ififo_dispatch_valid),  // output
@@ -159,7 +154,7 @@ module core #() (
         .npc(fetch_redirect_pc),                 /*output*/ // next pc to be written back to rob.pc_npc (b_type or jalr)
         .br_mispred(alu_br_mispred)              /*output*/ // to be written back to rob.br_mispred (0: no misprediction  1: misprediction)
     );
-    
+
     // DUMB LSU
     // load_store_simple lsu(
 
@@ -167,6 +162,6 @@ module core #() (
     // LOAD STORE QUEUE (LSQ)
 
     // LOAD STORE EXECUTE (D-cache?)
-    
+
 endmodule
 `endif CORE_V

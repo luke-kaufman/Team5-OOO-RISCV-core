@@ -25,6 +25,18 @@
 `define DCACHE_NUM_TAG_CTRL_BITS 2  // dirty and valid
 `define DCACHE_WRITE_SIZE_BITS 8
 
+`define BLOCK_DATA_WIDTH 64
+`define MAIN_MEM_N_BLOCKS (2**(`ADDR_WIDTH-$clog2(`BLOCK_DATA_WIDTH/8)))
+`define MAIN_MEM_BLOCK_ADDR_WIDTH $clog2(`MAIN_MEM_N_BLOCKS)
+
+`define N_DCACHE_OFFSET_BITS $clog2(`DCACHE_DATA_BLOCK_SIZE/8)
+`define N_DCACHE_INDEX_BITS $clog2(`DCACHE_NUM_SETS)
+`define N_DCACHE_TAG_BITS (`ADDR_WIDTH - `N_DCACHE_OFFSET_BITS - `N_DCACHE_INDEX_BITS)
+
+`define N_ICACHE_OFFSET_BITS $clog2(`ICACHE_DATA_BLOCK_SIZE/8)
+`define ICACHE_INDEX_BITS $clog2(`ICACHE_NUM_SETS)
+`define ICACHE_TAG_BITS (`ADDR_WIDTH - `N_ICACHE_OFFSET_BITS - `ICACHE_INDEX_BITS)
+
 `define REG_DATA_WIDTH 32 // the width of data that is held in a retired (ARF) register or speculative (ROB) register
 `define ARF_N_ENTRIES 32
 `define ARF_ID_WIDTH $clog2(`ARF_N_ENTRIES)
@@ -48,6 +60,20 @@ typedef logic [`ARF_ID_WIDTH-1:0] arf_id_t;
 typedef logic [`ROB_ID_WIDTH-1:0] rob_id_t;
 // TODO: iiq_id and lsq_id? where would they be used?
 typedef logic [`ST_BUF_ID_WIDTH-1:0] st_buf_id_t;
+
+typedef logic [`BLOCK_DATA_WIDTH-1:0] block_data_t;
+typedef logic [`MAIN_MEM_BLOCK_ADDR_WIDTH-1:0] main_mem_block_addr_t;
+
+typedef logic [`N_DCACHE_OFFSET_BITS-1:0] dcache_offset_t;
+typedef logic [`N_DCACHE_INDEX_BITS-1:0] dcache_index_t;
+typedef logic [`N_DCACHE_TAG_BITS-1:0] dcache_tag_t;
+
+typedef logic [`N_ICACHE_OFFSET_BITS-1:0] icache_offset_t;
+typedef logic [`ICACHE_INDEX_BITS-1:0] icache_index_t;
+typedef logic [`ICACHE_TAG_BITS-1:0] icache_tag_t;
+
+typedef enum {ICACHE = 0, DCACHE = 1} cache_type_t;
+typedef enum {READ = 0, WRITE = 1} req_type_t;
 
 `define I_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[24:21], instr[20] })
 `define S_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[11:8] , instr[7]  })
@@ -172,6 +198,65 @@ typedef struct packed {
     logic [2:0] st_width;
 } st_buf_entry_t;
 `define ST_BUF_ENTRY_WIDTH $bits(st_buf_entry_t)
+
+typedef struct packed {
+    logic valid;
+    logic rd_wr; // 0: rd, 1: wr
+    addr_t addr;
+    logic [1:0] width;
+    reg_data_t data; // only for wr requests
+} lsu_dcache_req_t;
+
+typedef struct packed {
+    logic valid;
+    reg_data_t data;
+} dcache_lsu_resp_t; // only in response to rd requests
+
+typedef struct packed {
+    logic valid;
+    addr_t addr;
+} ifu_icache_req_t;
+
+typedef struct packed {
+    logic valid;
+    instr_t instr;
+} icache_ifu_resp_t;
+
+typedef struct packed {
+    logic valid;
+    logic rd_wr;
+    main_mem_block_addr_t addr;
+    block_data_t data;
+} dcache_main_mem_req_t;
+
+typedef struct packed {
+    logic valid;
+    main_mem_block_addr_t addr;
+    block_data_t data;
+} icache_main_mem_req_t;
+
+typedef struct packed {
+    logic valid;
+    logic i_d; // 0: instruction, 1: data
+    main_mem_block_addr_t addr;
+    block_data_t data;
+} main_mem_req_t;
+
+typedef struct packed {
+    logic valid;
+    logic i_d; // 0: instruction, 1: data
+    block_data_t data;
+} main_mem_resp_t;
+
+typedef struct packed {
+    logic valid;
+    block_data_t data;
+} main_mem_dcache_resp_t;
+
+typedef struct packed {
+    logic valid;
+    block_data_t data;
+} main_mem_icache_resp_t;
 
 typedef enum {POSEDGE, NEGEDGE} edge_t;
 

@@ -25,9 +25,14 @@ module test #(
     //         data[i+:32] = $urandom();
     //     end
     // endfunction
-    wire [1:0] deq = 2'b10;
-    wire [1:0] enq = 2'b10;
-    logic [3:0] y = 4'b1010;
+    // wire [1:0] deq = 2'b10;
+    // wire [1:0] enq = 2'b10;
+    // logic [3:0] y = 4'b1010;
+
+    int x = 0;
+    bit clk = 1;
+    initial forever #5 clk = ~clk;
+    bit rstn = 1;
 
     initial begin
         // for (int i = 1; i <= 10; i = i + 1) begin
@@ -70,7 +75,16 @@ module test #(
         //     end
         // end
         // repeat (10)
-        y = 0;
-            $display("%b", `x);
+        // y = 0;
+        //     $display("%b", `x);
+
+
+    end
+
+    always @(posedge clk or negedge rstn) begin
+        $display("%t x: %d", $time, x);
+        repeat (5) @(negedge clk);
+        x += 1;
+        if (x == 10) $finish;
     end
 endmodule

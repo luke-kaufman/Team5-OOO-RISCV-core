@@ -44,7 +44,7 @@ module icache_tb;
         .rst_aL(reset_aL),
         .addr(icache_addr),
         .write_data(recv_main_mem_data),
-        .d_cache_is_ST(1'b0),
+        .dcache_is_ST(1'b0),
         .we_aL(!recv_main_mem_valid),
         .selected_data_way(icache_data_way_out),
         .cache_hit(icache_hit)

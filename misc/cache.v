@@ -31,7 +31,7 @@ module cache #(
     input wire [`ADDR_WIDTH-1:0] addr,
     input wire [`ADDR_WIDTH-1:0] PC_addr,
     input wire we_aL,
-    input wire d_cache_is_ST,  // if reason for d-cache access is to store something (used for dirty bit)
+    input wire dcache_is_ST,  // if reason for d-cache access is to store something (used for dirty bit)
     input wire [WRITE_SIZE_BITS-1:0] write_data,  // 64 for icache (DRAMresponse) 8 bits for dcache
 
     input wire csb0_in,
@@ -91,7 +91,7 @@ wire read_way0_selected, read_way1_selected;
 //         for(i = 0; i < NUM_SETS; i = i + 1) begin: ways_d
 //             // set way0 dirty bit for this tag
 //             OR2_X1 set_way0_d(
-//                 .A(d_cache_is_ST),
+//                 .A(dcache_is_ST),
 //                 .B(ways_d[i].way0_dirty.q)
 //             );
 //             dff_we way0_dirty (
@@ -104,7 +104,7 @@ wire read_way0_selected, read_way1_selected;
 
 //             // set way1 dirty bit for this tag
 //             OR2_X1 set_way1_d(
-//                 .A(d_cache_is_ST),
+//                 .A(dcache_is_ST),
 //                 .B(ways_d[i].way1_dirty.q)
 //             );
 //             dff_we way1_dirty (
@@ -135,7 +135,7 @@ wire read_way0_selected, read_way1_selected;
 wire [127:0] data_out;
 generate
     if (WRITE_SIZE_BITS == 64) begin: icache      // I-Cache
-        sram_64x128_1rw_wsize64 i_cache_data_arr (
+        sram_64x128_1rw_wsize64 icache_data_arr (
             .clk0(clk),
             .csb0(csb0_in),  // 1 chip
             .web0(we_aL),
@@ -147,7 +147,7 @@ generate
         );
     end
     else if (WRITE_SIZE_BITS == 8) begin: dcache  // D-Cache
-        sram_64x128_1rw_wsize8 d_cache_data_arr (
+        sram_64x128_1rw_wsize8 dcache_data_arr (
             .clk0(clk),
             .csb0(0),  // 1 chip
             .web0(we_aL),
@@ -166,7 +166,7 @@ endgenerate
 
 // capture 2 data way outputs
 wire [BLOCK_SIZE_BITS-1:0] way0_data, way1_data;
-assign {way1_data, way0_data} = icache.i_cache_data_arr.dout0;
+assign {way1_data, way0_data} = icache.icache_data_arr.dout0;
 
 // END DATA ARRAY ::::::::::::::::::::::::::::::::::::
 

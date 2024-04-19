@@ -113,7 +113,7 @@ cache #(
     .rst_aL(rst_aL),
     .addr(PC_mux_out),
     .PC_addr(PC.dout),
-    .d_cache_is_ST(1'b0), // not used in icache
+    .dcache_is_ST(1'b0), // not used in icache
     .we_aL(icache_we_aL),
     .write_data(recv_main_mem_data),
     .csb0_in(csb0_in),
