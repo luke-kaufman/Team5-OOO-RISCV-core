@@ -21,10 +21,16 @@ module ifu #(
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
     input wire recovery_PC_valid,
     input wire backend_stall,
-    // main memory interactions
-    input wire recv_main_mem_valid,
-    input wire [`ADDR_WIDTH-1] recv_main_mem_addr,
-    input wire [I$_BLOCK_SIZE-1:0] recv_main_mem_data,
+    // Main memory interaction for both LOADS and ICACHE (rd only)
+    input wire                               recv_main_mem_valid,
+    input wire                               recv_main_mem_lsu_aL_ifu_aH,  // if main mem data is meant for LSU or IFU
+    input wire [`ICACHE_DATA_BLOCK_SIZE-1:0] recv_main_mem_data,
+    // Main memory interaction only for STORES (wr only)
+    output wire                   send_en_main_mem,
+    output wire                   send_main_mem_lsu_aL_ifu_aH,
+    output wire [`ADDR_WIDTH-1:0] send_main_mem_addr,
+    output wire [2:0]             send_size_main_mem, // {Word, Halfword, Byte}
+    output wire [`WORD_WIDTH-1:0] send_main_mem_data, // write up to a word
     // IFU <-> DISPATCH
     input wire ififo_dispatch_ready,
     output wire ififo_dispatch_valid,

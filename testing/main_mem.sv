@@ -16,8 +16,6 @@ module main_mem #(
     // FROM MAIN MEM TO CORE (SEND)
     output wire send_en_core,  
     output wire send_core_lsu_aL_ifu_aH,  
-    output wire [`ADDR_WIDTH-1:0] send_core_addr, 
-    output wire [2:0] send_size_core,  
     output wire [`ICACHE_DATA_BLOCK_SIZE-1:0] send_core_data  
 );
 
@@ -30,19 +28,16 @@ module main_mem #(
                 main_mem[i] <= 8'h00;
             end
         end else if (recv_core_valid) begin
+            #5 // delay for 5 ns
             for (int i = 0; i < recv_size_core; i++) begin
                 send_core_data[(i+1)*8 : i*8] <= main_mem[recv_core_addr + i];
             end
             send_en_core <= 1'b1;
             send_core_lsu_aL_ifu_aH <= recv_core_lsu_aL_ifu_aH;
-            send_core_addr <= recv_core_addr;
-            send_size_core <= recv_size_core;
         end
         else begin
             send_en_core <= 1'b0;
             send_core_lsu_aL_ifu_aH <= 0;
-            send_core_addr <= 0;
-            send_size_core <= 3'b000;
             send_core_data <= 0;
         end
     end
