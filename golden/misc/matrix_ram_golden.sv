@@ -6,15 +6,15 @@ module matrix_ram_golden #(
 ) (
     input logic clk,
     input logic rst_aL,
-    input logic [ROW_ADDR_WIDTH-1:0] row_rd_addr,
-    input logic [COL_ADDR_WIDTH-1:0] col_rd_addr,
-    output logic [N_COLS-1:0] row_rd_data,
-    output logic [N_ROWS-1:0] col_rd_data,
+
+    output logic [N_ROWS-1:0] [N_COLS-1:0] rd_data,
+
     input logic row_wr_en,
-    input logic col_wr_en,
     input logic [ROW_ADDR_WIDTH-1:0] row_wr_addr,
-    input logic [COL_ADDR_WIDTH-1:0] col_wr_addr,
     input logic [N_COLS-1:0] row_wr_data,
+
+    input logic col_wr_en,
+    input logic [COL_ADDR_WIDTH-1:0] col_wr_addr,
     input logic [N_ROWS-1:0] col_wr_data,
 
     // for testing
@@ -25,8 +25,7 @@ module matrix_ram_golden #(
     logic [N_ROWS-1:0] [N_COLS-1:0] matrix;
     logic [N_ROWS-1:0] [N_COLS-1:0] matrix_next;
 
-    assign row_rd_data = matrix[row_rd_addr];
-    assign col_rd_data = matrix[col_rd_addr];
+    assign rd_data = matrix;
 
     always_comb begin
         matrix_next = matrix;
