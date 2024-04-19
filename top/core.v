@@ -23,15 +23,10 @@ module core #() (
     // ARF out - for checking archiectural state
     output wire [ARF_N_ENTRIES-1:0][REG_DATA_WIDTH-1:0] ARF_OUT
 );  
-    // Inter-Stage connects
-    wire [`ADDR_WIDTH-1:0] recovery_PC;/*ALU->IFU*/
-    wire                   recovery_PC_valid;/*ALU->IFU*/ // a.k.a. branch prediction valid
-    wire                   backend_stall; //? ambiguous - could be from any stage (IIQ full, LSQ full, etc.)
-    
     // IFU <-> DISPATCH 
-    wire                          ififo_dispatch_ready;  /*DIS->IFU*/
-    wire                          ififo_dispatch_valid;  /*IFU->DIS*/
-    wire [`IFIFO_ENTRY_WIDTH-1:0] ififo_dispatch_data;   /*IFU->DIS*/
+    wire               ififo_dispatch_ready;  /*DIS->IFU*/
+    wire               ififo_dispatch_valid;  /*IFU->DIS*/
+    wire ififo_entry_t ififo_dispatch_data;   /*IFU->DIS*/
 
     // DISPATCH <-> IIQ
     wire             iiq_dispatch_ready;
@@ -53,6 +48,9 @@ module core #() (
     wire rob_id_t   alu_broadcast_rob_id;
     wire reg_data_t alu_broadcast_reg_data;
     wire            alu_br_mispred;
+    wire            fetch_redirect_valid;
+    wire addr_t     fetch_redirect_pc;
+
     // DISPATCH <- LSU
     wire            ld_broadcast_valid;
     wire rob_id_t   ld_broadcast_rob_id;
@@ -65,32 +63,22 @@ module core #() (
     wire rob_id_t         iiq_issue_rob_id; // ALSO TO DISPATCH wakeup from IIQ
     wire iiq_entry_t      iiq_issue_data
 
-    // ALU 
 
     // INSTRUCTION FETCH UNIT (IFU)
-    
-    // 
-    mux_ #(
-        .WIDTH(`ADDR_WIDTH),
-        .N_INS(2)
-    ) recovery_PC_mux ( 
-        .ins({recv_main_mem_addr, PC_mux_local_out}),
-        .sel(br_mispred),
-        .out(PC_mux_out)
-    );
     ifu ifu_dut (
         // from top.sv
         .clk(clk),
         .rst_aL(rst_aL),
-        .csb0_in(csb0_in)
-        // backend interactions
-        .recovery_PC(recovery_PC),
-        .recovery_PC_valid(recovery_PC_valid),
-        .backend_stall(backend_stall),
+        .csb0_in(csb0_in),
+        // backend interactions - TODO FIX DUPLICATION
+        .flush(fetch_redirect_valid),
+        .recovery_PC(fetch_redirect_pc),
+        .recovery_PC_valid(fetch_redirect_valid),
+        .backend_stall(fetch_redirect_valid),
         // main memory interactions
         .recv_main_mem_data(recv_main_mem_data),
         .recv_main_mem_valid(recv_main_mem_valid),
-        .recv_main_mem_addr(recv_main_mem_addr)
+        .recv_main_mem_addr(recv_main_mem_addr),
         // IFU <-> DISPATCH
         .ififo_dispatch_ready(ififo_dispatch_ready),  // input
         .ififo_dispatch_valid(ififo_dispatch_valid),  // output
@@ -158,15 +146,19 @@ module core #() (
 
     // ARITHMETIC-LOGIC UNIT (ALU) (i.e. integer execute)
     integer_execute integer_execute_dut (
-        .iiq_issue_data(iiq_issue_data),    /*input*/
-        .instr_rob_id_out(alu_broadcast_rob_id),  /*output*/ // sent to bypass paths  iiq for capture  used for indexing into rob for writeback
-        .dst_valid(),         /*output*/ // to guard broadcast (iiq and lsq) and bypass (dispatch and issue) capture
-        .dst(),               /*output*/
-        .br_wb_valid(),       /*output*/ // change pc to npc in rob only if instr is b_type or jalr
-        .npc(),               /*output*/ // next pc to be written back to rob.pc_npc (b_type or jalr)
-        .br_mispred(alu_br_mispred)         /*output*/ // to be written back to rob.br_mispred (0: no misprediction  1: misprediction)
+        .iiq_issue_data(iiq_issue_data),         /*input*/
+        .instr_rob_id_out(alu_broadcast_rob_id), /*output*/ // sent to bypass paths  iiq for capture  used for indexing into rob for writeback
+        .dst_valid(alu_broadcast_valid),         /*output*/ // to guard broadcast (iiq and lsq) and bypass (dispatch and issue) capture
+        .dst(alu_broadcast_reg_data),            /*output*/
+        .br_wb_valid(fetch_redirect_valid),      /*output*/ // change pc to npc in rob only if instr is b_type or jalr
+        .npc(fetch_redirect_pc),                 /*output*/ // next pc to be written back to rob.pc_npc (b_type or jalr)
+        .br_mispred(alu_br_mispred)              /*output*/ // to be written back to rob.br_mispred (0: no misprediction  1: misprediction)
     );
     
+    // DUMB LSU
+    // load_store_simple lsu(
+
+    // );
     // LOAD STORE QUEUE (LSQ)
 
     // LOAD STORE EXECUTE (D-cache?)
