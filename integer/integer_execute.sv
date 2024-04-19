@@ -191,7 +191,7 @@ module integer_execute (
     wire sel_signed_cmp_lt = ~funct3[2] & funct3[1] & ~funct3[0]; // funct3 = 3'b010
     wire sel_and_out = &funct3; // funct3 = 3'b111
     wire sel_or_out = funct3[2] & funct3[1] & ~funct3[0]; // funct3 = 3'b110
-    wire sel_xor_out = funct3[2] & ~funct3[1] & funct3[0]; // funct3 = 3'b100
+    wire sel_xor_out = funct3[2] & ~funct3[1] & ~funct3[0]; // funct3 = 3'b100
     wire sel_pc_plus_4 = is_j_type | is_jalr; // jal or jalr
     onehot_mux_ #(
         .WIDTH(`WORD_WIDTH),
