@@ -35,12 +35,17 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire alu_broadcast_valid,
     input wire rob_id_t alu_broadcast_rob_id,
     input wire reg_data_t alu_broadcast_reg_data,
-    input wire alu_br_mispred,
+    input wire alu_npc_wb_valid, // only true when instr is b_type or jalr
+    input wire alu_npc_mispred, // always true for jalr, only true for b_type when actual mispredict
+    input wire addr_t alu_npc,
     // INTERFACE TO LOAD-STORE UNIT (LSU)
     input wire ld_broadcast_valid,
     input wire rob_id_t ld_broadcast_rob_id,
     input wire reg_data_t ld_broadcast_reg_data,
-    input wire ld_mispred
+    input wire ld_mispred,
+    // INTERFACE TO FETCH
+    output wire fetch_redirect_pc_valid,
+    output wire addr_t fetch_redirect_pc
 );
     // ififo_dispatch_data fields
     wire instr_t instr         = ififo_dispatch_data.instr;
@@ -218,6 +223,8 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .retire_rob_id(retire_rob_id),
         .retire_arf_id(retire_arf_id),
         .retire_reg_data(retire_reg_data),
+        .retire_redirect_pc_valid(fetch_redirect_pc_valid),
+        .retire_redirect_pc(fetch_redirect_pc),
 
         .rob_id_src1(rob_id_src1),
         .rob_reg_ready_src1(rob_reg_ready_src1),
@@ -233,12 +240,14 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .alu_wb_valid(alu_broadcast_valid),
         .alu_wb_rob_id(alu_broadcast_rob_id),
         .alu_wb_reg_data(alu_broadcast_reg_data),
-        .alu_br_mispred(alu_br_mispred),
+        .alu_npc_wb_valid(alu_npc_wb_valid),
+        .alu_npc_mispred(alu_npc_mispred),
+        .alu_npc(alu_npc),
 
         .ld_wb_valid(ld_broadcast_valid),
         .ld_wb_rob_id(ld_broadcast_rob_id),
         .ld_wb_reg_data(ld_broadcast_reg_data),
-        .ld_mispred(ld_mispred)
+        .ld_wb_ld_mispred(ld_mispred)
     );
 
     wire reg_data_t arf_reg_data_src1;

@@ -30,6 +30,8 @@ module rob (
     output wire rob_id_t retire_rob_id,
     output wire arf_id_t retire_arf_id,
     output wire reg_data_t retire_reg_data,
+    output wire retire_redirect_pc_valid,
+    output wire addr_t retire_redirect_pc,
 
     // src1 (ready, data) info (REGISTER READ)
     input wire rob_id_t rob_id_src1,
@@ -48,7 +50,9 @@ module rob (
     input wire alu_wb_valid,
     input wire rob_id_t alu_wb_rob_id,
     input wire reg_data_t alu_wb_reg_data,
-    input wire alu_wb_br_mispred,
+    input wire alu_npc_wb_valid,
+    input wire alu_npc_mispred,
+    input wire addr_t alu_npc,
 
     // INTERFACE TO LSU (LOAD-STORE WRITEBACK + WAKEUP)
     input wire ld_wb_valid,
@@ -86,9 +90,9 @@ module rob (
 
         assign entry_wr_data_alu_wb[i].dst_valid = rob_state[i].dst_valid;
         assign entry_wr_data_alu_wb[i].dst_arf_id = rob_state[i].dst_arf_id;
-        assign entry_wr_data_alu_wb[i].pc_npc = rob_state[i].pc_npc;
+        assign entry_wr_data_alu_wb[i].pc_npc = alu_npc_wb_valid ? alu_npc : rob_state[i].pc_npc; // FIXME: structural
         assign entry_wr_data_alu_wb[i].ld_mispred = rob_state[i].ld_mispred;
-        assign entry_wr_data_alu_wb[i].br_mispred = alu_wb_br_mispred;
+        assign entry_wr_data_alu_wb[i].br_mispred = alu_npc_wb_valid ? alu_npc_mispred : rob_state[i].br_mispred; // FIXME: same
         assign entry_wr_data_alu_wb[i].reg_ready = rob_state[i].reg_ready; // NOTE: should already be 1'b1
         assign entry_wr_data_alu_wb[i].reg_data = alu_wb_reg_data;
 
@@ -161,6 +165,8 @@ module rob (
     );
     assign retire_arf_id = retire_entry_data.dst_arf_id;
     assign retire_reg_data = retire_entry_data.reg_data;
+    assign retire_redirect_pc_valid = retire_entry_data.br_mispred | retire_entry_data.ld_mispred; // FIXME: structural
+    assign retire_redirect_pc = retire_entry_data.pc_npc;
 endmodule
 
 `endif

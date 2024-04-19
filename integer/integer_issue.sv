@@ -11,7 +11,6 @@ module integer_issue (
     input wire iiq_entry_t dispatch_data,
 
     // issue interface: always ready (all integer instructions take 1 cycle to execute)
-    // TODO: change the name of this interface to alu
     output wire issue_valid,
     output wire rob_id_t issue_rob_id,
     output wire iiq_issue_data_t issue_data,

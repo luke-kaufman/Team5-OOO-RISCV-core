@@ -39,6 +39,7 @@ module fifo_ram #(
     input wire [N_WRITE_PORTS-1:0] wr_en,
     input wire [N_WRITE_PORTS-1:0] [PTR_WIDTH-1:0] wr_addr,
     input wire [N_ENTRIES-1:0] [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data,
+
     output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts,
 
     // for testing

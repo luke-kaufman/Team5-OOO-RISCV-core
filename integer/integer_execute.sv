@@ -59,11 +59,11 @@
 module integer_execute (
     input wire iiq_issue_data_t iiq_issue_data,
     output wire rob_id_t instr_rob_id_out, // sent to bypass paths, iiq for capture, used for indexing into rob for writeback
-    output wire dst_valid, // to guard broadcast (iiq and lsq) and bypass (dispatch and issue) capture
+    output wire dst_valid, // to guard broadcast (iiq, and lsq) and bypass (dispatch and issue) capture
     output wire reg_data_t dst,
-    output wire br_wb_valid, // change pc to npc in rob only if instr is b_type or jalr
-    output wire addr_t npc, // next pc, to be written back to rob.pc_npc (b_type or jalr)
-    output wire br_mispred // to be written back to rob.br_mispred (0: no misprediction, 1: misprediction)
+    output wire npc_wb_valid, // change pc to npc in rob only if instr is b_type or jalr
+    output wire npc_mispred, // to be written back to rob.br_mispred (0: no misprediction, 1: misprediction)
+    output wire addr_t npc // next pc, to be written back to rob.pc_npc (b_type or jalr)
 );
     // extract the iiq_issue_data fields
     wire reg_data_t src1 = iiq_issue_data.src1_data;
@@ -253,7 +253,7 @@ module integer_execute (
         }),
         .out(br_taken)
     );
-    assign br_wb_valid = is_b_type | is_jalr; // only write to rob.pc_npc (change pc to npc) if instr is b_type or jalr
+    assign npc_wb_valid = is_b_type | is_jalr; // only write to rob.pc_npc (change pc to npc) if instr is b_type or jalr
     assign npc = {main_adder_sum[31:1], is_jalr ? 1'b0 : main_adder_sum[0]};
-    assign br_mispred = (br_dir_pred ^ br_taken) | is_jalr;
+    assign npc_mispred = (br_dir_pred ^ br_taken) | is_jalr;
 endmodule
