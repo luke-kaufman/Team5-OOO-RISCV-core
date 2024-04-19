@@ -13,6 +13,7 @@ module integer_issue (
     // issue interface: always ready (all integer instructions take 1 cycle to execute)
     // TODO: change the name of this interface to alu
     output wire issue_valid,
+    output wire rob_id_t issue_rob_id,
     output wire iiq_issue_data_t issue_data,
 
     // alu broadcast:
@@ -165,9 +166,9 @@ module integer_issue (
                         ld_broadcast_valid && (ld_broadcast_rob_id == scheduled_entry.src2_rob_id) ?
                             ld_broadcast_reg_data :
                             scheduled_entry.src2_data,
+        rob_id_t: scheduled_entry.instr_rob_id, // received from issue
         imm: scheduled_entry.imm,
         pc: scheduled_entry.pc,
-        rob_id_t: instr_rob_id_in, // received from issue
         funct3: scheduled_entry.funct3, // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
         is_r_type: scheduled_entry.is_r_type,
         is_i_type: scheduled_entry.is_i_type,
@@ -190,4 +191,6 @@ module integer_issue (
         .din(integer_issue_buffer_din),
         .dout(issue_data)
     );
+
+    assign issue_rob_id = scheduled_entry.instr_rob_id;
 endmodule

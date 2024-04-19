@@ -9,8 +9,6 @@ module load_store_issue #(
     input wire dispatch_valid,
     input wire iiq_entry_t dispatch_data,
 
-    // issue interface (load buffer and store buffer): TODO?
-
     // alu broadcast:
     input wire alu_broadcast_valid,
     input wire rob_id_t alu_broadcast_rob_id,
@@ -28,6 +26,8 @@ module load_store_issue #(
     wire lsq_entry_t lsq_scheduled_entry;
     wire [`LSQ_N_ENTRIES-1:0] lsq_entries_wr_en;
     wire lsq_entry_t [`LSQ_N_ENTRIES-1:0] lsq_entries_wr_data;
+    wire lsq_issue;
+    wire lsq_deq_valid;
     shift_queue lsq (
         .clk(clk),
         .rst_aL(rst_aL),
@@ -36,9 +36,9 @@ module load_store_issue #(
         .enq_valid(dispatch_valid),
         .enq_data(dispatch_data),
 
-        .deq_ready(),
+        .deq_ready(lsq_deq_ready),
         .deq_sel_onehot(lsq_scheduled_entry_idx_onehot),
-        .deq_valid(),
+        .deq_valid(lsq_deq_valid),
         .deq_data(lsq_scheduled_entry),
 
         .wr_en(lsq_entries_wr_en),
@@ -110,6 +110,8 @@ module load_store_issue #(
     ) st_buf (
 
     );
+
+    assign
 
     matrix_ram #(
 
