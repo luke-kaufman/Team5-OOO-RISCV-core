@@ -117,7 +117,7 @@ typedef struct packed {
     logic is_lui; // if is_u_type, 0 = auipc, 1 = lui
     logic is_jalr; // if is_i_type, 0 = else, 1 = jalr
     logic br_dir_pred; // (0: not taken, 1: taken) (get this from fetch)
-    addr_t br_target_pred; // FIXME (do we need this right now?) is this the same thing as jalr target pc? (get this from fetch?)
+    addr_t br_target_pred;
 } iiq_entry_t;
 `define IIQ_ENTRY_WIDTH $bits(iiq_entry_t)
 
@@ -133,7 +133,7 @@ typedef struct packed {
     rob_id_t instr_rob_id;
     logic [1:0] width; // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
     logic ld_sign; // 0: unsigned (LBU, LHU), 1: signed (LB, LH, LW)
-    logic [`ST_BUF_ID_WIDTH-1:0] st_buf_id; // (only st_buf is allocated during dispatch, not ld_buf)
+    logic [`ST_BUF_ID_WIDTH-1:0] st_buf_id; // only st_buf is allocated during dispatch, not ld_buf
 } lsq_entry_t;
 `define LSQ_ENTRY_WIDTH $bits(lsq_entry_t)
 
@@ -153,14 +153,14 @@ typedef struct packed {
     logic is_sra_srai; // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
     logic is_lui; // if is_u_type, 0 = auipc, 1 = lui
     logic is_jalr; // if is_i_type, 0 = else, 1 = jalr
-    logic br_dir_pred; // (0: not taken, 1: taken) (get this from fetch)
+    logic br_dir_pred; // (0: not taken, 1: taken)
 } iiq_issue_data_t;
 `define IIQ_ISSUE_DATA_WIDTH $bits(iiq_issue_data_t)
 
 typedef struct packed {
     addr_t eff_addr;
     logic [1:0] ld_width;
-    logic is_dcache_initiated; // FIXME the name TODO plan how to use it
+    logic is_dcache_initiated; // FIXME the name, TODO plan how to use it
     rob_id_t instr_rob_id;
     reg_data_t ld_data; // NOTE: already (sign/zero) extended for the destination register
 } ld_buf_entry_t;

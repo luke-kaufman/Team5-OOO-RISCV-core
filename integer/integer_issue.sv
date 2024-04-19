@@ -11,6 +11,7 @@ module integer_issue (
     input wire iiq_entry_t dispatch_data,
 
     // issue interface: always ready (all integer instructions take 1 cycle to execute)
+    // TODO: change the name of this interface to alu
     output wire issue_valid,
     output wire iiq_issue_data_t issue_data,
 
@@ -188,5 +189,5 @@ module integer_issue (
         .we(issue_valid),
         .din(integer_issue_buffer_din),
         .dout(issue_data)
-    )
+    );
 endmodule

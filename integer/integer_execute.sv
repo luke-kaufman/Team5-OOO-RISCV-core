@@ -57,22 +57,7 @@
 // main_adder_op2 = imm | src2 | minus_src2
 
 module integer_execute (
-    input wire reg_data_t src1,
-    input wire reg_data_t src2,
-    input wire imm_t imm,
-    input wire addr_t pc,
-    input wire [2:0] funct3, // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
-    input wire is_r_type,
-    input wire is_i_type,
-    input wire is_u_type, // lui and auipc only
-    input wire is_b_type,
-    input wire is_j_type, // jal only
-    input wire is_sub, // if is_r_type, 0 = add, 1 = sub
-    input wire is_sra_srai, // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
-    input wire is_lui, // if is_u_type, 0 = auipc, 1 = lui
-    input wire is_jalr, // if is_i_type, 0 = else, 1 = jalr
-    input wire rob_id_t instr_rob_id_in, // received from issue
-    input wire br_dir_pred, // received from issue (0: not taken, 1: taken)
+    input wire iiq_issue_data_t iiq_issue_data,
     output wire rob_id_t instr_rob_id_out, // sent to bypass paths, iiq for capture, used for indexing into rob for writeback
     output wire dst_valid, // to guard broadcast (iiq and lsq) and bypass (dispatch and issue) capture
     output wire reg_data_t dst,
@@ -80,6 +65,24 @@ module integer_execute (
     output wire addr_t npc, // next pc, to be written back to rob.pc_npc (b_type or jalr)
     output wire br_mispred // to be written back to rob.br_mispred (0: no misprediction, 1: misprediction)
 );
+    // extract the iiq_issue_data fields
+    wire reg_data_t src1 = iiq_issue_data.src1_data;
+    wire reg_data_t src2 = iiq_issue_data.src2_data;
+    wire rob_id_t instr_rob_id_in = iiq_issue_data.instr_rob_id;
+    wire imm_t imm = iiq_issue_data.imm;
+    wire addr_t pc = iiq_issue_data.pc;
+    wire funct3_t funct3 = iiq_issue_data.funct3; // determines branch type, alu operation type (add(i), sll(i), xor(i), etc.)
+    wire is_r_type = iiq_issue_data.is_r_type;
+    wire is_i_type = iiq_issue_data.is_i_type;
+    wire is_u_type = iiq_issue_data.is_u_type; // lui and auipc only
+    wire is_b_type = iiq_issue_data.is_b_type;
+    wire is_j_type = iiq_issue_data.is_j_type; // jal only
+    wire is_sub = iiq_issue_data.is_sub; // if is_r_type, 0 = add, 1 = sub
+    wire is_sra_srai = iiq_issue_data.is_sra_srai; // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
+    wire is_lui = iiq_issue_data.is_lui; // if is_u_type, 0 = auipc, 1 = lui
+    wire is_jalr = iiq_issue_data.is_jalr; // if is_i_type, 0 = else, 1 = jalr
+    wire br_dir_pred = iiq_issue_data.br_dir_pred; // received from issue (0: not taken, 1: taken)
+
     // FIXME: convert to structural
     wire word_t main_adder_op1 = (is_r_type || is_i_type) ?
                                     src1 :

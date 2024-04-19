@@ -303,8 +303,8 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         is_sra_srai: is_sra_srai, // if shift, 0 = sll(i) | srl(i), 1 = sra(i)
         is_lui: is_lui, // if is_u_type, 0 = auipc, 1 = lui
         is_jalr: is_jalr, // if is_i_type, 0 = else, 1 = jalr
-        br_dir_pred: br_dir_pred, // (0: not taken, 1: taken) (get this from fetch)
-        br_target_pred: br_target_pred // FIXME (do we need this right now?) is this the same thing as jalr target pc? (get this from fetch?)
+        br_dir_pred: br_dir_pred, // (0: not taken, 1: taken)
+        br_target_pred: br_target_pred
     };
 
     // INTERFACE TO LOAD-STORE QUEUE (LSQ)
@@ -329,9 +329,9 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
                                                                             rs2_retired  ? arf_reg_data_src2      :
                                                                                            rob_reg_data_src2,
         instr_rob_id: dispatch_rob_id,
-        width: ls_width,   // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
-        ld_sign: ld_sign,  // 0: signed (LB, LH, LW), 1: unsigned (LBU, LHU)
-        st_buf_id: st_buf_dispatch_id // (only st_buf is allocated during dispatch, not ld_buf)
+        width: ls_width,              // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
+        ld_sign: ld_sign,             // 0: signed (LB, LH, LW), 1: unsigned (LBU, LHU)
+        st_buf_id: st_buf_dispatch_id // only st_buf is allocated during dispatch, not ld_buf
     };
 
     // INTERFACE TO STORE BUFFE (ST_BUF)
