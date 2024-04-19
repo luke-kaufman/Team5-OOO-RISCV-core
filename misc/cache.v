@@ -74,60 +74,60 @@ assign {way1_v, way1_tag, way0_v, way0_tag} = tag_out;
 wire read_way0_selected, read_way1_selected;
 
 // For dirty bits - write 1 when completing ST instruction
-genvar i;
-wire [NUM_SETS-1:0][NUM_WAYS-1:0] dirty_sets;
-generate
-    if(WRITE_SIZE_BITS == 8) begin  // FOR D-CACHE ONLY
+// genvar i;
+// wire [NUM_SETS-1:0][NUM_WAYS-1:0] dirty_sets;
+// generate
+//     if(WRITE_SIZE_BITS == 8) begin  // FOR D-CACHE ONLY
 
-        AND2_X1 way0_dirty_we (
-            .A(we_aH),
-            .B(read_way0_selected)  // loops around from after ways tags are checked (increases crit path)
-        );
-        AND2_X1 way1_dirty_we (
-            .A(we_aH),
-            .B(read_way1_selected)
-        );
+//         AND2_X1 way0_dirty_we (
+//             .A(we_aH),
+//             .B(read_way0_selected)  // loops around from after ways tags are checked (increases crit path)
+//         );
+//         AND2_X1 way1_dirty_we (
+//             .A(we_aH),
+//             .B(read_way1_selected)
+//         );
 
-        for(i = 0; i < NUM_SETS; i = i + 1) begin: ways_d
-            // set way0 dirty bit for this tag
-            OR2_X1 set_way0_d(
-                .A(d_cache_is_ST),
-                .B(ways_d[i].way0_dirty.q)
-            );
-            dff_we way0_dirty (
-                .clk(clk),
-                .rst_aL(rst_aL),
-                .we(way0_dirty_we.ZN),
-                .d(set_way0_d.ZN)
-            );
-            assign dirty_sets[i][0] = way0_dirty.q;
+//         for(i = 0; i < NUM_SETS; i = i + 1) begin: ways_d
+//             // set way0 dirty bit for this tag
+//             OR2_X1 set_way0_d(
+//                 .A(d_cache_is_ST),
+//                 .B(ways_d[i].way0_dirty.q)
+//             );
+//             dff_we way0_dirty (
+//                 .clk(clk),
+//                 .rst_aL(rst_aL),
+//                 .we(way0_dirty_we.ZN),
+//                 .d(set_way0_d.ZN)
+//             );
+//             assign dirty_sets[i][0] = way0_dirty.q;
 
-            // set way1 dirty bit for this tag
-            OR2_X1 set_way1_d(
-                .A(d_cache_is_ST),
-                .B(ways_d[i].way1_dirty.q)
-            );
-            dff_we way1_dirty (
-                .clk(clk),
-                .rst_aL(rst_aL),
-                .we(way1_dirty_we.ZN),
-                .d(set_way1_d.ZN)
-            );
-            assign dirty_sets[i][1] = way1_dirty.q;
+//             // set way1 dirty bit for this tag
+//             OR2_X1 set_way1_d(
+//                 .A(d_cache_is_ST),
+//                 .B(ways_d[i].way1_dirty.q)
+//             );
+//             dff_we way1_dirty (
+//                 .clk(clk),
+//                 .rst_aL(rst_aL),
+//                 .we(way1_dirty_we.ZN),
+//                 .d(set_way1_d.ZN)
+//             );
+//             assign dirty_sets[i][1] = way1_dirty.q;
 
-        end
+//         end
 
-        wire [NUM_WAYS-1:0] set_dirty_bits;
-        mux_ #(
-            .WIDTH(2),
-            .N_INS(NUM_SETS)
-        ) mux64_1 (
-            .ins(dirty_sets),
-            .sel(PC_addr[`get_set_num]),
-            .out(set_dirty_bits)
-        );
-    end
-endgenerate
+//         wire [NUM_WAYS-1:0] set_dirty_bits;
+//         mux_ #(
+//             .WIDTH(2),
+//             .N_INS(NUM_SETS)
+//         ) mux64_1 (
+//             .ins(dirty_sets),
+//             .sel(PC_addr[`get_set_num]),
+//             .out(set_dirty_bits)
+//         );
+//     end
+// endgenerate
 // END TAG ARRAY :::::::::::::::::::::::::::::::::::::
 
 // ::: DATA ARRAY ::::::::::::::::::::::::::::::::::::
