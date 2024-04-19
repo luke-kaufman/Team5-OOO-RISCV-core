@@ -20,6 +20,7 @@ module load_store_issue #(
     input wire rob_id_t ld_broadcast_rob_id,
     input wire reg_data_t ld_broadcast_reg_data,
 
+    input wire flush,
     // for testing
     input wire init // TODO
 );
@@ -137,9 +138,7 @@ module load_store_issue #(
         .wr_data(lsq_entries_wr_data),
 
         .entry_douts(lsq_entries),
-
         .flush(),
-
         .init(),
         .init_entry_reg_state(),
         .init_enq_up_down_counter_state(),

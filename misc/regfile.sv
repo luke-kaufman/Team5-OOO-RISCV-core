@@ -29,6 +29,8 @@ module regfile #(
     input wire [N_WRITE_PORTS-1:0] [PTR_WIDTH-1:0] wr_addr,
     input wire [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data,
 
+    input wire flush,
+
     // for testing
     input wire init,
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_regfile_state,
@@ -86,6 +88,7 @@ module regfile #(
     wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts;
     for (genvar i = 0; i < N_ENTRIES; i++) begin
         reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg ( // NOTE: STATEFUL
+            .flush(flush),
             .clk(clk),
             .rst_aL(rst_aL),
             .we(we[i]),

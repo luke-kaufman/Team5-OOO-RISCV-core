@@ -15,12 +15,15 @@ module up_counter #(
     input wire inc,
     output wire [WIDTH-1:0] count,
 
+    input wire flush,
+
     // for testing
     input wire init,
     input wire [WIDTH-1:0] init_state
 );
     wire [WIDTH-1:0] next_count;
     reg_ #(.WIDTH(WIDTH)) counter_reg ( // NOTE: STATEFUL
+        .flush(flush),
         .clk(clk),
         .rst_aL(rst_aL),
         .we(inc),
