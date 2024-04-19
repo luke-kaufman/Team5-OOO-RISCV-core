@@ -1,5 +1,10 @@
 `include "misc/global_defs.svh"
-`include  "misc/ff1.v"
+`include "misc/ff1.v"
+`include "misc/unsigned_cmp_.v"
+`include "misc/reg_.v"
+`include "misc/shift_queue.v"
+`include ""
+
 
 module integer_issue (
     input wire clk,
@@ -22,7 +27,10 @@ module integer_issue (
     // load broadcast:
     input wire ld_broadcast_valid,
     input wire rob_id_t ld_broadcast_rob_id,
-    input wire reg_data_t ld_broadcast_reg_data
+    input wire reg_data_t ld_broadcast_reg_data,
+    
+    // FLUSH ON MISPREDICT
+    input wire fetch_redirect_valid
 );
     wire iiq_entry_t [`IIQ_N_ENTRIES-1:0] entries;
     wire [`IIQ_N_ENTRIES-1:0] scheduled_entry_idx_onehot;
@@ -48,7 +56,11 @@ module integer_issue (
         .wr_en(entries_wr_en),
         .wr_data(entries_wr_data),
 
-        .entry_douts(entries)
+        .entry_douts(entries),
+
+        // FLUSH ON REDIRECT
+        .init(fetch_redirect_valid),
+        .init_state(0)
     );
 
     // issue scheduling
@@ -188,7 +200,11 @@ module integer_issue (
         .rst_aL(rst_aL),
         .we(issue_valid),
         .din(integer_issue_buffer_din),
-        .dout(issue_data)
+        .dout(issue_data),
+
+        // FLUSH ON REDIRECT
+        .init(fetch_redirect_valid),
+        .init_state(0)
     );
 
     assign issue_rob_id = scheduled_entry.instr_rob_id;

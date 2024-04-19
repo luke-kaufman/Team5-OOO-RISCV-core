@@ -175,7 +175,10 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         // (synchronous) set (1'b1) port to mark as speculative (point to ROB)
         .wr_en({retire_arf_id_mark_as_retired, rename_rd}),
         .wr_addr({retire_arf_id, rd}),
-        .wr_data({1'b0, 1'b1})
+        .wr_data({1'b0, 1'b1}),
+
+        // FLUSH ON REDIRECT
+        .flush(fetch_redirect_valid)
     );
 
     // register alias table: tag table
@@ -197,7 +200,10 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         // write port to rename rd to a new speculative (ROB) tag
         .wr_en(rename_rd),
         .wr_addr(rd),
-        .wr_data(dispatch_rob_id)
+        .wr_data(dispatch_rob_id),
+
+        // flush on redirect
+        .flush(fetch_redirect_valid)
     );
 
     wire rob_dispatch_data_t rob_dispatch_data = '{
@@ -267,6 +273,8 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .wr_en(retire),
         .wr_addr(retire_arf_id),
         .wr_data(retire_reg_data)
+
+        // NOT FLUSHED ON REDIRECT
     );
 
     // INTERFACE TO FETCH

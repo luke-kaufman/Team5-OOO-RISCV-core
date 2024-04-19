@@ -58,7 +58,10 @@ module rob (
     input wire ld_wb_valid,
     input wire rob_id_t ld_wb_rob_id,
     input wire reg_data_t ld_wb_reg_data,
-    input wire ld_wb_ld_mispred
+    input wire ld_wb_ld_mispred,
+
+    // flush on redirect
+    input wire fetch_redirect_valid
 );
     wire rob_entry_t [`ROB_N_ENTRIES-1:0] rob_state;
     wire rob_entry_t entry_rd_data_src1;
@@ -135,7 +138,11 @@ module rob (
         .wr_addr({alu_wb_rob_id, ld_wb_rob_id, iiq_wakeup_rob_id}),
         .wr_data(entry_wr_data),
 
-        .entry_douts(rob_state)
+        .entry_douts(rob_state),
+
+        // flush on redirect
+        .init(fetch_redirect_valid),
+        .init_state(0)
     );
 
     // NOTE: currently ignoring load mispreds while reading reg data

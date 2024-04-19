@@ -13,7 +13,8 @@ module reg_ #(
     input wire we,
     input wire [WIDTH-1:0] din,
     output wire [WIDTH-1:0] dout,
-
+    input wire flush,
+    
     // for testing
     input wire init,
     input wire [WIDTH-1:0] init_state
@@ -25,7 +26,7 @@ module reg_ #(
     always_ff @(posedge clk or posedge init or negedge rst_aL) begin
         if (init) begin
             reg_r <= init_state;
-        end else if (!rst_aL) begin
+        end else if (!rst_aL | flush) begin
             reg_r <= 0;
         end else if (we) begin
             reg_r <= din;
