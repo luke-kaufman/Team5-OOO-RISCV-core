@@ -41,9 +41,9 @@ module cache #(
 );
 
 // access cache bit fields
-`define get_tag     `ADDR_WIDTH-1 : (NUM_SET_BITS+NUM_OFFSET_BITS)
-`define get_set_num  (NUM_SET_BITS+NUM_OFFSET_BITS-1) : NUM_OFFSET_BITS
-`define get_offset   NUM_OFFSET_BITS-1 : 0
+`define get_tag     `ADDR_WIDTH-1:(NUM_SET_BITS+NUM_OFFSET_BITS)
+`define get_set_num  (NUM_SET_BITS+NUM_OFFSET_BITS-1):NUM_OFFSET_BITS
+`define get_offset   NUM_OFFSET_BITS-1:0
 
 wire we_aH;
 INV_X1 we_aH_INV (
@@ -260,7 +260,7 @@ OR2_X1 icache_hit_or_gate(
 onehot_mux_ #(
     .WIDTH(BLOCK_SIZE_BITS),
     .N_INS(2)
-) 
+)
 way_data_mux (
     .clk(clk),
     .ins({way1_data, way0_data}),

@@ -117,7 +117,9 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .a({lsq_dispatch_ready, is_int_instr}),
         .y(lsq_dispatch_ok)
     );
-    assign st_buf_dispatch_ok = ~is_s_type | st_buf_dispatch_ready; // FIXME: convert to structural
+    // NOTE: switch between lsu and lsu_simple by comenting/uncommenting the relevant line
+    // assign st_buf_dispatch_ok = ~is_s_type | st_buf_dispatch_ready; // FIXME: convert to structural
+    assign st_buf_dispatch_ok = 1'b1;
     wire rob_dispatch_ready;
     wire dispatch;
     and_ #(.N_INS(5)) dispatch_and (
