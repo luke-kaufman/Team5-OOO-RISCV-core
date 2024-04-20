@@ -5,18 +5,17 @@ module load_store_simple #(
 ) (
     input logic clk,
     input logic rst_aL,
-
     input wire csb0_in,
-    // FROM MAIN MEM TO LSU (RECEIVE)
-    input wire recv_main_mem_valid,
-    input wire recv_main_mem_lsu_aL_ifu_aH,
-    input wire [`WORD_WIDTH-1:0] recv_main_mem_data,
-    // FROM LSU TO MAIN MEM (SEND)
-    output wire send_en_main_mem,
-    output wire send_main_mem_lsu_aL_ifu_aH,
-    output wire [`ADDR_WIDTH-1:0] send_main_mem_addr,
-    output wire [2:0] send_size_main_mem, // {$block, Word, Halfword, Byte}
-    output wire [`DCACHE_DATA_BLOCK_SIZE-1:0] send_main_mem_data
+
+    // DCACHE TO MEM CTRL
+    output logic dcache_req_valid,
+    output req_type_t dcache_req_type, // 0: read, 1: write
+    output main_mem_block_addr_t dcache_req_block_addr,
+    output block_data_t dcache_req_block_data, // for writes
+    // DCACHE FROM MEM CTRL
+    input logic dcache_req_ready,
+    input logic dcache_resp_valid,
+    input block_data_t dcache_resp_block_data,
 
     // dispatch interface: ready & valid
     output wire dispatch_ready,
