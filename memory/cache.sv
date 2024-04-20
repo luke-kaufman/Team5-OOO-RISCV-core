@@ -71,7 +71,7 @@ module cache #(
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b01) ? 2'b10                                           :
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b10) ? 2'b01                                           :
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b11) ? {random_way, ~random_way}                       :
-                                                                            $error("way1_valid and way0_valid are invalid") ;
+                                                                            $error("way1_valid and way0_valid are invalid")
     };
     wire [N_INDEX_BITS-1:0] tag_array_addr = pipeline_req_addr_index;
     tag_array_set_t tag_array_din = '{
@@ -160,7 +160,7 @@ module cache #(
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b01) ? 2'b10                                           :
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b10) ? 2'b01                                           :
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b11) ? {random_way, ~random_way}                       :
-                                                                            $error("way1_valid and way0_valid are invalid") ;
+                                                                            $error("way1_valid and way0_valid are invalid")
     };
     // NOTE: we assume that the pipeline already force aligns the stores to the correct offset!
     wire [7:0] dcache_data_array_store_wmask = pipeline_req_wr_width == BYTE     ? 1'b1 << pipeline_req_addr_offset[2:0]      :
