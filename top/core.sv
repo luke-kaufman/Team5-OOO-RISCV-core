@@ -9,17 +9,25 @@ module core #() (
     input wire clk,
     input wire rst_aL,
     input wire csb0_in,  // testing icache on
-    // Main memory interaction for both LOADS and ICACHE (rd only)
-    input wire                               recv_main_mem_valid,
-    input wire                               recv_main_mem_lsu_aL_ifu_aH,  // if main mem data is meant for LSU or IFU
-    input wire [`ADDR_WIDTH-1:0]             recv_main_mem_addr,
-    input wire [2:0]                         recv_size_main_mem, // {Word, Halfword, Byte}
-    input wire [`ICACHE_DATA_BLOCK_SIZE-1:0] recv_main_mem_data, // NOTE: `ICACHE_DATA_BLOCK_SIZE == `DCACHE_DATA_BLOCK_SIZE
-    // Main memory interaction only for STORES (wr only)
-    output wire                   send_en_main_mem,
-    output wire [`ADDR_WIDTH-1:0] send_main_mem_addr,
-    output wire [2:0]             send_size_main_mem, // {Word, Halfword, Byte}
-    output wire [`WORD_WIDTH-1:0] send_main_mem_data, // write up to a word
+    
+    // ICACHE TO MEM CTRL
+    input logic icache_req_valid,
+    input main_mem_block_addr_t icache_req_block_addr,
+    output logic icache_req_ready,
+    // FROM MEM_CTRL TO ICACHE (RESPONSE) (LATENCY-SENSITIVE)
+    output logic icache_resp_valid,
+    output block_data_t icache_resp_block_data,
+    
+    // DCACHE TO MEM CTRL
+    output logic dcache_req_valid,
+    output req_type_t dcache_req_type, // 0: read, 1: write
+    output main_mem_block_addr_t dcache_req_block_addr,
+    output block_data_t dcache_req_block_data, // for writes
+    // DCACHE FROM MEM CTRL
+    input logic dcache_req_ready,
+    input logic dcache_resp_valid,
+    input block_data_t dcache_resp_block_data,
+    
     // ARF out - for checking archiectural state
     output wire [ARF_N_ENTRIES-1:0][REG_DATA_WIDTH-1:0] ARF_OUT
 );
@@ -156,11 +164,35 @@ module core #() (
     );
 
     // DUMB LSU
-    // load_store_simple lsu(
+    load_store_simple lsu (
+        .clk(clk), /*input*/
+        .rst_aL(rst_aL), /*input*/
+        .csb0_in(csb0_in), /*input*/
+        .flush(fetch_redirect_valid), /*input*/
+        // TO MEM CTRL - outputs
+        .dcache_req_valid(),
+        .dcache_req_type(), // 0: read 1: write
+        .dcache_req_block_addr(),
+        .dcache_req_block_data(), // for writes
+        // FROM MEM CTRL - inputs
+        .dcache_req_ready(),
+        .dcache_resp_valid(),
+        .dcache_resp_block_data(),
+        // dispatch interface: ready & valid
+        .dispatch_ready(iiq_dispatch_ready),  /*output*/
+        .dispatch_valid(iiq_dispatch_valid),  /*input*/
+        .dispatch_data(iiq_dispatch_data),   /*input*/
+        // alu broadcast:
+        .alu_broadcast_valid(alu_broadcast_valid),     /*input*/
+        .alu_broadcast_rob_id(alu_broadcast_rob_id),    /*input*/
+        .alu_broadcast_reg_data(alu_broadcast_reg_data),  /*input*/
+        // load broadcast:
+        .ld_broadcast_valid(ld_broadcast_valid),    /*output*/
+        .ld_broadcast_rob_id(ld_broadcast_rob_id),   /*output*/
+        .ld_broadcast_reg_data(ld_broadcast_reg_data)  /*output*/
+    );
 
-    // );
     // LOAD STORE QUEUE (LSQ)
-
     // LOAD STORE EXECUTE (D-cache?)
 
 endmodule
