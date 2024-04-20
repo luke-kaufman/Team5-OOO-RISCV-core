@@ -11,14 +11,14 @@ module main_mem #(
     input logic clk,
     input logic rst_aL,
 
-    // FROM MEM_CTRL TO MAIN_MEM (REQUEST)
+    // FROM MEM_CTRL TO MAIN_MEM (REQUEST) (LATENCY-SENSITIVE)
     input logic req_valid,
     input cache_type_t req_cache_type, // 0: icache, 1: dcache
     input req_type_t req_type, // 0: read, 1: write
     input main_mem_block_addr_t req_block_addr,
     input block_data_t req_block_data, // for writes
 
-    // FROM MAIN_MEM TO MEM_CTRL (RESPONSE)
+    // FROM MAIN_MEM TO MEM_CTRL (RESPONSE) (LATENCY-SENSITIVE)
     output logic resp_valid,
     output cache_type_t resp_cache_type,
     output block_data_t resp_block_data // for reads

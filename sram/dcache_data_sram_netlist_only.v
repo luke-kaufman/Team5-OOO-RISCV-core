@@ -1,4 +1,4 @@
-// OpenRAM SRAM model
+// OpenRAM SRAM model (NOTE: This one is netlist only!)
 // Words: 64
 // Word size: 128
 // Write size: 8

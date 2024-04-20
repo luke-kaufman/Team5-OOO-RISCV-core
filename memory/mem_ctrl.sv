@@ -4,35 +4,35 @@
 `include "misc/global_defs.svh"
 
 module mem_ctrl (
-    // FROM ICACHE TO MEM_CTRL (REQUEST) (always read)
+    // FROM ICACHE TO MEM_CTRL (REQUEST) (LATENCY-INSENSITIVE) (always read)
     input logic icache_req_valid,
     input main_mem_block_addr_t icache_req_block_addr,
     output logic icache_req_ready,
 
-    // FROM DCACHE TO MEM_CTRL (REQUEST)
+    // FROM DCACHE TO MEM_CTRL (REQUEST) (LATENCY-INSENSITIVE)
     input logic dcache_req_valid,
     input req_type_t dcache_req_type, // 0: read, 1: write
     input main_mem_block_addr_t dcache_req_block_addr,
     input block_data_t dcache_req_block_data, // for writes
     output logic dcache_req_ready,
 
-    // FROM MEM_CTRL TO MAIN_MEM (REQUEST)
+    // FROM MEM_CTRL TO MAIN_MEM (REQUEST) (LATENCY-SENSITIVE)
     output logic mem_req_valid,
     output cache_type_t mem_req_cache_type, // 0: icache, 1: dcache
     output req_type_t mem_req_type, // 0: read, 1: write
     output main_mem_block_addr_t mem_req_block_addr,
     output block_data_t mem_req_block_data, // for writes
 
-    // FROM MAIN_MEM TO MEM_CTRL (RESPONSE)
+    // FROM MAIN_MEM TO MEM_CTRL (RESPONSE) (LATENCY-SENSITIVE)
     input logic mem_resp_valid,
     input cache_type_t mem_resp_cache_type,
     input block_data_t mem_resp_block_data, // for reads
 
-    // FROM MEM_CTRL TO ICACHE (RESPONSE)
+    // FROM MEM_CTRL TO ICACHE (RESPONSE) (LATENCY-SENSITIVE)
     output logic icache_resp_valid,
     output block_data_t icache_resp_block_data,
 
-    // FROM MEM_CTRL TO DCACHE (RESPONSE)
+    // FROM MEM_CTRL TO DCACHE (RESPONSE) (LATENCY-SENSITIVE)
     output logic dcache_resp_valid,
     output block_data_t dcache_resp_block_data
 );

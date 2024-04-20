@@ -74,6 +74,7 @@ typedef logic [`ICACHE_TAG_BITS-1:0] icache_tag_t;
 
 typedef enum {ICACHE = 0, DCACHE = 1} cache_type_t;
 typedef enum {READ = 0, WRITE = 1} req_type_t;
+typedef enum {BYTE = 0, HALFWORD = 1, WORD = 2} req_width_t;
 
 `define I_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[24:21], instr[20] })
 `define S_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[11:8] , instr[7]  })
