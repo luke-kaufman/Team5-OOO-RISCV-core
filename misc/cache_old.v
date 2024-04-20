@@ -15,7 +15,7 @@
 
 // TODO: make this truly parametrizable?
 // TODO: change BLOCK_SIZE to be in terms of bytes, not bits?
-module cache #(
+module cache_old #(
     parameter BLOCK_SIZE_BITS = `ICACHE_DATA_BLOCK_SIZE,  // just defaults
     parameter NUM_SETS = `ICACHE_NUM_SETS,  // just defaults
     parameter NUM_WAYS = `ICACHE_NUM_WAYS,  // just defaults
@@ -45,11 +45,11 @@ module cache #(
 `define get_set_num  (NUM_SET_BITS+NUM_OFFSET_BITS-1):NUM_OFFSET_BITS
 `define get_offset   NUM_OFFSET_BITS-1:0
 
-wire we_aH;
-INV_X1 we_aH_INV (
-    .A(we_aL),
-    .ZN(we_aH)
-);
+// wire we_aH;
+// INV_X1 we_aH_INV (
+//     .A(we_aL),
+//     .ZN(we_aH)
+// );
 
 wire [NUM_WAYS-1:0] we_mask;
 
@@ -152,7 +152,7 @@ generate
             .csb0(0),  // 1 chip
             .web0(we_aL),
             .rst_aL(rst_aL),
-            .wmask0(we_mask),
+            .wmask0(we_mask), // FIXME: should be size 16
             .addr0(addr[`get_set_num]),
             .din0({write_data, write_data}),
             .dout0(data_out)
