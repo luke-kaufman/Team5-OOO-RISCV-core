@@ -12,6 +12,7 @@ module cache #(
 ) (
     input logic clk,
     input logic rst_aL,
+    input logic init,
     input logic flush, // TODO: do we have to flush anything in cache? (we don't need to flush the lfsr)
 
     // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
