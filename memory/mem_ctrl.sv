@@ -73,6 +73,31 @@ module mem_ctrl (
         end
     end
 
+<<<<<<< HEAD
     
 
 endmodule
+=======
+    // Forwarding responses to icache and dcache
+    always_comb begin
+        if (mem_resp_valid && mem_resp_cache_type == ICACHE) begin
+            icache_resp_valid = 1;
+            icache_resp_block_data = mem_resp_block_data;
+            dcache_resp_valid = 0;
+            dcache_req_block_data = 0;
+        end else if (mem_resp_valid && mem_resp_cache_type == DCACHE) begin
+            icache_resp_valid = 0;
+            icache_req_block_addr = 0;
+            dcache_resp_valid = 1;
+            dcache_resp_block_data = mem_resp_block_data;
+        end else begin
+            icache_resp_valid = 0;
+            icache_req_block_addr = 0;
+            dcache_resp_valid = 0;
+            dcache_req_block_data = 0;
+        end
+    end
+endmodule
+
+`endif
+>>>>>>> a058e36a1040ff3ec7af248541855ab1ace067d2
