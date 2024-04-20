@@ -44,7 +44,7 @@ module sram_64x48_1rw_wsize24(
   reg [DATA_WIDTH-1:0]  dout0;
 
   // All inputs are registers
-  always @(posedge clk0)
+  always @(posedge clk0) // TODO: no negedge rst_aL in the sensitivity list?
   begin
     if(!rst_aL) begin
         // reset regs
@@ -65,8 +65,8 @@ module sram_64x48_1rw_wsize24(
       wmask0_reg = wmask0;
       addr0_reg = addr0;
       din0_reg = din0;
-      // /*#(T_HOLD)*/ dout0 = 48'bx;
-      #1
+      // /*#(T_HOLD)*/ dout0 = 48'bx; // TODO: why did we comment this T_HOLD delay out?
+      #1 // TODO: why do we have this #1 delay?
       if ( !csb0_reg && web0_reg && VERBOSE )
         // THIS IS SETUP FOR ICACHE, NEED TO DO FOR DCACHE (DIRTY BIT)
         $display("%6d Reading %m addr0=%6b dout0: way1_v:%b, way1_tag:%b, way0_v:%b, way0_tag:%b", $time-1, addr0_reg,mem[addr0_reg][47], mem[addr0_reg][46:24], mem[addr0_reg][23], mem[addr0_reg][22:0]);
@@ -93,7 +93,7 @@ module sram_64x48_1rw_wsize24(
   always @ (negedge clk0)
   begin : MEM_READ0
     if (!csb0_reg && web0_reg)
-       dout0 <= /*#(DELAY)*/ mem[addr0_reg];
+       dout0 <= /*#(DELAY)*/ mem[addr0_reg]; // TODO: why did we comment this DELAY delay out?
   end
 
 endmodule

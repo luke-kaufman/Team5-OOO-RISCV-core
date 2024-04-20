@@ -27,6 +27,7 @@ module cache #(
     output main_mem_block_addr_t mem_ctrl_req_block_addr,
     output block_data_t mem_ctrl_req_block_data, // (only for dcache)
     input logic mem_ctrl_req_ready, // (icache has priority. for icache, if valid is true, then ready is also true.)
+    // TODO: how to use mem_ctrl_req_ready?
 
     // FROM MEM_CTRL TO CACHE (RESPONSE) (LATENCY-SENSITIVE)
     input logic mem_ctrl_resp_valid,
@@ -36,79 +37,116 @@ module cache #(
     output logic pipeline_resp_valid,
     output word_t pipeline_resp_rd_data
 );
-    wire tag_array_csb = pipeline_req_valid | mem_ctrl_resp_valid;
-    wire tag_array_web = mem_ctrl_resp_valid;
-    // wire tag_array_wmask =
-    struct packed {
+    typedef struct packed {
         logic way1_valid;
         logic [N_TAG_BITS-1:0] way1_tag;
         logic way0_valid;
         logic [N_TAG_BITS-1:0] way0_tag;
-    } tag_array_dout;
-    // Tag array
-    sram_64x48_1rw_wsize24 tag_array (
-        .clk0(clk),
-        .csb0(~tag_array_csb), // active low
-        .web0(~tag_array_web), // active low
-        .rst_aL(rst_aL),
-        .wmask0(),
-        .addr0(),
-        .din0(),
-        .dout0(tag_array_dout)
-    );
+    } tag_array_word_t;
 
-    struct packed {
+    typedef struct packed {
         logic [`BLOCK_DATA_WIDTH-1:0] way0_data;
         logic [`BLOCK_DATA_WIDTH-1:0] way1_data;
-    } data_array_dout;
-    // Data array
-    if (CACHE_TYPE == ICACHE) begin
-        sram_64x128_1rw_wsize64 icache_data_array (
-            .clk0(clk),
-            .csb0(),
-            .web0(),
-            .rst_aL(rst_aL),
-            .wmask0(),
-            .addr0(),
-            .din0(),
-            .dout0(data_array_dout)
-        );
-    end else if (CACHE_TYPE == DCACHE) begin
-        sram_64x128_1rw_wsize8 dcache_data_array (
-            .clk0(clk),
-            .csb0(),
-            .web0(),
-            .rst_aL(rst_aL),
-            .wmask0(),
-            .addr0(),
-            .din0(),
-            .dout0()
-        );
-    end
+    } data_array_word_t;
+
+    wire random_way;
+    lfsr_8bit lfsr (
+        .clk(clk),
+        .rst_aL(rst_aL),
+        .init(init),
+        .out_bit(random_way)
+    );
 
     wire [N_TAG_BITS-1:0] pipeline_req_addr_tag;
     wire [N_INDEX_BITS-1:0] pipeline_req_addr_index;
     wire [N_OFFSET_BITS-1:0] pipeline_req_addr_offset;
     assign {pipeline_req_addr_tag, pipeline_req_addr_index, pipeline_req_addr_offset} = pipeline_req_addr;
-    wire sel_way0 = tag_array_dout.way0_valid & (tag_array_dout.way0_tag == pipeline_req_addr_tag);
-    wire sel_way1 = tag_array_dout.way1_valid & (tag_array_dout.way1_tag == pipeline_req_addr_tag);
 
+    wire tag_array_csb = mem_ctrl_resp_valid | pipeline_req_valid;
+    wire tag_array_web = mem_ctrl_resp_valid;
+    wire [1:0] tag_array_wmask = {random_way == 1'b1, random_way == 1'b0};
+    wire [N_INDEX_BITS-1:0] tag_array_addr = pipeline_req_addr_index;
+    tag_array_word_t tag_array_din = '{
+        .way1_valid: 1'b1,                // should be masked out if this is not the random way selected
+        .way1_tag: pipeline_req_addr_tag, // should be masked out if this is not the random way selected
+        .way0_valid: 1'b1,                // should be masked out if this is not the random way selected
+        .way0_tag: pipeline_req_addr_tag  // should be masked out if this is not the random way selected
+    };
+    tag_array_word_t tag_array_dout;
 
-    lfsr_8bit lfsr (
-        .clk(clk),
+    // Tag array
+    sram_64x48_1rw_wsize24 tag_array (
+        .clk0(clk),
         .rst_aL(rst_aL),
-        .init(init),
-        .out_bit()
+        .csb0(~tag_array_csb), // active low
+        .web0(~tag_array_web), // active low
+        .wmask0(tag_array_wmask),
+        .addr0(tag_array_addr),
+        .din0(tag_array_din),
+        .dout0(tag_array_dout)
     );
 
-    // truth table
-    // WAY1V WAY0V we_mask[1] we_mask[0]
-    // 0     0     0          1          both invalid just write to 0
-    // 0     1     1          0          if way 0 valid, write to way 1
-    // 1     0     0          1          if way 1 valid, write to way 0
-    // 1     1     1/2        1/2        randomly evict
+    logic [N_TAG_BITS-1:0] pipeline_req_addr_tag_latched;
+    always_ff @(posedge clk) begin // TODO: no negedge rst_aL in the sensitivity list? (copied behavioral sram)
+        if (!rst_aL) begin
+            pipeline_req_addr_tag_latched <= 0;
+        end else begin
+            pipeline_req_addr_tag_latched <= pipeline_req_addr_tag;
+        end
+    end
 
-    
+    wire sel_way0 = tag_array_dout.way0_valid & (tag_array_dout.way0_tag == pipeline_req_addr_tag_latched);
+    wire sel_way1 = tag_array_dout.way1_valid & (tag_array_dout.way1_tag == pipeline_req_addr_tag_latched);
+
+    wire data_array_csb = mem_ctrl_resp_valid | pipeline_req_valid;
+    wire data_array_web = mem_ctrl_resp_valid | (pipeline_req_valid & (pipeline_req_type == WRITE));
+    wire [1:0]  icache_data_array_wmask = {random_way == 1'b1, random_way == 1'b0};
+    wire [15:0] dcache_data_array_wmask = {
+        {8{random_way == 1'b1}} | ({8{sel_way1}} & (1 << pipeline_req_addr_offset[2:0])),
+        {8{random_way == 1'b0}} | ({8{sel_way0}} & (1 << pipeline_req_addr_offset[2:0]))
+    };
+    wire [N_INDEX_BITS-1:0] data_array_addr = pipeline_req_addr_index;
+    data_array_word_t data_array_din = '{
+        way0_data: mem_ctrl_resp_valid               ? mem_ctrl_resp_block_data        :
+                   pipeline_req_wr_width == BYTE     ? {8{pipeline_req_wr_data[7:0]}}  :
+                   pipeline_req_wr_width == HALFWORD ? {4{pipeline_req_wr_data[15:0]}} :
+                   pipeline_req_wr_width == WORD     ? {2{pipeline_req_wr_data}}       :
+                                                       {64{1'b0}}                      ,
+        way1_data: mem_ctrl_resp_valid               ? mem_ctrl_resp_block_data        :
+                   pipeline_req_wr_width == BYTE     ? {8{pipeline_req_wr_data[7:0]}}  :
+                   pipeline_req_wr_width == HALFWORD ? {4{pipeline_req_wr_data[15:0]}} :
+                   pipeline_req_wr_width == WORD     ? {2{pipeline_req_wr_data}}       :
+                                                       {64{1'b0}}
+    };
+    data_array_word_t data_array_dout;
+
+    // Data array
+    if (CACHE_TYPE == ICACHE) begin
+        sram_64x128_1rw_wsize64 icache_data_array (
+            .clk0(clk),
+            .rst_aL(rst_aL),
+            .csb0(~data_array_csb), // active low
+            .web0(~data_array_web), // active low
+            .wmask0(icache_data_array_wmask),
+            .addr0(data_array_addr),
+            .din0(data_array_din),
+            .dout0(data_array_dout)
+        );
+    end else if (CACHE_TYPE == DCACHE) begin
+        sram_64x128_1rw_wsize8 dcache_data_array (
+            .clk0(clk),
+            .rst_aL(rst_aL),
+            .csb0(~data_array_csb), // active low
+            .web0(~data_array_web), // active low
+            .wmask0(dcache_data_array_wmask),
+            .addr0(data_array_addr),
+            .din0(data_array_din),
+            .dout0(data_array_dout)
+        );
+    end
+
+    assign mem_ctrl_req_valid =
+
 endmodule
 
 `endif
