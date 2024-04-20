@@ -73,11 +73,6 @@ module mem_ctrl (
         end
     end
 
-<<<<<<< HEAD
-    
-
-endmodule
-=======
     // Forwarding responses to icache and dcache
     always_comb begin
         if (mem_resp_valid && mem_resp_cache_type == ICACHE) begin
@@ -100,4 +95,3 @@ endmodule
 endmodule
 
 `endif
->>>>>>> a058e36a1040ff3ec7af248541855ab1ace067d2
