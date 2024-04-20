@@ -66,11 +66,13 @@ module mem_ctrl (
             mem_req_block_data = dcache_req_block_data;
         end else begin
             mem_req_valid = 0;
-            mem_req_cache_type = ICACHE;
-            mem_req_type = READ;
+            mem_req_cache_type = 'cache_type_t(0);
+            mem_req_type = 'req_type_t(0);
             mem_req_block_addr = 0;
             mem_req_block_data = 0;
         end
     end
+
+    
 
 endmodule

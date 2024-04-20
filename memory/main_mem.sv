@@ -44,7 +44,7 @@ module main_mem #(
                 req_pipeline[i] <= '{default: 0};
             end
             resp_valid <= 0;
-            resp_cache_type <= cache_type_t'0;
+            resp_cache_type <= cache_type_t'(0);
             resp_block_data <= 0;
         end else begin
             // Shift the pipeline
