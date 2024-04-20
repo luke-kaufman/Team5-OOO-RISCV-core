@@ -74,10 +74,10 @@ module cache #(
     };
     wire [N_INDEX_BITS-1:0] tag_array_addr = pipeline_req_addr_index;
     tag_array_set_t tag_array_din = '{
-        .way1_valid: 1'b1,                // should be masked out if this is not the random way selected
-        .way1_tag: pipeline_req_addr_tag, // should be masked out if this is not the random way selected
-        .way0_valid: 1'b1,                // should be masked out if this is not the random way selected
-        .way0_tag: pipeline_req_addr_tag  // should be masked out if this is not the random way selected
+        way1_valid: 1'b1,                // should be masked out if this is not the random way selected
+        way1_tag: pipeline_req_addr_tag, // should be masked out if this is not the random way selected
+        way0_valid: 1'b1,                // should be masked out if this is not the random way selected
+        way0_tag: pipeline_req_addr_tag  // should be masked out if this is not the random way selected
     };
 
     // Tag array
