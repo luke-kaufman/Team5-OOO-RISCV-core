@@ -120,11 +120,6 @@ module load_store_simple #(
         .init_entries(init_entries)
     );
 
-    // iiq wakeup write
-
-
-    // alu broadcast write
-
     // alu broadcast bypass into dcache request (base addr and store data)
     wire addr_t actual_base_addr   = alu_broadcast_rob_id == lsq_deq_entry.base_addr_rob_id ? alu_broadcast_reg_data  :
                                                                                               lsq_deq_entry.base_addr ;
