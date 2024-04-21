@@ -9,13 +9,13 @@ module load_store_simple #(
     input logic init,
     input logic flush,
 
-    // MEM_CTRL REQUEST
+    // MEM CTRL REQUEST
     output logic mem_ctrl_req_valid,
     output req_type_t mem_ctrl_req_type, // 0: read, 1: write
     output main_mem_block_addr_t mem_ctrl_req_block_addr,
     output block_data_t mem_ctrl_req_block_data, // for writes
     input logic mem_ctrl_req_ready,
-    // MEM_CTRL RESPONSE
+    // MEM CTRL RESPONSE
     input logic mem_ctrl_resp_valid,
     input block_data_t mem_ctrl_resp_block_data,
 

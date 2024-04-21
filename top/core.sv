@@ -13,25 +13,25 @@ module core (
     input wire rst_aL,
     // input wire csb0_in,  // testing icache on
     input wire init,
-    
-    // ICACHE TO MEM CTRL
-    input logic icache_req_valid,
-    input logic [`MAIN_MEM_BLOCK_ADDR_WIDTH-1:0] icache_req_block_addr,
-    output logic icache_req_ready,
-    // FROM MEM_CTRL TO ICACHE (RESPONSE) (LATENCY-SENSITIVE)
-    output logic icache_resp_valid,
-    output logic [`BLOCK_DATA_WIDTH-1:0] icache_resp_block_data,
-    
-    // FROM DCACHE TO MEM CTRL
-    output logic dcache_req_valid,
-    output logic dcache_req_type, // 0: read, 1: write
-    output logic [`MAIN_MEM_BLOCK_ADDR_WIDTH-1:0] dcache_req_block_addr,
-    output logic [`BLOCK_DATA_WIDTH-1:0] dcache_req_block_data, // for writes
-    // TO DCACHE FROM MEM CTRL
-    input logic dcache_req_ready,
-    input logic dcache_resp_valid,
-    input logic [`BLOCK_DATA_WIDTH-1:0] dcache_resp_block_data,
-    
+
+    // ICACHE MEM CTRL REQUEST
+    input logic icache_mem_ctrl_req_valid,
+    input logic [`MAIN_MEM_BLOCK_ADDR_WIDTH-1:0] icache_mem_ctrl_req_block_addr,
+    output logic icache_mem_ctrl_req_ready,
+    // ICACHE MEM CTRL RESPONSE
+    output logic icache_mem_ctrl_resp_valid,
+    output logic [`BLOCK_DATA_WIDTH-1:0] icache_mem_ctrl_resp_block_data,
+
+    // DCACHE MEM CTRL REQUEST
+    output logic dcache_mem_ctrl_req_valid,
+    output logic dcache_mem_ctrl_req_type, // 0: read, 1: write
+    output logic [`MAIN_MEM_BLOCK_ADDR_WIDTH-1:0] dcache_mem_ctrl_req_block_addr,
+    output logic [`BLOCK_DATA_WIDTH-1:0] dcache_mem_ctrl_req_block_data, // for writes
+    input logic dcache_mem_ctrl_req_ready,
+    // DCACHE MEM CTRL RESPONSE
+    input logic dcache_mem_ctrl_resp_valid,
+    input logic [`BLOCK_DATA_WIDTH-1:0] dcache_mem_ctrl_resp_block_data,
+
     // ARF out - for checking archiectural state
     output wire [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] ARF_OUT
 );
@@ -88,13 +88,13 @@ module core (
         .recovery_PC(fetch_redirect_pc),
         .recovery_PC_valid(fetch_redirect_valid),
         .backend_stall(fetch_redirect_valid),
-        // ICACHE TO MEM CTRL
-        .icache_req_valid(icache_req_valid),            /*output logic*/
-        .icache_req_block_addr(icache_req_block_addr),  /*output main_mem_block_addr_t*/
-        .icache_req_ready(icache_req_ready),            /*input logic*/
-        // FROM MEM_CTRL TO ICACHE (RESPONSE) (LATENCY-SENSITIVE)
-        .icache_resp_valid(icache_resp_valid),            /*input logic*/
-        .icache_resp_block_data(icache_resp_block_data),  /*input block_data_t*/
+        // ICACHE MEM CTRL REQUEST
+        .mem_ctrl_req_valid(icache_mem_ctrl_req_valid),            /*output logic*/
+        .mem_ctrl_req_block_addr(icache_mem_ctrl_req_block_addr),  /*output main_mem_block_addr_t*/
+        .mem_ctrl_req_ready(icache_mem_ctrl_req_ready),            /*input logic*/
+        // ICACHE MEM CTRL RESPONSE
+        .mem_ctrl_resp_valid(icache_mem_ctrl_resp_valid),            /*input logic*/
+        .mem_ctrl_resp_block_data(icache_mem_ctrl_resp_block_data),  /*input block_data_t*/
         // IFU <-> DISPATCH
         .ififo_dispatch_ready(ififo_dispatch_ready),  // input
         .ififo_dispatch_valid(ififo_dispatch_valid),  // output
@@ -138,8 +138,8 @@ module core (
         .ld_broadcast_reg_data(ld_broadcast_reg_data),  /*input*/
         // .ld_mispred(ld_mispred)              /*input*/
         // INTERFACE TO FETCH
-        .fetch_redirect_valid(fetch_redirect_valid), /*output wire*/ 
-        .fetch_redirect_pc(fetch_redirect_pc) /*output wire addr_t*/ 
+        .fetch_redirect_valid(fetch_redirect_valid), /*output wire*/
+        .fetch_redirect_pc(fetch_redirect_pc) /*output wire addr_t*/
     );
 
     // INTEGER ISSUE QUEUE (IIQ)
@@ -182,15 +182,15 @@ module core (
         .rst_aL(rst_aL), /*input*/
         // .csb0_in(csb0_in), /*input*/
         .flush(fetch_redirect_valid), /*input*/
-        // FROM DCACHE TO MEM CTRL
-        .dcache_req_valid(dcache_req_valid), // output logic 
-        .dcache_req_type(dcache_req_type), // output req_type_t  // 0: read 1: write
-        .dcache_req_block_addr(dcache_req_block_addr), // output main_mem_block_addr_t 
-        .dcache_req_block_data(dcache_req_block_data), // output block_data_t  // for writes
-        // TO DCACHE FROM MEM CTRL
-        .dcache_req_ready(dcache_req_ready), // input logic 
-        .dcache_resp_valid(dcache_resp_valid), // input logic 
-        .dcache_resp_block_data(dcache_resp_block_data), // input block_data_t 
+        // DCACHE MEM CTRL REQUEST
+        .mem_ctrl_req_valid(dcache_mem_ctrl_req_valid), // output logic
+        .mem_ctrl_req_type(dcache_mem_ctrl_req_type), // output req_type_t  // 0: read 1: write
+        .mem_ctrl_req_block_addr(dcache_mem_ctrl_req_block_addr), // output main_mem_block_addr_t
+        .mem_ctrl_req_block_data(dcache_mem_ctrl_req_block_data), // output block_data_t  // for writes
+        // DCACHE MEM CTRL RESPONSE
+        .mem_ctrl_req_ready(dcache_mem_ctrl_req_ready), // input logic
+        .mem_ctrl_resp_valid(dcache_mem_ctrl_resp_valid), // input logic
+        .mem_ctrl_resp_block_data(dcache_mem_ctrl_resp_block_data), // input block_data_t
         // dispatch interface: ready & valid
         .dispatch_ready(iiq_dispatch_ready),  /*output*/
         .dispatch_valid(iiq_dispatch_valid),  /*input*/
