@@ -4,6 +4,7 @@
 `include "misc/global_defs.svh"
 // `include "freepdk-45nm/stdcells.v"
 `include "misc/fifo_ram.v"
+`include "golden/misc/fifo_ram_golden.sv"
 `include "misc/mux/mux_.v"
 `include "misc/and/and_.v"
 `include "misc/inv.v"
@@ -119,7 +120,7 @@ module rob_simple (
     end
 
     // stores write to rob when they execute
-    fifo_ram #(
+    fifo_ram_golden #(
         .ENTRY_WIDTH(`ROB_ENTRY_WIDTH),
         .N_ENTRIES(`ROB_N_ENTRIES),
         .N_READ_PORTS(2),

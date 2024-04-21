@@ -4,6 +4,7 @@
 `include "misc/global_defs.svh"
 // `include "freepdk-45nm/stdcells.v"
 `include "misc/regfile.sv"
+`include "golden/misc/regfile_golden.sv"
 `include "frontend/dispatch/rob_simple.sv"
 `include "frontend/dispatch/decode.sv"
 `include "misc/mux/mux_.v"
@@ -162,7 +163,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     wire rs1_retired;
     wire rs2_retired;
     wire arf_id_t retire_arf_id;
-    regfile #(
+    regfile_golden #(
         .ENTRY_WIDTH(1),
         .N_ENTRIES(32),
         .N_READ_PORTS(2),
@@ -191,7 +192,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     wire rob_id_t rob_id_src1;
     wire rob_id_t rob_id_src2;
     wire rob_id_t dispatch_rob_id;
-    regfile #(
+    regfile_golden #(
         .ENTRY_WIDTH(4),
         .N_ENTRIES(32),
         .N_READ_PORTS(3),

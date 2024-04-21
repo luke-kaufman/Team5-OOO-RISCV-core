@@ -8,6 +8,7 @@ module fifo_ram_golden #(
 ) (
     input logic clk,
     input logic rst_aL,
+    input logic flush,
 
     output logic enq_ready,
     input logic enq_valid,
@@ -81,12 +82,12 @@ module fifo_ram_golden #(
 
     // state update
     always_ff @(posedge clk or negedge rst_aL or posedge init) begin
-        if(init) begin
+        if (init) begin
             enq_ctr_r <= init_enq_up_counter_state;
             deq_ctr_r <= init_deq_up_counter_state;
             fifo_r <= init_entry_reg_state;
         end else
-        if (!rst_aL) begin
+        if (!rst_aL | flush) begin
             enq_ctr_r <= 0;
             deq_ctr_r <= 0;
             fifo_r <= 0;

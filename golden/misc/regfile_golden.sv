@@ -18,6 +18,7 @@ module regfile_golden #(
 ) (
     input wire clk,
     input wire rst_aL,
+    input wire flush,
 
     input wire [N_READ_PORTS-1:0] [PTR_WIDTH-1:0] rd_addr,
     output wire [N_READ_PORTS-1:0] [ENTRY_WIDTH-1:0] rd_data,
@@ -56,7 +57,7 @@ module regfile_golden #(
     always_ff @(posedge clk or posedge init or negedge rst_aL) begin
         if (init) begin
             regfile_r <= init_regfile_state;
-        end else if (!rst_aL) begin
+        end else if (!rst_aL | flush) begin
             regfile_r <= 0;
         end else begin
             regfile_r <= regfile_next;
