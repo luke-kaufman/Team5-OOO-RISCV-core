@@ -127,8 +127,9 @@ module rob_simple (
         .enq_data(dispatch_entry_data),
         .enq_addr(dispatch_rob_id),
 
-        .deq_ready(1'b1), // ARF is always ready to accept data
-        .deq_valid(retire),
+        // FIXME
+        .deq_ready(retire_entry_data.dst_valid & retire_entry_data.reg_ready),
+        .deq_valid(), // not used
         .deq_data(retire_entry_data),
         .deq_addr(retire_rob_id),
 

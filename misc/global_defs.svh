@@ -165,6 +165,21 @@ typedef struct packed {
 `define LSQ_ENTRY_WIDTH $bits(lsq_entry_t)
 
 typedef struct packed {
+    logic ld_st; // 0: ld, 1: st
+    logic rob_id_t base_addr_rob_id;
+    logic base_addr_ready;
+    addr_t base_addr;
+    imm_t imm;
+    rob_id_t st_data_rob_id;
+    logic st_data_ready;
+    reg_data_t st_data;
+    rob_id_t instr_rob_id;
+    req_width_t width;
+    logic ld_sign;
+} lsq_simple_entry_t;
+`define LSQ_SIMPLE_ENTRY_WIDTH $bits(lsq_simple_entry_t)
+
+typedef struct packed {
     reg_data_t src1_data;
     reg_data_t src2_data;
     rob_id_t instr_rob_id; // received from issue

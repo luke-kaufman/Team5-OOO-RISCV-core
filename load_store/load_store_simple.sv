@@ -1,8 +1,8 @@
 `include "misc/global_defs.svh"
 
 module load_store_simple #(
-    parameter int unsigned LSQ_N_ENTRIES = 8,
-    parameter int unsigned LSQ_ENTRY_WIDTH = 32
+    parameter int unsigned LSQ_SIMPLE_N_ENTRIES = 8,
+    parameter int unsigned LSQ_SIMPLE_ENTRY_WIDTH = `LSQ_SIMPLE_ENTRY_WIDTH,
 ) (
     input logic clk,
     input logic rst_aL,
@@ -22,7 +22,7 @@ module load_store_simple #(
     // dispatch interface: ready & valid
     output wire dispatch_ready,
     input wire dispatch_valid,
-    input wire iiq_entry_t dispatch_data,
+    input wire lsq_simple_entry_t dispatch_data,
 
     // iiq wakeup:
     input wire iiq_wakeup_valid,
@@ -33,23 +33,29 @@ module load_store_simple #(
     input wire rob_id_t alu_broadcast_rob_id,
     input wire reg_data_t alu_broadcast_reg_data
 );
-    fifo_ram lsq_simple (
+
+    fifo_ram #(
+        .ENTRY_WIDTH(LSQ_SIMPLE_ENTRY_WIDTH),
+        .N_ENTRIES(LSQ_SIMPLE_N_ENTRIES),
+        .N_READ_PORTS(1), // NOTE: not used
+        .N_WRITE_PORTS(3)
+    ) lsq_simple (
         .clk(clk),
         .rst_aL(rst_aL),
         .flush(flush),
 
-        .enq_ready(),
-        .enq_valid(),
-        .enq_data(),
-        .enq_addr(), // to get the ROB tail ID for dispatch
+        .enq_ready(dispatch_ready),
+        .enq_valid(dispatch_valid),
+        .enq_data(dispatch_data),
+        .enq_addr(), // not used
 
         .deq_ready(),
         .deq_valid(),
         .deq_data(),
-        .deq_addr(), // to get the ROB head ID for retirement
+        .deq_addr(), // not used
 
-        .rd_addr(),
-        .rd_data(),
+        .rd_addr(), // not used
+        .rd_data(), // not used
 
         // NOTE: all writes are assumed to be to separate entries
         // writes are generalized to be optional and partial across all entries
