@@ -1,14 +1,18 @@
+`ifndef DISPATCH_V
+`define DISPATCH_V
+
 `include "misc/global_defs.svh"
 // `include "freepdk-45nm/stdcells.v"
 `include "misc/regfile.sv"
-`include "frontend/dispatch/rob.sv"
+`include "frontend/dispatch/rob_simple.sv"
+`include "frontend/dispatch/decode.sv"
 `include "misc/mux/mux_.v"
 `include "misc/onehot_mux/onehot_mux_.v"
 `include "misc/or/or_.v"
 `include "misc/reg_.v"
 
 // FIXME: convert pc -> pc_npc, add npc_wb coming from alu
-module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
+module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire clk,
     input wire rst_aL,
     // INTERFACE TO INSRUCTION FIFO (IFIFO)
@@ -26,11 +30,6 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire lsq_dispatch_ready,
     output wire lsq_dispatch_valid,
     output wire lsq_entry_t lsq_dispatch_data,
-    // INTERFACE TO STORE BUFFER (ST_BUF)
-    input wire st_buf_dispatch_ready,
-    output wire st_buf_dispatch_valid,
-    output wire st_buf_entry_t st_buf_dispatch_data,
-    input wire st_buf_id_t st_buf_dispatch_id,
     // INTERFACE TO ARITHMETIC-LOGIC UNIT (ALU)
     input wire alu_broadcast_valid,
     input wire rob_id_t alu_broadcast_rob_id,
@@ -42,7 +41,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire ld_broadcast_valid,
     input wire rob_id_t ld_broadcast_rob_id,
     input wire reg_data_t ld_broadcast_reg_data,
-    input wire ld_mispred,
+    // input wire ld_mispred,
     // INTERFACE TO FETCH
     output wire fetch_redirect_valid,
     output wire addr_t fetch_redirect_pc
@@ -118,8 +117,8 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .y(lsq_dispatch_ok)
     );
     // NOTE: switch between lsu and lsu_simple by comenting/uncommenting the relevant line
-    assign st_buf_dispatch_ok = ~is_s_type | st_buf_dispatch_ready; // FIXME: convert to structural
-    // assign st_buf_dispatch_ok = 1'b1;
+    // assign st_buf_dispatch_ok = ~is_s_type | st_buf_dispatch_ready; // FIXME: convert to structural
+    assign st_buf_dispatch_ok = 1'b1;
     wire rob_dispatch_ready;
     wire dispatch;
     and_ #(.N_INS(5)) dispatch_and (
@@ -141,7 +140,9 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     unsigned_cmp_ #(.WIDTH(`ROB_ID_WIDTH)) retire_arf_id_not_renamed_cmp (
         .a(retire_rob_id),
         .b(retire_arf_id_curr_rob_id),
-        .y(retire_arf_id_not_renamed)
+        .eq(retire_arf_id_not_renamed),
+        .lt(),
+        .ge()
     );
     wire retire_arf_id_mark_as_retired;
     and_ #(.N_INS(2)) retire_arf_id_mark_as_retired_and (
@@ -180,7 +181,10 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .wr_data({1'b0, 1'b1}),
 
         // FLUSH ON REDIRECT
-        .flush(fetch_redirect_valid)
+        .flush(fetch_redirect_valid),
+        .init(),
+        .init_regfile_state(),
+        .current_regfile_state()
     );
 
     // register alias table: tag table
@@ -205,7 +209,10 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .wr_data(dispatch_rob_id),
 
         // flush on redirect
-        .flush(fetch_redirect_valid)
+        .flush(fetch_redirect_valid),
+        .init(),
+        .init_regfile_state(),
+        .current_regfile_state()
     );
 
     wire rob_dispatch_data_t rob_dispatch_data = '{
@@ -218,9 +225,11 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire reg_data_t rob_reg_data_src1;
     wire rob_reg_ready_src2;
     wire reg_data_t rob_reg_data_src2;
-    rob _rob (
+    rob_simple _rob (
         .clk(clk),
         .rst_aL(rst_aL),
+        .fetch_redirect_valid(),
+        .fetch_redirect_pc(fetch_redirect_pc),
 
         .dispatch_ready(rob_dispatch_ready),
         .dispatch_valid(dispatch),
@@ -254,8 +263,8 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
 
         .ld_wb_valid(ld_broadcast_valid),
         .ld_wb_rob_id(ld_broadcast_rob_id),
-        .ld_wb_reg_data(ld_broadcast_reg_data),
-        .ld_wb_ld_mispred(ld_mispred)
+        .ld_wb_reg_data(ld_broadcast_reg_data)
+        // , .ld_wb_ld_mispred(ld_mispred)
     );
 
     wire reg_data_t arf_reg_data_src1;
@@ -274,9 +283,13 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
 
         .wr_en(retire),
         .wr_addr(retire_arf_id),
-        .wr_data(retire_reg_data)
+        .wr_data(retire_reg_data),
 
         // NOT FLUSHED ON REDIRECT
+        .flush(1'b0),
+        .init(),
+        .init_regfile_state(),
+        .current_regfile_state()
     );
 
     // INTERFACE TO FETCH
@@ -350,15 +363,16 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         instr_rob_id: dispatch_rob_id,
         width: ls_width,              // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
         ld_sign: ld_sign,             // 0: signed (LB, LH, LW), 1: unsigned (LBU, LHU)
-        st_buf_id: st_buf_dispatch_id // only st_buf is allocated during dispatch, not ld_buf
+        st_buf_id: 0 // only st_buf is allocated during dispatch, not ld_buf
     };
 
     // INTERFACE TO STORE BUFFE (ST_BUF)
-    assign st_buf_dispatch_valid = dispatch & is_s_type;
-    // st_buf_entry is initialized to zero during dispatch (it is written during load_store_issue)
-    assign st_buf_dispatch_data = '{
-        eff_addr: 0,
-        st_data: 0,
-        st_width: 0
-    };
+    // assign st_buf_dispatch_valid = dispatch & is_s_type;
+    // // st_buf_entry is initialized to zero during dispatch (it is written during load_store_issue)
+    // assign st_buf_dispatch_data = '{
+    //     eff_addr: 0,
+    //     st_data: 0,
+    //     st_width: 0
+    // };
 endmodule
+`endif

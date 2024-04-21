@@ -34,7 +34,6 @@ module test #(
     // initial forever #5 clk = ~clk;
     // bit rstn = 1;
 
-    wire  [4:0] x = 5'b11111;
 
 
     initial begin
@@ -80,7 +79,7 @@ module test #(
         // repeat (10)
         // y = 0;
         //     $display("%b", `x);
-        $display("%b", x[3-:2]);
+
 
     end
 

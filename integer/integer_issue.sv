@@ -1,9 +1,11 @@
+`ifndef IIQ_V
+`define IIQ_V
+
 `include "misc/global_defs.svh"
-`include "misc/ff1.v"
-`include "misc/unsigned_cmp_.v"
+`include "misc/ff1/ff1.v"
+`include "misc/cmp/unsigned_cmp_.v"
 `include "misc/reg_.v"
 `include "misc/shift_queue.v"
-
 
 module integer_issue (
     input wire clk,
@@ -58,7 +60,13 @@ module integer_issue (
         .entry_douts(entries),
 
         // FLUSH ON REDIRECT
-        .flush(fetch_redirect_valid)
+        .flush(fetch_redirect_valid),
+
+        .init(),
+        .init_entry_reg_state(),
+        .init_enq_up_down_counter_state(),
+        .current_enq_up_down_counter_state(),
+        .current_entry_reg_state()
     );
 
     // issue scheduling
@@ -86,44 +94,56 @@ module integer_issue (
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src1_int_wakeup_cmp (
-            .a(scheduled_entry.rob_id),
+            .a(scheduled_entry.src1_rob_id),
             .b(entries[i].src1_rob_id),
-            .eq(entries_src1_iiq_wakeup[i])
+            .eq(entries_src1_iiq_wakeup[i]),
+            .ge(),
+            .lt()
         );
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_int_wakeup_cmp (
-            .a(scheduled_entry.rob_id),
+            .a(scheduled_entry.src2_rob_id),
             .b(entries[i].src2_rob_id),
-            .eq(entries_src2_iiq_wakeup[i])
+            .eq(entries_src2_iiq_wakeup[i]),
+            .ge(),
+            .lt()
         );
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src1_alu_capture_cmp (
             .a(alu_broadcast_rob_id),
             .b(entries[i].src1_rob_id),
-            .eq(entries_src1_alu_capture[i])
+            .eq(entries_src1_alu_capture[i]),
+            .ge(),
+            .lt()
         );
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_alu_capture_cmp (
             .a(alu_broadcast_rob_id),
             .b(entries[i].src2_rob_id),
-            .eq(entries_src2_alu_capture[i])
+            .eq(entries_src2_alu_capture[i]),
+            .ge(),
+            .lt()
         );
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src1_ld_capture_cmp (
             .a(ld_broadcast_rob_id),
             .b(entries[i].src1_rob_id),
-            .eq(entries_src1_ld_capture[i])
+            .eq(entries_src1_ld_capture[i]),
+            .ge(),
+            .lt()
         );
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_ld_capture_cmp (
             .a(ld_broadcast_rob_id),
             .b(entries[i].src2_rob_id),
-            .eq(entries_src2_ld_capture[i])
+            .eq(entries_src2_ld_capture[i]),
+            .ge(),
+            .lt()
         );
     end
 
@@ -156,7 +176,19 @@ module integer_issue (
                                     entries[i].src2_data,
             dst_valid:      entries[i].dst_valid,
             instr_rob_id:   entries[i].instr_rob_id,
-            alu_ctrl:       entries[i].alu_ctrl,
+            imm:            entries[i].imm,
+            pc:             entries[i].pc,
+            funct3:         entries[i].funct3,
+            is_r_type:      entries[i].is_r_type,
+            is_i_type:      entries[i].is_i_type,
+            is_u_type:      entries[i].is_u_type,
+            is_b_type:      entries[i].is_b_type,
+            is_j_type:      entries[i].is_j_type,
+            is_sub:         entries[i].is_sub,
+            is_sra_srai:    entries[i].is_sra_srai,
+            is_lui:         entries[i].is_lui,
+            is_jalr:        entries[i].is_jalr,
+            // MISSING is_x from decode
             br_dir_pred:    entries[i].br_dir_pred,
             br_target_pred: entries[i].br_target_pred
         };
@@ -189,12 +221,10 @@ module integer_issue (
         is_lui: scheduled_entry.is_lui, // if is_u_type, 0 = auipc, 1 = lui
         is_jalr: scheduled_entry.is_jalr, // if is_i_type, 0 = else, 1 = jalr
         br_dir_pred: scheduled_entry.br_dir_pred // received from issue (0: not taken, 1: taken)
-    }
+    };
 
-    reg_ #(
-        .WIDTH(`IIQ_ISSUE_DATA_WIDTH)
-    ) integer_issue_buffer (
-        .flush(fetch_redirect_valid),
+    reg_ #(.WIDTH(`IIQ_ISSUE_DATA_WIDTH)) 
+    integer_issue_buffer (
         .clk(clk),
         .rst_aL(rst_aL),
         .we(issue_valid),
@@ -202,8 +232,11 @@ module integer_issue (
         .dout(issue_data),
 
         // FLUSH ON REDIRECT
-        .flush(fetch_redirect_valid)
+        .flush(fetch_redirect_valid),
+        .init_state(),
+        .init()
     );
 
     assign issue_rob_id = scheduled_entry.instr_rob_id;
 endmodule
+`endif

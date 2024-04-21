@@ -74,7 +74,7 @@ typedef logic [`ICACHE_TAG_BITS-1:0] icache_tag_t;
 
 typedef enum {ICACHE = 0, DCACHE = 1} cache_type_t;
 typedef enum {READ = 0, WRITE = 1} req_type_t;
-typedef enum {BYTE = 0, HALFWORD = 1, WORD = 2} req_width_t;
+typedef enum {BYTE = 1, HALFWORD = 2, WORD = 4} req_width_t; // TODO: double-check if these hardcoded values work
 
 `define I_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[24:21], instr[20] })
 `define S_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[11:8] , instr[7]  })
@@ -100,9 +100,9 @@ typedef struct packed {
     logic dst_valid;
     arf_id_t dst_arf_id;
     addr_t pc_npc; // pc if a load instruction, npc if a branch instruction
-    logic ld_mispred;
+    // logic ld_mispred; // FIXME
     logic br_mispred;
-    logic reg_ready;
+    logic is_executed;
     reg_data_t reg_data;
 } rob_entry_t;
 `define ROB_ENTRY_WIDTH $bits(rob_entry_t)
@@ -163,6 +163,21 @@ typedef struct packed {
     logic [`ST_BUF_ID_WIDTH-1:0] st_buf_id; // only st_buf is allocated during dispatch, not ld_buf
 } lsq_entry_t;
 `define LSQ_ENTRY_WIDTH $bits(lsq_entry_t)
+
+typedef struct packed {
+    logic ld_st; // 0: ld, 1: st
+    logic rob_id_t base_addr_rob_id;
+    logic base_addr_ready;
+    addr_t base_addr;
+    imm_t imm;
+    rob_id_t st_data_rob_id;
+    logic st_data_ready;
+    reg_data_t st_data;
+    rob_id_t instr_rob_id;
+    req_width_t width;
+    logic ld_sign; // 0: signed, 1: unsigned
+} lsq_simple_entry_t;
+`define LSQ_SIMPLE_ENTRY_WIDTH $bits(lsq_simple_entry_t)
 
 typedef struct packed {
     reg_data_t src1_data;

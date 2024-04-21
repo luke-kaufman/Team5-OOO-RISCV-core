@@ -18,7 +18,7 @@ module cache #(
     // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
     input logic pipeline_req_valid,
     input req_type_t pipeline_req_type, // 0: read, 1: write
-    input req_width_t pipeline_req_wr_width, // 0: byte, 1: halfword, 2: word (only for dcache and stores)
+    input req_width_t pipeline_req_width, // 0: byte, 1: halfword, 2: word (only for dcache and stores)
     input addr_t pipeline_req_addr,
     input word_t pipeline_req_wr_data, // (only for writes)
 
@@ -28,7 +28,6 @@ module cache #(
     output main_mem_block_addr_t mem_ctrl_req_block_addr,
     output block_data_t mem_ctrl_req_block_data, // (only for dcache and stores)
     input logic mem_ctrl_req_ready, // (icache has priority. for icache, if valid is true, then ready is also true.)
-    // TODO: how to use mem_ctrl_req_ready?
 
     // FROM MEM_CTRL TO CACHE (RESPONSE) (LATENCY-SENSITIVE)
     input logic mem_ctrl_resp_valid,
@@ -97,8 +96,10 @@ module cache #(
 
     logic pipeline_req_valid_latched;
     req_type_t pipeline_req_type_latched;
+    req_width_t pipeline_req_width_latched;
     logic [N_TAG_BITS-1:0] pipeline_req_addr_tag_latched;
     logic [N_INDEX_BITS-1:0] pipeline_req_addr_index_latched;
+    logic [N_OFFSET_BITS-1:0] pipeline_req_addr_offset_latched;
     logic pipeline_resp_was_valid; // skid preventing latch
     logic mem_ctrl_resp_waiting;   // double request preventing latch
     // TODO: does this kind of always_ff cause any problems?
@@ -107,15 +108,19 @@ module cache #(
         if (!rst_aL) begin
             pipeline_req_valid_latched <= 0;
             pipeline_req_type_latched <= req_type_t'(0);
+            pipeline_req_width_latched <= req_width_t'(0);
             pipeline_req_addr_tag_latched <= 0;
             pipeline_req_addr_index_latched <= 0;
+            pipeline_req_addr_offset_latched <= 0;
             pipeline_resp_was_valid <= 0;
             mem_ctrl_resp_waiting <= 0;
         end else begin
             pipeline_req_valid_latched <= pipeline_req_valid;
             pipeline_req_type_latched <= pipeline_req_type;
+            pipeline_req_width_latched <= pipeline_req_width;
             pipeline_req_addr_tag_latched <= pipeline_req_addr_tag;
             pipeline_req_addr_index_latched <= pipeline_req_addr_index;
+            pipeline_req_addr_offset_latched <= pipeline_req_addr_offset;
             if (pipeline_resp_was_valid) begin
                 pipeline_resp_was_valid <= 0;
             end else if (pipeline_resp_valid) begin
@@ -149,8 +154,8 @@ module cache #(
     assign pipeline_resp_valid = pipeline_req_valid_latched &
                                  ~pipeline_resp_was_valid   &
                                  tag_array_hit;
-    assign pipeline_resp_rd_data = sel_way0 ? data_array_dout.way0_data :
-                                   sel_way1 ? data_array_dout.way1_data :
+    assign pipeline_resp_rd_data = sel_way0 ? data_array_dout.way0_data[8*pipeline_req_addr_offset_latched+:32] :
+                                   sel_way1 ? data_array_dout.way1_data[8*pipeline_req_addr_offset_latched+:32] :
                                               0; // since miss, a read request is being made and this value is not used
 
     wire data_array_csb = mem_ctrl_resp_valid | pipeline_req_valid;
@@ -163,10 +168,10 @@ module cache #(
                                                                             $error("way1_valid and way0_valid are invalid")
     };
     // NOTE: we assume that the pipeline already force aligns the stores to the correct offset!
-    wire [7:0] dcache_data_array_store_wmask = pipeline_req_wr_width == BYTE     ? 1'b1 << pipeline_req_addr_offset[2:0]      :
-                                               pipeline_req_wr_width == HALFWORD ? 2'b11 << pipeline_req_addr_offset[2:0]     :
-                                               pipeline_req_wr_width == WORD     ? 4'b1111 << pipeline_req_addr_offset[2:0]   :
-                                                                                   $error("pipeline_req_wr_width is invalid") ;
+    wire [7:0] dcache_data_array_store_wmask = pipeline_req_width == BYTE     ? 1'b1 << pipeline_req_addr_offset[2:0]      :
+                                               pipeline_req_width == HALFWORD ? 2'b11 << pipeline_req_addr_offset[2:0]     :
+                                               pipeline_req_width == WORD     ? 4'b1111 << pipeline_req_addr_offset[2:0]   :
+                                                                                $error("pipeline_req_width is invalid") ;
     wire [15:0] dcache_data_array_wmask = {
         {8{random_way == 1'b1}} | ({8{sel_way1}} & dcache_data_array_store_wmask),
         {8{random_way == 1'b0}} | ({8{sel_way0}} & dcache_data_array_store_wmask)
@@ -174,15 +179,15 @@ module cache #(
     wire [N_INDEX_BITS-1:0] data_array_addr = pipeline_req_addr_index;
     data_array_set_t data_array_din = '{
         way0_data: mem_ctrl_resp_valid               ? mem_ctrl_resp_block_data                   :
-                   pipeline_req_wr_width == BYTE     ? {8{pipeline_req_wr_data[7:0]}}             :
-                   pipeline_req_wr_width == HALFWORD ? {4{pipeline_req_wr_data[15:0]}}            :
-                   pipeline_req_wr_width == WORD     ? {2{pipeline_req_wr_data}}                  :
-                                                       $error("pipeline_req_wr_width is invalid") ,
+                   pipeline_req_width == BYTE     ? {8{pipeline_req_wr_data[7:0]}}             :
+                   pipeline_req_width == HALFWORD ? {4{pipeline_req_wr_data[15:0]}}            :
+                   pipeline_req_width == WORD     ? {2{pipeline_req_wr_data}}                  :
+                                                       $error("pipeline_req_width is invalid") ,
         way1_data: mem_ctrl_resp_valid               ? mem_ctrl_resp_block_data                   :
-                   pipeline_req_wr_width == BYTE     ? {8{pipeline_req_wr_data[7:0]}}             :
-                   pipeline_req_wr_width == HALFWORD ? {4{pipeline_req_wr_data[15:0]}}            :
-                   pipeline_req_wr_width == WORD     ? {2{pipeline_req_wr_data}}                  :
-                                                       $error("pipeline_req_wr_width is invalid")
+                   pipeline_req_width == BYTE     ? {8{pipeline_req_wr_data[7:0]}}             :
+                   pipeline_req_width == HALFWORD ? {4{pipeline_req_wr_data[15:0]}}            :
+                   pipeline_req_width == WORD     ? {2{pipeline_req_wr_data}}                  :
+                                                       $error("pipeline_req_width is invalid")
     };
     data_array_set_t data_array_dout;
 

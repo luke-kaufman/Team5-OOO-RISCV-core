@@ -3,31 +3,28 @@
 
 `include "misc/global_defs.svh"
 // `include "freepdk-45nm/stdcells.v"
-`include "misc/cache.v"
+`include "memory/cache.sv"
 `include "misc/fifo.v"
 `include "frontend/fetch/predicted_NPC.v"
 
 // Instruction Fetch Unit
-module ifu #(
-    parameter I$_BLOCK_SIZE = `ICACHE_DATA_BLOCK_SIZE,
-    parameter I$_NUM_SETS = `ICACHE_NUM_SETS,
-    parameter I$_NUM_WAYS = `ICACHE_NUM_WAYS
-) (
+module ifu (
     // from top.sv
     input wire clk,
     input wire rst_aL,
-    input wire csb0_in,
+    input wire init,
+    // input wire csb0_in,
     // backend interactions
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
     input wire recovery_PC_valid,
     input wire backend_stall,
-    // ICACHE TO MEM CTRL
-    output logic icache_req_valid,
-    output main_mem_block_addr_t icache_req_block_addr,
-    input logic icache_req_ready,
-    // FROM MEM_CTRL TO ICACHE (RESPONSE) (LATENCY-SENSITIVE)
-    input logic icache_resp_valid,
-    input block_data_t icache_resp_block_data,
+    // MEM CTRL REQUEST
+    output logic mem_ctrl_req_valid,
+    output main_mem_block_addr_t mem_ctrl_req_block_addr,
+    input logic mem_ctrl_req_ready,
+    // MEM CTRL RESPONSE
+    input logic mem_ctrl_resp_valid,
+    input block_data_t mem_ctrl_resp_block_data,
     // IFU <-> DISPATCH
     input wire ififo_dispatch_ready,
     output wire ififo_dispatch_valid,
@@ -39,7 +36,7 @@ module ifu #(
 // wires
 wire icache_hit;
 wire icache_miss;
-wire [I$_BLOCK_SIZE-1:0] icache_data_way;
+wire [`ICACHE_DATA_BLOCK_SIZE-1:0] icache_data_way;
 wire [`ADDR_WIDTH-1:0] PC_mux_out;
 wire [`ADDR_WIDTH-1:0] next_PC;
 wire [`ADDR_WIDTH-1:0] PC_wire;
@@ -55,26 +52,16 @@ OR3_X1 stall_gate (
     .ZN(stall)
 );
 
-wire [`ADDR_WIDTH-1:0] PC_mux_local_out;
 mux_ #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(4)
-) PC_mux_local(
+) PC_mux(
     .ins({recovery_PC, // if recovery
           recovery_PC, // if recovery
           PC_wire,     // if stall
           next_PC      // predicted nextPC
           }),
     .sel({recovery_PC_valid, stall}),
-    .out(PC_mux_local_out)
-);
-
-mux_ #(
-    .WIDTH(`ADDR_WIDTH),
-    .N_INS(2)
-) PC_mux (
-    .ins({recv_main_mem_addr, PC_mux_local_out}),
-    .sel(recv_main_mem_valid),
     .out(PC_mux_out)
 );
 
@@ -94,30 +81,57 @@ INV_X1 icmiss(
     .ZN(icache_miss)
 );
 
-wire icache_we_aL;
-INV_X1 response_v_to_we_aL (
-    .A(recv_main_mem_valid),
-    .ZN(icache_we_aL)
-);
 cache #(
-    .BLOCK_SIZE_BITS(I$_BLOCK_SIZE),
-    .NUM_SETS(I$_NUM_SETS),
-    .NUM_WAYS(I$_NUM_WAYS),
-    .NUM_TAG_CTRL_BITS(`ICACHE_NUM_TAG_CTRL_BITS),  // 1 for valid bit
-    .WRITE_SIZE_BITS(`ICACHE_WRITE_SIZE_BITS)    // 64 for icache (DRAMresponse)
+    .CACHE_TYPE(ICACHE),
+    .N_SETS(`ICACHE_NUM_SETS)
 ) icache (
-    .clk(clk),
-    .rst_aL(rst_aL),
-    .addr(PC_mux_out),
-    .PC_addr(PC.dout),
-    .dcache_is_ST(1'b0), // not used in icache
-    .we_aL(icache_we_aL),
-    .write_data(recv_main_mem_data),
-    .csb0_in(csb0_in),
+    .clk(clk),  /*input logic*/
+    .rst_aL(rst_aL),  /*input logic*/
+    .init(init),  /*input logic*/
+    .flush(fetch_redirect_valid),  /*input logic*/  // TODO: do we have to flush anything in cache? (we don't need to flush the lfsr)
 
-    .cache_hit(icache_hit),
-    .selected_data_way(icache_data_way)
+    // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
+    .pipeline_req_valid(1'b1), // can change /*input logic*/
+    .pipeline_req_type(mem_ctrl_resp_valid), /*input req_type_t*/ // 0: read 1: write
+    // .pipeline_req_wr_width(), //** Shouldnt matter? /*input req_width_t*/ // 0: byte 1: halfword 2: word (only for dcache and stores)
+    .pipeline_req_addr(PC.dout), /*input addr_t*/
+    .pipeline_req_wr_data(mem_ctrl_resp_block_data), /*input word_t*/ // (only for writes)
+
+    // FROM CACHE TO MEM_CTRL (REQUEST) (LATENCY-INSENSITIVE)
+    .mem_ctrl_req_valid(mem_ctrl_req_valid), /*output logic*/
+    .mem_ctrl_req_type(1'b0), // always read /*output req_type_t*/ // 0: read 1: write
+    .mem_ctrl_req_block_addr(mem_ctrl_req_block_addr), /*output main_mem_block_addr_t*/
+    // .mem_ctrl_req_block_data(), /*output block_data_t*/ // (only for dcache and stores)
+    .mem_ctrl_req_ready(mem_ctrl_req_ready), /*input logic*/ // (icache has priority. for icache if valid is true then ready is also true.)
+
+    // FROM MEM_CTRL TO CACHE (RESPONSE) (LATENCY-SENSITIVE)
+    .mem_ctrl_resp_valid(mem_ctrl_resp_valid), /*input logic*/
+    .mem_ctrl_resp_block_data(mem_ctrl_resp_block_data), /*input block_data_t*/
+
+    // FROM CACHE TO PIPELINE (RESPONSE)
+    .pipeline_resp_valid(icache_hit), /*output logic*/ // cache hit
+    .pipeline_resp_rd_data(icache_data_way) /*output block_data_t*/
 );
+
+// cache #(
+//     .BLOCK_SIZE_BITS(`ICACHE_DATA_BLOCK_SIZE),
+//     .NUM_SETS(I$_NUM_SETS),
+//     .NUM_WAYS(I$_NUM_WAYS),
+//     .NUM_TAG_CTRL_BITS(`ICACHE_NUM_TAG_CTRL_BITS),  // 1 for valid bit
+//     .WRITE_SIZE_BITS(`ICACHE_WRITE_SIZE_BITS)    // 64 for icache (DRAMresponse)
+// ) icache (
+//     .clk(clk),
+//     .rst_aL(rst_aL),
+//     .addr(PC_mux_out),
+//     .PC_addr(PC.dout),
+//     .dcache_is_ST(1'b0), // not used in icache
+//     .we_aL(icache_we_aL),
+//     .write_data(recv_main_mem_data),
+//     .csb0_in(csb0_in),
+
+//     .cache_hit(icache_hit),
+//     .selected_data_way(icache_data_way)
+// );
 
 // select instruction within way
 wire [`INSTR_WIDTH-1:0] selected_instr;
@@ -126,7 +140,7 @@ mux_ #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(2)
 ) instr_in_way_mux (
-    .ins({icache_data_way[(I$_BLOCK_SIZE - 1):`ADDR_WIDTH],
+    .ins({icache_data_way[(`ICACHE_DATA_BLOCK_SIZE - 1):`ADDR_WIDTH],
           icache_data_way[(`ADDR_WIDTH - 1):0]}),
     .sel(PC_wire[2]),
     .out(selected_instr)

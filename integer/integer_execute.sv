@@ -1,4 +1,14 @@
+`ifndef ALU_V
+`define ALU_V
+
 `include "misc/global_defs.svh"
+`include "misc/onehot_mux/onehot_mux_.v"
+`include "misc/cmp/unsigned_cmp_.v"
+`include "misc/cmp/signed_cmp_.sv"
+`include "misc/and/bitwise_and.v"
+`include "misc/or/bitwise_or.v"
+`include "misc/xor/bitwise_xor.v"
+`include "misc/adder.v"
 
 // R-type: adder_op1 = src1, adder_op2 = src2/minus_src2, dst = src1 op src2, no npc
 // I-type: adder_op1 = src1, adder_op2 = imm,
@@ -57,6 +67,8 @@
 // main_adder_op2 = imm | src2 | minus_src2
 
 module integer_execute (
+    input wire clk,
+    input wire rst_aL,
     input wire iiq_issue_data_t iiq_issue_data,
     output wire rob_id_t instr_rob_id_out, // sent to bypass paths, iiq for capture, used for indexing into rob for writeback
     output wire dst_valid, // to guard broadcast (iiq, and lsq) and bypass (dispatch and issue) capture
@@ -114,12 +126,12 @@ module integer_execute (
 
     wire word_t cmp_op1 = src1;
     wire word_t cmp_op2 = is_i_type ? imm : src2;
-    wire unsigned_cmp_eq;
-    wire unsigned_cmp_lt;
-    wire unsigned_cmp_ge;
-    wire signed_cmp_eq;
-    wire signed_cmp_lt;
-    wire signed_cmp_ge;
+    wire word_t unsigned_cmp_eq;
+    wire word_t unsigned_cmp_lt;
+    wire word_t unsigned_cmp_ge;
+    wire word_t signed_cmp_eq;
+    wire word_t signed_cmp_lt;
+    wire word_t signed_cmp_ge;
     unsigned_cmp_ #(
         .WIDTH(`WORD_WIDTH)
     ) unsigned_cmp (
@@ -197,6 +209,7 @@ module integer_execute (
         .WIDTH(`WORD_WIDTH),
         .N_INS(10)
     ) dst_mux (
+        .clk(clk),
         .ins({
             main_adder_sum,
             sll_out,
@@ -235,13 +248,14 @@ module integer_execute (
         .WIDTH(1),
         .N_INS(6)
     ) br_taken_mux (
+        .clk(clk),
         .ins({
-            unsigned_cmp_eq,
-            ~unsigned_cmp_eq,
-            signed_cmp_lt,
-            signed_cmp_ge,
-            unsigned_cmp_lt,
-            unsigned_cmp_ge
+            |{unsigned_cmp_eq},
+            ~|{unsigned_cmp_eq},
+            |{signed_cmp_lt},
+            |{signed_cmp_ge},
+            |{unsigned_cmp_lt},
+            |{unsigned_cmp_ge}
         }),
         .sel({
             sel_beq_taken,
@@ -257,3 +271,4 @@ module integer_execute (
     assign npc = {main_adder_sum[31:1], is_jalr ? 1'b0 : main_adder_sum[0]};
     assign npc_mispred = (br_dir_pred ^ br_taken) | is_jalr;
 endmodule
+`endif
