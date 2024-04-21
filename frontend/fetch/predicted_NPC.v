@@ -70,7 +70,8 @@ AND2_X1 is_uncond_br_AND (
 wire is_conditional; // both ir[2] and ir[3] must be 0 for conditional
 OR2_X1 is_conditional_OR (
     .A1(instr[2]),
-    .A2(instr[3])
+    .A2(instr[3]),
+    .ZN()
 );
 INV_X1 is_conditional_INV (
     .A(is_conditional_OR.ZN),
@@ -78,7 +79,8 @@ INV_X1 is_conditional_INV (
 );
 AND2_X1 is_cond_branch_AND (
     .A1(is_conditional),
-    .A2(is_br)
+    .A2(is_br),
+    .ZN()
 );
 
 // Outputs assigned below
@@ -94,7 +96,8 @@ mux_ #(
         (jal_add_out),    // jal add if jal
         (PCplus4_add_out) // just mispredict target with PC+4 if jalr
     }),
-    .sel(is_unconditional_jal)
+    .sel(is_unconditional_jal),
+    .out()
 );
 
 mux_ #(
@@ -107,7 +110,8 @@ mux_ #(
         (btype_add_out),
         (PCplus4_add_out)  
     }),
-    .sel({instr[2] /*is_unconditional*/, instr[31] /*is_backwards*/})
+    .sel({instr[2] /*is_unconditional*/, instr[31] /*is_backwards*/}),
+    .out()
 );
 
 mux_ #(
@@ -126,7 +130,8 @@ assign is_cond_branch = is_cond_branch_AND.ZN;
 
 AND2_X1 is_backwards_branch_AND (
     .A1(is_br),
-    .A2(is_br && instr[31])
+    .A2(is_br && instr[31]),
+    .ZN()
 ); 
 
 OR2_X1 br_prediction_AND (
