@@ -28,7 +28,6 @@ module cache #(
     output main_mem_block_addr_t mem_ctrl_req_block_addr,
     output block_data_t mem_ctrl_req_block_data, // (only for dcache and stores)
     input logic mem_ctrl_req_ready, // (icache has priority. for icache, if valid is true, then ready is also true.)
-    // TODO: how to use mem_ctrl_req_ready?
 
     // FROM MEM_CTRL TO CACHE (RESPONSE) (LATENCY-SENSITIVE)
     input logic mem_ctrl_resp_valid,
