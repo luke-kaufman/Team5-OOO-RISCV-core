@@ -30,7 +30,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     // INTERFACE TO LOAD-STORE QUEUE (LSQ)
     input wire lsq_dispatch_ready,
     output wire lsq_dispatch_valid,
-    output wire lsq_entry_t lsq_dispatch_data,
+    output lsq_simple_entry_t lsq_dispatch_data, // TODO: figure out the enum? 2-state vs. 4-state problem
     // INTERFACE TO ARITHMETIC-LOGIC UNIT (ALU)
     input wire alu_broadcast_valid,
     input wire rob_id_t alu_broadcast_rob_id,
@@ -362,9 +362,9 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
                                                                             rs2_retired  ? arf_reg_data_src2      :
                                                                                            rob_reg_data_src2,
         instr_rob_id: dispatch_rob_id,
-        width: ls_width,              // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
-        ld_sign: ld_sign,             // 0: signed (LB, LH, LW), 1: unsigned (LBU, LHU)
-        st_buf_id: 0 // only st_buf is allocated during dispatch, not ld_buf
+        width: req_width_t'(ls_width),              // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
+        ld_sign: ld_sign             // 0: signed (LB, LH, LW), 1: unsigned (LBU, LHU)
+        // , st_buf_id: 0 // only st_buf is allocated during dispatch, not ld_buf
     };
 
     // INTERFACE TO STORE BUFFE (ST_BUF)

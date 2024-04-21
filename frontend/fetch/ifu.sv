@@ -73,7 +73,7 @@ reg_ #(.WIDTH(`ADDR_WIDTH)) PC (
     .we(1'b1),  // always write since PC_mux will feed PC itself when stalling
     .din(PC_mux_out),
     .dout(PC_wire),
-    
+
     .init(init),
     .init_state()
 );

@@ -1,3 +1,6 @@
+`ifndef ADDER_V
+`define ADDER_V
+
 // IMPL STATUS: COMPLETE
 // TEST STATUS: COMPLETE
 
@@ -29,3 +32,5 @@ module adder #(
         end
     end
 endmodule
+
+`endif

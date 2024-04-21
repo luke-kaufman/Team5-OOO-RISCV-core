@@ -3,7 +3,7 @@
 
 `include "misc/global_defs.svh"
 `include "frontend/fetch/ifu.sv"
-`include "frontend/dispatch/dispatch.sv"
+`include "frontend/dispatch/dispatch_simple.sv"
 `include "integer/integer_issue.sv"
 `include "integer/integer_execute.sv"
 `include "load_store/load_store_simple.sv"
@@ -15,22 +15,22 @@ module core (
     input wire init,
 
     // ICACHE MEM CTRL REQUEST
-    input logic icache_mem_ctrl_req_valid,
-    input logic [`MAIN_MEM_BLOCK_ADDR_WIDTH-1:0] icache_mem_ctrl_req_block_addr,
-    output logic icache_mem_ctrl_req_ready,
+    output logic icache_mem_ctrl_req_valid,
+    output main_mem_block_addr_t icache_mem_ctrl_req_block_addr,
+    input logic icache_mem_ctrl_req_ready,
     // ICACHE MEM CTRL RESPONSE
-    output logic icache_mem_ctrl_resp_valid,
-    output logic [`BLOCK_DATA_WIDTH-1:0] icache_mem_ctrl_resp_block_data,
+    input logic icache_mem_ctrl_resp_valid,
+    input block_data_t icache_mem_ctrl_resp_block_data,
 
     // DCACHE MEM CTRL REQUEST
     output logic dcache_mem_ctrl_req_valid,
-    output logic dcache_mem_ctrl_req_type, // 0: read, 1: write
-    output logic [`MAIN_MEM_BLOCK_ADDR_WIDTH-1:0] dcache_mem_ctrl_req_block_addr,
-    output logic [`BLOCK_DATA_WIDTH-1:0] dcache_mem_ctrl_req_block_data, // for writes
+    output req_type_t dcache_mem_ctrl_req_type, // 0: read, 1: write
+    output main_mem_block_addr_t dcache_mem_ctrl_req_block_addr,
+    output block_data_t dcache_mem_ctrl_req_block_data, // for writes
     input logic dcache_mem_ctrl_req_ready,
     // DCACHE MEM CTRL RESPONSE
     input logic dcache_mem_ctrl_resp_valid,
-    input logic [`BLOCK_DATA_WIDTH-1:0] dcache_mem_ctrl_resp_block_data,
+    input block_data_t dcache_mem_ctrl_resp_block_data,
 
     // ARF out - for checking archiectural state
     output wire [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] ARF_OUT
@@ -51,7 +51,7 @@ module core (
     // DISPATCH <-> LSQ
     wire             lsq_dispatch_ready;
     wire             lsq_dispatch_valid;
-    lsq_entry_t      lsq_dispatch_data;
+    lsq_simple_entry_t      lsq_dispatch_data;
     // DISPATCH <-> ST_BUF
     wire                st_buf_dispatch_ready;
     wire                st_buf_dispatch_valid;
@@ -84,7 +84,7 @@ module core (
         .rst_aL(rst_aL),
         .init(init),
         // backend interactions - TODO FIX DUPLICATION
-        .flush(fetch_redirect_valid),
+        .fetch_redirect_valid(fetch_redirect_valid),
         .recovery_PC(fetch_redirect_pc),
         .recovery_PC_valid(fetch_redirect_valid),
         .backend_stall(fetch_redirect_valid),
@@ -167,6 +167,9 @@ module core (
 
     // ARITHMETIC-LOGIC UNIT (ALU) (i.e. integer execute)
     integer_execute integer_execute_dut (
+        .clk(clk),
+        .rst_aL(rst_aL),
+        
         .iiq_issue_data(iiq_issue_data),         /*input*/
         .instr_rob_id_out(alu_broadcast_rob_id), /*output*/ // sent to bypass paths  iiq for capture  used for indexing into rob for writeback
         .dst_valid(alu_broadcast_valid),         /*output*/ // to guard broadcast (iiq and lsq) and bypass (dispatch and issue) capture
@@ -192,9 +195,9 @@ module core (
         .mem_ctrl_resp_valid(dcache_mem_ctrl_resp_valid), // input logic
         .mem_ctrl_resp_block_data(dcache_mem_ctrl_resp_block_data), // input block_data_t
         // dispatch interface: ready & valid
-        .dispatch_ready(iiq_dispatch_ready),  /*output*/
-        .dispatch_valid(iiq_dispatch_valid),  /*input*/
-        .dispatch_data(iiq_dispatch_data),   /*input*/
+        .dispatch_ready(lsq_dispatch_ready),  /*output*/
+        .dispatch_valid(lsq_dispatch_valid),  /*input*/
+        .dispatch_data(lsq_dispatch_data),   /*input*/
         // alu broadcast:
         .alu_broadcast_valid(alu_broadcast_valid),     /*input*/
         .alu_broadcast_rob_id(alu_broadcast_rob_id),    /*input*/
