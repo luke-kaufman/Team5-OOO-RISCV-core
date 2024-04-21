@@ -2,6 +2,10 @@
 `define CACHE_V
 
 `include "misc/global_defs.svh"
+`include "misc/lfsr_8bit.v"
+`include "sram/tag_array_sram.v"
+`include "sram/dcache_data_sram.v"
+`include "sram/icache_data_sram.v"
 
 module cache #(
     parameter cache_type_t CACHE_TYPE,
