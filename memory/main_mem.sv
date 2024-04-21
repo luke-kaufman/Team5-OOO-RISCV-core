@@ -10,6 +10,8 @@ module main_mem #(
 ) (
     input logic clk,
     input logic rst_aL,
+    input logic init,
+    input block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS],
 
     // FROM MEM_CTRL TO MAIN_MEM (REQUEST) (LATENCY-SENSITIVE)
     input logic req_valid,
@@ -37,8 +39,16 @@ module main_mem #(
     main_mem_req_t req_pipeline[N_DELAY_CYCLES];
 
     // Pipeline processing
-    always_ff @(posedge clk or negedge rst_aL) begin
-        if (!rst_aL) begin
+    always_ff @(posedge clk or posedge init or negedge rst_aL) begin // TODO: figure out the testbench strategy for init/rst_aL
+        if (init) begin
+            for (int i = 0; i < N_DELAY_CYCLES; i++) begin
+                req_pipeline[i] <= '{default: 0};
+            end
+            resp_valid <= 0;
+            resp_cache_type <= cache_type_t'(0);
+            resp_block_data <= 0;
+            mem <= init_main_mem_state;
+        end else if (!rst_aL) begin
             // Resetting the pipeline
             for (int i = 0; i < N_DELAY_CYCLES; i++) begin
                 req_pipeline[i] <= '{default: 0};
@@ -56,6 +66,7 @@ module main_mem #(
             req_pipeline[0] <= '{
                 valid: req_valid,
                 req_type: req_type,
+                cache_type: req_cache_type,
                 addr: req_block_addr,
                 data: req_block_data
             };
