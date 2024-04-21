@@ -13,7 +13,7 @@
 // FIXME: convert int_wakeup -> iiq_wakeup
 // FIXME: convert lsu_wb -> ld_wb
 // FIXME: convert pc -> pc_npc, add npc_wb coming from alu
-module rob (
+module rob_simple (
     input wire clk,
     input wire rst_aL,
 
@@ -61,7 +61,8 @@ module rob (
     // input wire ld_wb_ld_mispred,
 
     // flush on redirect
-    input wire fetch_redirect_valid
+    input wire fetch_redirect_valid,
+    input wire fetch_redirect_pc
 );
     wire rob_entry_t [`ROB_N_ENTRIES-1:0] rob_state;
     wire rob_entry_t entry_rd_data_src1;
@@ -141,7 +142,15 @@ module rob (
         .entry_douts(rob_state),
 
         // flush on redirect
-        .flush(fetch_redirect_valid)
+        .flush(retire_redirect_pc_valid),
+
+        .init(),
+        .init_entry_reg_state(),
+        .init_enq_up_counter_state(),
+        .init_deq_up_counter_state(),
+        .current_entry_reg_state(),
+        .current_enq_up_counter_state(),
+        .current_deq_up_counter_state()
     );
 
     // NOTE: currently ignoring load mispreds while reading reg data

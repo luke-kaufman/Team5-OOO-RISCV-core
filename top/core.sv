@@ -2,91 +2,99 @@
 `define CORE_V
 
 `include "misc/global_defs.svh"
-`include "frontend/fetch/ifu.v"
+`include "frontend/fetch/ifu.sv"
 `include "frontend/dispatch/dispatch.sv"
+`include "integer/integer_issue.sv"
+`include "integer/integer_execute.sv"
+`include "load_store/load_store_simple.sv"
 
-module core #() (
+module core (
     input wire clk,
     input wire rst_aL,
-    input wire csb0_in,  // testing icache on
+    // input wire csb0_in,  // testing icache on
+    input wire init,
     
     // ICACHE TO MEM CTRL
     input logic icache_req_valid,
-    input main_mem_block_addr_t icache_req_block_addr,
+    input logic [`MAIN_MEM_BLOCK_ADDR_WIDTH-1:0] icache_req_block_addr,
     output logic icache_req_ready,
     // FROM MEM_CTRL TO ICACHE (RESPONSE) (LATENCY-SENSITIVE)
     output logic icache_resp_valid,
-    output block_data_t icache_resp_block_data,
+    output logic [`BLOCK_DATA_WIDTH-1:0] icache_resp_block_data,
     
-    // DCACHE TO MEM CTRL
+    // FROM DCACHE TO MEM CTRL
     output logic dcache_req_valid,
-    output req_type_t dcache_req_type, // 0: read, 1: write
-    output main_mem_block_addr_t dcache_req_block_addr,
-    output block_data_t dcache_req_block_data, // for writes
-    // DCACHE FROM MEM CTRL
+    output logic dcache_req_type, // 0: read, 1: write
+    output logic [`MAIN_MEM_BLOCK_ADDR_WIDTH-1:0] dcache_req_block_addr,
+    output logic [`BLOCK_DATA_WIDTH-1:0] dcache_req_block_data, // for writes
+    // TO DCACHE FROM MEM CTRL
     input logic dcache_req_ready,
     input logic dcache_resp_valid,
-    input block_data_t dcache_resp_block_data,
+    input logic [`BLOCK_DATA_WIDTH-1:0] dcache_resp_block_data,
     
     // ARF out - for checking archiectural state
-    output wire [ARF_N_ENTRIES-1:0][REG_DATA_WIDTH-1:0] ARF_OUT
+    output wire [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] ARF_OUT
 );
     // IFU <-> DISPATCH
     wire               ififo_dispatch_ready;  /*DIS->IFU*/
     wire               ififo_dispatch_valid;  /*IFU->DIS*/
-    wire ififo_entry_t ififo_dispatch_data;   /*IFU->DIS*/
+    ififo_entry_t      ififo_dispatch_data;   /*IFU->DIS*/
+    wire               fetch_redirect_valid;
+    addr_t             fetch_redirect_pc;
 
     // DISPATCH <-> IIQ
     wire             iiq_dispatch_ready;
     wire             iiq_dispatch_valid;
-    wire iiq_entry_t iiq_dispatch_data;
+    iiq_entry_t      iiq_dispatch_data;
     // DISPATCH <- IIQ
 
     // DISPATCH <-> LSQ
     wire             lsq_dispatch_ready;
     wire             lsq_dispatch_valid;
-    wire lsq_entry_t lsq_dispatch_data;
+    lsq_entry_t      lsq_dispatch_data;
     // DISPATCH <-> ST_BUF
     wire                st_buf_dispatch_ready;
     wire                st_buf_dispatch_valid;
-    wire st_buf_entry_t st_buf_dispatch_data;
-    wire st_buf_id_t    st_buf_dispatch_id;
+    st_buf_entry_t st_buf_dispatch_data;
+    st_buf_id_t    st_buf_dispatch_id;
     // DISPATCH <- ALU
     wire            alu_broadcast_valid;
-    wire rob_id_t   alu_broadcast_rob_id;
-    wire reg_data_t alu_broadcast_reg_data;
+    rob_id_t   alu_broadcast_rob_id;
+    reg_data_t alu_broadcast_reg_data;
+    wire       alu_npc_wb_valid; // only true when instr is b_type or jalr
+    wire       alu_npc_mispred; // always true for jalr, only true for b_type when actual mispredict
+    addr_t     alu_npc;
     wire            alu_br_mispred;
-    wire            fetch_redirect_valid;
-    wire addr_t     fetch_redirect_pc;
 
     // DISPATCH <- LSU
     wire            ld_broadcast_valid;
-    wire rob_id_t   ld_broadcast_rob_id;
-    wire reg_data_t ld_broadcast_reg_data;
+    rob_id_t   ld_broadcast_rob_id;
+    reg_data_t ld_broadcast_reg_data;
     wire            ld_mispred;
 
     // IIQ -> ALU and wakeup to dispatch
-    wire iiq_issue_data_t iiq_issue_data;
+    iiq_issue_data_t iiq_issue_data;
     wire                  iiq_issue_valid;  // ALSO TO DISPATCH wakeup from IIQ
-    wire rob_id_t         iiq_issue_rob_id; // ALSO TO DISPATCH wakeup from IIQ
-    wire iiq_entry_t      iiq_issue_data
-
+    rob_id_t         iiq_issue_rob_id; // ALSO TO DISPATCH wakeup from IIQ
 
     // INSTRUCTION FETCH UNIT (IFU)
     ifu ifu_dut (
         // from top.sv
         .clk(clk),
         .rst_aL(rst_aL),
-        .csb0_in(csb0_in),
+        .init(init),
         // backend interactions - TODO FIX DUPLICATION
         .flush(fetch_redirect_valid),
         .recovery_PC(fetch_redirect_pc),
         .recovery_PC_valid(fetch_redirect_valid),
         .backend_stall(fetch_redirect_valid),
-        // main memory interactions
-        .recv_main_mem_data(recv_main_mem_data),
-        .recv_main_mem_valid(recv_main_mem_valid),
-        .recv_main_mem_addr(recv_main_mem_addr),
+        // ICACHE TO MEM CTRL
+        .icache_req_valid(icache_req_valid),            /*output logic*/
+        .icache_req_block_addr(icache_req_block_addr),  /*output main_mem_block_addr_t*/
+        .icache_req_ready(icache_req_ready),            /*input logic*/
+        // FROM MEM_CTRL TO ICACHE (RESPONSE) (LATENCY-SENSITIVE)
+        .icache_resp_valid(icache_resp_valid),            /*input logic*/
+        .icache_resp_block_data(icache_resp_block_data),  /*input block_data_t*/
         // IFU <-> DISPATCH
         .ififo_dispatch_ready(ififo_dispatch_ready),  // input
         .ififo_dispatch_valid(ififo_dispatch_valid),  // output
@@ -94,7 +102,7 @@ module core #() (
     );
 
     // DISPATCH (DECODE, RENAME, ROB here)
-    dispatch dispatch_dut (
+    dispatch_simple dispatch_dut (
         .clk(clk),       /*input*/
         .rst_aL(rst_aL), /*input*/
         // INTERFACE TO INSRUCTION FIFO (IFIFO)
@@ -112,35 +120,40 @@ module core #() (
         .lsq_dispatch_ready(lsq_dispatch_ready),  /*input*/
         .lsq_dispatch_valid(lsq_dispatch_valid),  /*output*/
         .lsq_dispatch_data(lsq_dispatch_data),   /*output*/
-        // INTERFACE TO STORE BUFFER (ST_BUF)
-        .st_buf_dispatch_ready(st_buf_dispatch_ready),  /*input*/
-        .st_buf_dispatch_valid(st_buf_dispatch_valid),  /*output*/
-        .st_buf_dispatch_data(st_buf_dispatch_data),   /*output*/
-        .st_buf_dispatch_id(st_buf_dispatch_id),     /*input*/
+        // // INTERFACE TO STORE BUFFER (ST_BUF)
+        // .st_buf_dispatch_ready(st_buf_dispatch_ready),  /*input*/
+        // .st_buf_dispatch_valid(st_buf_dispatch_valid),  /*output*/
+        // .st_buf_dispatch_data(st_buf_dispatch_data),   /*output*/
+        // .st_buf_dispatch_id(st_buf_dispatch_id),     /*input*/
         // INTERFACE TO ARITHMETIC-LOGIC UNIT (ALU)
         .alu_broadcast_valid(alu_broadcast_valid),     /*input*/
         .alu_broadcast_rob_id(alu_broadcast_rob_id),    /*input*/
         .alu_broadcast_reg_data(alu_broadcast_reg_data),  /*input*/
-        .alu_br_mispred(alu_br_mispred),          /*input*/
+        .alu_npc_wb_valid(alu_npc_wb_valid),  /*input*/ // only true when instr is b_type or jalr
+        .alu_npc_mispred(alu_npc_mispred),  /*input*/ // always true for jalr, only true for b_type when actual mispredict
+        .alu_npc(alu_npc),                  /*input*/
         // INTERFACE TO LOAD-STORE UNIT (LSU)
         .ld_broadcast_valid(ld_broadcast_valid),     /*input*/
         .ld_broadcast_rob_id(ld_broadcast_rob_id),    /*input*/
         .ld_broadcast_reg_data(ld_broadcast_reg_data),  /*input*/
-        .ld_mispred(ld_mispred)              /*input*/
+        // .ld_mispred(ld_mispred)              /*input*/
+        // INTERFACE TO FETCH
+        .fetch_redirect_valid(fetch_redirect_valid), /*output wire*/ 
+        .fetch_redirect_pc(fetch_redirect_pc) /*output wire addr_t*/ 
     );
 
     // INTEGER ISSUE QUEUE (IIQ)
     integer_issue integer_issue_dut (
         .clk(clk),        /*input*/
         .rst_aL(rst_aL),  /*input*/
-        .flush(fetch_redirect_valid),
+        .fetch_redirect_valid(fetch_redirect_valid),
         // dispatch interface: ready & valid
         .dispatch_ready(iiq_dispatch_ready),  /*output*/
         .dispatch_valid(iiq_dispatch_valid),  /*input*/
         .dispatch_data(iiq_dispatch_data),   /*input*/
         // issue interface: always ready (all integer instructions take 1 cycle to execute)
         .issue_valid(iiq_issue_valid),  /*output*/
-        .issue_rob_id(iiq_issue_rob_id)  /*output*/
+        .issue_rob_id(iiq_issue_rob_id),  /*output*/
         .issue_data(iiq_issue_data),   /*output*/
         // alu broadcast:
         .alu_broadcast_valid(alu_broadcast_valid),     /*input*/
@@ -158,26 +171,26 @@ module core #() (
         .instr_rob_id_out(alu_broadcast_rob_id), /*output*/ // sent to bypass paths  iiq for capture  used for indexing into rob for writeback
         .dst_valid(alu_broadcast_valid),         /*output*/ // to guard broadcast (iiq and lsq) and bypass (dispatch and issue) capture
         .dst(alu_broadcast_reg_data),            /*output*/
-        .br_wb_valid(fetch_redirect_valid),      /*output*/ // change pc to npc in rob only if instr is b_type or jalr
-        .npc(fetch_redirect_pc),                 /*output*/ // next pc to be written back to rob.pc_npc (b_type or jalr)
-        .br_mispred(alu_br_mispred)              /*output*/ // to be written back to rob.br_mispred (0: no misprediction  1: misprediction)
+        .npc_wb_valid(alu_npc_wb_valid),         /*output*/ // change pc to npc in rob only if instr is b_type or jalr
+        .npc_mispred(alu_npc_mispred),           /*output*/ // to be written back to rob.br_mispred (0: no misprediction  1: misprediction)
+        .npc(alu_npc)                            /*output*/ // next pc to be written back to rob.pc_npc (b_type or jalr)
     );
 
     // DUMB LSU
     load_store_simple lsu (
         .clk(clk), /*input*/
         .rst_aL(rst_aL), /*input*/
-        .csb0_in(csb0_in), /*input*/
+        // .csb0_in(csb0_in), /*input*/
         .flush(fetch_redirect_valid), /*input*/
-        // TO MEM CTRL - outputs
-        .dcache_req_valid(),
-        .dcache_req_type(), // 0: read 1: write
-        .dcache_req_block_addr(),
-        .dcache_req_block_data(), // for writes
-        // FROM MEM CTRL - inputs
-        .dcache_req_ready(),
-        .dcache_resp_valid(),
-        .dcache_resp_block_data(),
+        // FROM DCACHE TO MEM CTRL
+        .dcache_req_valid(dcache_req_valid), // output logic 
+        .dcache_req_type(dcache_req_type), // output req_type_t  // 0: read 1: write
+        .dcache_req_block_addr(dcache_req_block_addr), // output main_mem_block_addr_t 
+        .dcache_req_block_data(dcache_req_block_data), // output block_data_t  // for writes
+        // TO DCACHE FROM MEM CTRL
+        .dcache_req_ready(dcache_req_ready), // input logic 
+        .dcache_resp_valid(dcache_resp_valid), // input logic 
+        .dcache_resp_block_data(dcache_resp_block_data), // input block_data_t 
         // dispatch interface: ready & valid
         .dispatch_ready(iiq_dispatch_ready),  /*output*/
         .dispatch_valid(iiq_dispatch_valid),  /*input*/
@@ -185,15 +198,15 @@ module core #() (
         // alu broadcast:
         .alu_broadcast_valid(alu_broadcast_valid),     /*input*/
         .alu_broadcast_rob_id(alu_broadcast_rob_id),    /*input*/
-        .alu_broadcast_reg_data(alu_broadcast_reg_data),  /*input*/
-        // load broadcast:
-        .ld_broadcast_valid(ld_broadcast_valid),    /*output*/
-        .ld_broadcast_rob_id(ld_broadcast_rob_id),   /*output*/
-        .ld_broadcast_reg_data(ld_broadcast_reg_data)  /*output*/
+        .alu_broadcast_reg_data(alu_broadcast_reg_data)  /*input*/
+        // // load broadcast:
+        // .ld_broadcast_valid(ld_broadcast_valid),    /*output*/
+        // .ld_broadcast_rob_id(ld_broadcast_rob_id),   /*output*/
+        // .ld_broadcast_reg_data(ld_broadcast_reg_data)  /*output*/
     );
 
     // LOAD STORE QUEUE (LSQ)
     // LOAD STORE EXECUTE (D-cache?)
 
 endmodule
-`endif CORE_V
+`endif

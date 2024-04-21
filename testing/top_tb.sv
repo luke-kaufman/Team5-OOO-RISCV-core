@@ -60,7 +60,7 @@ module top_tb #(
     /*input*/ bit csb0_in=1;
 
     // ARF OUT from core
-    wire [ARF_N_ENTRIES-1:0][REG_DATA_WIDTH-1:0] arf_out_data;
+    wire [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] arf_out_data;
 
     // RESPONSE FROM MAIN MEMORY TO CORE
     wire                               mem2core_valid;

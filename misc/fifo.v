@@ -144,7 +144,7 @@ module fifo #(
         );
         // register that holds each fifo entry
         reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg ( // NOTE: STATEFUL
-            .flush(fetch_redirect_valid),
+            .flush(flush),
             .clk(clk),
             .rst_aL(rst_aL),
             .we(entry_we[i]),

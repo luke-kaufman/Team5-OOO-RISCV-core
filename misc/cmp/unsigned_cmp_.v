@@ -6,14 +6,14 @@ module unsigned_cmp_ #(
 ) (
     input wire [WIDTH-1:0] a,
     input wire [WIDTH-1:0] b,
-    output wire eq,
-    output wire lt,
-    output wire ge
+    output wire [WIDTH-1:0] eq,
+    output wire [WIDTH-1:0] lt,
+    output wire [WIDTH-1:0] ge
 );
     // TODO: implement
-    assign eq = (a == b);
-    assign lt = (a < b);
-    assign ge = (a >= b);
+    assign eq = {31'b0, (a == b)};
+    assign lt = {31'b0, (a < b)};
+    assign ge = {31'b0, (a >= b)};
 endmodule
 
 `endif

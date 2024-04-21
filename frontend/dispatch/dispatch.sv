@@ -44,7 +44,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire reg_data_t ld_broadcast_reg_data,
     input wire ld_mispred,
     // INTERFACE TO FETCH
-    output wire fetch_redirect_pc_valid,
+    output wire fetch_redirect_valid,
     output wire addr_t fetch_redirect_pc
 );
     // ififo_dispatch_data fields
@@ -231,7 +231,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
         .retire_rob_id(retire_rob_id),
         .retire_arf_id(retire_arf_id),
         .retire_reg_data(retire_reg_data),
-        .retire_redirect_pc_valid(fetch_redirect_pc_valid),
+        .retire_redirect_pc_valid(fetch_redirect_valid),
         .retire_redirect_pc(fetch_redirect_pc),
 
         .rob_id_src1(rob_id_src1),

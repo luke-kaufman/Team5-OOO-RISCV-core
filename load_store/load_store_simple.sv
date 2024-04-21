@@ -2,22 +2,22 @@
 
 module load_store_simple #(
     parameter int unsigned LSQ_N_ENTRIES = 8,
-    parameter int unsigned LSQ_ENTRY_WIDTH = 32,
+    parameter int unsigned LSQ_ENTRY_WIDTH = 32
 ) (
     input logic clk,
     input logic rst_aL,
     input logic init,
     input logic flush,
 
-    // MEM_CTRL REQUEST
-    output logic mem_ctrl_req_valid,
-    output req_type_t mem_ctrl_req_type, // 0: read, 1: write
-    output main_mem_block_addr_t mem_ctrl_req_block_addr,
-    output block_data_t mem_ctrl_req_block_data, // for writes
-    input logic mem_ctrl_req_ready,
-    // MEM_CTRL RESPONSE
-    input logic mem_ctrl_resp_valid,
-    input block_data_t mem_ctrl_resp_block_data,
+    // FROM DCACHE TO MEM CTRL
+    output logic dcache_req_valid,
+    output req_type_t dcache_req_type, // 0: read, 1: write
+    output main_mem_block_addr_t dcache_req_block_addr,
+    output block_data_t dcache_req_block_data, // for writes
+    // TO DCACHE FROM MEM CTRL
+    input logic dcache_req_ready,
+    input logic dcache_resp_valid,
+    input block_data_t dcache_resp_block_data,
 
     // dispatch interface: ready & valid
     output wire dispatch_ready,
@@ -86,14 +86,14 @@ module load_store_simple #(
         .pipeline_req_addr(),
         .pipeline_req_wr_data(), // (only for writes)
         // FROM CACHE TO MEM_CTRL (REQUEST) (LATENCY-INSENSITIVE)
-        .mem_ctrl_req_valid(),
-        .mem_ctrl_req_type(), // 0: read, 1: write
-        .mem_ctrl_req_block_addr(),
-        .mem_ctrl_req_block_data(), // (only for dcache and stores)
-        .mem_ctrl_req_ready(), // (icache has priority. for icache, if valid is true, then ready is also true.)
+        .mem_ctrl_req_valid(dcache_req_valid),
+        .mem_ctrl_req_type(dcache_req_type), // 0: read, 1: write
+        .mem_ctrl_req_block_addr(dcache_req_block_addr),
+        .mem_ctrl_req_block_data(dcache_req_block_data), // (only for dcache and stores)
+        .mem_ctrl_req_ready(dcache_req_ready), // (icache has priority. for icache, if valid is true, then ready is also true.)
         // FROM MEM_CTRL TO CACHE (RESPONSE) (LATENCY-SENSITIVE)
-        .mem_ctrl_resp_valid(),
-        .mem_ctrl_resp_block_data(),
+        .mem_ctrl_resp_valid(dcache_resp_valid),
+        .mem_ctrl_resp_block_data(dcache_resp_block_data),
         // FROM CACHE TO PIPELINE (RESPONSE)
         .pipeline_resp_valid(), // cache hit
         .pipeline_resp_rd_data()

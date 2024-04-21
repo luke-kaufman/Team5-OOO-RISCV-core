@@ -217,7 +217,6 @@ module shift_queue #(
     for (genvar i = 0; i < N_ENTRIES-1; i++) begin
         onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(4)) entry_din_mux (
             .clk(clk),
-            .rst_aL(rst_aL),
             .ins({entry_douts[i+1], enq_data, wr_data[i], wr_data[i+1]}),
             .sel({sel_data_behind[i], sel_enq_data[i], sel_wr_data[i], sel_wr_data_behind[i]}),
             .out(entry_din[i])
@@ -227,7 +226,6 @@ module shift_queue #(
         // if sel_data_behind[N_ENTRIES-1] is true, then shift in fresh all 0s
         // sel_wr_data_behind[N_ENTRIES-1] is always false anyway
         .clk(clk),
-        .rst_aL(rst_aL),
         .ins({{ENTRY_WIDTH{1'b0}}, enq_data, wr_data[N_ENTRIES-1], {ENTRY_WIDTH{1'b0}}}),
         .sel({sel_data_behind[N_ENTRIES-1], sel_enq_data[N_ENTRIES-1], sel_wr_data[N_ENTRIES-1], sel_wr_data_behind[N_ENTRIES-1]}),
         .out(entry_din[N_ENTRIES-1])
@@ -286,7 +284,6 @@ module shift_queue #(
     // select the entry to be dequeued (outputs {ENTRY_WIDTH{1'b0}} when no entry is selected)
     onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_ENTRIES)) deq_data_mux (
         .clk(clk),
-        .rst_aL(rst_aL),
         .sel(deq_sel_onehot),
         .ins(entry_douts),
         .out(deq_data)

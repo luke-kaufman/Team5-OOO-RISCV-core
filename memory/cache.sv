@@ -35,7 +35,7 @@ module cache #(
 
     // FROM CACHE TO PIPELINE (RESPONSE)
     output logic pipeline_resp_valid, // cache hit
-    output word_t pipeline_resp_rd_data
+    output block_data_t pipeline_resp_rd_data
 );
     typedef struct packed {
         logic way1_valid;
