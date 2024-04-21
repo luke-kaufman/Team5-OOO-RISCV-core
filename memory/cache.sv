@@ -70,7 +70,7 @@ module cache #(
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b01) ? 2'b10                                           :
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b10) ? 2'b01                                           :
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b11) ? {random_way, ~random_way}                       :
-                                                                            $error("way1_valid and way0_valid are invalid")
+                                                                            0
     };
     wire [N_INDEX_BITS-1:0] tag_array_addr = pipeline_req_addr_index;
     tag_array_set_t tag_array_din = '{
@@ -165,29 +165,29 @@ module cache #(
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b01) ? 2'b10                                           :
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b10) ? 2'b01                                           :
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b11) ? {random_way, ~random_way}                       :
-                                                                            $error("way1_valid and way0_valid are invalid")
+                                                                            0
     };
     // NOTE: we assume that the pipeline already force aligns the stores to the correct offset!
     wire [7:0] dcache_data_array_store_wmask = pipeline_req_width == BYTE     ? 1'b1 << pipeline_req_addr_offset[2:0]      :
                                                pipeline_req_width == HALFWORD ? 2'b11 << pipeline_req_addr_offset[2:0]     :
                                                pipeline_req_width == WORD     ? 4'b1111 << pipeline_req_addr_offset[2:0]   :
-                                                                                $error("pipeline_req_width is invalid") ;
+                                                                                0
     wire [15:0] dcache_data_array_wmask = {
         {8{random_way == 1'b1}} | ({8{sel_way1}} & dcache_data_array_store_wmask),
         {8{random_way == 1'b0}} | ({8{sel_way0}} & dcache_data_array_store_wmask)
     };
     wire [N_INDEX_BITS-1:0] data_array_addr = pipeline_req_addr_index;
     data_array_set_t data_array_din = '{
-        way0_data: mem_ctrl_resp_valid               ? mem_ctrl_resp_block_data                   :
+        way0_data: mem_ctrl_resp_valid            ? mem_ctrl_resp_block_data                   :
                    pipeline_req_width == BYTE     ? {8{pipeline_req_wr_data[7:0]}}             :
                    pipeline_req_width == HALFWORD ? {4{pipeline_req_wr_data[15:0]}}            :
                    pipeline_req_width == WORD     ? {2{pipeline_req_wr_data}}                  :
-                                                       $error("pipeline_req_width is invalid") ,
-        way1_data: mem_ctrl_resp_valid               ? mem_ctrl_resp_block_data                   :
+                                                    0                                          ,
+        way1_data: mem_ctrl_resp_valid            ? mem_ctrl_resp_block_data                   :
                    pipeline_req_width == BYTE     ? {8{pipeline_req_wr_data[7:0]}}             :
                    pipeline_req_width == HALFWORD ? {4{pipeline_req_wr_data[15:0]}}            :
                    pipeline_req_width == WORD     ? {2{pipeline_req_wr_data}}                  :
-                                                       $error("pipeline_req_width is invalid")
+                                                    0
     };
     data_array_set_t data_array_dout;
 

@@ -11,9 +11,9 @@ module unsigned_cmp_ #(
     output wire ge
 );
     // TODO: implement
-    assign eq = {31'b0, (a == b)};
-    assign lt = {31'b0, (a < b)};
-    assign ge = {31'b0, (a >= b)};
+    assign eq = (a == b);
+    assign lt = (a < b);
+    assign ge = (a >= b);
 endmodule
 
 `endif
