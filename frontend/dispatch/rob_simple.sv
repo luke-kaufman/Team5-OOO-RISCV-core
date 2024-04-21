@@ -67,7 +67,7 @@ module rob_simple (
 
     // flush on redirect
     input wire fetch_redirect_valid,
-    input wire fetch_redirect_pc
+    input wire addr_t fetch_redirect_pc
 );
     wire rob_entry_t [`ROB_N_ENTRIES-1:0] rob_state;
     wire rob_entry_t entry_rd_data_src1;

@@ -166,7 +166,7 @@ typedef struct packed {
 
 typedef struct packed {
     logic ld_st; // 0: ld, 1: st
-    logic rob_id_t base_addr_rob_id;
+    rob_id_t base_addr_rob_id;
     logic base_addr_ready;
     addr_t base_addr;
     imm_t imm;

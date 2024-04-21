@@ -10,9 +10,9 @@ module signed_cmp_ #(
     output [WIDTH-1:0] lt,
     output [WIDTH-1:0] ge
 );
-    assign eq = {31'b0, ($signed(a) == $signed(b))};
-    assign lt = {31'b0, ($signed(a) < $signed(b))};
-    assign ge = {31'b0, ($signed(a) >= $signed(b))};
+    assign eq = ($signed(a) == $signed(b));
+    assign lt = ($signed(a) < $signed(b));
+    assign ge = ($signed(a) >= $signed(b));
 endmodule
 
 `endif
