@@ -1,14 +1,14 @@
 `include "misc/global_defs.svh"
 
 module load_store_simple #(
-    parameter int unsigned LSQ_SIMPLE_N_ENTRIES = 8,
-    parameter int unsigned LSQ_SIMPLE_ENTRY_WIDTH = `LSQ_SIMPLE_ENTRY_WIDTH,
-    localparam int unsigned LSQ_SIMPLE_PTR_WIDTH = clog2(LSQ_SIMPLE_N_ENTRIES)
+    parameter int unsigned LSQ_SIMPLE_N_ENTRIES = 8
 ) (
     input logic clk,
     input logic rst_aL,
-    input logic init,
     input logic flush,
+    // for testing
+    input logic init,
+    input lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] init_entries,
 
     // MEM CTRL REQUEST
     output logic mem_ctrl_req_valid,
@@ -96,8 +96,8 @@ module load_store_simple #(
         };
     end
     lsq_simple #(
-        .ENTRY_WIDTH(LSQ_SIMPLE_ENTRY_WIDTH),
         .N_ENTRIES(LSQ_SIMPLE_N_ENTRIES)
+        .ENTRY_T(lsq_simple_entry_t)
     ) _lsq_simple (
         .clk(clk),
         .rst_aL(rst_aL),
@@ -106,31 +106,18 @@ module load_store_simple #(
         .enq_ready(dispatch_ready),
         .enq_valid(dispatch_valid),
         .enq_data(dispatch_data),
-        .enq_addr(), // not used
 
-        .deq_ready(dcache_resp_valid),
-        .deq_valid(), // not used
+        .deq_valid(dcache_resp_valid),
         .deq_data(lsq_deq_entry),
-        .deq_addr(), // not used
 
-        .rd_addr(), // not used
-        .rd_data(), // not used
-
-        // NOTE: all writes are assumed to be to separate entries
-        // writes are generalized to be optional and partial across all entries
         .wr_en(lsq_wr_en),
         .wr_data(lsq_wr_data),
 
-        .entry_douts(lsq_entries),
+        .entries(lsq_entries),
 
         // for testing
         .init(init),
-        .init_entry_reg_state(),
-        .init_enq_up_counter_state(),
-        .init_deq_up_counter_state(),
-        .current_entry_reg_state(),
-        .current_enq_up_counter_state(),
-        .current_deq_up_counter_state()
+        .init_entries(init_entries)
     );
 
     // iiq wakeup write
