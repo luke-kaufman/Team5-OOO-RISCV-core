@@ -198,14 +198,20 @@ module core (
         .dispatch_ready(lsq_dispatch_ready),  /*output*/
         .dispatch_valid(lsq_dispatch_valid),  /*input*/
         .dispatch_data(lsq_dispatch_data),   /*input*/
+        // IIQ wakeup
+        .iiq_wakeup_valid(iiq_issue_valid),  // input
+        .iiq_wakeup_rob_id(iiq_issue_rob_id),  // input
         // alu broadcast:
         .alu_broadcast_valid(alu_broadcast_valid),     /*input*/
         .alu_broadcast_rob_id(alu_broadcast_rob_id),    /*input*/
-        .alu_broadcast_reg_data(alu_broadcast_reg_data)  /*input*/
+        .alu_broadcast_reg_data(alu_broadcast_reg_data),  /*input*/
         // // load broadcast:
-        // .ld_broadcast_valid(ld_broadcast_valid),    /*output*/
-        // .ld_broadcast_rob_id(ld_broadcast_rob_id),   /*output*/
-        // .ld_broadcast_reg_data(ld_broadcast_reg_data)  /*output*/
+        .lsu_broadcast_valid(ld_broadcast_valid),    /*output*/
+        .lsu_broadcast_rob_id(ld_broadcast_rob_id),   /*output*/
+        .lsu_broadcast_reg_data(ld_broadcast_reg_data),  /*output*/
+
+        .init(init),
+        .init_entries()
     );
 
     // LOAD STORE QUEUE (LSQ)
