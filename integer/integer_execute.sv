@@ -137,19 +137,26 @@ module integer_execute (
     ) unsigned_cmp (
         .a(cmp_op1),
         .b(cmp_op2),
-        .eq(unsigned_cmp_eq),
-        .lt(unsigned_cmp_lt),
-        .ge(unsigned_cmp_ge)
+        .eq(),
+        .lt(),
+        .ge()
     );
+    assign unsigned_cmp_eq = {31'b0, unsigned_cmp.eq};
+    assign unsigned_cmp_lt = {31'b0, unsigned_cmp.lt};
+    assign unsigned_cmp_ge = {31'b0, unsigned_cmp.ge};
+    
     signed_cmp_ #(
         .WIDTH(`WORD_WIDTH)
     ) signed_cmp (
         .a(cmp_op1),
         .b(cmp_op2),
-        .eq(signed_cmp_eq),
-        .lt(signed_cmp_lt),
-        .ge(signed_cmp_ge)
+        .eq(),
+        .lt(),
+        .ge()
     );
+    assign signed_cmp_eq = {31'b0, unsigned_cmp.eq};
+    assign signed_cmp_lt = {31'b0, unsigned_cmp.lt};
+    assign signed_cmp_ge = {31'b0, unsigned_cmp.ge};
 
     wire word_t and_op1 = src1;
     wire word_t and_op2 = is_i_type ? imm : src2;

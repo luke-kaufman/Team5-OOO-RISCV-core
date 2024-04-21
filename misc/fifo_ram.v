@@ -1,6 +1,7 @@
 `ifndef FIFO_RAM_V
 `define FIFO_RAM_V
 
+`include "misc/global_defs.svh"
 `include "misc/inv.v"
 `include "misc/and/and_.v"
 `include "misc/cmp/unsigned_cmp_.v"
