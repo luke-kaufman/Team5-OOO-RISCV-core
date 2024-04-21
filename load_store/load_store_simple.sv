@@ -23,7 +23,7 @@ module load_store_simple #(
     // dispatch interface: ready & valid
     output wire dispatch_ready,
     input wire dispatch_valid,
-    input wire lsq_simple_entry_t dispatch_data,
+    input lsq_simple_entry_t dispatch_data, // TODO: 2-state vs. 4-state? (enum is causing issues?)
 
     // iiq wakeup:
     input wire iiq_wakeup_valid,
@@ -32,7 +32,7 @@ module load_store_simple #(
     // alu broadcast:
     input wire alu_broadcast_valid,
     input wire rob_id_t alu_broadcast_rob_id,
-    input wire reg_data_t alu_broadcast_reg_data
+    input wire reg_data_t alu_broadcast_reg_data,
 
     // lsu broadcast:
     output wire lsu_broadcast_valid,
@@ -42,9 +42,10 @@ module load_store_simple #(
     wire dcache_resp_valid;
     wire word_t dcache_resp_rd_data;
 
-    wire lsq_simple_entry_t lsq_deq_entry;
-    wire lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_entries;
-    wire lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_wr_data;
+    lsq_simple_entry_t lsq_deq_entry;
+    lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_entries;
+    lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_wr_en;
+    lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_wr_data;
 
     wire [LSQ_SIMPLE_N_ENTRIES-1:0] base_addr_iiq_wakeup_capture;
     wire [LSQ_SIMPLE_N_ENTRIES-1:0] base_addr_alu_broadcast_capture;
@@ -96,7 +97,7 @@ module load_store_simple #(
         };
     end
     lsq_simple #(
-        .N_ENTRIES(LSQ_SIMPLE_N_ENTRIES)
+        .N_ENTRIES(LSQ_SIMPLE_N_ENTRIES),
         .ENTRY_T(lsq_simple_entry_t)
     ) _lsq_simple (
         .clk(clk),
@@ -170,13 +171,15 @@ module load_store_simple #(
                                         lsq_deq_entry.width == HALFWORD ?
                                             {{16{dcache_resp_rd_data[15]}}, dcache_resp_rd_data[0+:15]} :
                                         lsq_deq_entry.width == WORD ?
-                                            dcache_resp_rd_data
+                                            dcache_resp_rd_data :
+                                            0 // not used
                                     ) : lsq_deq_entry.ld_sign == 1'b1 ? ( // unsigned
                                         lsq_deq_entry.width == BYTE ?
                                             {{24{1'b0}}, dcache_resp_rd_data[0+:8]} :
                                         lsq_deq_entry.width == HALFWORD ?
                                             {{16{1'b0}}, dcache_resp_rd_data[0+:15]} :
                                         lsq_deq_entry.width == WORD ?
-                                            dcache_resp_rd_data
+                                            dcache_resp_rd_data :
+                                            0 // not used
                                     ) : 32'b0; // not used
 endmodule
