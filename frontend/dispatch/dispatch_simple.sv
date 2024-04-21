@@ -161,9 +161,9 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     // [0: ARF (retired), 1: ROB (speculative)]
     wire rs1_retired;
     wire rs2_retired;
-    wire rob_id_t retire_arf_id;
+    wire arf_id_t retire_arf_id;
     regfile #(
-        .ENTRY_WIDTH(4),
+        .ENTRY_WIDTH(1),
         .N_ENTRIES(32),
         .N_READ_PORTS(2),
         .N_WRITE_PORTS(2)
@@ -192,7 +192,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     wire rob_id_t rob_id_src2;
     wire rob_id_t dispatch_rob_id;
     regfile #(
-        .ENTRY_WIDTH(1),
+        .ENTRY_WIDTH(4),
         .N_ENTRIES(32),
         .N_READ_PORTS(3),
         .N_WRITE_PORTS(1)
