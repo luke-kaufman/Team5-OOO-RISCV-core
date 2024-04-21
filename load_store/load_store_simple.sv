@@ -1,4 +1,6 @@
 `include "misc/global_defs.svh"
+`include "load_store/lsq_simple.sv"
+`include "memory/cache.sv"
 
 module load_store_simple #(
     parameter int unsigned LSQ_SIMPLE_N_ENTRIES = 8

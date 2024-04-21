@@ -171,7 +171,7 @@ module cache #(
     wire [7:0] dcache_data_array_store_wmask = pipeline_req_width == BYTE     ? 1'b1 << pipeline_req_addr_offset[2:0]      :
                                                pipeline_req_width == HALFWORD ? 2'b11 << pipeline_req_addr_offset[2:0]     :
                                                pipeline_req_width == WORD     ? 4'b1111 << pipeline_req_addr_offset[2:0]   :
-                                                                                0
+                                                                                0                                          ;
     wire [15:0] dcache_data_array_wmask = {
         {8{random_way == 1'b1}} | ({8{sel_way1}} & dcache_data_array_store_wmask),
         {8{random_way == 1'b0}} | ({8{sel_way0}} & dcache_data_array_store_wmask)
