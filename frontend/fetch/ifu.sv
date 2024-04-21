@@ -81,6 +81,7 @@ INV_X1 icmiss(
     .ZN(icache_miss)
 );
 
+wire [`INSTR_WIDTH-1:0] selected_instr;
 cache #(
     .CACHE_TYPE(ICACHE),
     .N_SETS(`ICACHE_NUM_SETS)
@@ -93,13 +94,13 @@ cache #(
     // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
     .pipeline_req_valid(1'b1), // can change /*input logic*/
     .pipeline_req_type(READ), /*input req_type_t*/ // 0: read 1: write
-    // .pipeline_req_wr_width(), //** Shouldnt matter? /*input req_width_t*/ // 0: byte 1: halfword 2: word (only for dcache and stores)
+    .pipeline_req_width(WORD), //** Shouldnt matter? /*input req_width_t*/ // 0: byte 1: halfword 2: word (only for dcache and stores)
     .pipeline_req_addr(PC.dout), /*input addr_t*/
     .pipeline_req_wr_data(), /*input word_t*/ // (only for writes)
 
     // FROM CACHE TO MEM_CTRL (REQUEST) (LATENCY-INSENSITIVE)
     .mem_ctrl_req_valid(mem_ctrl_req_valid), /*output logic*/
-    .mem_ctrl_req_type(), // NOT USED always read /*output req_type_t*/ // 0: read 1: write
+    .mem_ctrl_req_type(READ), // NOT USED always read /*output req_type_t*/ // 0: read 1: write
     .mem_ctrl_req_block_addr(mem_ctrl_req_block_addr), /*output main_mem_block_addr_t*/
     .mem_ctrl_req_block_data(), /* NOT USED output block_data_t*/ // (only for dcache and stores)
     .mem_ctrl_req_ready(mem_ctrl_req_ready), /*input logic*/ // (icache has priority. for icache if valid is true then ready is also true.)
@@ -110,7 +111,7 @@ cache #(
 
     // FROM CACHE TO PIPELINE (RESPONSE)
     .pipeline_resp_valid(icache_hit), /*output logic*/ // cache hit
-    .pipeline_resp_rd_data(icache_data_way) /*output block_data_t*/
+    .pipeline_resp_rd_data(selected_instr) /*output block_data_t*/
 );
 
 // cache #(
@@ -132,19 +133,6 @@ cache #(
 //     .cache_hit(icache_hit),
 //     .selected_data_way(icache_data_way)
 // );
-
-// select instruction within way
-wire [`INSTR_WIDTH-1:0] selected_instr;
-// mux_ #(
-mux_ #(
-    .WIDTH(`ADDR_WIDTH),
-    .N_INS(2)
-) instr_in_way_mux (
-    .ins({icache_data_way[(`ICACHE_DATA_BLOCK_SIZE - 1):`ADDR_WIDTH],
-          icache_data_way[(`ADDR_WIDTH - 1):0]}),
-    .sel(PC_wire[2]),
-    .out(selected_instr)
-);
 // END ICACHE ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 // ::: PREDICTED NEXT PC BLOCK :::::::::::::::::::::::::::::::::::::::::::::::::
