@@ -46,7 +46,7 @@ module load_store_simple #(
 
     lsq_simple_entry_t lsq_deq_entry;
     lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_entries;
-    lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_wr_en;
+    logic [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_wr_en;
     lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_wr_data;
 
     wire [LSQ_SIMPLE_N_ENTRIES-1:0] base_addr_iiq_wakeup_capture;
@@ -147,8 +147,8 @@ module load_store_simple #(
         // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
         .pipeline_req_valid(~lsq_deq_entry.ld_st ? lsq_deq_entry.base_addr_ready : // load
                                                    lsq_deq_entry.base_addr_ready & lsq_deq_entry.st_data_ready), // store
-        .pipeline_req_type(lsq_deq_entry.ld_st), // 0: read, 1: write
-        .pipeline_req_wr_width(lsq_deq_entry.width), // 0: byte, 1: halfword, 2: word (only for dcache and stores)
+        .pipeline_req_type(req_type_t'(lsq_deq_entry.ld_st)), // 0: read, 1: write // TODO: double-check if this coercion works
+        .pipeline_req_width(lsq_deq_entry.width), // 0: byte, 1: halfword, 2: word (only for dcache)
         .pipeline_req_addr(eff_addr),
         .pipeline_req_wr_data(actual_st_data), // (only for writes)
         // FROM CACHE TO MEM_CTRL (REQUEST) (LATENCY-INSENSITIVE)

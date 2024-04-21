@@ -10,7 +10,7 @@
 module cache #(
     parameter cache_type_t CACHE_TYPE,
     parameter int unsigned N_SETS,
-    localparam int unsigned N_OFFSET_BITS = $clog2(`BLOCK_DATA_WIDTH),
+    localparam int unsigned N_OFFSET_BITS = $clog2(`BLOCK_DATA_WIDTH / 8),
     localparam int unsigned N_INDEX_BITS = $clog2(N_SETS),
     localparam int unsigned N_TAG_BITS = `ADDR_WIDTH - N_OFFSET_BITS - N_INDEX_BITS
 ) (
@@ -22,7 +22,7 @@ module cache #(
     // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
     input logic pipeline_req_valid,
     input req_type_t pipeline_req_type, // 0: read, 1: write
-    input req_width_t pipeline_req_width, // 0: byte, 1: halfword, 2: word (only for dcache and stores)
+    input req_width_t pipeline_req_width, // 0: byte, 1: halfword, 2: word (only for dcache)
     input addr_t pipeline_req_addr,
     input word_t pipeline_req_wr_data, // (only for writes)
 

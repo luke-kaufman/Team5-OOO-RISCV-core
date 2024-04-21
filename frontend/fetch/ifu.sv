@@ -92,16 +92,16 @@ cache #(
 
     // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
     .pipeline_req_valid(1'b1), // can change /*input logic*/
-    .pipeline_req_type(mem_ctrl_resp_valid), /*input req_type_t*/ // 0: read 1: write
+    .pipeline_req_type(READ), /*input req_type_t*/ // 0: read 1: write
     // .pipeline_req_wr_width(), //** Shouldnt matter? /*input req_width_t*/ // 0: byte 1: halfword 2: word (only for dcache and stores)
     .pipeline_req_addr(PC.dout), /*input addr_t*/
-    .pipeline_req_wr_data(mem_ctrl_resp_block_data), /*input word_t*/ // (only for writes)
+    .pipeline_req_wr_data(), /*input word_t*/ // (only for writes)
 
     // FROM CACHE TO MEM_CTRL (REQUEST) (LATENCY-INSENSITIVE)
     .mem_ctrl_req_valid(mem_ctrl_req_valid), /*output logic*/
-    .mem_ctrl_req_type(1'b0), // always read /*output req_type_t*/ // 0: read 1: write
+    .mem_ctrl_req_type(), // NOT USED always read /*output req_type_t*/ // 0: read 1: write
     .mem_ctrl_req_block_addr(mem_ctrl_req_block_addr), /*output main_mem_block_addr_t*/
-    // .mem_ctrl_req_block_data(), /*output block_data_t*/ // (only for dcache and stores)
+    .mem_ctrl_req_block_data(), /* NOT USED output block_data_t*/ // (only for dcache and stores)
     .mem_ctrl_req_ready(mem_ctrl_req_ready), /*input logic*/ // (icache has priority. for icache if valid is true then ready is also true.)
 
     // FROM MEM_CTRL TO CACHE (RESPONSE) (LATENCY-SENSITIVE)
