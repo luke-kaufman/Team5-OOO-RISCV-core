@@ -13,6 +13,11 @@
 // FIXME: convert int_wakeup -> iiq_wakeup
 // FIXME: convert lsu_wb -> ld_wb
 // FIXME: convert pc -> pc_npc, add npc_wb coming from alu
+
+// branch, store, register
+// branch: mispred vs. not mispred
+
+
 module rob_simple (
     input wire clk,
     input wire rst_aL,
@@ -75,7 +80,7 @@ module rob_simple (
     assign dispatch_entry_data.pc_npc = dispatch_data.pc;
     // assign dispatch_entry_data.ld_mispred = 1'b0;
     assign dispatch_entry_data.br_mispred = 1'b0;
-    assign dispatch_entry_data.reg_ready = 1'b0;
+    assign dispatch_entry_data.is_executed = 1'b0;
     assign dispatch_entry_data.reg_data = {`REG_DATA_WIDTH{1'b0}};
 
     wire rob_entry_t [`ROB_N_ENTRIES-1:0] entry_wr_data_int_wakeup;
@@ -89,7 +94,7 @@ module rob_simple (
         assign entry_wr_data_int_wakeup[i].pc_npc = rob_state[i].pc_npc;
         // assign entry_wr_data_int_wakeup[i].ld_mispred = rob_state[i].ld_mispred;
         assign entry_wr_data_int_wakeup[i].br_mispred = rob_state[i].br_mispred;
-        assign entry_wr_data_int_wakeup[i].reg_ready = 1'b1;
+        assign entry_wr_data_int_wakeup[i].is_executed = 1'b1;
         assign entry_wr_data_int_wakeup[i].reg_data = rob_state[i].reg_data;
 
         assign entry_wr_data_alu_wb[i].dst_valid = rob_state[i].dst_valid;
@@ -97,7 +102,7 @@ module rob_simple (
         assign entry_wr_data_alu_wb[i].pc_npc = alu_npc_wb_valid ? alu_npc : rob_state[i].pc_npc; // FIXME: structural
         // assign entry_wr_data_alu_wb[i].ld_mispred = rob_state[i].ld_mispred;
         assign entry_wr_data_alu_wb[i].br_mispred = alu_npc_wb_valid ? alu_npc_mispred : rob_state[i].br_mispred; // FIXME: same
-        assign entry_wr_data_alu_wb[i].reg_ready = rob_state[i].reg_ready; // NOTE: should already be 1'b1
+        assign entry_wr_data_alu_wb[i].is_executed = rob_state[i].is_executed; // NOTE: should already be 1'b1
         assign entry_wr_data_alu_wb[i].reg_data = alu_wb_reg_data;
 
         assign entry_wr_data_lsu_wb[i].dst_valid = rob_state[i].dst_valid;
@@ -105,7 +110,7 @@ module rob_simple (
         assign entry_wr_data_lsu_wb[i].pc_npc = rob_state[i].pc_npc;
         // assign entry_wr_data_lsu_wb[i].ld_mispred = ld_wb_ld_mispred;
         assign entry_wr_data_lsu_wb[i].br_mispred = rob_state[i].br_mispred;
-        assign entry_wr_data_lsu_wb[i].reg_ready = 1'b1; // TODO: verify that ld wb and wakeup always happen in the same cycle
+        assign entry_wr_data_lsu_wb[i].is_executed = 1'b1; // TODO: verify that ld wb and wakeup always happen in the same cycle
         assign entry_wr_data_lsu_wb[i].reg_data = ld_wb_reg_data;
 
         assign entry_wr_data[i][0] = entry_wr_data_int_wakeup[i];
@@ -113,6 +118,7 @@ module rob_simple (
         assign entry_wr_data[i][2] = entry_wr_data_lsu_wb[i];
     end
 
+    // stores write to rob when they execute
     fifo_ram #(
         .ENTRY_WIDTH(`ROB_ENTRY_WIDTH),
         .N_ENTRIES(`ROB_N_ENTRIES),
@@ -127,8 +133,11 @@ module rob_simple (
         .enq_data(dispatch_entry_data),
         .enq_addr(dispatch_rob_id),
 
-        // FIXME
-        .deq_ready(retire_entry_data.dst_valid & retire_entry_data.reg_ready),
+        // nonflush deq when branch (and jalr) is executed and no mispred
+        // flush when branch (and jalr) is executed and mispred
+        // nonflush deq when store is executed
+        // nonflush deq when everything else is executed
+        .deq_ready(retire_entry_data.is_executed),
         .deq_valid(), // not used
         .deq_data(retire_entry_data),
         .deq_addr(retire_rob_id),
@@ -155,9 +164,9 @@ module rob_simple (
     );
 
     // NOTE: currently ignoring load mispreds while reading reg data
-    assign rob_reg_ready_src1 = entry_rd_data_src1.reg_ready;
+    assign rob_reg_ready_src1 = entry_rd_data_src1.is_executed;
     assign rob_reg_data_src1 = entry_rd_data_src1.reg_data;
-    assign rob_reg_ready_src2 = entry_rd_data_src2.reg_ready;
+    assign rob_reg_ready_src2 = entry_rd_data_src2.is_executed;
     assign rob_reg_data_src2 = entry_rd_data_src2.reg_data;
 
     wire not_br_mispred;
@@ -170,10 +179,11 @@ module rob_simple (
     //     .a(retire_entry_data.ld_mispred),
     //     .y(not_ld_mispred)
     // );
+    // NOTE: retire means WRITING to ARF! (it does not include non-ARF-writing instrs like branches and stores)
     and_ #(.N_INS(4)) retire_and (
         .a({
             retire_entry_data.dst_valid,
-            retire_entry_data.reg_ready,
+            retire_entry_data.is_executed,
             not_br_mispred
             // ,not_ld_mispred
             ,1'b1
