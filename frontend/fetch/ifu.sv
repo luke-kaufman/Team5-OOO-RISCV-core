@@ -16,6 +16,7 @@ module ifu (
     // input wire csb0_in,
     // backend interactions
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
+    input wire fetch_redirect_valid,
     input wire recovery_PC_valid,
     input wire backend_stall,
     // MEM CTRL REQUEST
@@ -28,9 +29,8 @@ module ifu (
     // IFU <-> DISPATCH
     input wire ififo_dispatch_ready,
     output wire ififo_dispatch_valid,
-    output wire [`IFIFO_ENTRY_WIDTH-1:0] ififo_dispatch_data,
+    output wire [`IFIFO_ENTRY_WIDTH-1:0] ififo_dispatch_data
 
-    input wire fetch_redirect_valid
 );
 
 // wires
@@ -69,9 +69,13 @@ reg_ #(.WIDTH(`ADDR_WIDTH)) PC (
     // NO FLUSH HERE, NEED TO WRITE NEW PC DURING THAT
     .clk(clk),
     .rst_aL(rst_aL),
+    .flush(fetch_redirect_valid),
     .we(1'b1),  // always write since PC_mux will feed PC itself when stalling
     .din(PC_mux_out),
-    .dout(PC_wire)
+    .dout(PC_wire),
+    
+    .init(init),
+    .init_state()
 );
 // END PC MUX & PC :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -171,7 +175,15 @@ fifo #(
     .enq_valid(icache_hit),      // input - enqueue if icache hit
     .deq_ready(ififo_dispatch_ready),  // input - interface from dispatch
     .deq_valid(ififo_dispatch_valid),     // output - interface to dispatch
-    .deq_data(ififo_dispatch_data) // output - dispatched instr
+    .deq_data(ififo_dispatch_data), // output - dispatched instr
+
+    .init(),
+    .init_entry_reg_state(),
+    .init_enq_up_counter_state(),
+    .init_deq_up_counter_state(),
+    .current_entry_reg_state(),
+    .current_enq_up_counter_state(),
+    .current_deq_up_counter_state()
 );
 
 INV_X1 instr_FIFO_stall (
