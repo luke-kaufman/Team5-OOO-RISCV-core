@@ -100,7 +100,7 @@ typedef struct packed {
     logic dst_valid;
     arf_id_t dst_arf_id;
     addr_t pc_npc; // pc if a load instruction, npc if a branch instruction
-    logic ld_mispred;
+    // logic ld_mispred; // FIXME
     logic br_mispred;
     logic reg_ready;
     reg_data_t reg_data;

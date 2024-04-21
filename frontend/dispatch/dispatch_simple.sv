@@ -1,7 +1,7 @@
 `include "misc/global_defs.svh"
 // `include "freepdk-45nm/stdcells.v"
 `include "misc/regfile.sv"
-`include "frontend/dispatch/rob.sv"
+`include "frontend/dispatch/rob_simple.sv"
 `include "misc/mux/mux_.v"
 `include "misc/onehot_mux/onehot_mux_.v"
 `include "misc/or/or_.v"
@@ -37,7 +37,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire ld_broadcast_valid,
     input wire rob_id_t ld_broadcast_rob_id,
     input wire reg_data_t ld_broadcast_reg_data,
-    input wire ld_mispred,
+    // input wire ld_mispred,
     // INTERFACE TO FETCH
     output wire fetch_redirect_pc_valid,
     output wire addr_t fetch_redirect_pc
@@ -213,7 +213,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire reg_data_t rob_reg_data_src1;
     wire rob_reg_ready_src2;
     wire reg_data_t rob_reg_data_src2;
-    rob _rob (
+    rob_simple _rob (
         .clk(clk),
         .rst_aL(rst_aL),
 
@@ -249,8 +249,8 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
 
         .ld_wb_valid(ld_broadcast_valid),
         .ld_wb_rob_id(ld_broadcast_rob_id),
-        .ld_wb_reg_data(ld_broadcast_reg_data),
-        .ld_wb_ld_mispred(ld_mispred)
+        .ld_wb_reg_data(ld_broadcast_reg_data)
+        // , .ld_wb_ld_mispred(ld_mispred)
     );
 
     wire reg_data_t arf_reg_data_src1;

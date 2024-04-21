@@ -1,8 +1,8 @@
 `include "misc/global_defs.svh"
 
 module load_store_simple #(
-    parameter int unsigned LS_FIFO_N_ENTRIES = 8,
-    parameter int unsigned LS_FIFO_ENTRY_WIDTH = 32,
+    parameter int unsigned LSQ_N_ENTRIES = 8,
+    parameter int unsigned LSQ_ENTRY_WIDTH = 32,
 ) (
     input logic clk,
     input logic rst_aL,
@@ -33,7 +33,7 @@ module load_store_simple #(
     input wire rob_id_t alu_broadcast_rob_id,
     input wire reg_data_t alu_broadcast_reg_data
 );
-    fifo_ram ls_fifo (
+    fifo_ram lsq_simple (
         .clk(clk),
         .rst_aL(rst_aL),
         .flush(flush),
