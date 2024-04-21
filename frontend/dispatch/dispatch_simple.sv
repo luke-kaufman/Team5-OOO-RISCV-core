@@ -270,7 +270,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
 
     wire reg_data_t arf_reg_data_src1;
     wire reg_data_t arf_reg_data_src2;
-    regfile #(
+    regfile_golden #(
         .ENTRY_WIDTH(32),
         .N_ENTRIES(32),
         .N_READ_PORTS(2),
