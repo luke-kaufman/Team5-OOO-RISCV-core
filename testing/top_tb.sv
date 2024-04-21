@@ -1,6 +1,8 @@
 `include "misc/global_defs.svh"
+`include "top/top.sv"
 `include "top/core.sv"
 `include "top/main_mem.sv"
+
 module top_tb #(
     parameter N_RANDOM_TESTS = 100
 );
@@ -62,58 +64,9 @@ module top_tb #(
     // ARF OUT from core
     wire [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] arf_out_data;
 
-    // RESPONSE FROM MAIN MEMORY TO CORE
-    wire                               mem2core_valid;
-    wire                               mem2core_lsu_aL_ifu_aH;
-    wire [`ADDR_WIDTH-1:0]             mem2core_addr;
-    wire [2:0]                         mem2core_data_size;
-    wire [`ICACHE_DATA_BLOCK_SIZE-1:0] mem2core_data;
-    
-    // REQUEST FROM CORE TO MAIN MEMORY
-    wire                   core2mem_valid;
-    wire [`ADDR_WIDTH-1:0] core2mem_addr;
-    wire [2:0]             core2mem_data_size; // {Word, Halfword, Byte}
-    wire [`WORD_WIDTH-1:0] core2mem_data;
+    // TOP INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-    // CORE INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    core core_dut (
-        .clk(clk), // input wire 
-        .rst_aL(rst_aL), // input wire 
-        .csb0_in(csb0_in), // input wire 
-        // Main memory interaction for both LOADS and ICACHE (rd only)
-        .recv_main_mem_valid(mem2core_valid), // input wire 
-        .recv_main_mem_lsu_aL_ifu_aH(mem2core_lsu_aL_ifu_aH),  // if main mem data is meant for LSU or IFU
-        .recv_main_mem_addr(mem2core_addr), // input wire
-        .recv_size_main_mem(mem2core_data_size), // {Word, Halfword, Byte} 
-        .recv_main_mem_data(mem2core_data), // input wire 
-        // Main memory interaction only for STORES (wr only)
-        .send_en_main_mem(core2mem_valid), // output wire 
-        .send_main_mem_addr(core2mem_addr), // output wire 
-        .send_size_main_mem(core2mem_data_size), // output wire 
-        .send_main_mem_data(core2mem_data) // output wire 
-
-        // ARF OUT to check architectural state
-
-    );
-    // END CORE INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-    // MEMORY INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    main_mem main_mem_dut (
-        .clk(clk), // input wire 
-        .rst_aL(rst_aL), // input wire 
-        // FROM CORE TO MAIN MEM (RECEIVE)
-        .recv_core_valid(core2mem_valid), // input wire 
-        .recv_core_addr(core2mem_addr), // input wire
-        .recv_size_core(core2mem_data_size), // {$block, Word, Halfword, Byte} 
-        .recv_core_data(core2mem_data), // input wire 
-        // FROM MAIN MEM TO CORE (SEND)
-        .send_en_core(mem2core_valid), // output wire 
-        .send_core_lsu_aL_ifu_aH(mem2core_lsu_aL_ifu_aH), // output wire 
-        .send_core_addr(mem2core_addr),  // if main mem data is meant for LSU or IFU
-        .send_size_core(mem2core_data_size), // output wire 
-        .send_core_data(mem2core_data) // output wire 
-    );
-    // END MEMORY INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    // END TOP INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
     task build_testcases(int s_i);
         case (s_i)
