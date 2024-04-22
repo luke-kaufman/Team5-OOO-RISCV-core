@@ -62,8 +62,6 @@ module top_tb #(
     /*input*/ addr_t init_sp=0;
 
     bit testing = 1;
-    bit test_icache_fill_valid = 0;
-    addr_t test_icache_fill_PC = 0;
     block_data_t test_icache_fill_block = 0;
 
     // clock generation & other external core inputs
@@ -73,7 +71,7 @@ module top_tb #(
         forever #HALF_PERIOD clk = ~clk;
     end
 
-    block_data_t main_mem_init [HIGHEST_INSTR_BLOCK_ADDR:0];
+    block_data_t init_main_mem_state [HIGHEST_INSTR_BLOCK_ADDR:0];
     // ARF OUT from core
     wire [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] arf_out_data;
 
@@ -87,7 +85,7 @@ module top_tb #(
         .init_pc(32'h1018c),
         .init_sp(init_sp),
 
-        .init_main_mem_state(main_mem_init),  // input block_data_t [`MAIN_MEM_N_BLOCKS]
+        .init_main_mem_state(init_main_mem_state),  // input block_data_t [`MAIN_MEM_N_BLOCKS]
         .ARF_OUT(arf_out_data) // output [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] 
     );
     // END TOP INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -302,73 +300,30 @@ module top_tb #(
     endtask
 
     bit skip = 0;
+    main_mem_block_addr_t block_addr;
+    main_mem_block_offset_t block_offset;
     task fill_main_mem_and_start_read(int s_i);
         // FIRST NEED TO FILL THE ICACHE WITH CERTAIN INSTRUCTIONS
         $display("Filling main_mem with instructions:");
+        // init_main_mem_state = 0;
         for(int i=0; i<test_programs[s_i].num_instrs; i=i+1) begin
 
-            // force PC to instruction location thru recovery PC logic
-            if(i==0 && (test_programs[s_i].prog_addrs[i] & 32'h00000004)) begin
-                test_icache_fill_block = {
-                    test_programs[s_i].prog[test_programs[s_i].prog_addrs[i]], 
-                    32'h00000000
-                };
+            {block_addr, block_offset} = test_programs[s_i].prog_addrs[i]; 
+            if (8*block_offset + `INSTR_WIDTH <= `BLOCK_DATA_WIDTH) begin
+                init_main_mem_state[block_addr][8*block_offset+:`INSTR_WIDTH] = test_programs[s_i].prog[test_programs[s_i].prog_addrs[i]];
+                // $display("FILL MAIN MEM: mem[0x%8h] %d, INSTR: 0x%8h", block_addr, 8*block_offset, test_programs[s_i].prog[test_programs[s_i].prog_addrs[i]]);
             end
             else begin
-                if (i == test_programs[s_i].num_instrs-1) begin
-                    test_icache_fill_block = {
-                        32'h00000000,
-                        test_programs[s_i].prog[test_programs[s_i].prog_addrs[i]]
-                    };
-                end
-                else begin
-                    test_icache_fill_block = {
-                        test_programs[s_i].prog[test_programs[s_i].prog_addrs[i+1]],
-                        test_programs[s_i].prog[test_programs[s_i].prog_addrs[i]]
-                    };
-                end
-                skip = 1;
-            end
-
-            // latch and write instructions
-            $display("PC=0x%32b (%8h)", test_programs[s_i].prog_addrs[i], test_programs[s_i].prog_addrs[i]);
-            test_icache_fill_PC = test_programs[s_i].prog_addrs[i];
-            test_icache_fill_valid = 1;
-            #1;
-            $display("_top._core._ifu.icache.mem_ctrl_resp_valid: %1b", _top._core._ifu.icache.mem_ctrl_resp_valid);
-            $display("_top._core._ifu.icache.mem_ctrl_resp_block_data: 0x%8h", _top._core._ifu.icache.mem_ctrl_resp_block_data);
-            $display("_top._core._ifu.icache.mem_ctrl_req_ready: %1b", _top._core._ifu.icache.mem_ctrl_req_ready);
-            $display("PC_mux_out 0x%8h", _top._core._ifu.PC_mux_out);
-            $display("LATCHED SRAM ADDR 0x%8h at time %6d", _top._core._ifu.PC_mux.out,$time);
-            $display("fetch_redirect_valid %1b, stall_gate_ZN %1b", _top._core._ifu.fetch_redirect_valid, _top._core._ifu.stall_gate.ZN);
-            $display("icache miss: %1b, Ififo stall: %1b", _top._core._ifu.icache_miss, _top._core._ifu.IFIFO_stall);
-            $display("pipeline_resp_valid: pipeline_req_valid_latched: %1b, ~pipeline_resp_was_valid: %1b, tag_array_hit: %1b", _top._core._ifu.icache.pipeline_req_valid_latched, _top._core._ifu.icache.pipeline_resp_was_valid, _top._core._ifu.icache.tag_array_hit);
-            $display("tag_array_dout.way0_valid: %1b, tag_array_dout.way0_tag: 0x%4h, pipeline_req_addr_tag_latched: 0x%4h", _top._core._ifu.icache.tag_array_dout.way0_valid, _top._core._ifu.icache.tag_array_dout.way0_tag, _top._core._ifu.icache.pipeline_req_addr_tag_latched);
-            $display("pipeline_resp_was_valid: %1b, pipeline_resp_valid: %1b", _top._core._ifu.icache.pipeline_resp_was_valid, _top._core._ifu.icache.pipeline_resp_valid);
-            // csb0_in = 0;  // turn on icache
-            @(posedge clk);  // latch into sram and PC
-
-            @(negedge clk);  // write at negedge1
-            #1;
-            $display("\n");
-            test_icache_fill_valid = 1;  // turn off we
-            // csb0_in = 1;  // turn off icache
-            
-            if (skip) begin
-                skip = 0;
-                i = i + 1;  // so we skip next iteration
+                $error("FILL MAIN MEM: INSTRUCTION NOT ALIGNED");
             end
         end
-
-        // force PC to instruction location thru recovery PC logic
-        test_icache_fill_PC = test_programs[s_i].start_PC;
-        test_icache_fill_valid = 1;
-        csb0_in = 0;
-        @(posedge clk); // pc latched into PC reg and SRAM latches
-        $display("START READING INSRUCTIONS FROM ICACHE TIME: %6d", $time);
+        // init main mem
+        init = 0;
         #1;
-        test_icache_fill_valid = 1;
-        // dispatch ready handled in testset build_testcases
+
+        init = 1;
+        #1;
+
     endtask
     
     task run_directed_testcases(int s_i);
@@ -378,10 +333,8 @@ module top_tb #(
         @(posedge clk);
         #1
         rst_aL = 1;
-        init = 1;
         @(posedge clk);
         #1;
-        init = 0;
         
         $display("STARTING TEST SET %0d time: %6d", s_i, $time);
         fill_main_mem_and_start_read(s_i);
@@ -453,5 +406,12 @@ module top_tb #(
         // end
         $display("STARTING TESTBENCH time: %6d", $time);
         directed_testsets();
+        $finish;
+    end
+
+    initial begin
+        #130;
+        $display("PC_mux select lines redir val: %b  stall: %b", _top._core._ifu.fetch_redirect_valid, _top._core._ifu.stall_gate.ZN);
+        $finish;
     end
 endmodule
