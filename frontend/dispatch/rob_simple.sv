@@ -21,6 +21,7 @@
 
 module rob_simple (
     input wire clk,
+    input wire init,
     input wire rst_aL,
 
     // READY-THEN-VALID INTERFACE TO FETCH (ENQUEUE)
@@ -127,6 +128,7 @@ module rob_simple (
         .N_WRITE_PORTS(3)
     ) rob_mem (
         .clk(clk),
+        .init(init),
         .rst_aL(rst_aL),
 
         .enq_ready(dispatch_ready),
@@ -155,10 +157,9 @@ module rob_simple (
         // flush on redirect
         .flush(retire_redirect_pc_valid),
 
-        .init(),
-        .init_entry_reg_state(),
-        .init_enq_up_counter_state(),
-        .init_deq_up_counter_state(),
+        .init_entry_reg_state('0),
+        .init_enq_up_counter_state('0),
+        .init_deq_up_counter_state('0),
         .current_entry_reg_state(),
         .current_enq_up_counter_state(),
         .current_deq_up_counter_state()

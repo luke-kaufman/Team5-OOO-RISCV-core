@@ -15,6 +15,7 @@
 // FIXME: convert pc -> pc_npc, add npc_wb coming from alu
 module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire clk,
+    input wire init,
     input wire rst_aL,
     // INTERFACE TO INSRUCTION FIFO (IFIFO)
     output wire ififo_dispatch_ready,
@@ -170,6 +171,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         .N_WRITE_PORTS(2)
     ) arf_rob_table (
         .clk(clk),
+        .init(init),
         .rst_aL(rst_aL),
 
         .rd_addr({rs1, rs2}),
@@ -183,8 +185,8 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
 
         // FLUSH ON REDIRECT
         .flush(fetch_redirect_valid),
-        .init(),
-        .init_regfile_state(),
+
+        .init_regfile_state('0),
         .current_regfile_state()
     );
 
@@ -199,6 +201,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         .N_WRITE_PORTS(1)
     ) tag_table (
         .clk(clk),
+        .init(init),
         .rst_aL(rst_aL),
 
         .rd_addr({rs1, rs2, retire_arf_id}),
@@ -211,8 +214,8 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
 
         // flush on redirect
         .flush(fetch_redirect_valid),
-        .init(),
-        .init_regfile_state(),
+
+        .init_regfile_state('0),
         .current_regfile_state()
     );
 
@@ -228,6 +231,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     wire reg_data_t rob_reg_data_src2;
     rob_simple _rob (
         .clk(clk),
+        .init(init),
         .rst_aL(rst_aL),
         .fetch_redirect_valid(),
         .fetch_redirect_pc(fetch_redirect_pc),
@@ -277,6 +281,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         .N_WRITE_PORTS(1)
     ) arf (
         .clk(clk),
+        .init(init),
         .rst_aL(rst_aL),
 
         .rd_addr({rs1, rs2}),
@@ -288,8 +293,8 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
 
         // NOT FLUSHED ON REDIRECT
         .flush(1'b0),
-        .init(),
-        .init_regfile_state(),
+
+        .init_regfile_state('0),
         .current_regfile_state()
     );
 

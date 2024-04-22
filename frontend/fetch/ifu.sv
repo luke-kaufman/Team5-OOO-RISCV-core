@@ -11,8 +11,9 @@
 module ifu (
     // from top.sv
     input wire clk,
-    input wire rst_aL,
     input wire init,
+    input addr_t init_pc,
+    input wire rst_aL,
     // input wire csb0_in,
     // backend interactions
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
@@ -75,7 +76,7 @@ reg_ #(.WIDTH(`ADDR_WIDTH)) PC (
     .dout(PC_wire),
 
     .init(init),
-    .init_state()
+    .init_state(init_pc)
 );
 // END PC MUX & PC :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -99,7 +100,7 @@ cache #(
     .pipeline_req_valid(1'b1), // can change /*input logic*/
     .pipeline_req_type(READ), /*input req_type_t*/ // 0: read 1: write
     .pipeline_req_width(WORD), //** Shouldnt matter? /*input req_width_t*/ // 0: byte 1: halfword 2: word (only for dcache and stores)
-    .pipeline_req_addr(PC.dout), /*input addr_t*/
+    .pipeline_req_addr(PC_mux_out), /*input addr_t*/
     .pipeline_req_wr_data(), /*input word_t*/ // (only for writes)
 
     // FROM CACHE TO MEM_CTRL (REQUEST) (LATENCY-INSENSITIVE)
@@ -167,9 +168,11 @@ fifo #(
     .ENTRY_WIDTH(`IFIFO_ENTRY_WIDTH),
     .N_ENTRIES(8)
 ) instruction_FIFO (
-    .flush(fetch_redirect_valid),
     .clk(clk),
+    .init(init),
     .rst_aL(rst_aL),
+
+    .flush(fetch_redirect_valid),
     .enq_data(IFIFO_enq_data),   // input - data
     .enq_ready(IFIFO_enq_ready), // output - can fifo receive data?
     .enq_valid(icache_hit),      // input - enqueue if icache hit
@@ -177,10 +180,9 @@ fifo #(
     .deq_valid(ififo_dispatch_valid),     // output - interface to dispatch
     .deq_data(ififo_dispatch_data), // output - dispatched instr
 
-    .init(),
-    .init_entry_reg_state(),
-    .init_enq_up_counter_state(),
-    .init_deq_up_counter_state(),
+    .init_entry_reg_state('0),
+    .init_enq_up_counter_state('0),
+    .init_deq_up_counter_state('0),
     .current_entry_reg_state(),
     .current_enq_up_counter_state(),
     .current_deq_up_counter_state()

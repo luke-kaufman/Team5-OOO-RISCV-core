@@ -9,7 +9,8 @@ module sram_64x128_1rw_wsize64(
     gnd,
 `endif
 // Port 0: RW
-    clk0,csb0,web0,rst_aL,wmask0,addr0,din0,dout0
+    clk0,csb0,web0,rst_aL,wmask0,addr0,din0,dout0,
+    init
   );
 
   parameter NUM_WMASKS = 2 ;
@@ -26,9 +27,10 @@ module sram_64x128_1rw_wsize64(
     inout gnd;
 `endif
   input  clk0; // clock
+  input init;
+  input rst_aL;
   input   csb0; // active low chip select
   input  web0; // active low write control
-  input rst_aL;
   input [ADDR_WIDTH-1:0]  addr0;
   input [NUM_WMASKS-1:0]   wmask0; // write mask
   input [DATA_WIDTH-1:0]  din0;
@@ -44,9 +46,9 @@ module sram_64x128_1rw_wsize64(
   reg [DATA_WIDTH-1:0]  dout0;
 
   // All inputs are registers
-  always @(posedge clk0)
+  always @(posedge clk0 or posedge init or negedge rst_aL)
   begin
-    if(!rst_aL) begin
+    if(init | !rst_aL) begin
           // reset regs
           csb0_reg <= 1'b1;
           web0_reg <= 1'b1;

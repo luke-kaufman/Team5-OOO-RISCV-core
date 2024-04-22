@@ -17,6 +17,7 @@ module regfile_golden #(
     parameter N_WRITE_PORTS = 2
 ) (
     input wire clk,
+    input wire init,
     input wire rst_aL,
     input wire flush,
 
@@ -28,7 +29,6 @@ module regfile_golden #(
     input wire [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data,
 
     // for testing
-    input wire init,
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_regfile_state,
     output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] current_regfile_state
 );

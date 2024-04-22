@@ -9,7 +9,8 @@ module sram_64x48_1rw_wsize24(
     gnd,
 `endif
 // Port 0: RW
-    clk0,csb0,web0,rst_aL,wmask0,addr0,din0,dout0
+    clk0,csb0,web0,rst_aL,wmask0,addr0,din0,dout0,
+    init
   );
 
   parameter NUM_WMASKS = 2 ;
@@ -26,8 +27,9 @@ module sram_64x48_1rw_wsize24(
     inout gnd;
 `endif
   input  clk0; // clock
-  input   csb0; // active low chip select
+  input init;
   input rst_aL;
+  input   csb0; // active low chip select
   input  web0; // active low write control
   input [ADDR_WIDTH-1:0]  addr0;
   input [NUM_WMASKS-1:0]   wmask0; // write mask
@@ -44,9 +46,9 @@ module sram_64x48_1rw_wsize24(
   reg [DATA_WIDTH-1:0]  dout0;
 
   // All inputs are registers
-  always @(posedge clk0) // TODO: no negedge rst_aL in the sensitivity list?
+  always @(posedge clk0 or posedge init or negedge rst_aL) // TODO: no negedge rst_aL in the sensitivity list?
   begin
-    if(!rst_aL) begin
+    if(init | !rst_aL) begin
         // reset regs
         csb0_reg <= 1'b1;
         web0_reg <= 1'b1;
@@ -56,7 +58,8 @@ module sram_64x48_1rw_wsize24(
         dout0 <= 48'b0;
         // reset mem
         for (int i = 0; i < RAM_DEPTH; i = i + 1) begin
-            mem[i] <= 48'b0;
+            // mem[i] <= 48'b0;
+            mem[i] <= {48{1'bx}};
         end
     end
     else begin

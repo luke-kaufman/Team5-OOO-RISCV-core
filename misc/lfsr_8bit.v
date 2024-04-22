@@ -1,7 +1,7 @@
 module lfsr_8bit (
     input  wire        clk,      // Clock input
-    input  wire        rst_aL,    // Asynchronost_aL input
     input  wire        init,
+    input  wire        rst_aL,    // Asynchronost_aL input
     output reg         out_bit   // Output bit
 );
 

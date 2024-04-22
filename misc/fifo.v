@@ -18,6 +18,7 @@ module fifo #(
     localparam CTR_WIDTH = PTR_WIDTH + 1 // CTR_WIDTH is PTR_WIDTH + 1 to disambiguate between full and empty conditions
 ) (
     input wire clk,
+    input wire init,
     input wire rst_aL,
 
     output wire enq_ready,
@@ -31,7 +32,6 @@ module fifo #(
     input wire flush,
 
     // for testing
-    input wire init,
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_entry_reg_state,
     input wire [CTR_WIDTH-1:0] init_enq_up_counter_state,
     input wire [CTR_WIDTH-1:0] init_deq_up_counter_state,

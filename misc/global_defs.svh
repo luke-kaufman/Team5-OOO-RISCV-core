@@ -26,8 +26,9 @@
 `define DCACHE_WRITE_SIZE_BITS 8
 
 `define BLOCK_DATA_WIDTH 64
-`define MAIN_MEM_N_BLOCKS (2**(`ADDR_WIDTH-$clog2(`BLOCK_DATA_WIDTH/8)))
+`define MAIN_MEM_N_BLOCKS (2**(`ADDR_WIDTH-$clog2(`BLOCK_DATA_WIDTH))) // TODO: `BLOCK_DATA_WIDTH vs. `BLOCK_DATA_WIDTH/8 ?P
 `define MAIN_MEM_BLOCK_ADDR_WIDTH $clog2(`MAIN_MEM_N_BLOCKS)
+`define MAIN_MEM_BLOCK_OFFSET_WIDTH $clog2(`BLOCK_DATA_WIDTH)
 
 `define N_DCACHE_OFFSET_BITS $clog2(`DCACHE_DATA_BLOCK_SIZE/8)
 `define N_DCACHE_INDEX_BITS $clog2(`DCACHE_NUM_SETS)
@@ -63,6 +64,7 @@ typedef logic [`ST_BUF_ID_WIDTH-1:0] st_buf_id_t;
 
 typedef logic [`BLOCK_DATA_WIDTH-1:0] block_data_t;
 typedef logic [`MAIN_MEM_BLOCK_ADDR_WIDTH-1:0] main_mem_block_addr_t;
+typedef logic [`MAIN_MEM_BLOCK_OFFSET_WIDTH-1:0] main_mem_block_offset_t;
 
 typedef logic [`N_DCACHE_OFFSET_BITS-1:0] dcache_offset_t;
 typedef logic [`N_DCACHE_INDEX_BITS-1:0] dcache_index_t;
@@ -392,5 +394,89 @@ virtual class rng #(parameter WIDTH);
         end
     endfunction
 endclass
+
+// typedef struct packed {
+//     logic  csb0_reg;
+//     logic  web0_reg;
+//     logic [NUM_WMASKS-1:0]  wmask0_reg;
+//     logic [ADDR_WIDTH-1:0]  addr0_reg;
+//     logic [DATA_WIDTH-1:0]  din0_reg;
+// } icache_sram_latches_state_t;
+
+// typedef struct packed {
+
+// } icache_latches_state_t;
+
+// typedef struct packed {
+
+// } pc_state_t;
+
+// typedef struct packed {
+
+// } icache_lfsr_state_t;
+
+// typedef struct packed {
+
+// } icache_tag_array_state_t;
+
+// typedef struct packed {
+
+// } icache_data_array_state_t;
+
+// typedef struct packed {
+
+// } ififo_state_t;
+
+// typedef struct packed {
+
+// } rat_state_t;
+
+// typedef struct packed {
+
+// } rob_state_t;
+
+// typedef struct packed {
+
+// } arf_state_t;
+
+// typedef struct packed {
+
+// } iiq_state_t;
+
+// typedef struct packed {
+
+// } lsq_simple_state_t;
+
+// typedef struct packed {
+
+// } integer_issue_buffer_state_t;
+
+// typedef struct packed {
+
+// } dcache_sram_latches_state_t;
+
+// typedef struct packed {
+
+// } dcache_latches_state_t;
+
+// typedef struct packed {
+
+// } dcache_lfsr_state_t;
+
+// typedef struct packed {
+
+// } dcache_tag_array_state_t;
+
+// typedef struct packed {
+
+// } dcache_data_array_state_t;
+
+// typedef struct packed {
+
+// } req_pipeline_state_t;
+
+// typedef struct packed {
+
+// } main_mem_state_t;
 
 `endif

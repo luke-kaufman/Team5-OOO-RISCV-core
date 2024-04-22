@@ -14,7 +14,7 @@ module reg_ #(
     input wire [WIDTH-1:0] din,
     output wire [WIDTH-1:0] dout,
     input wire flush,
-    
+
     // for testing
     input wire init,
     input wire [WIDTH-1:0] init_state

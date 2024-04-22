@@ -15,8 +15,8 @@ module cache #(
     localparam int unsigned N_TAG_BITS = `ADDR_WIDTH - N_OFFSET_BITS - N_INDEX_BITS
 ) (
     input logic clk,
-    input logic rst_aL,
     input logic init,
+    input logic rst_aL,
     input logic flush, // TODO: do we have to flush anything in cache? (we don't need to flush the lfsr)
 
     // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
@@ -87,6 +87,7 @@ module cache #(
     // Tag array
     sram_64x48_1rw_wsize24 tag_array (
         .clk0(clk),
+        .init(init),
         .rst_aL(rst_aL),
         .csb0(~tag_array_csb), // active low
         .web0(~tag_array_web), // active low
@@ -108,8 +109,8 @@ module cache #(
     logic mem_ctrl_resp_waiting;   // double request preventing latch
     // TODO: does this kind of always_ff cause any problems?
     // TODO: no negedge rst_aL in the sensitivity list? (copied behavioral sram)
-    always_ff @(posedge clk) begin
-        if (!rst_aL) begin
+    always_ff @(posedge clk or posedge init or negedge rst_aL) begin
+        if (init | !rst_aL) begin
             pipeline_req_valid_latched <= 0;
             pipeline_req_type_latched <= req_type_t'(0);
             pipeline_req_width_latched <= req_width_t'(0);
@@ -199,6 +200,7 @@ module cache #(
     if (CACHE_TYPE == ICACHE) begin
         sram_64x128_1rw_wsize64 icache_data_array (
             .clk0(clk),
+            .init(init),
             .rst_aL(rst_aL),
             .csb0(~data_array_csb), // active low
             .web0(~data_array_web), // active low
@@ -210,6 +212,7 @@ module cache #(
     end else if (CACHE_TYPE == DCACHE) begin
         sram_64x128_1rw_wsize8 dcache_data_array (
             .clk0(clk),
+            .init(init),
             .rst_aL(rst_aL),
             .csb0(~data_array_csb), // active low
             .web0(~data_array_web), // active low

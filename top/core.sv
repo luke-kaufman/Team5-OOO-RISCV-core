@@ -10,9 +10,10 @@
 
 module core (
     input wire clk,
+    input wire init,
+    input addr_t init_pc,
     input wire rst_aL,
     // input wire csb0_in,  // testing icache on
-    input wire init,
 
     // ICACHE MEM CTRL REQUEST
     output logic icache_mem_ctrl_req_valid,
@@ -83,6 +84,7 @@ module core (
         .clk(clk),
         .rst_aL(rst_aL),
         .init(init),
+        .init_pc(init_pc),
         // backend interactions - TODO FIX DUPLICATION
         .fetch_redirect_valid(fetch_redirect_valid),
         .recovery_PC(fetch_redirect_pc),
@@ -104,6 +106,7 @@ module core (
     // DISPATCH (DECODE, RENAME, ROB here)
     dispatch_simple dispatch_dut (
         .clk(clk),       /*input*/
+        .init(init),
         .rst_aL(rst_aL), /*input*/
         // INTERFACE TO INSRUCTION FIFO (IFIFO)
         .ififo_dispatch_ready(ififo_dispatch_ready),  // output
@@ -145,6 +148,7 @@ module core (
     // INTEGER ISSUE QUEUE (IIQ)
     integer_issue integer_issue_dut (
         .clk(clk),        /*input*/
+        .init(init),
         .rst_aL(rst_aL),  /*input*/
         .fetch_redirect_valid(fetch_redirect_valid),
         // dispatch interface: ready & valid
@@ -169,7 +173,7 @@ module core (
     integer_execute integer_execute_dut (
         .clk(clk),
         .rst_aL(rst_aL),
-        
+
         .iiq_issue_data(iiq_issue_data),         /*input*/
         .instr_rob_id_out(alu_broadcast_rob_id), /*output*/ // sent to bypass paths  iiq for capture  used for indexing into rob for writeback
         .dst_valid(alu_broadcast_valid),         /*output*/ // to guard broadcast (iiq and lsq) and bypass (dispatch and issue) capture

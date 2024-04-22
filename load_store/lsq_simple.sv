@@ -28,7 +28,7 @@ module lsq_simple #(
         if (init) begin
             lsq_entries <= init_entries;
         end else if (!rst_aL | flush) begin
-            lsq_entries <= '{default: 0};
+            lsq_entries <= 0;
         end else begin
             for (int i = 0; i < N_ENTRIES; i++) begin
                 if (wr_en[i]) begin

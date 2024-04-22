@@ -36,6 +36,7 @@ module shift_queue #(
     input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] wr_data,
 
     output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_douts,
+    output wire [CTR_WIDTH-1:0] enq_ctr_dout,
 
     input wire flush,
 
@@ -301,6 +302,7 @@ module shift_queue #(
         .init(init),
         .init_state(init_enq_up_down_counter_state)
     );
+    assign enq_ctr_dout = enq_ctr;
     for (genvar i = 0; i < N_ENTRIES; i++) begin : queue
         reg_ #(.WIDTH(ENTRY_WIDTH)) entry_reg ( // NOTE: STATEFUL
             .flush(flush),
@@ -327,6 +329,8 @@ module shift_queue #(
                 _edge == NEGEDGE ? "setting init_state and driving inputs" : "state transition",
                 enq_ctr, N_ENTRIES
             );
+            $display("enq_valid: %b, enq_ready: %b, deq_ready: %b, deq_sel_onehot: %b, deq_valid: %b",
+                    enq_valid, enq_ready, deq_ready, deq_sel_onehot, deq_valid);
         end
     endfunction
 

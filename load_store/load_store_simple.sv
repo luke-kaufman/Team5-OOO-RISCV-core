@@ -6,10 +6,10 @@ module load_store_simple #(
     parameter int unsigned LSQ_SIMPLE_N_ENTRIES = 8
 ) (
     input logic clk,
+    input logic init,
     input logic rst_aL,
     input logic flush,
     // for testing
-    input logic init,
     input lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] init_entries,
 
     // MEM CTRL REQUEST
@@ -103,6 +103,7 @@ module load_store_simple #(
         .ENTRY_T(lsq_simple_entry_t)
     ) _lsq_simple (
         .clk(clk),
+        .init(init),
         .rst_aL(rst_aL),
         .flush(flush),
 
@@ -119,8 +120,7 @@ module load_store_simple #(
         .entries(lsq_entries),
 
         // for testing
-        .init(init),
-        .init_entries(init_entries)
+        .init_entries('0)
     );
 
     // alu broadcast bypass into dcache request (base addr and store data)
@@ -138,11 +138,11 @@ module load_store_simple #(
 
     cache #(
         .CACHE_TYPE(DCACHE),
-        .N_SETS(64)
+        .N_SETS(`DCACHE_NUM_SETS)
     ) dcache (
         .clk(clk),
-        .rst_aL(rst_aL),
         .init(init),
+        .rst_aL(rst_aL),
         .flush(flush), // TODO: do we have to flush anything in cache? (we don't need to flush the lfsr)
         // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
         .pipeline_req_valid(~lsq_deq_entry.ld_st ? lsq_deq_entry.base_addr_ready : // load

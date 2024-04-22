@@ -7,6 +7,7 @@ module top (
     input wire clk,
     input wire rst_aL,
     input wire init,
+    input addr_t init_pc,
     input block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS],
     output wire [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] ARF_OUT
 );
@@ -37,6 +38,7 @@ module top (
         .clk(clk),
         .rst_aL(rst_aL),
         .init(init),
+        .init_pc(init_pc),
 
         // ICACHE MEM CTRL REQUEST
         .icache_mem_ctrl_req_valid(icache_mem_ctrl_req_valid),

@@ -9,6 +9,7 @@
 
 module integer_issue (
     input wire clk,
+    input wire init,
     input wire rst_aL,
 
     // dispatch interface: ready & valid
@@ -29,7 +30,7 @@ module integer_issue (
     input wire ld_broadcast_valid,
     input wire rob_id_t ld_broadcast_rob_id,
     input wire reg_data_t ld_broadcast_reg_data,
-    
+
     // FLUSH ON MISPREDICT
     input wire fetch_redirect_valid
 );
@@ -38,11 +39,14 @@ module integer_issue (
     wire iiq_entry_t scheduled_entry;
     wire [`IIQ_N_ENTRIES-1:0] entries_wr_en;
     wire iiq_entry_t [`IIQ_N_ENTRIES-1:0] entries_wr_data;
+    localparam int unsigned CTR_WIDTH = $clog2(`IIQ_N_ENTRIES) + 1;
+    wire [CTR_WIDTH-1:0] enq_ctr;
     shift_queue #(
         .N_ENTRIES(`IIQ_N_ENTRIES),
         .ENTRY_WIDTH(`IIQ_ENTRY_WIDTH)
     ) iiq (
         .clk(clk),
+        .init(init),
         .rst_aL(rst_aL),
 
         .enq_ready(dispatch_ready),
@@ -58,13 +62,13 @@ module integer_issue (
         .wr_data(entries_wr_data),
 
         .entry_douts(entries),
+        .enq_ctr_dout(enq_ctr),
 
         // FLUSH ON REDIRECT
         .flush(fetch_redirect_valid),
 
-        .init(),
-        .init_entry_reg_state(),
-        .init_enq_up_down_counter_state(),
+        .init_entry_reg_state('0),
+        .init_enq_up_down_counter_state('0),
         .current_enq_up_down_counter_state(),
         .current_entry_reg_state()
     );
@@ -72,9 +76,10 @@ module integer_issue (
     // issue scheduling
     wire [`IIQ_N_ENTRIES-1:0] entries_ready;
     for (genvar i = 0; i < `IIQ_N_ENTRIES; i++) begin
+        wire instr_valid = (i < enq_ctr); // TODO: double check that this works
         wire src1_ok = ~entries[i].src1_valid || (entries[i].src1_valid && entries[i].src1_ready);
         wire src2_ok = ~entries[i].src2_valid || (entries[i].src2_valid && entries[i].src2_ready);
-        assign entries_ready[i] = src1_ok && src2_ok;
+        assign entries_ready[i] = instr_valid && src1_ok && src2_ok;
     end
     ff1 #(
         .WIDTH(`IIQ_N_ENTRIES)
@@ -223,9 +228,10 @@ module integer_issue (
         br_dir_pred: scheduled_entry.br_dir_pred // received from issue (0: not taken, 1: taken)
     };
 
-    reg_ #(.WIDTH(`IIQ_ISSUE_DATA_WIDTH)) 
+    reg_ #(.WIDTH(`IIQ_ISSUE_DATA_WIDTH))
     integer_issue_buffer (
         .clk(clk),
+        .init(init),
         .rst_aL(rst_aL),
         .we(issue_valid),
         .din(integer_issue_buffer_din),
@@ -233,8 +239,8 @@ module integer_issue (
 
         // FLUSH ON REDIRECT
         .flush(fetch_redirect_valid),
-        .init_state(),
-        .init()
+
+        .init_state('0)
     );
 
     assign issue_rob_id = scheduled_entry.instr_rob_id;

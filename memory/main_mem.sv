@@ -9,8 +9,8 @@ module main_mem #(
     parameter int unsigned N_DELAY_CYCLES = 5
 ) (
     input logic clk,
-    input logic rst_aL,
     input logic init,
+    input logic rst_aL,
     input block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS],
 
     // FROM MEM_CTRL TO MAIN_MEM (REQUEST) (LATENCY-SENSITIVE)
@@ -42,7 +42,7 @@ module main_mem #(
     always_ff @(posedge clk or posedge init or negedge rst_aL) begin // TODO: figure out the testbench strategy for init/rst_aL
         if (init) begin
             for (int i = 0; i < N_DELAY_CYCLES; i++) begin
-                req_pipeline[i] <= '{default: 0};
+                req_pipeline[i] <= 0;
             end
             resp_valid <= 0;
             resp_cache_type <= cache_type_t'(0);
@@ -51,11 +51,14 @@ module main_mem #(
         end else if (!rst_aL) begin
             // Resetting the pipeline
             for (int i = 0; i < N_DELAY_CYCLES; i++) begin
-                req_pipeline[i] <= '{default: 0};
+                req_pipeline[i] <= 0;
             end
             resp_valid <= 0;
             resp_cache_type <= cache_type_t'(0);
             resp_block_data <= 0;
+            // for (int i = 0; i < `MAIN_MEM_N_BLOCKS; i++) begin // TODO: double-check if this is correct
+            //     mem[i] <= 0;
+            // end
         end else begin
             // Shift the pipeline
             for (int i = N_DELAY_CYCLES-1; i > 0; i--) begin
