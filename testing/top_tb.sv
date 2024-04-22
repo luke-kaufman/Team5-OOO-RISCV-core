@@ -4,7 +4,9 @@
 `define NUM_SETS 2  // number of test sets
 
 module top_tb #(
-    parameter N_RANDOM_TESTS = 100
+    parameter N_RANDOM_TESTS = 100,
+    parameter HIGHEST_PC = 32'h80000,
+    localparam main_mem_block_addr_t HIGHEST_INSTR_BLOCK_ADDR = HIGHEST_PC >> `MAIN_MEM_BLOCK_OFFSET_WIDTH
 );
     typedef enum { 
         IFU_STAGE,
@@ -71,19 +73,19 @@ module top_tb #(
         forever #HALF_PERIOD clk = ~clk;
     end
 
-    block_data_t main_mem_init [`MAIN_MEM_N_BLOCKS];
+    block_data_t main_mem_init [HIGHEST_INSTR_BLOCK_ADDR:0];
     // ARF OUT from core
     wire [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] arf_out_data;
 
     // TOP INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    top _top(
+    top #(
+        .HIGHEST_PC(HIGHEST_PC)
+    )_top (
         .clk(clk),
         .rst_aL(rst_aL),
         .init(init),
-        .testing(testing),  //input wire 
-        .test_icache_fill_valid(test_icache_fill_valid),  //input wire 
-        .test_icache_fill_PC(test_icache_fill_PC),  //input addr_t 
-        .test_icache_fill_block(test_icache_fill_block),  //input block_data_t 
+        .init_pc(32'h1018c),
+        .init_sp(init_sp),
 
         .init_main_mem_state(main_mem_init),  // input block_data_t [`MAIN_MEM_N_BLOCKS]
         .ARF_OUT(arf_out_data) // output [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] 
@@ -304,6 +306,7 @@ module top_tb #(
         // FIRST NEED TO FILL THE ICACHE WITH CERTAIN INSTRUCTIONS
         $display("Filling main_mem with instructions:");
         for(int i=0; i<test_programs[s_i].num_instrs; i=i+1) begin
+
             // force PC to instruction location thru recovery PC logic
             if(i==0 && (test_programs[s_i].prog_addrs[i] & 32'h00000004)) begin
                 test_icache_fill_block = {
@@ -381,7 +384,7 @@ module top_tb #(
         init = 0;
         
         $display("STARTING TEST SET %0d time: %6d", s_i, $time);
-        fill_icache_and_start_read(s_i);
+        fill_main_mem_and_start_read(s_i);
 
         // MAIN LOOP
         // Cycles:

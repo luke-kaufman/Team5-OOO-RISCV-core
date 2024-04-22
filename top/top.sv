@@ -3,13 +3,16 @@
 `include "memory/mem_ctrl.sv"
 `include "memory/main_mem.sv"
 
-module top (
+module top #(
+    parameter addr_t HIGHEST_PC,
+    localparam main_mem_block_addr_t HIGHEST_INSTR_BLOCK_ADDR = HIGHEST_PC >> `MAIN_MEM_BLOCK_OFFSET_WIDTH
+)(
     input wire clk,
     input wire init,
     input addr_t init_pc,
     input addr_t init_sp,
     // input block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS],
-    input block_data_t init_main_mem_state[17'b0001_0000_0001_1000_1:17'b0001_0000_0001_1000_1],
+    input block_data_t init_main_mem_state[HIGHEST_INSTR_BLOCK_ADDR:0],
     input wire rst_aL,
 
     output wire [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] ARF_OUT
@@ -102,7 +105,9 @@ module top (
         .mem_resp_block_data(mem_resp_block_data) // for reads
     );
 
-    main_mem _main_mem (
+    main_mem #(
+        .HIGHEST_INSTR_BLOCK_ADDR(HIGHEST_INSTR_BLOCK_ADDR)
+    ) _main_mem (
         .clk(clk),
         .init(init),
         .init_main_mem_state(init_main_mem_state),
