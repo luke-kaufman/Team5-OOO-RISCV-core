@@ -18,7 +18,8 @@ module ifu (
     // backend interactions
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
     input wire fetch_redirect_valid,
-    input wire backend_stall,
+    input wire recovery_PC_valid,
+    // input wire backend_stall,
     // MEM CTRL REQUEST
     output logic mem_ctrl_req_valid,
     output main_mem_block_addr_t mem_ctrl_req_block_addr,
@@ -48,7 +49,8 @@ wire stall;
 OR3_X1 stall_gate (
     .A1(icache_miss),
     .A2(IFIFO_stall),
-    .A3(backend_stall),
+    // .A3(backend_stall),
+    .A3('0),
     .ZN(stall)
 );
 
@@ -61,7 +63,7 @@ mux_ #(
           PC_wire,     // if stall
           next_PC      // predicted nextPC
           }),
-    .sel({fetch_redirect_valid, stall}),
+    .sel({recovery_PC_valid, stall}),
     .out(PC_mux_out)
 );
 

@@ -93,7 +93,7 @@ module core (
         // backend interactions - TODO FIX DUPLICATION
         .fetch_redirect_valid(testing ? test_icache_fill_valid : fetch_redirect_valid),
         .recovery_PC(testing ? test_icache_fill_PC : fetch_redirect_pc),
-        .backend_stall(fetch_redirect_valid),  // OR with other stuff?
+        // .backend_stall(),  // OR with other stuff?
         // ICACHE MEM CTRL REQUEST
         .mem_ctrl_req_valid(icache_mem_ctrl_req_valid),            /*output logic*/
         .mem_ctrl_req_block_addr(icache_mem_ctrl_req_block_addr),  /*output main_mem_block_addr_t*/
