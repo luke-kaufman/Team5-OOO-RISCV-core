@@ -14,20 +14,15 @@ module core (
     input addr_t init_pc,
     input addr_t init_sp,
     input wire rst_aL,
-    // input wire csb0_in,  // testing icache on
-    input wire testing,
 
     // ICACHE MEM CTRL REQUEST
     output logic icache_mem_ctrl_req_valid,
     output main_mem_block_addr_t icache_mem_ctrl_req_block_addr,
     input logic icache_mem_ctrl_req_ready,
+
     // ICACHE MEM CTRL RESPONSE
     input logic icache_mem_ctrl_resp_valid,
     input block_data_t icache_mem_ctrl_resp_block_data,
-    // ICACHE TESTING INs
-    input wire test_icache_fill_valid,
-    input addr_t test_icache_fill_PC,
-    input block_data_t test_icache_fill_block,
 
     // DCACHE MEM CTRL REQUEST
     output logic dcache_mem_ctrl_req_valid,
@@ -35,6 +30,7 @@ module core (
     output main_mem_block_addr_t dcache_mem_ctrl_req_block_addr,
     output block_data_t dcache_mem_ctrl_req_block_data, // for writes
     input logic dcache_mem_ctrl_req_ready,
+
     // DCACHE MEM CTRL RESPONSE
     input logic dcache_mem_ctrl_resp_valid,
     input block_data_t dcache_mem_ctrl_resp_block_data,
@@ -88,12 +84,12 @@ module core (
     ifu _ifu (
         // from top.sv
         .clk(clk),
-        .rst_aL(rst_aL),
         .init(init),
         .init_pc(init_pc),
+        .rst_aL(rst_aL),
         // backend interactions - TODO FIX DUPLICATION
-        .fetch_redirect_valid(testing ? test_icache_fill_valid : fetch_redirect_valid),
-        .recovery_PC(testing ? test_icache_fill_PC : fetch_redirect_pc),
+        .fetch_redirect_valid(fetch_redirect_valid),
+        .fetch_redirect_PC(fetch_redirect_pc),
         // .backend_stall(),  // OR with other stuff?
         // ICACHE MEM CTRL REQUEST
         .mem_ctrl_req_valid(icache_mem_ctrl_req_valid),            /*output logic*/
@@ -185,7 +181,7 @@ module core (
         .dst_valid(alu_broadcast_valid),         /*output*/ // to guard broadcast (iiq and lsq) and bypass (dispatch and issue) capture
         .dst(alu_broadcast_reg_data),            /*output*/
         .npc_wb_valid(alu_npc_wb_valid),         /*output*/ // change pc to npc in rob only if instr is b_type or jalr
-        .npc_mispred(alu_npc_mispred),           /*output*/ // to be written back to rob.br_mispred (0: no misprediction  1: misprediction)
+        .npc_mispred(alu_npc_mispred),           /*output*/ // to be written back to rob.br_mispred (0:no misprediction 1: misprediction)
         .npc(alu_npc)                            /*output*/ // next pc to be written back to rob.pc_npc (b_type or jalr)
     );
 
@@ -193,7 +189,6 @@ module core (
     load_store_simple lsu (
         .clk(clk), /*input*/
         .rst_aL(rst_aL), /*input*/
-        // .csb0_in(csb0_in), /*input*/
         .flush(fetch_redirect_valid), /*input*/
         // DCACHE MEM CTRL REQUEST
         .mem_ctrl_req_valid(dcache_mem_ctrl_req_valid), // output logic
@@ -221,7 +216,7 @@ module core (
         .lsu_broadcast_reg_data(ld_broadcast_reg_data),  /*output*/
 
         .init(init),
-        .init_entries()
+        .init_entries('0)
     );
 
     // LOAD STORE QUEUE (LSQ)

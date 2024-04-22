@@ -7,17 +7,19 @@ module dispatch_tb;
     addr_t init_pc = 32'h1018c;
     main_mem_block_addr_t block_addr;
     main_mem_block_offset_t block_offset;
-    block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS];
+    // block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS];
+    block_data_t init_main_mem_state[17'b0001_0000_0001_1000_1:17'b0001_0000_0001_1000_1];
 
     initial forever #5 clk = ~clk;
 
     initial begin
-        for (int i = 0; i < `MAIN_MEM_N_BLOCKS; i++) begin // TODO: double-check if this is correct
-            init_main_mem_state[i] = 0;
-        end
+        // for (int i = 0; i < `MAIN_MEM_N_BLOCKS; i++) begin // TODO: double-check if this is correct
+        //     init_main_mem_state[i] = '0;
+        // end
         {block_addr, block_offset} = 32'h1018c; // 0001 0000 0001 1000 1100
-        if (block_offset + `INSTR_WIDTH < `BLOCK_DATA_WIDTH) begin
-            init_main_mem_state[block_addr][block_offset+:`INSTR_WIDTH] = 32'hfe010113;
+        if (8*block_offset + `INSTR_WIDTH <= `BLOCK_DATA_WIDTH) begin
+            // init_main_mem_state[block_addr][8*block_offset+:`INSTR_WIDTH] = 32'hfe010113;
+            init_main_mem_state[17'b0001_0000_0001_1000_1][8*block_offset+:`INSTR_WIDTH] = 32'hfe010113;
         end
         // else begin
         //     automatic logic [`BLOCK_DATA_WIDTH-block_offset-1:0] instr_part1;
@@ -42,15 +44,29 @@ module dispatch_tb;
 
     // for (genvar i = 0; i < `ARF_N_ENTRIES; i++)
     //         $monitor("ARF[%0d] = %b", i, ARF_OUT[i]);
+    initial begin
+        #74 $display("%0t tag_array_din: %b", $time, _top._core._ifu.icache.tag_array_din);
+
+        #1 $display("%0t PC_mux_out: %b", $time, _top._core._ifu.PC_mux_out);
+        $display("%0t pipeline_req_addr: %b", $time, _top._core._ifu.icache.pipeline_req_addr);
+        $display("%0t pipeline_req_addr_tag: %b", $time, _top._core._ifu.icache.pipeline_req_addr_tag);
+        $display("%0t pipeline_req_addr_index: %b", $time, _top._core._ifu.icache.pipeline_req_addr_index);
+        $display("%0t pipeline_req_addr_offset: %b", $time, _top._core._ifu.icache.pipeline_req_addr_offset);
+        $display("%0t tag_array_din: %b", $time, _top._core._ifu.icache.tag_array_din);
+        $display("%0t din0: %b", $time, _top._core._ifu.icache.tag_array.din0);
+
+        #1 $display("%0t din0_reg: %b", $time, _top._core._ifu.icache.tag_array.din0_reg);
+        $display("%0t tag_array_din: %b", $time, _top._core._ifu.icache.tag_array_din);
+    end
 
     initial begin
-
-        $monitor("%b", ARF_OUT);
+        // $monitor("%b", ARF_OUT);
+        $monitor("%0t PC_mux_out: %b", $time, _top._core._ifu.PC_mux_out);
         // $monitor("%p", _top._main_mem.mem);
-        $monitor("%b", _top._mem_ctrl.icache_req_valid);
-        $monitor("%b", _top._mem_ctrl.icache_req_block_addr);
-        $monitor("%b", _top._mem_ctrl.icache_req_ready);
-        $monitor("%t, %p", $time, _top._main_mem.req_pipeline);
+        // $monitor("%b", _top._mem_ctrl.icache_req_valid);
+        // $monitor("%b", _top._mem_ctrl.icache_req_block_addr);
+        // $monitor("%b", _top._mem_ctrl.icache_req_ready);
+        // $monitor("%t, %p", $time, _top._main_mem.req_pipeline);
 
         #1;
         init = 1;

@@ -14,10 +14,11 @@ module ifu (
     input wire init,
     input addr_t init_pc,
     input wire rst_aL,
-    // input wire csb0_in,
     // backend interactions
-    input wire [`ADDR_WIDTH-1:0] recovery_PC,
     input wire fetch_redirect_valid,
+    input wire [`ADDR_WIDTH-1:0] fetch_redirect_PC,
+
+    // input wire backend_stall,
     // MEM CTRL REQUEST
     output logic mem_ctrl_req_valid,
     output main_mem_block_addr_t mem_ctrl_req_block_addr,
@@ -56,8 +57,8 @@ mux_ #(
     .WIDTH(`ADDR_WIDTH),
     .N_INS(4)
 ) PC_mux(
-    .ins({recovery_PC, // if recovery
-          recovery_PC, // if recovery
+    .ins({fetch_redirect_PC, // if recovery
+          fetch_redirect_PC, // if recovery
           PC_wire,     // if stall
           next_PC      // predicted nextPC
           }),
@@ -97,6 +98,7 @@ cache #(
 
     // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
     .pipeline_req_valid(1'b1), // can change /*input logic*/
+    .pipeline_req_cache_type(ICACHE),
     .pipeline_req_type(READ), /*input req_type_t*/ // 0: read 1: write
     .pipeline_req_width(WORD), //** Shouldnt matter? /*input req_width_t*/ // 0: byte 1: halfword 2: word (only for dcache and stores)
     .pipeline_req_addr(PC_mux_out), /*input addr_t*/

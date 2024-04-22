@@ -8,7 +8,8 @@ module top (
     input wire init,
     input addr_t init_pc,
     input addr_t init_sp,
-    input block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS],
+    // input block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS],
+    input block_data_t init_main_mem_state[17'b0001_0000_0001_1000_1:17'b0001_0000_0001_1000_1],
     input wire rst_aL,
 
     output wire [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] ARF_OUT
@@ -43,11 +44,12 @@ module top (
         .init_sp(init_sp),
         .rst_aL(rst_aL),
 
-        // ICACHE to mem ctrl
+        // ICACHE MEM CTRL REQUEST
         .icache_mem_ctrl_req_valid(icache_mem_ctrl_req_valid),
         .icache_mem_ctrl_req_block_addr(icache_mem_ctrl_req_block_addr),
-        // ICACHE from mem ctrl
         .icache_mem_ctrl_req_ready(icache_mem_ctrl_req_ready),
+
+        // ICACHE MEM CTRL RESPONSE
         .icache_mem_ctrl_resp_valid(icache_mem_ctrl_resp_valid),
         .icache_mem_ctrl_resp_block_data(icache_mem_ctrl_resp_block_data),
 
@@ -57,6 +59,7 @@ module top (
         .dcache_mem_ctrl_req_block_addr(dcache_mem_ctrl_req_block_addr),
         .dcache_mem_ctrl_req_block_data(dcache_mem_ctrl_req_block_data),  // for writes
         .dcache_mem_ctrl_req_ready(dcache_mem_ctrl_req_ready),
+
         // DCACHE MEM CTRL RESPONSE
         .dcache_mem_ctrl_resp_valid(dcache_mem_ctrl_resp_valid),
         .dcache_mem_ctrl_resp_block_data(dcache_mem_ctrl_resp_block_data),

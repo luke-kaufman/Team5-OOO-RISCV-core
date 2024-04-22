@@ -147,6 +147,7 @@ module load_store_simple #(
         // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
         .pipeline_req_valid(~lsq_deq_entry.ld_st ? lsq_deq_entry.base_addr_ready : // load
                                                    lsq_deq_entry.base_addr_ready & lsq_deq_entry.st_data_ready), // store
+        .pipeline_req_cache_type(DCACHE),
         .pipeline_req_type(req_type_t'(lsq_deq_entry.ld_st)), // 0: read, 1: write // TODO: double-check if this coercion works
         .pipeline_req_width(lsq_deq_entry.width), // 0: byte, 1: halfword, 2: word (only for dcache)
         .pipeline_req_addr(eff_addr),
