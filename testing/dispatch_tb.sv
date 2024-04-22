@@ -68,6 +68,8 @@ module dispatch_tb;
     initial begin
         // $monitor("%b", ARF_OUT);
         $monitor("%0t PC_mux_out: %b", $time, _top._core._ifu.PC_mux_out);
+        $monitor("%0t ififo: %h", $time, _top._core._ifu.instruction_FIFO);
+
         // $monitor("%p", _top._main_mem.mem);
         // $monitor("%b", _top._mem_ctrl.icache_req_valid);
         // $monitor("%b", _top._mem_ctrl.icache_req_block_addr);
