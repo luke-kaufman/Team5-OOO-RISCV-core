@@ -106,6 +106,11 @@ module cache #(
     logic [N_OFFSET_BITS-1:0] pipeline_req_addr_offset_latched;
     logic pipeline_resp_was_valid; // skid preventing latch
     logic mem_ctrl_resp_waiting;   // double request preventing latch
+
+    logic tag_array_hit_latched; // ensure icache_hit is 0 at start
+    wire sel_way0 = tag_array_dout.way0_valid & (tag_array_dout.way0_tag == pipeline_req_addr_tag_latched);
+    wire sel_way1 = tag_array_dout.way1_valid & (tag_array_dout.way1_tag == pipeline_req_addr_tag_latched);
+    wire tag_array_hit = sel_way0 | sel_way1; // NOTE: not guarded by pipeline_req_valid_latched and mem_ctrl_resp_waiting
     // TODO: does this kind of always_ff cause any problems?
     // TODO: no negedge rst_aL in the sensitivity list? (copied behavioral sram)
     always_ff @(posedge clk) begin
@@ -118,6 +123,7 @@ module cache #(
             pipeline_req_addr_offset_latched <= 0;
             pipeline_resp_was_valid <= 0;
             mem_ctrl_resp_waiting <= 0;
+            tag_array_hit_latched <= 0;
         end else begin
             pipeline_req_valid_latched <= pipeline_req_valid;
             pipeline_req_type_latched <= pipeline_req_type;
@@ -125,6 +131,7 @@ module cache #(
             pipeline_req_addr_tag_latched <= pipeline_req_addr_tag;
             pipeline_req_addr_index_latched <= pipeline_req_addr_index;
             pipeline_req_addr_offset_latched <= pipeline_req_addr_offset;
+            tag_array_hit_latched <= tag_array_hit;
             if (pipeline_resp_was_valid) begin
                 pipeline_resp_was_valid <= 0;
             end else if (pipeline_resp_valid) begin
@@ -142,9 +149,6 @@ module cache #(
         end
     end
 
-    wire sel_way0 = tag_array_dout.way0_valid & (tag_array_dout.way0_tag == pipeline_req_addr_tag_latched);
-    wire sel_way1 = tag_array_dout.way1_valid & (tag_array_dout.way1_tag == pipeline_req_addr_tag_latched);
-    wire tag_array_hit = sel_way0 | sel_way1; // NOTE: not guarded by pipeline_req_valid_latched and mem_ctrl_resp_waiting
     assign mem_ctrl_req_valid = pipeline_req_valid_latched &
                                 ~mem_ctrl_resp_waiting     &
                                 (~tag_array_hit | (pipeline_req_type_latched == WRITE)); // write-through
@@ -157,7 +161,7 @@ module cache #(
 
     assign pipeline_resp_valid = pipeline_req_valid_latched &
                                  ~pipeline_resp_was_valid   &
-                                 tag_array_hit;
+                                 tag_array_hit_latched;  // LUKE CHANGED TO LATCHED
     assign pipeline_resp_rd_data = sel_way0 ? data_array_dout.way0_data[8*pipeline_req_addr_offset_latched+:32] :
                                    sel_way1 ? data_array_dout.way1_data[8*pipeline_req_addr_offset_latched+:32] :
                                               0; // since miss, a read request is being made and this value is not used

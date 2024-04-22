@@ -17,7 +17,6 @@ module ifu (
     // backend interactions
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
     input wire fetch_redirect_valid,
-    input wire recovery_PC_valid,
     input wire backend_stall,
     // MEM CTRL REQUEST
     output logic mem_ctrl_req_valid,
@@ -61,7 +60,7 @@ mux_ #(
           PC_wire,     // if stall
           next_PC      // predicted nextPC
           }),
-    .sel({recovery_PC_valid, stall}),
+    .sel({fetch_redirect_valid, stall}),
     .out(PC_mux_out)
 );
 
@@ -99,7 +98,7 @@ cache #(
     .pipeline_req_valid(1'b1), // can change /*input logic*/
     .pipeline_req_type(READ), /*input req_type_t*/ // 0: read 1: write
     .pipeline_req_width(WORD), //** Shouldnt matter? /*input req_width_t*/ // 0: byte 1: halfword 2: word (only for dcache and stores)
-    .pipeline_req_addr(PC.dout), /*input addr_t*/
+    .pipeline_req_addr(PC_mux_out), /*input addr_t*/
     .pipeline_req_wr_data(), /*input word_t*/ // (only for writes)
 
     // FROM CACHE TO MEM_CTRL (REQUEST) (LATENCY-INSENSITIVE)

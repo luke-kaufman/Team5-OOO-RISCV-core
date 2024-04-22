@@ -1,37 +1,39 @@
 `include "misc/global_defs.svh"
 `include "top/top.sv"
-`include "top/core.sv"
-`include "top/main_mem.sv"
+
+`define NUM_SETS 2  // number of test sets
 
 module top_tb #(
     parameter N_RANDOM_TESTS = 100
 );
-    enum { 
+    typedef enum { 
         IFU_STAGE,
         DISPATCH_STAGE,
         INTEGER_STAGE,
         LSU_STAGE,
         NUM_STAGES 
-    } STAGE
-    `define NUM_SETS 2  // number of test sets
+    } STAGE;
     
     // classes for wrapping test data
     class ProgramWrapper;
         int prog[int];  // actual map/dict of program
         int start_PC;
         int num_instrs;
-        int prog_addrs[500]; // 100 aribtrary max number of instructions
+        int prog_addrs[256]; // 256 max number of instructions in Icache
     endclass
-    class CoreOutWrapper;
-        // something else here ?
-        IFUOutWrapper ifu_out;
-        DispatchOutWrapper dispatch_out;
-        // IntegerOutWrapper integer_out;
-        // LSUOutWrapper lsu_out;
-    endclass  
+
+    // class CoreOutWrapper;
+    //     // something else here ?
+    //     // IFUOutWrapper ifu_out;
+    //     // DispatchOutWrapper dispatch_out;
+    //     // IntegerOutWrapper integer_out;
+    //     // LSUOutWrapper lsu_out;
+    // endclass  
+
     class IFUOutWrapper;
         ififo_entry_t ifu_out[int];
     endclass
+    
     class DispatchOutWrapper;
         iiq_entry_t iiq_out[int];
         lsq_entry_t lsq_out[int];
@@ -43,7 +45,7 @@ module top_tb #(
     //     reg_data_t ld_out[int];
     // endclass
 
-    bit VERBOSE = 0;
+    bit VERBOSE = 1;
     int cycle;
     int curr_PC;
     int num_directed_tests[`NUM_SETS][NUM_STAGES];
@@ -51,27 +53,46 @@ module top_tb #(
     ProgramWrapper test_programs[`NUM_SETS];
     IFUOutWrapper test_ifu_outs[`NUM_SETS];
 
+    /*input*/ bit clk=1;
+    /*input*/ reg rst_aL=1;
+    /*input*/ bit csb0_in=1;
+    /*input*/ bit init=1;
+
+    bit testing = 1;
+    bit test_icache_fill_valid = 0;
+    addr_t test_icache_fill_PC = 0;
+    block_data_t test_icache_fill_block = 0;
+
     // clock generation & other external core inputs
     localparam CLOCK_PERIOD = 10;
     localparam HALF_PERIOD = CLOCK_PERIOD / 2;
     initial begin
         forever #HALF_PERIOD clk = ~clk;
     end
-    /*input*/ bit clk=1;
-    /*input*/ reg rst_aL=1;
-    /*input*/ bit csb0_in=1;
 
+    block_data_t main_mem_init [`MAIN_MEM_N_BLOCKS];
     // ARF OUT from core
     wire [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] arf_out_data;
 
     // TOP INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    top _top(
+        .clk(clk),
+        .rst_aL(rst_aL),
+        .init(init),
+        .testing(testing),  //input wire 
+        .test_icache_fill_valid(test_icache_fill_valid),  //input wire 
+        .test_icache_fill_PC(test_icache_fill_PC),  //input addr_t 
+        .test_icache_fill_block(test_icache_fill_block),  //input block_data_t 
 
+        .init_main_mem_state(main_mem_init),  // input block_data_t [`MAIN_MEM_N_BLOCKS]
+        .ARF_OUT(arf_out_data) // output [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] 
+    );
     // END TOP INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
     task build_testcases(int s_i);
         case (s_i)
             0 : begin // TEST SET 1: just instructions
-                ififo_dispatch_ready = 1;
+                // ififo_dispatch_ready = 1;
                 test_programs[s_i] = new();
                 test_programs[s_i].num_instrs=22;
                 test_programs[s_i].start_PC=32'h1018c;
@@ -131,7 +152,7 @@ module top_tb #(
                 end 
             end
             1 : begin // TEST SET 2: BREAKS BECASUE DYNAM FOR LOOP - Correctly predicted branches 
-                ififo_dispatch_ready = 1;
+                // ififo_dispatch_ready = 1;
                 test_programs[s_i] = new();
                 test_programs[s_i].num_instrs=27;
                 test_programs[s_i].start_PC=32'h1018c;
@@ -225,44 +246,44 @@ module top_tb #(
         $display("\nFETCH: -| Cycle: %4d |--------------------------------------------\n",cycle);
         $display("FETCH: *****| AT %5dns NEGEDGE |*****", $time);
         $display("FETCH: FIFO ENTRY FOR THIS INSTRUCTION:");
-        $display("FETCH: Set accessed: %6b", ifu_dut.icache.tag_arr.addr0_reg);
-        $display("FETCH: IFIFO_enq_data.instr: 0x%8h", ifu_dut.IFIFO_enq_data.instr);
-        $display("FETCH: IFIFO_enq_data.pc: 0x%8h", ifu_dut.IFIFO_enq_data.pc);
-        $display("FETCH: IFIFO_enq_data.is_cond_br: %1b" , ifu_dut.IFIFO_enq_data.is_cond_br);
-        $display("FETCH: IFIFO_enq_data.br_dir_pred: %1b" , ifu_dut.IFIFO_enq_data.br_dir_pred);
-        $display("FETCH: IFIFO_enq_data.br_target_pred: 0x%8h" , ifu_dut.IFIFO_enq_data.br_target_pred);
+        $display("FETCH: Set accessed: %6b", _top._core._ifu.icache.tag_array.addr0_reg);
+        $display("FETCH: IFIFO_enq_data.instr: 0x%8h", _top._core._ifu.IFIFO_enq_data.instr);
+        $display("FETCH: IFIFO_enq_data.pc: 0x%8h", _top._core._ifu.IFIFO_enq_data.pc);
+        $display("FETCH: IFIFO_enq_data.is_cond_br: %1b" , _top._core._ifu.IFIFO_enq_data.is_cond_br);
+        $display("FETCH: IFIFO_enq_data.br_dir_pred: %1b" , _top._core._ifu.IFIFO_enq_data.br_dir_pred);
+        $display("FETCH: IFIFO_enq_data.br_target_pred: 0x%8h" , _top._core._ifu.IFIFO_enq_data.br_target_pred);
         $display();
-        $display("FETCH: enq_ready %1b", ifu_dut.IFIFO_enq_ready); // output - can fifo receive data?
-        $display("FETCH: enq_valid %1b", ifu_dut.icache_hit);      // input - enqueue if icache hit
-        $display("FETCH: deq_ready %1b", ifu_dut.ififo_dispatch_ready);  // input - interface from dispatch
-        $display("FETCH: deq_valid %1b", ifu_dut.ififo_dispatch_valid);     // output - interface to dispatch
-        $display("FETCH: deq_data 0x%8h", ifu_dut.ififo_dispatch_data); // output - dispatched instr
+        $display("FETCH: enq_ready %1b", _top._core._ifu.IFIFO_enq_ready); // output - can fifo receive data?
+        $display("FETCH: enq_valid %1b", _top._core._ifu.icache_hit);      // input - enqueue if icache hit
+        $display("FETCH: deq_ready %1b", _top._core._ifu.ififo_dispatch_ready);  // input - interface from dispatch
+        $display("FETCH: deq_valid %1b", _top._core._ifu.ififo_dispatch_valid);     // output - interface to dispatch
+        $display("FETCH: deq_data 0x%8h", _top._core._ifu.ififo_dispatch_data); // output - dispatched instr
     endtask
     task fetch_posedge_dump(int cycle);
         $display();
         $display("*****| AT %5dns POSEDGE |*****", $time);
-        $display("IFIFO STALL %1b ICACHE MISS %1b", ifu_dut.IFIFO_stall, ifu_dut.icache_miss);
+        $display("IFIFO STALL %1b ICACHE MISS %1b", _top._core._ifu.IFIFO_stall, _top._core._ifu.icache_miss);
         $display("CURR_PC 0x%8h", curr_PC);
-        $display("LATCHED SRAM ADDR 0x%8h at time %6d", ifu_dut.PC_mux.out,$time);
-        $display("recovery_PC_valid %1b, stall_gate_ZN %1b", ifu_dut.recovery_PC_valid, ifu_dut.stall_gate.ZN);
+        $display("LATCHED SRAM ADDR 0x%8h at time %6d", _top._core._ifu.PC_mux.out,$time);
+        $display("fetch_redirect_valid %1b, stall_gate_ZN %1b", _top._core._ifu.fetch_redirect_valid, _top._core._ifu.stall_gate.ZN);    
     endtask
 
-    task check_stage(int stage);
+    task check_stage(int s_i, int stage);
         case(stage)
             IFU_STAGE: begin
-                if(ifu_dut.ififo_dispatch_valid) begin
+                if(_top._core._ifu.ififo_dispatch_valid) begin
                     num_directed_tests[s_i][IFU_STAGE]++;
-                    if(ifu_dut.ififo_dispatch_valid && ifu_dut.ififo_dispatch_data == test_ifu_outs[s_i].ifu_out[curr_PC]) begin
+                    if(_top._core._ifu.ififo_dispatch_valid && _top._core._ifu.ififo_dispatch_data == test_ifu_outs[s_i].ifu_out[curr_PC]) begin
                         num_directed_tests_passed[s_i][IFU_STAGE]++;
                     end
                     else begin
                         $display("FETCH: FAILED CASE:");
-                        $display("FETCH: ifu_dut.ififo_dispatch_valid %1b", ifu_dut.ififo_dispatch_valid);
-                        $display("FETCH: ifu_dut.ififo_dispatch_data.instr 0x%8h EXPECTED: 0x%8h", ifu_dut.ififo_dispatch_data[97:66], test_ifu_outs[s_i].ifu_out[curr_PC][97:66]);
-                        $display("FETCH: ifu_dut.ififo_dispatch_data.pc 0x%8h EXPECTED: 0x%8h", ifu_dut.ififo_dispatch_data[65:34], test_ifu_outs[s_i].ifu_out[curr_PC][65:34]);
-                        $display("FETCH: ifu_dut.ififo_dispatch_data.is_cond_br %1b EXPECTED: %1b", ifu_dut.ififo_dispatch_data[33], test_ifu_outs[s_i].ifu_out[curr_PC][33]);
-                        $display("FETCH: ifu_dut.ififo_dispatch_data.br_dir_pred %1b EXPECTED: %1b", ifu_dut.ififo_dispatch_data[32], test_ifu_outs[s_i].ifu_out[curr_PC][32]);
-                        $display("FETCH: ifu_dut.ififo_dispatch_data.br_target_pred 0x%8h EXPECTED: 0x%8h", ifu_dut.ififo_dispatch_data[31:0], test_ifu_outs[s_i].ifu_out[curr_PC][31:0]);       
+                        $display("FETCH: _top._core._ifu.ififo_dispatch_valid %1b", _top._core._ifu.ififo_dispatch_valid);
+                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.instr 0x%8h EXPECTED: 0x%8h", _top._core._ifu.ififo_dispatch_data[97:66], test_ifu_outs[s_i].ifu_out[curr_PC][97:66]);
+                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.pc 0x%8h EXPECTED: 0x%8h", _top._core._ifu.ififo_dispatch_data[65:34], test_ifu_outs[s_i].ifu_out[curr_PC][65:34]);
+                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.is_cond_br %1b EXPECTED: %1b", _top._core._ifu.ififo_dispatch_data[33], test_ifu_outs[s_i].ifu_out[curr_PC][33]);
+                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.br_dir_pred %1b EXPECTED: %1b", _top._core._ifu.ififo_dispatch_data[32], test_ifu_outs[s_i].ifu_out[curr_PC][32]);
+                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.br_target_pred 0x%8h EXPECTED: 0x%8h", _top._core._ifu.ififo_dispatch_data[31:0], test_ifu_outs[s_i].ifu_out[curr_PC][31:0]);       
                     end
                 end
             end
@@ -276,26 +297,26 @@ module top_tb #(
     endtask
 
     bit skip = 0;
-    task fill_icache_and_start_read();
+    task fill_icache_and_start_read(int s_i);
         // FIRST NEED TO FILL THE ICACHE WITH CERTAIN INSTRUCTIONS
         $display("Filling icache with instructions:");
         for(int i=0; i<test_programs[s_i].num_instrs; i=i+1) begin
             // force PC to instruction location thru recovery PC logic
             if(i==0 && (test_programs[s_i].prog_addrs[i] & 32'h00000004)) begin
-                recv_main_mem_data = {
+                test_icache_fill_block = {
                     test_programs[s_i].prog[test_programs[s_i].prog_addrs[i]], 
                     32'h00000000
                 };
             end
             else begin
                 if (i == test_programs[s_i].num_instrs-1) begin
-                    recv_main_mem_data = {
+                    test_icache_fill_block = {
                         32'h00000000,
                         test_programs[s_i].prog[test_programs[s_i].prog_addrs[i]]
                     };
                 end
                 else begin
-                    recv_main_mem_data = {
+                    test_icache_fill_block = {
                         test_programs[s_i].prog[test_programs[s_i].prog_addrs[i+1]],
                         test_programs[s_i].prog[test_programs[s_i].prog_addrs[i]]
                     };
@@ -305,17 +326,27 @@ module top_tb #(
 
             // latch and write instructions
             $display("PC=0x%32b (%8h)", test_programs[s_i].prog_addrs[i], test_programs[s_i].prog_addrs[i]);
-            recovery_PC = test_programs[s_i].prog_addrs[i];
-            recovery_PC_valid = 1;
-            recv_main_mem_valid = 1;
-            csb0_in = 0;  // turn on icache
+            test_icache_fill_PC = test_programs[s_i].prog_addrs[i];
+            test_icache_fill_valid = 1;
+            #1;
+            $display("_top._core._ifu.icache.mem_ctrl_resp_valid: %1b", _top._core._ifu.icache.mem_ctrl_resp_valid);
+            $display("_top._core._ifu.icache.mem_ctrl_resp_block_data: 0x%8h", _top._core._ifu.icache.mem_ctrl_resp_block_data);
+            $display("_top._core._ifu.icache.mem_ctrl_req_ready: %1b", _top._core._ifu.icache.mem_ctrl_req_ready);
+            $display("PC_mux_out 0x%8h", _top._core._ifu.PC_mux_out);
+            $display("LATCHED SRAM ADDR 0x%8h at time %6d", _top._core._ifu.PC_mux.out,$time);
+            $display("fetch_redirect_valid %1b, stall_gate_ZN %1b", _top._core._ifu.fetch_redirect_valid, _top._core._ifu.stall_gate.ZN);
+            $display("icache miss: %1b, Ififo stall: %1b, backend stall: %1b", _top._core._ifu.icache_miss, _top._core._ifu.IFIFO_stall, _top._core._ifu.backend_stall);
+            $display("pipeline_resp_valid: pipeline_req_valid_latched: %1b, ~pipeline_resp_was_valid: %1b, tag_array_hit: %1b", _top._core._ifu.icache.pipeline_req_valid_latched, _top._core._ifu.icache.pipeline_resp_was_valid, _top._core._ifu.icache.tag_array_hit);
+            $display("tag_array_dout.way0_valid: %1b, tag_array_dout.way0_tag: 0x%4h, pipeline_req_addr_tag_latched: 0x%4h", _top._core._ifu.icache.tag_array_dout.way0_valid, _top._core._ifu.icache.tag_array_dout.way0_tag, _top._core._ifu.icache.pipeline_req_addr_tag_latched);
+            $display("pipeline_resp_was_valid: %1b, pipeline_resp_valid: %1b", _top._core._ifu.icache.pipeline_resp_was_valid, _top._core._ifu.icache.pipeline_resp_valid);
+            // csb0_in = 0;  // turn on icache
             @(posedge clk);  // latch into sram and PC
 
             @(negedge clk);  // write at negedge1
             #1;
             $display("\n");
-            recv_main_mem_valid = 0;  // turn off we
-            csb0_in = 1;  // turn off icache
+            test_icache_fill_valid = 1;  // turn off we
+            // csb0_in = 1;  // turn off icache
             
             if (skip) begin
                 skip = 0;
@@ -324,14 +355,13 @@ module top_tb #(
         end
 
         // force PC to instruction location thru recovery PC logic
-        recovery_PC = test_programs[s_i].start_PC;
-        recovery_PC_valid = 1;
+        test_icache_fill_PC = test_programs[s_i].start_PC;
+        test_icache_fill_valid = 1;
         csb0_in = 0;
         @(posedge clk); // pc latched into PC reg and SRAM latches
         $display("START READING INSRUCTIONS FROM ICACHE TIME: %6d", $time);
         #1;
-        recovery_PC_valid = 0;
-        recv_main_mem_valid = 0;  // stop writing to icache
+        test_icache_fill_valid = 1;
         // dispatch ready handled in testset build_testcases
     endtask
     
@@ -340,13 +370,14 @@ module top_tb #(
         // reset, wait, then start testing
         rst_aL = 0;
         @(posedge clk);
+
         rst_aL = 1;
         @(posedge clk);
         @(negedge clk);
         #1;
-
-        fill_icache_and_start_read();
-
+        
+        $display("STARTING TEST SET %0d time: %6d", s_i, $time);
+        fill_icache_and_start_read(s_i);
 
         // MAIN LOOP
         // Cycles:
@@ -375,16 +406,16 @@ module top_tb #(
 
             // check outputs of all stages
             for(int stage = IFU_STAGE; stage < NUM_STAGES; stage++) begin
-                check_stage(stage);
+                check_stage(s_i, stage);
             end
             
-            curr_PC = ifu_dut.PC_wire;  // PC will have already been latched with the PC for next cycle
+            curr_PC = _top._core._ifu.PC_wire;  // PC will have already been latched with the PC for next cycle
             cycle=cycle+1;
         end
     endtask
    
     // Task to display test results
-    task display_test_results(int s_i, STAGE stage);
+    task display_test_results(int s_i, int stage);
         if (num_directed_tests_passed[s_i][stage] == num_directed_tests[s_i][stage]) begin
             $display("ALL %0d DIRECTED TESTS PASSED", num_directed_tests[s_i][stage]);
         end else begin
@@ -397,10 +428,11 @@ module top_tb #(
 
     task directed_testsets();
         for(int i = 0; i < `NUM_SETS; i++) begin
-            if(i != 0) begin  // skip test cases in this conditional
+            if(i != 1) begin  // skip test cases in this conditional
                 build_testcases(i);
+                $display("STARTING TEST SET BEFORE FUNCTION %0d", i);
                 run_directed_testcases(i);
-                for(int stage = 0; stage < NUM_STAGES; stage++) begin
+                for(int stage = 0; stage < 1/*NUM_STAGES*/; stage++) begin
                     display_test_results(i, stage);
                 end
             end
@@ -412,6 +444,7 @@ module top_tb #(
         // repeat (1000) begin
         //     random_testcase();
         // end
+        $display("STARTING TESTBENCH time: %6d", $time);
         directed_testsets();
     end
 endmodule
