@@ -18,7 +18,6 @@ module ifu (
     // backend interactions
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
     input wire fetch_redirect_valid,
-    input wire recovery_PC_valid,
     // input wire backend_stall,
     // MEM CTRL REQUEST
     output logic mem_ctrl_req_valid,
@@ -63,7 +62,7 @@ mux_ #(
           PC_wire,     // if stall
           next_PC      // predicted nextPC
           }),
-    .sel({recovery_PC_valid, stall}),
+    .sel({fetch_redirect_valid, stall}),
     .out(PC_mux_out)
 );
 

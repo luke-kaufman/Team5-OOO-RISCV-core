@@ -56,7 +56,7 @@ module top_tb #(
     /*input*/ bit clk=1;
     /*input*/ reg rst_aL=1;
     /*input*/ bit csb0_in=1;
-    /*input*/ bit init=1;
+    /*input*/ bit init=0;
 
     bit testing = 1;
     bit test_icache_fill_valid = 0;
@@ -335,7 +335,7 @@ module top_tb #(
             $display("PC_mux_out 0x%8h", _top._core._ifu.PC_mux_out);
             $display("LATCHED SRAM ADDR 0x%8h at time %6d", _top._core._ifu.PC_mux.out,$time);
             $display("fetch_redirect_valid %1b, stall_gate_ZN %1b", _top._core._ifu.fetch_redirect_valid, _top._core._ifu.stall_gate.ZN);
-            $display("icache miss: %1b, Ififo stall: %1b, backend stall: %1b", _top._core._ifu.icache_miss, _top._core._ifu.IFIFO_stall, _top._core._ifu.backend_stall);
+            $display("icache miss: %1b, Ififo stall: %1b", _top._core._ifu.icache_miss, _top._core._ifu.IFIFO_stall);
             $display("pipeline_resp_valid: pipeline_req_valid_latched: %1b, ~pipeline_resp_was_valid: %1b, tag_array_hit: %1b", _top._core._ifu.icache.pipeline_req_valid_latched, _top._core._ifu.icache.pipeline_resp_was_valid, _top._core._ifu.icache.tag_array_hit);
             $display("tag_array_dout.way0_valid: %1b, tag_array_dout.way0_tag: 0x%4h, pipeline_req_addr_tag_latched: 0x%4h", _top._core._ifu.icache.tag_array_dout.way0_valid, _top._core._ifu.icache.tag_array_dout.way0_tag, _top._core._ifu.icache.pipeline_req_addr_tag_latched);
             $display("pipeline_resp_was_valid: %1b, pipeline_resp_valid: %1b", _top._core._ifu.icache.pipeline_resp_was_valid, _top._core._ifu.icache.pipeline_resp_valid);
@@ -370,11 +370,12 @@ module top_tb #(
         // reset, wait, then start testing
         rst_aL = 0;
         @(posedge clk);
-
+        #1
         rst_aL = 1;
+        init = 1;
         @(posedge clk);
-        @(negedge clk);
         #1;
+        init = 0;
         
         $display("STARTING TEST SET %0d time: %6d", s_i, $time);
         fill_icache_and_start_read(s_i);
