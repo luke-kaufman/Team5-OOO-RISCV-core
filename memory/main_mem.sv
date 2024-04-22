@@ -11,7 +11,8 @@ module main_mem #(
     input logic clk,
     input logic init,
     input logic rst_aL,
-    input block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS],
+    // input block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS],
+    input block_data_t init_main_mem_state[17'b0001_0000_0001_1000_1:17'b0001_0000_0001_1000_1],
 
     // FROM MEM_CTRL TO MAIN_MEM (REQUEST) (LATENCY-SENSITIVE)
     input logic req_valid,
@@ -25,7 +26,8 @@ module main_mem #(
     output cache_type_t resp_cache_type,
     output block_data_t resp_block_data // for reads
 );
-    block_data_t mem[`MAIN_MEM_N_BLOCKS];
+    // block_data_t mem[`MAIN_MEM_N_BLOCKS];
+    block_data_t mem[17'b0001_0000_0001_1000_1:17'b0001_0000_0001_1000_1];
 
     // Delay mechanism using a shift register
     typedef struct packed {

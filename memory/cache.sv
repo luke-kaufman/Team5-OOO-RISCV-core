@@ -21,10 +21,11 @@ module cache #(
 
     // FROM PIPELINE TO CACHE (REQUEST) (LATENCY-SENSITIVE)
     input logic pipeline_req_valid,
+    input cache_type_t pipeline_req_cache_type,
     input req_type_t pipeline_req_type, // 0: read, 1: write
     input req_width_t pipeline_req_width, // 0: byte, 1: halfword, 2: word (only for dcache)
-    input addr_t pipeline_req_addr,
-    input word_t pipeline_req_wr_data, // (only for writes)
+    input wire addr_t pipeline_req_addr,
+    input wire word_t pipeline_req_wr_data, // (only for writes)
 
     // FROM CACHE TO MEM_CTRL (REQUEST) (LATENCY-INSENSITIVE)
     output logic mem_ctrl_req_valid,
@@ -66,7 +67,7 @@ module cache #(
     wire [N_OFFSET_BITS-1:0] pipeline_req_addr_offset;
     assign {pipeline_req_addr_tag, pipeline_req_addr_index, pipeline_req_addr_offset} = pipeline_req_addr;
 
-    tag_array_set_t tag_array_dout;
+    wire tag_array_set_t tag_array_dout;
     wire tag_array_csb = mem_ctrl_resp_valid | pipeline_req_valid;
     wire tag_array_web = mem_ctrl_resp_valid;
     wire [1:0] tag_array_wmask = {
@@ -77,7 +78,7 @@ module cache #(
                                                                             0
     };
     wire [N_INDEX_BITS-1:0] tag_array_addr = pipeline_req_addr_index;
-    tag_array_set_t tag_array_din = '{
+    wire tag_array_set_t tag_array_din = '{
         way1_valid: 1'b1,                // should be masked out if this is not the random way selected
         way1_tag: pipeline_req_addr_tag, // should be masked out if this is not the random way selected
         way0_valid: 1'b1,                // should be masked out if this is not the random way selected
@@ -108,7 +109,6 @@ module cache #(
     logic pipeline_resp_was_valid; // skid preventing latch
     logic mem_ctrl_resp_waiting;   // double request preventing latch
 
-    logic tag_array_hit_latched; // ensure icache_hit is 0 at start
     wire sel_way0 = tag_array_dout.way0_valid & (tag_array_dout.way0_tag == pipeline_req_addr_tag_latched);
     wire sel_way1 = tag_array_dout.way1_valid & (tag_array_dout.way1_tag == pipeline_req_addr_tag_latched);
     wire tag_array_hit = sel_way0 | sel_way1; // NOTE: not guarded by pipeline_req_valid_latched and mem_ctrl_resp_waiting
@@ -124,7 +124,6 @@ module cache #(
             pipeline_req_addr_offset_latched <= 0;
             pipeline_resp_was_valid <= 0;
             mem_ctrl_resp_waiting <= 0;
-            tag_array_hit_latched <= 0;
         end else begin
             pipeline_req_valid_latched <= pipeline_req_valid;
             pipeline_req_type_latched <= pipeline_req_type;
@@ -132,7 +131,6 @@ module cache #(
             pipeline_req_addr_tag_latched <= pipeline_req_addr_tag;
             pipeline_req_addr_index_latched <= pipeline_req_addr_index;
             pipeline_req_addr_offset_latched <= pipeline_req_addr_offset;
-            tag_array_hit_latched <= tag_array_hit;
             if (pipeline_resp_was_valid) begin
                 pipeline_resp_was_valid <= 0;
             end else if (pipeline_resp_valid) begin
@@ -160,9 +158,12 @@ module cache #(
                                      sel_way1 ? data_array_dout.way1_data :
                                                 0; // since miss, a read request is being made and this value is not used
 
-    assign pipeline_resp_valid = pipeline_req_valid_latched &
-                                 ~pipeline_resp_was_valid   &
-                                 tag_array_hit_latched;  // LUKE CHANGED TO LATCHED
+    assign pipeline_resp_valid = pipeline_req_cache_type == ICACHE ? pipeline_req_valid_latched &
+                                                                     tag_array_hit              :
+                                 pipeline_req_cache_type == DCACHE ? pipeline_req_valid_latched &
+                                                                     ~pipeline_resp_was_valid   &
+                                                                     tag_array_hit              :
+                                                                     0;
     assign pipeline_resp_rd_data = sel_way0 ? data_array_dout.way0_data[8*pipeline_req_addr_offset_latched+:32] :
                                    sel_way1 ? data_array_dout.way1_data[8*pipeline_req_addr_offset_latched+:32] :
                                               0; // since miss, a read request is being made and this value is not used
@@ -186,7 +187,7 @@ module cache #(
         {8{random_way == 1'b0}} | ({8{sel_way0}} & dcache_data_array_store_wmask)
     };
     wire [N_INDEX_BITS-1:0] data_array_addr = pipeline_req_addr_index;
-    data_array_set_t data_array_din = '{
+    wire data_array_set_t data_array_din = '{
         way0_data: mem_ctrl_resp_valid            ? mem_ctrl_resp_block_data                   :
                    pipeline_req_width == BYTE     ? {8{pipeline_req_wr_data[7:0]}}             :
                    pipeline_req_width == HALFWORD ? {4{pipeline_req_wr_data[15:0]}}            :
@@ -198,7 +199,7 @@ module cache #(
                    pipeline_req_width == WORD     ? {2{pipeline_req_wr_data}}                  :
                                                     0
     };
-    data_array_set_t data_array_dout;
+    wire data_array_set_t data_array_dout;
 
     // Data array
     if (CACHE_TYPE == ICACHE) begin
