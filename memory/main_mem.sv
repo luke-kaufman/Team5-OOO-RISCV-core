@@ -59,9 +59,9 @@ module main_mem #(
             resp_valid <= 0;
             resp_cache_type <= cache_type_t'(0);
             resp_block_data <= 0;
-            // for (int i = 0; i < `MAIN_MEM_N_BLOCKS; i++) begin // TODO: double-check if this is correct
-            //     mem[i] <= 0;
-            // end
+            for (int i = 0; i < `MAIN_MEM_N_BLOCKS; i++) begin // TODO: double-check if this is correct
+                mem[i] <= 0;
+            end
         end else begin
             // Shift the pipeline
             for (int i = N_DELAY_CYCLES-1; i > 0; i--) begin
