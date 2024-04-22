@@ -50,8 +50,8 @@ module cache #(
     } tag_array_set_t;
 
     typedef struct packed {
-        logic [`BLOCK_DATA_WIDTH-1:0] way0_data;
         logic [`BLOCK_DATA_WIDTH-1:0] way1_data;
+        logic [`BLOCK_DATA_WIDTH-1:0] way0_data;
     } data_array_set_t;
 
     wire random_way;

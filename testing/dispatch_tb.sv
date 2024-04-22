@@ -43,20 +43,26 @@ module dispatch_tb;
     );
 
     // for (genvar i = 0; i < `ARF_N_ENTRIES; i++)
-    //         $monitor("ARF[%0d] = %b", i, ARF_OUT[i]);
+    //         $monitor("ARF[%0d] = %b", i, ARF_OUT[i]);0000000000000000
     initial begin
-        #74 $display("%0t tag_array_din: %b", $time, _top._core._ifu.icache.tag_array_din);
+        // #74 $display("%0t tag_array_din: %b", $time, _top._core._ifu.icache.tag_array_din);
 
-        #1 $display("%0t PC_mux_out: %b", $time, _top._core._ifu.PC_mux_out);
-        $display("%0t pipeline_req_addr: %b", $time, _top._core._ifu.icache.pipeline_req_addr);
-        $display("%0t pipeline_req_addr_tag: %b", $time, _top._core._ifu.icache.pipeline_req_addr_tag);
-        $display("%0t pipeline_req_addr_index: %b", $time, _top._core._ifu.icache.pipeline_req_addr_index);
-        $display("%0t pipeline_req_addr_offset: %b", $time, _top._core._ifu.icache.pipeline_req_addr_offset);
-        $display("%0t tag_array_din: %b", $time, _top._core._ifu.icache.tag_array_din);
-        $display("%0t din0: %b", $time, _top._core._ifu.icache.tag_array.din0);
+        // #1 $display("%0t PC_mux_out: %b", $time, _top._core._ifu.PC_mux_out);
+        // $display("%0t pipeline_req_addr: %b", $time, _top._core._ifu.icache.pipeline_req_addr);
+        // $display("%0t pipeline_req_addr_tag: %b", $time, _top._core._ifu.icache.pipeline_req_addr_tag);
+        // $display("%0t pipeline_req_addr_index: %b", $time, _top._core._ifu.icache.pipeline_req_addr_index);
+        // $display("%0t pipeline_req_addr_offset: %b", $time, _top._core._ifu.icache.pipeline_req_addr_offset);
+        // $display("%0t tag_array_din: %b", $time, _top._core._ifu.icache.tag_array_din);
+        // $display("%0t din0: %b", $time, _top._core._ifu.icache.tag_array.din0);
 
-        #1 $display("%0t din0_reg: %b", $time, _top._core._ifu.icache.tag_array.din0_reg);
-        $display("%0t tag_array_din: %b", $time, _top._core._ifu.icache.tag_array_din);
+        // #1 $display("%0t din0_reg: %b", $time, _top._core._ifu.icache.tag_array.din0_reg);
+        // $display("%0t tag_array_din: %b", $time, _top._core._ifu.icache.tag_array_din);
+        #91 $display("%0t selected_instr: %h", $time, _top._core._ifu.selected_instr);
+        $display("%0t pipeline_req_addr_offset_latched: %b", $time, _top._core._ifu.icache.pipeline_req_addr_offset_latched);
+        $display("%0t sel_way0: %b", $time, _top._core._ifu.icache.sel_way0);
+        $display("%0t sel_way1: %b", $time, _top._core._ifu.icache.sel_way1);
+        $display("%0t way0_data: %b", $time, _top._core._ifu.icache.data_array_dout.way0_data);
+        $display("%0t way1_data: %b", $time, _top._core._ifu.icache.data_array_dout.way1_data);
     end
 
     initial begin

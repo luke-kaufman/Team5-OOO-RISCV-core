@@ -324,13 +324,13 @@ module shift_queue #(
     function void enq_ctr_max_value(edge_t _edge);
         if (enq_ctr > N_ENTRIES) begin
             $error(
-                "Assertion failed: enq_ctr is larger than max value after %0s.\n\
+                "%0t Assertion failed: enq_ctr is larger than max value after %0s.\n\
                 enq_ctr = %0d, max value = %0d\n",
-                _edge == NEGEDGE ? "setting init_state and driving inputs" : "state transition",
+                $time, _edge == NEGEDGE ? "setting init_state and driving inputs" : "state transition",
                 enq_ctr, N_ENTRIES
             );
-            $display("enq_valid: %b, enq_ready: %b, deq_ready: %b, deq_sel_onehot: %b, deq_valid: %b",
-                    enq_valid, enq_ready, deq_ready, deq_sel_onehot, deq_valid);
+            $display("%0t enq_valid: %b, enq_ready: %b, deq_ready: %b, deq_sel_onehot: %b, deq_valid: %b",
+                    $time, enq_valid, enq_ready, deq_ready, deq_sel_onehot, deq_valid);
         end
     endfunction
 
