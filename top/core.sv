@@ -12,6 +12,7 @@ module core (
     input wire clk,
     input wire init,
     input addr_t init_pc,
+    input addr_t init_sp,
     input wire rst_aL,
     // input wire csb0_in,  // testing icache on
     input wire testing,
@@ -111,6 +112,7 @@ module core (
     dispatch_simple dispatch_dut (
         .clk(clk),       /*input*/
         .init(init),
+        .init_sp(init_sp),
         .rst_aL(rst_aL), /*input*/
         // INTERFACE TO INSRUCTION FIFO (IFIFO)
         .ififo_dispatch_ready(ififo_dispatch_ready),  // output

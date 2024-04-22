@@ -77,7 +77,7 @@ module cache #(
                                                                             0
     };
     wire [N_INDEX_BITS-1:0] tag_array_addr = pipeline_req_addr_index;
-    tag_array_set_t tag_array_din = '{
+    wire tag_array_set_t tag_array_din = '{
         way1_valid: 1'b1,                // should be masked out if this is not the random way selected
         way1_tag: pipeline_req_addr_tag, // should be masked out if this is not the random way selected
         way0_valid: 1'b1,                // should be masked out if this is not the random way selected
@@ -183,7 +183,7 @@ module cache #(
         {8{random_way == 1'b0}} | ({8{sel_way0}} & dcache_data_array_store_wmask)
     };
     wire [N_INDEX_BITS-1:0] data_array_addr = pipeline_req_addr_index;
-    data_array_set_t data_array_din = '{
+    wire data_array_set_t data_array_din = '{
         way0_data: mem_ctrl_resp_valid            ? mem_ctrl_resp_block_data                   :
                    pipeline_req_width == BYTE     ? {8{pipeline_req_wr_data[7:0]}}             :
                    pipeline_req_width == HALFWORD ? {4{pipeline_req_wr_data[15:0]}}            :

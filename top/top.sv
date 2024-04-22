@@ -7,13 +7,9 @@ module top (
     input wire clk,
     input wire init,
     input addr_t init_pc,
+    input addr_t init_sp,
     input block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS],
     input wire rst_aL,
-    input wire testing,
-
-    input wire test_icache_fill_valid,
-    input addr_t test_icache_fill_PC,
-    input block_data_t test_icache_fill_block,
 
     output wire [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] ARF_OUT
 );
@@ -44,20 +40,16 @@ module top (
         .clk(clk),
         .init(init),
         .init_pc(init_pc),
+        .init_sp(init_sp),
         .rst_aL(rst_aL),
-        .testing(testing),
 
         // ICACHE to mem ctrl
         .icache_mem_ctrl_req_valid(icache_mem_ctrl_req_valid),
         .icache_mem_ctrl_req_block_addr(icache_mem_ctrl_req_block_addr),
         // ICACHE from mem ctrl
-        .icache_mem_ctrl_req_ready(testing ? test_icache_fill_valid : icache_mem_ctrl_req_ready),
-        .icache_mem_ctrl_resp_valid(testing ? test_icache_fill_valid : icache_mem_ctrl_resp_valid),
-        .icache_mem_ctrl_resp_block_data(testing ? test_icache_fill_block : icache_mem_ctrl_resp_block_data),
-        // ICACHE TESTING INs
-        .test_icache_fill_valid(test_icache_fill_valid),
-        .test_icache_fill_PC(test_icache_fill_PC),
-        .test_icache_fill_block(test_icache_fill_block),
+        .icache_mem_ctrl_req_ready(icache_mem_ctrl_req_ready),
+        .icache_mem_ctrl_resp_valid(icache_mem_ctrl_resp_valid),
+        .icache_mem_ctrl_resp_block_data(icache_mem_ctrl_resp_block_data),
 
         // DCACHE MEM CTRL REQUEST
         .dcache_mem_ctrl_req_valid(dcache_mem_ctrl_req_valid),

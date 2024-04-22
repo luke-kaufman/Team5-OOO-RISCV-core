@@ -16,6 +16,7 @@
 module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this stage
     input wire clk,
     input wire init,
+    input addr_t init_sp,
     input wire rst_aL,
     // INTERFACE TO INSRUCTION FIFO (IFIFO)
     output wire ififo_dispatch_ready,
@@ -294,7 +295,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         // NOT FLUSHED ON REDIRECT
         .flush(1'b0),
 
-        .init_regfile_state('0),
+        .init_regfile_state({29{32'b0}, init_sp, 2{32'b0}}),
         .current_regfile_state()
     );
 

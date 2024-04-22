@@ -18,7 +18,6 @@ module ifu (
     // backend interactions
     input wire [`ADDR_WIDTH-1:0] recovery_PC,
     input wire fetch_redirect_valid,
-    // input wire backend_stall,
     // MEM CTRL REQUEST
     output logic mem_ctrl_req_valid,
     output main_mem_block_addr_t mem_ctrl_req_block_addr,

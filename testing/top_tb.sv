@@ -57,6 +57,7 @@ module top_tb #(
     /*input*/ reg rst_aL=1;
     /*input*/ bit csb0_in=1;
     /*input*/ bit init=0;
+    /*input*/ addr_t init_sp=0;
 
     bit testing = 1;
     bit test_icache_fill_valid = 0;
@@ -96,6 +97,7 @@ module top_tb #(
                 test_programs[s_i] = new();
                 test_programs[s_i].num_instrs=22;
                 test_programs[s_i].start_PC=32'h1018c;
+                init_sp = test_programs[s_i].start_PC-4;
                 test_programs[s_i].prog[32'h1018c]=32'hfe010113; // add sp,sp,-32        
                 test_programs[s_i].prog[32'h10190]=32'h00812e23; // sw s0,28(sp)        
                 test_programs[s_i].prog[32'h10194]=32'h00912c23; // sw s1,24(sp)        
@@ -156,6 +158,7 @@ module top_tb #(
                 test_programs[s_i] = new();
                 test_programs[s_i].num_instrs=27;
                 test_programs[s_i].start_PC=32'h1018c;
+                init_sp = test_programs[s_i].start_PC-4;
                 test_programs[s_i].prog[32'h1018c]=32'hfd010113; // add sp,sp,-48        
                 test_programs[s_i].prog[32'h10190]=32'h02812623; // sw s0,44(sp)        
                 test_programs[s_i].prog[32'h10194]=32'h03010413; // add s0,sp,48        
@@ -297,9 +300,9 @@ module top_tb #(
     endtask
 
     bit skip = 0;
-    task fill_icache_and_start_read(int s_i);
+    task fill_main_mem_and_start_read(int s_i);
         // FIRST NEED TO FILL THE ICACHE WITH CERTAIN INSTRUCTIONS
-        $display("Filling icache with instructions:");
+        $display("Filling main_mem with instructions:");
         for(int i=0; i<test_programs[s_i].num_instrs; i=i+1) begin
             // force PC to instruction location thru recovery PC logic
             if(i==0 && (test_programs[s_i].prog_addrs[i] & 32'h00000004)) begin
