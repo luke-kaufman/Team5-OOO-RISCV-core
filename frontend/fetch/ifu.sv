@@ -17,6 +17,7 @@ module ifu (
     // backend interactions
     input wire fetch_redirect_valid,
     input wire [`ADDR_WIDTH-1:0] fetch_redirect_PC,
+
     // input wire backend_stall,
     // MEM CTRL REQUEST
     output logic mem_ctrl_req_valid,
