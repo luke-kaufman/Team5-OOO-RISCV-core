@@ -5,10 +5,16 @@
 
 module top (
     input wire clk,
-    input wire rst_aL,
     input wire init,
     input addr_t init_pc,
     input block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS],
+    input wire rst_aL,
+    input wire testing,
+
+    input wire test_icache_fill_valid,
+    input addr_t test_icache_fill_PC,
+    input block_data_t test_icache_fill_block,
+
     output wire [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] ARF_OUT
 );
     wire icache_mem_ctrl_req_valid;
@@ -36,18 +42,22 @@ module top (
 
     core _core (
         .clk(clk),
-        .rst_aL(rst_aL),
         .init(init),
         .init_pc(init_pc),
+        .rst_aL(rst_aL),
+        .testing(testing),
 
-        // ICACHE MEM CTRL REQUEST
+        // ICACHE to mem ctrl
         .icache_mem_ctrl_req_valid(icache_mem_ctrl_req_valid),
         .icache_mem_ctrl_req_block_addr(icache_mem_ctrl_req_block_addr),
-        .icache_mem_ctrl_req_ready(icache_mem_ctrl_req_ready),
-
-        // ICACHE MEM CTRL RESPONSE
-        .icache_mem_ctrl_resp_valid(icache_mem_ctrl_resp_valid),
-        .icache_mem_ctrl_resp_block_data(icache_mem_ctrl_resp_block_data),
+        // ICACHE from mem ctrl
+        .icache_mem_ctrl_req_ready(testing ? test_icache_fill_valid : icache_mem_ctrl_req_ready),
+        .icache_mem_ctrl_resp_valid(testing ? test_icache_fill_valid : icache_mem_ctrl_resp_valid),
+        .icache_mem_ctrl_resp_block_data(testing ? test_icache_fill_block : icache_mem_ctrl_resp_block_data),
+        // ICACHE TESTING INs
+        .test_icache_fill_valid(test_icache_fill_valid),
+        .test_icache_fill_PC(test_icache_fill_PC),
+        .test_icache_fill_block(test_icache_fill_block),
 
         // DCACHE MEM CTRL REQUEST
         .dcache_mem_ctrl_req_valid(dcache_mem_ctrl_req_valid),
@@ -55,7 +65,6 @@ module top (
         .dcache_mem_ctrl_req_block_addr(dcache_mem_ctrl_req_block_addr),
         .dcache_mem_ctrl_req_block_data(dcache_mem_ctrl_req_block_data),  // for writes
         .dcache_mem_ctrl_req_ready(dcache_mem_ctrl_req_ready),
-
         // DCACHE MEM CTRL RESPONSE
         .dcache_mem_ctrl_resp_valid(dcache_mem_ctrl_resp_valid),
         .dcache_mem_ctrl_resp_block_data(dcache_mem_ctrl_resp_block_data),
@@ -100,9 +109,9 @@ module top (
 
     main_mem _main_mem (
         .clk(clk),
-        .rst_aL(rst_aL),
         .init(init),
         .init_main_mem_state(init_main_mem_state),
+        .rst_aL(rst_aL),
 
         // FROM MEM_CTRL TO MAIN_MEM (REQUEST) (LATENCY-SENSITIVE)
         .req_valid(mem_req_valid),

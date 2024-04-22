@@ -14,6 +14,7 @@ module core (
     input addr_t init_pc,
     input wire rst_aL,
     // input wire csb0_in,  // testing icache on
+    input wire testing,
 
     // ICACHE MEM CTRL REQUEST
     output logic icache_mem_ctrl_req_valid,
@@ -22,6 +23,10 @@ module core (
     // ICACHE MEM CTRL RESPONSE
     input logic icache_mem_ctrl_resp_valid,
     input block_data_t icache_mem_ctrl_resp_block_data,
+    // ICACHE TESTING INs
+    input wire test_icache_fill_valid,
+    input addr_t test_icache_fill_PC,
+    input block_data_t test_icache_fill_block,
 
     // DCACHE MEM CTRL REQUEST
     output logic dcache_mem_ctrl_req_valid,
@@ -79,17 +84,16 @@ module core (
     rob_id_t         iiq_issue_rob_id; // ALSO TO DISPATCH wakeup from IIQ
 
     // INSTRUCTION FETCH UNIT (IFU)
-    ifu ifu_dut (
+    ifu _ifu (
         // from top.sv
         .clk(clk),
         .rst_aL(rst_aL),
         .init(init),
         .init_pc(init_pc),
         // backend interactions - TODO FIX DUPLICATION
-        .fetch_redirect_valid(fetch_redirect_valid),
-        .recovery_PC(fetch_redirect_pc),
-        .recovery_PC_valid(fetch_redirect_valid),
-        .backend_stall(fetch_redirect_valid),
+        .fetch_redirect_valid(testing ? test_icache_fill_valid : fetch_redirect_valid),
+        .recovery_PC(testing ? test_icache_fill_PC : fetch_redirect_pc),
+        .backend_stall(fetch_redirect_valid),  // OR with other stuff?
         // ICACHE MEM CTRL REQUEST
         .mem_ctrl_req_valid(icache_mem_ctrl_req_valid),            /*output logic*/
         .mem_ctrl_req_block_addr(icache_mem_ctrl_req_block_addr),  /*output main_mem_block_addr_t*/

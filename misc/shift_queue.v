@@ -16,7 +16,7 @@ module shift_queue #(
     parameter N_ENTRIES = `IIQ_N_ENTRIES,
     parameter ENTRY_WIDTH = `IIQ_ENTRY_WIDTH,
     localparam PTR_WIDTH = $clog2(N_ENTRIES),
-    localparam CTR_WIDTH = PTR_WIDTH + 1
+    localparam CTR_WIDTH = PTR_WIDTH //+ 1
 ) (
     input wire clk,
     input wire rst_aL,
