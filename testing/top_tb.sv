@@ -266,9 +266,12 @@ module top_tb #(
         $display();
         $display("*****| AT %5dns POSEDGE |*****", $time);
         $display("IFIFO STALL %1b ICACHE MISS %1b", _top._core._ifu.IFIFO_stall, _top._core._ifu.icache_miss);
+        $display("tag_array_hit %1b", _top._core._ifu.icache.tag_array_hit);
+        $display("pipeline_req_valid_latched %1b", _top._core._ifu.icache.pipeline_req_valid_latched);
         $display("CURR_PC 0x%8h", curr_PC);
         $display("LATCHED SRAM ADDR 0x%8h at time %6d", _top._core._ifu.PC_mux.out,$time);
         $display("fetch_redirect_valid %1b, stall_gate_ZN %1b", _top._core._ifu.fetch_redirect_valid, _top._core._ifu.stall_gate.ZN);    
+        $display("pipeline_resp_rd_data 0x%8h", _top._core._ifu.icache.pipeline_resp_rd_data);
     endtask
 
     task check_stage(int s_i, int stage);
@@ -318,10 +321,10 @@ module top_tb #(
             end
         end
         // init main mem
-        init = 0;
         #1;
-
         init = 1;
+        #1;
+        init = 0;
         #1;
 
     endtask
@@ -329,12 +332,12 @@ module top_tb #(
     task run_directed_testcases(int s_i);
         
         // reset, wait, then start testing
-        rst_aL = 0;
-        @(posedge clk);
-        #1
-        rst_aL = 1;
-        @(posedge clk);
-        #1;
+        // rst_aL = 0;
+        // @(posedge clk);
+        // #1
+        // rst_aL = 1;
+        // @(posedge clk);
+        // #1;
         
         $display("STARTING TEST SET %0d time: %6d", s_i, $time);
         fill_main_mem_and_start_read(s_i);
@@ -410,8 +413,9 @@ module top_tb #(
     end
 
     initial begin
-        #130;
-        $display("PC_mux select lines redir val: %b  stall: %b", _top._core._ifu.fetch_redirect_valid, _top._core._ifu.stall_gate.ZN);
+        #9;
+        $monitor("%t PC_mux_out: %b \npipeline_req_valid: %b pipeline_req_addr: %b \n mem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b", $time, _top._core._ifu.PC_mux_out, _top._core._ifu.icache.pipeline_req_valid, _top._core._ifu.icache.pipeline_req_addr, _top._core._ifu.mem_ctrl_resp_valid, _top._core._ifu.mem_ctrl_resp_block_data);
+        #120;
         $finish;
     end
 endmodule
