@@ -68,8 +68,8 @@ module rob_simple (
     // input wire ld_wb_ld_mispred,
 
     // flush on redirect
-    input wire fetch_redirect_valid,
-    input wire addr_t fetch_redirect_pc
+    input wire fetch_redirect_valid, // FIXME: currently nothing uses this
+    input wire addr_t fetch_redirect_pc // FIXME: currently nothing uses this
 );
     wire rob_entry_t [`ROB_N_ENTRIES-1:0] rob_state;
     wire rob_entry_t entry_rd_data_src1;

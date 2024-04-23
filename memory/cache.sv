@@ -108,6 +108,7 @@ module cache #(
     logic [N_OFFSET_BITS-1:0] pipeline_req_addr_offset_latched;
     logic pipeline_resp_was_valid; // skid preventing latch
     logic mem_ctrl_resp_waiting;   // double request preventing latch
+    logic [1:0] mem_ctrl_resp_writing;
 
     wire sel_way0 = tag_array_dout.way0_valid & (tag_array_dout.way0_tag == pipeline_req_addr_tag_latched);
     wire sel_way1 = tag_array_dout.way1_valid & (tag_array_dout.way1_tag == pipeline_req_addr_tag_latched);
@@ -116,14 +117,15 @@ module cache #(
     // TODO: no negedge rst_aL in the sensitivity list? (copied behavioral sram)
     always_ff @(posedge clk or posedge init or negedge rst_aL) begin
         if (init | !rst_aL) begin
-            pipeline_req_valid_latched <= 0;
+            pipeline_req_valid_latched <= '0;
             pipeline_req_type_latched <= req_type_t'(0);
             pipeline_req_width_latched <= req_width_t'(0);
-            pipeline_req_addr_tag_latched <= 0;
-            pipeline_req_addr_index_latched <= 0;
-            pipeline_req_addr_offset_latched <= 0;
-            pipeline_resp_was_valid <= 0;
-            mem_ctrl_resp_waiting <= 0;
+            pipeline_req_addr_tag_latched <= '0;
+            pipeline_req_addr_index_latched <= '0;
+            pipeline_req_addr_offset_latched <= '0;
+            pipeline_resp_was_valid <= '0;
+            mem_ctrl_resp_waiting <= '0;
+            mem_ctrl_resp_writing <= '0;
         end else begin
             pipeline_req_valid_latched <= pipeline_req_valid;
             pipeline_req_type_latched <= pipeline_req_type;
@@ -145,11 +147,19 @@ module cache #(
             end else begin
                 mem_ctrl_resp_waiting <= mem_ctrl_resp_waiting;
             end
+            if (mem_ctrl_resp_valid) begin
+                mem_ctrl_resp_writing <= 2'd2;
+            end else if (mem_ctrl_resp_writing > 0) begin
+                mem_ctrl_resp_writing <= mem_ctrl_resp_writing - 2'd1;
+            end else begin
+                mem_ctrl_resp_writing <= mem_ctrl_resp_writing;
+            end
         end
     end
 
-    assign mem_ctrl_req_valid = pipeline_req_valid_latched &
-                                ~mem_ctrl_resp_waiting     &
+    assign mem_ctrl_req_valid = pipeline_req_valid_latched      &
+                                ~mem_ctrl_resp_waiting          &
+                                (mem_ctrl_resp_writing == 2'd0) &
                                 (~tag_array_hit | (pipeline_req_type_latched == WRITE)); // write-through
     assign mem_ctrl_req_type = ~tag_array_hit ? READ : // all misses should do a refill first
                                                 pipeline_req_type_latched; // write-through
@@ -202,7 +212,7 @@ module cache #(
     wire data_array_set_t data_array_dout;
 
     // Data array
-    if (CACHE_TYPE == ICACHE) begin
+    if (CACHE_TYPE == ICACHE) begin : icache_data_array
         sram_64x128_1rw_wsize64 icache_data_array (
             .clk0(clk),
             .init(init),
