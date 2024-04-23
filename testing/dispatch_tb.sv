@@ -104,8 +104,15 @@ module dispatch_tb #(
     end
 
     always @(negedge clk) begin #1
+        $display("%0t pipeline_req_addr_tag_latched: %b", $time, _top._core._ifu.icache.pipeline_req_addr_tag_latched);
+        $display("%0t pipeline_req_addr_index_latched: %b", $time, _top._core._ifu.icache.pipeline_req_addr_index_latched);
+        $display("%0t pipeline_req_addr_offset_latched: %b", $time, _top._core._ifu.icache.pipeline_req_addr_offset_latched);
         $display("%0t pipeline_resp_valid: %b", $time, _top._core._ifu.icache.pipeline_resp_valid);
+        // $display("%0t data_array_addr: %b", $time, _top._core._ifu.icache.data_array_addr);
         $display("%0t data_array_dout: %h", $time, _top._core._ifu.icache.data_array_dout);
+        $display("%0t sel_way0: %h", $time, _top._core._ifu.icache.sel_way0);
+        $display("%0t sel_way1: %h", $time, _top._core._ifu.icache.sel_way1);
+
         $display("%0t selected_instr: %h", $time, _top._core._ifu.selected_instr);
         $display("%0t PC_mux_out: %h", $time, _top._core._ifu.PC_mux_out);
          $display(
