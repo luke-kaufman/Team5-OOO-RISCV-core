@@ -202,6 +202,7 @@ module integer_issue (
     wire iiq_issue_data_t integer_issue_buffer_din;
     // select between the issue data from iiq and bypass data from alu and load
     assign integer_issue_buffer_din = '{
+        entry_valid : issue_valid,
         src1_data: alu_broadcast_valid && (alu_broadcast_rob_id == scheduled_entry.src1_rob_id) ?
                         alu_broadcast_reg_data :
                         ld_broadcast_valid && (ld_broadcast_rob_id == scheduled_entry.src1_rob_id) ?
@@ -233,7 +234,7 @@ module integer_issue (
         .clk(clk),
         .init(init),
         .rst_aL(rst_aL),
-        .we(issue_valid),
+        .we(1'b1),
         .din(integer_issue_buffer_din),
         .dout(issue_data),
 

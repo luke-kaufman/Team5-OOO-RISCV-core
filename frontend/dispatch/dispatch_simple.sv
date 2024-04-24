@@ -34,6 +34,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     output wire lsq_dispatch_valid,
     output lsq_simple_entry_t lsq_dispatch_data, // TODO: figure out the enum? 2-state vs. 4-state problem
     // INTERFACE TO ARITHMETIC-LOGIC UNIT (ALU)
+    input wire execute_valid,
     input wire alu_broadcast_valid,
     input wire rob_id_t alu_broadcast_rob_id,
     input wire reg_data_t alu_broadcast_reg_data,
@@ -262,7 +263,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         .iiq_wakeup_valid(iiq_wakeup_valid),
         .iiq_wakeup_rob_id(iiq_wakeup_rob_id),
 
-        .alu_wb_valid(alu_broadcast_valid),
+        .alu_wb_valid(execute_valid),
         .alu_wb_rob_id(alu_broadcast_rob_id),
         .alu_wb_reg_data(alu_broadcast_reg_data),
         .alu_npc_wb_valid(alu_npc_wb_valid),

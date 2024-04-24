@@ -519,7 +519,7 @@ module top_tb #(
     
     initial begin
         // $monitor("%3t fetch_redirect_valid %b icache_miss: %b ififo_stall: %b PC_wire: %8h | pipeline_req_addr_offset_latched:%8h instr: %8h next_PC: %8h PC_mux_out: %8h\npipeline_req_valid: %b \nmem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n", 
-        $monitor("%3t retire: %1b ( dst_v: %1b (alu_brcast_v: %1b) is_exec: %1b not_br_mispred: %1b)retire_id: %1d retire_data: 0x%8h\nmem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n", 
+        $monitor("%3t retire: %1b ( dst_v: %1b (alu_brcast_v: %1b  (iss_v: %1b)) is_exec: %1b not_br_mispred: %1b)retire_id: %1d retire_data: 0x%8h\nmem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n", 
             $time, 
             // _top._core._ifu.fetch_redirect_valid, 
             // _top._core._ifu.icache_miss, 
@@ -533,7 +533,8 @@ module top_tb #(
             _top._core._dispatch.retire,
             _top._core._dispatch._rob.retire_entry_data.dst_valid,
             _top._core.alu_broadcast_valid,
-            _top._core._dispatch._rob.retire_entry_data.is_executed,
+            _top._core._integer_issue.issue_valid,
+            _top._core._dispatch._rob.retire_entry_data.reg_ready,
             _top._core._dispatch._rob.not_br_mispred,
             _top._core._dispatch.retire_arf_id,
             _top._core._dispatch.retire_reg_data,

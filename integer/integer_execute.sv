@@ -71,13 +71,15 @@ module integer_execute (
     input wire rst_aL,
     input wire iiq_issue_data_t iiq_issue_data,
     output wire rob_id_t instr_rob_id_out, // sent to bypass paths, iiq for capture, used for indexing into rob for writeback
-    output wire dst_valid, // to guard broadcast (iiq, and lsq) and bypass (dispatch and issue) capture
+    output wire execute_valid, // to guard broadcast (iiq, and lsq) and bypass (dispatch and issue) capture
+    output wire alu_broadcast_valid,
     output wire reg_data_t dst,
     output wire npc_wb_valid, // change pc to npc in rob only if instr is b_type or jalr
     output wire npc_mispred, // to be written back to rob.br_mispred (0: no misprediction, 1: misprediction)
     output wire addr_t npc // next pc, to be written back to rob.pc_npc (b_type or jalr)
 );
     // extract the iiq_issue_data fields
+    wire entry_valid = iiq_issue_data.entry_valid;
     wire reg_data_t src1 = iiq_issue_data.src1_data;
     wire reg_data_t src2 = iiq_issue_data.src2_data;
     wire rob_id_t instr_rob_id_in = iiq_issue_data.instr_rob_id;
@@ -201,7 +203,10 @@ module integer_execute (
 
     assign instr_rob_id_out = instr_rob_id_in;
 
-    assign dst_valid = !is_b_type;
+    assign execute_valid = entry_valid;
+    
+    wire dst_valid = !is_b_type;
+    assign alu_broadcast_valid = entry_valid & dst_valid;
     wire sel_main_adder_sum = is_u_type | (~|funct3); // funct3 = 3'b000
     wire sel_sll_out = ~funct3[2] & ~funct3[1] & funct3[0]; // funct3 = 3'b001
     wire sel_srl_out = funct3[2] & ~funct3[1] & funct3[0] & ~is_sra_srai; // funct3 = 3'b101

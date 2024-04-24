@@ -104,6 +104,7 @@ typedef struct packed {
     addr_t pc_npc; // pc if a load instruction, npc if a branch instruction
     // logic ld_mispred; // FIXME
     logic br_mispred;
+    logic reg_ready;
     logic is_executed;
     reg_data_t reg_data;
 } rob_entry_t;
@@ -182,6 +183,7 @@ typedef struct packed {
 `define LSQ_SIMPLE_ENTRY_WIDTH $bits(lsq_simple_entry_t)
 
 typedef struct packed {
+    logic entry_valid;
     reg_data_t src1_data;
     reg_data_t src2_data;
     rob_id_t instr_rob_id; // received from issue

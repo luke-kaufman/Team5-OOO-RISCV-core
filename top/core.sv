@@ -62,12 +62,14 @@ module core (
     st_buf_id_t    st_buf_dispatch_id;
     // DISPATCH <- ALU
     wire            alu_broadcast_valid;
+    wire       execute_valid;
     rob_id_t   alu_broadcast_rob_id;
     reg_data_t alu_broadcast_reg_data;
     wire       alu_npc_wb_valid; // only true when instr is b_type or jalr
     wire       alu_npc_mispred; // always true for jalr, only true for b_type when actual mispredict
     addr_t     alu_npc;
     wire            alu_br_mispred;
+
 
     // DISPATCH <- LSU
     wire            ld_broadcast_valid;
@@ -131,6 +133,7 @@ module core (
         // .st_buf_dispatch_data(st_buf_dispatch_data),   /*output*/
         // .st_buf_dispatch_id(st_buf_dispatch_id),     /*input*/
         // INTERFACE TO ARITHMETIC-LOGIC UNIT (ALU)
+        .execute_valid(execute_valid),
         .alu_broadcast_valid(alu_broadcast_valid),     /*input*/
         .alu_broadcast_rob_id(alu_broadcast_rob_id),    /*input*/
         .alu_broadcast_reg_data(alu_broadcast_reg_data),  /*input*/
@@ -150,7 +153,7 @@ module core (
     );
 
     // INTEGER ISSUE QUEUE (IIQ)
-    integer_issue integer_issue_dut (
+    integer_issue _integer_issue (
         .clk(clk),        /*input*/
         .init(init),
         .rst_aL(rst_aL),  /*input*/
@@ -180,7 +183,8 @@ module core (
 
         .iiq_issue_data(iiq_issue_data),         /*input*/
         .instr_rob_id_out(alu_broadcast_rob_id), /*output*/ // sent to bypass paths  iiq for capture  used for indexing into rob for writeback
-        .dst_valid(alu_broadcast_valid),         /*output*/ // to guard broadcast (iiq and lsq) and bypass (dispatch and issue) capture
+        .execute_valid(execute_valid),     /*output*/ // to guard broadcast (iiq and lsq) and bypass (dispatch and issue) capture
+        .alu_broadcast_valid(alu_broadcast_valid), // output
         .dst(alu_broadcast_reg_data),            /*output*/
         .npc_wb_valid(alu_npc_wb_valid),         /*output*/ // change pc to npc in rob only if instr is b_type or jalr
         .npc_mispred(alu_npc_mispred),           /*output*/ // to be written back to rob.br_mispred (0:no misprediction 1: misprediction)
