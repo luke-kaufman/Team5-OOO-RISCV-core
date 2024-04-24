@@ -1,7 +1,7 @@
 `ifndef IIQ_V
 `define IIQ_V
 
-`include "misc/global_defs.svh" 
+`include "misc/global_defs.svh"
 `include "misc/ff1/ff1.v"
 `include "misc/cmp/unsigned_cmp_.v"
 `include "misc/reg_.v"
@@ -28,7 +28,7 @@ module integer_issue (
     input wire reg_data_t alu_broadcast_reg_data,
     // load broadcast:
     input wire ld_broadcast_valid,
-    input wire rob_id_t ld_broadcast_rob_id,
+    input wire rob_id_t ld_broadcast_rob_id, // FIXME: ld_broadcast_rob_id is xxxx
     input wire reg_data_t ld_broadcast_reg_data,
 
     // FLUSH ON MISPREDICT
@@ -53,7 +53,7 @@ module integer_issue (
         .enq_valid(dispatch_valid),
         .enq_data(dispatch_data),
 
-        .deq_ready(1'b1), // always ready (all integer instructions take 1 cycle to execute)
+        .deq_ready(1'b1), // always ready (all integer instructions take 1 cycle to execute) TODO: double-check
         .deq_sel_onehot(scheduled_entry_idx_onehot), // can be either one-hot or all 0s
         .deq_valid(issue_valid),
         .deq_data(scheduled_entry),
@@ -74,12 +74,13 @@ module integer_issue (
     );
 
     // issue scheduling
+    wire [`IIQ_N_ENTRIES-1:0] instr_valid;
     wire [`IIQ_N_ENTRIES-1:0] entries_ready;
     for (genvar i = 0; i < `IIQ_N_ENTRIES; i++) begin
-        wire instr_valid = (i < enq_ctr); // TODO: double check that this works
+        assign instr_valid[i] = (i < enq_ctr); // TODO: double check that this works
         wire src1_ok = ~entries[i].src1_valid || (entries[i].src1_valid && entries[i].src1_ready);
         wire src2_ok = ~entries[i].src2_valid || (entries[i].src2_valid && entries[i].src2_ready);
-        assign entries_ready[i] = instr_valid && src1_ok && src2_ok;
+        assign entries_ready[i] = instr_valid[i] && src1_ok && src2_ok;
     end
     ff1 #(
         .WIDTH(`IIQ_N_ENTRIES)
@@ -89,12 +90,18 @@ module integer_issue (
     );
 
     // tag (rob_id) comparators for wakeup and capture
-    wire [`IIQ_N_ENTRIES-1:0] entries_src1_iiq_wakeup;
+    wire [`IIQ_N_ENTRIES-1:0] entries_src1_iiq_wakeup; // TODO: fix naming to be less confusing
+    wire [`IIQ_N_ENTRIES-1:0] entries_src1_iiq_wakeup_ok;
     wire [`IIQ_N_ENTRIES-1:0] entries_src2_iiq_wakeup;
+    wire [`IIQ_N_ENTRIES-1:0] entries_src2_iiq_wakeup_ok;
     wire [`IIQ_N_ENTRIES-1:0] entries_src1_alu_capture;
+    wire [`IIQ_N_ENTRIES-1:0] entries_src1_alu_capture_ok;
     wire [`IIQ_N_ENTRIES-1:0] entries_src2_alu_capture;
+    wire [`IIQ_N_ENTRIES-1:0] entries_src2_alu_capture_ok;
     wire [`IIQ_N_ENTRIES-1:0] entries_src1_ld_capture;
+    wire [`IIQ_N_ENTRIES-1:0] entries_src1_ld_capture_ok;
     wire [`IIQ_N_ENTRIES-1:0] entries_src2_ld_capture;
+    wire [`IIQ_N_ENTRIES-1:0] entries_src2_ld_capture_ok;
     for (genvar i = 0; i < `IIQ_N_ENTRIES; i++) begin
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
@@ -105,6 +112,11 @@ module integer_issue (
             .ge(),
             .lt()
         );
+        assign entries_src1_iiq_wakeup_ok[i] = issue_valid &
+                                               instr_valid[i] &
+                                               entries[i].src1_valid &
+                                               ~entries[i].src1_ready &
+                                               entries_src1_iiq_wakeup[i];
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_int_wakeup_cmp (
@@ -114,6 +126,11 @@ module integer_issue (
             .ge(),
             .lt()
         );
+        assign entries_src2_iiq_wakeup_ok[i] = issue_valid &
+                                               instr_valid[i] &
+                                               entries[i].src2_valid &
+                                               ~entries[i].src2_ready &
+                                               entries_src2_iiq_wakeup[i];
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src1_alu_capture_cmp (
@@ -123,6 +140,11 @@ module integer_issue (
             .ge(),
             .lt()
         );
+        assign entries_src1_alu_capture_ok[i] = alu_broadcast_valid &
+                                                instr_valid[i] &
+                                                entries[i].src1_valid &
+                                                entries[i].src1_ready & // TODO: double-check
+                                                entries_src1_alu_capture[i];
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_alu_capture_cmp (
@@ -132,6 +154,11 @@ module integer_issue (
             .ge(),
             .lt()
         );
+        assign entries_src2_alu_capture_ok[i] = alu_broadcast_valid &
+                                                instr_valid[i] &
+                                                entries[i].src2_valid &
+                                                entries[i].src2_ready & // TODO: double-check
+                                                entries_src2_alu_capture[i];
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src1_ld_capture_cmp (
@@ -141,6 +168,11 @@ module integer_issue (
             .ge(),
             .lt()
         );
+        assign entries_src1_ld_capture_ok[i] = ld_broadcast_valid &
+                                               instr_valid[i] &
+                                               entries[i].src1_valid &
+                                               ~entries[i].src1_ready & // TODO: double-check
+                                               entries_src1_ld_capture[i];
         unsigned_cmp_ #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_ld_capture_cmp (
@@ -150,33 +182,38 @@ module integer_issue (
             .ge(),
             .lt()
         );
+        assign entries_src2_ld_capture_ok[i] = ld_broadcast_valid &
+                                               instr_valid[i] &
+                                               entries[i].src2_valid &
+                                               ~entries[i].src2_ready & // TODO: double-check
+                                               entries_src2_ld_capture[i];
     end
 
     for (genvar i = 0; i < `IIQ_N_ENTRIES; i++) begin
-        assign entries_wr_en[i] = entries_src1_iiq_wakeup[i]  || entries_src2_iiq_wakeup[i]  ||
-                                  entries_src1_alu_capture[i] || entries_src2_alu_capture[i] ||
-                                  entries_src1_ld_capture[i]  || entries_src2_ld_capture[i];
+        assign entries_wr_en[i] = (entries_src1_iiq_wakeup_ok[i]  || entries_src2_iiq_wakeup_ok[i] ) ||
+                                  (entries_src1_alu_capture_ok[i] || entries_src2_alu_capture_ok[i]) ||
+                                  (entries_src1_ld_capture_ok[i]  || entries_src2_ld_capture_ok[i] ) ;
     end
     for (genvar i = 0; i < `IIQ_N_ENTRIES; i++) begin
         assign entries_wr_data[i] = '{
             src1_valid:     entries[i].src1_valid,
             src1_rob_id:    entries[i].src1_rob_id,
-            src1_ready:     (entries_src1_iiq_wakeup[i] || entries_src1_ld_capture[i]) ?
+            src1_ready:     (entries_src1_iiq_wakeup_ok[i] || entries_src1_ld_capture_ok[i]) ?
                                 1'b1 :
                                 entries[i].src1_ready,
-            src1_data:      entries_src1_alu_capture[i] ?
+            src1_data:      entries_src1_alu_capture_ok[i] ?
                                 alu_broadcast_reg_data :
-                                entries_src1_ld_capture[i] ?
+                                entries_src1_ld_capture_ok[i] ?
                                     ld_broadcast_reg_data :
                                     entries[i].src1_data,
             src2_valid:     entries[i].src2_valid,
             src2_rob_id:    entries[i].src2_rob_id,
-            src2_ready:     (entries_src2_iiq_wakeup[i] || entries_src2_ld_capture[i]) ?
+            src2_ready:     (entries_src2_iiq_wakeup_ok[i] || entries_src2_ld_capture_ok[i]) ?
                                 1'b1 :
                                 entries[i].src2_ready,
-            src2_data:      entries_src2_alu_capture[i] ?
+            src2_data:      entries_src2_alu_capture_ok[i] ?
                                 alu_broadcast_reg_data :
-                                entries_src2_ld_capture[i] ?
+                                entries_src2_ld_capture_ok[i] ?
                                     ld_broadcast_reg_data :
                                     entries[i].src2_data,
             dst_valid:      entries[i].dst_valid,

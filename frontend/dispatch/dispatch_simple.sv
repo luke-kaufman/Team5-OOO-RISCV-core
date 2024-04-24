@@ -49,7 +49,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     // INTERFACE TO FETCH
     output wire fetch_redirect_valid,
     output wire addr_t fetch_redirect_pc,
-    
+
     output logic [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] ARF_OUT
 );
     // ififo_dispatch_data fields
@@ -165,8 +165,10 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
 
     // register alias table: ARF/ROB table
     // [0: ARF (retired), 1: ROB (speculative)]
-    wire rs1_retired;
-    wire rs2_retired;
+    wire rs1_arf_rob;
+    wire rs2_arf_rob;
+    wire rs1_retired = ~rs1_arf_rob;
+    wire rs2_retired = ~rs2_arf_rob;
     wire arf_id_t retire_arf_id;
     regfile_golden #(
         .ENTRY_WIDTH(1),
@@ -179,7 +181,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         .rst_aL(rst_aL),
 
         .rd_addr({rs1, rs2}),
-        .rd_data({rs1_retired, rs2_retired}),
+        .rd_data({rs1_arf_rob, rs2_arf_rob}),
 
         // (synchronous) reset (1'b0) port to mark as retired (point to ARF)
         // (synchronous) set (1'b1) port to mark as speculative (point to ROB)
@@ -358,6 +360,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         base_addr_rob_id: rob_id_src1,
         base_addr_ready: (iiq_wakeup_valid    && (iiq_wakeup_rob_id    == rob_id_src1))  ? 1'b1 :
                          (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src1))  ? 1'b1 :
+                                                                             rs1_retired ? 1'b1 :
                                                                                            rob_reg_ready_src1,
         base_addr:       (alu_broadcast_valid && (alu_broadcast_rob_id == rob_id_src1))  ? alu_broadcast_reg_data :
                          (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src1))  ? ld_broadcast_reg_data  :
@@ -367,6 +370,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         st_data_rob_id:   rob_id_src2,
         st_data_ready:   (iiq_wakeup_valid    && (iiq_wakeup_rob_id    == rob_id_src1))  ? 1'b1 :
                          (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src1))  ? 1'b1 :
+                                                                             rs2_retired ? 1'b1 :
                                                                                            rob_reg_ready_src1,
         st_data:         (alu_broadcast_valid && (alu_broadcast_rob_id == rob_id_src2))  ? alu_broadcast_reg_data :
                          (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src2))  ? ld_broadcast_reg_data  :

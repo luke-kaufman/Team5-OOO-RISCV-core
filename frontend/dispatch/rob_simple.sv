@@ -149,8 +149,8 @@ module rob_simple (
         .rd_addr({rob_id_src1, rob_id_src2}),
         .rd_data({entry_rd_data_src1, entry_rd_data_src2}),
 
-        .wr_en({alu_wb_valid, ld_wb_valid, iiq_wakeup_valid}),
-        .wr_addr({alu_wb_rob_id, ld_wb_rob_id, iiq_wakeup_rob_id}),
+        .wr_en({ld_wb_valid, alu_wb_valid, iiq_wakeup_valid}),
+        .wr_addr({ld_wb_rob_id, alu_wb_rob_id, iiq_wakeup_rob_id}),
         .wr_data(entry_wr_data),
 
         .entry_douts(rob_state),
@@ -183,6 +183,8 @@ module rob_simple (
     //     .y(not_ld_mispred)
     // );
     // NOTE: retire means WRITING to ARF! (it does not include non-ARF-writing instrs like branches and stores)
+    // TODO: potentially change the semantics of retire to include ALL (including dst invalid ones) instrs and add a new
+    // retire_arf_wb valid signal?
     and_ #(.N_INS(4)) retire_and (
         .a({
             retire_entry_data.dst_valid,
