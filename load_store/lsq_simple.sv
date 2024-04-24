@@ -24,6 +24,8 @@ module lsq_simple #(
 );
     ENTRY_T [N_ENTRIES-1:0] lsq_entries;
 
+    // FIXME: breaking dispatch_ready for IFU->Dispatch because x
+    assign enq_ready = 1;
     always_ff @(posedge clk or posedge init or negedge rst_aL) begin
         if (init) begin
             lsq_entries <= init_entries;

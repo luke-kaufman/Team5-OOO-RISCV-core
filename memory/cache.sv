@@ -115,7 +115,7 @@ module cache #(
     wire tag_array_hit = sel_way0 | sel_way1; // NOTE: not guarded by pipeline_req_valid_latched and mem_ctrl_resp_waiting
     // TODO: does this kind of always_ff cause any problems?
     // TODO: no negedge rst_aL in the sensitivity list? (copied behavioral sram)
-    always_ff @(posedge clk or posedge init or negedge rst_aL) begin
+    always @(posedge clk or posedge init or negedge rst_aL) begin
         if (init | !rst_aL) begin
             pipeline_req_valid_latched <= '0;
             pipeline_req_type_latched <= req_type_t'(0);

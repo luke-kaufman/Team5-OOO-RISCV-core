@@ -47,7 +47,9 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     // input wire ld_mispred,
     // INTERFACE TO FETCH
     output wire fetch_redirect_valid,
-    output wire addr_t fetch_redirect_pc
+    output wire addr_t fetch_redirect_pc,
+    
+    output logic [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] ARF_OUT
 );
     // ififo_dispatch_data fields
     wire instr_t instr         = ififo_dispatch_data.instr;
@@ -296,7 +298,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         .flush(1'b0),
 
         .init_regfile_state({{29{32'b0}}, init_sp, {2{32'b0}}}),
-        .current_regfile_state()
+        .current_regfile_state(ARF_OUT)
     );
 
     // INTERFACE TO FETCH

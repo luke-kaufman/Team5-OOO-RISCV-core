@@ -29,8 +29,8 @@ module regfile_golden #(
     input wire [N_WRITE_PORTS-1:0] [ENTRY_WIDTH-1:0] wr_data,
 
     // for testing
-    input wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_regfile_state,
-    output wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] current_regfile_state
+    input logic [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] init_regfile_state,
+    output logic [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] current_regfile_state
 );
     // state elements
     logic [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] regfile_r;

@@ -36,7 +36,7 @@ module core (
     input block_data_t dcache_mem_ctrl_resp_block_data,
 
     // ARF out - for checking archiectural state
-    output wire [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] ARF_OUT
+    output logic [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] ARF_OUT
 );
     // IFU <-> DISPATCH
     wire               ififo_dispatch_ready;  /*DIS->IFU*/
@@ -87,7 +87,7 @@ module core (
         .init(init),
         .init_pc(init_pc),
         .rst_aL(rst_aL),
-        // backend interactions - TODO FIX DUPLICATION
+        // backend interactions
         .fetch_redirect_valid(fetch_redirect_valid),
         .fetch_redirect_PC(fetch_redirect_pc),
         // .backend_stall(),  // OR with other stuff?
@@ -105,7 +105,7 @@ module core (
     );
 
     // DISPATCH (DECODE, RENAME, ROB here)
-    dispatch_simple dispatch_dut (
+    dispatch_simple _dispatch (
         .clk(clk),       /*input*/
         .init(init),
         .init_sp(init_sp),
@@ -144,7 +144,9 @@ module core (
         // .ld_mispred(ld_mispred)              /*input*/
         // INTERFACE TO FETCH
         .fetch_redirect_valid(fetch_redirect_valid), /*output wire*/
-        .fetch_redirect_pc(fetch_redirect_pc) /*output wire addr_t*/
+        .fetch_redirect_pc(fetch_redirect_pc), /*output wire addr_t*/
+
+        .ARF_OUT(ARF_OUT)
     );
 
     // INTEGER ISSUE QUEUE (IIQ)

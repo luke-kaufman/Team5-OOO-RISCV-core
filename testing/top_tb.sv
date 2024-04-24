@@ -47,8 +47,15 @@ module top_tb #(
     //     reg_data_t ld_out[int];
     // endclass
 
-    bit VERBOSE = 1;
+    bit ALL_VERBOSE = 0;
+    bit FETCH_VERBOSE = 0 | ALL_VERBOSE;
+    bit DISP_VERBOSE = 1 | ALL_VERBOSE;
+    bit IIQ_VERBOSE = 0 | ALL_VERBOSE;
+    bit ALU_VERBOSE = 0 | ALL_VERBOSE;
+    bit LSU_VERBOSE = 0 | ALL_VERBOSE;
+
     int cycle;
+    int prev_PC;
     int curr_PC;
     int num_directed_tests[`NUM_SETS][NUM_STAGES];
     int num_directed_tests_passed[`NUM_SETS][NUM_STAGES];
@@ -95,31 +102,31 @@ module top_tb #(
             0 : begin // TEST SET 1: just instructions
                 // ififo_dispatch_ready = 1;
                 test_programs[s_i] = new();
-                test_programs[s_i].num_instrs=22;
+                test_programs[s_i].num_instrs=1;
                 test_programs[s_i].start_PC=32'h1018c;
                 init_sp = test_programs[s_i].start_PC-4;
                 test_programs[s_i].prog[32'h1018c]=32'hfe010113; // add sp,sp,-32        
-                test_programs[s_i].prog[32'h10190]=32'h00812e23; // sw s0,28(sp)        
-                test_programs[s_i].prog[32'h10194]=32'h00912c23; // sw s1,24(sp)        
-                test_programs[s_i].prog[32'h10198]=32'h02010413; // add s0,sp,32        
-                test_programs[s_i].prog[32'h1019c]=32'hfea42623; // sw a0,-20(s0)        
-                test_programs[s_i].prog[32'h101a0]=32'hfeb42423; // sw a1,-24(s0)        
-                test_programs[s_i].prog[32'h101a4]=32'h00f00493; // li s1,15        
-                test_programs[s_i].prog[32'h101a8]=32'h01348493; // add s1,s1,19        
-                test_programs[s_i].prog[32'h101ac]=32'hffc48493; // add s1,s1,-4        
-                test_programs[s_i].prog[32'h101b0]=32'h00048713; // mv a4,s1        
-                test_programs[s_i].prog[32'h101b4]=32'h800007b7; // lui a5,0x80000        
-                test_programs[s_i].prog[32'h101b8]=32'h00f747b3; // xor a5,a4,a5        
-                test_programs[s_i].prog[32'h101bc]=32'h00078493; // mv s1,a5        
-                test_programs[s_i].prog[32'h101c0]=32'h800007b7; // lui a5,0x80000        
-                test_programs[s_i].prog[32'h101c4]=32'hfff78793; // add a5,a5,-1 # 7fffffff <__BSS_END__+0x7ffed77f>     
-                test_programs[s_i].prog[32'h101c8]=32'h00f4f4b3; // and s1,s1,a5        
-                test_programs[s_i].prog[32'h101cc]=32'h00048793; // mv a5,s1        
-                test_programs[s_i].prog[32'h101d0]=32'h00078513; // mv a0,a5        
-                test_programs[s_i].prog[32'h101d4]=32'h01c12403; // lw s0,28(sp)        
-                test_programs[s_i].prog[32'h101d8]=32'h01812483; // lw s1,24(sp)        
-                test_programs[s_i].prog[32'h101dc]=32'h02010113; // add sp,sp,32        
-                test_programs[s_i].prog[32'h101e0]=32'h00008067; // ret 
+                // test_programs[s_i].prog[32'h10190]=32'h00812e23; // sw s0,28(sp)        
+                // test_programs[s_i].prog[32'h10194]=32'h00912c23; // sw s1,24(sp)        
+                // test_programs[s_i].prog[32'h10198]=32'h02010413; // add s0,sp,32        
+                // test_programs[s_i].prog[32'h1019c]=32'hfea42623; // sw a0,-20(s0)        
+                // test_programs[s_i].prog[32'h101a0]=32'hfeb42423; // sw a1,-24(s0)        
+                // test_programs[s_i].prog[32'h101a4]=32'h00f00493; // li s1,15        
+                // test_programs[s_i].prog[32'h101a8]=32'h01348493; // add s1,s1,19        
+                // test_programs[s_i].prog[32'h101ac]=32'hffc48493; // add s1,s1,-4        
+                // test_programs[s_i].prog[32'h101b0]=32'h00048713; // mv a4,s1        
+                // test_programs[s_i].prog[32'h101b4]=32'h800007b7; // lui a5,0x80000        
+                // test_programs[s_i].prog[32'h101b8]=32'h00f747b3; // xor a5,a4,a5        
+                // test_programs[s_i].prog[32'h101bc]=32'h00078493; // mv s1,a5        
+                // test_programs[s_i].prog[32'h101c0]=32'h800007b7; // lui a5,0x80000        
+                // test_programs[s_i].prog[32'h101c4]=32'hfff78793; // add a5,a5,-1 # 7fffffff <__BSS_END__+0x7ffed77f>     
+                // test_programs[s_i].prog[32'h101c8]=32'h00f4f4b3; // and s1,s1,a5        
+                // test_programs[s_i].prog[32'h101cc]=32'h00048793; // mv a5,s1        
+                // test_programs[s_i].prog[32'h101d0]=32'h00078513; // mv a0,a5        
+                // test_programs[s_i].prog[32'h101d4]=32'h01c12403; // lw s0,28(sp)        
+                // test_programs[s_i].prog[32'h101d8]=32'h01812483; // lw s1,24(sp)        
+                // test_programs[s_i].prog[32'h101dc]=32'h02010113; // add sp,sp,32        
+                // test_programs[s_i].prog[32'h101e0]=32'h00008067; // ret 
                 test_programs[s_i].prog_addrs[0]=32'h1018c;
                 test_programs[s_i].prog_addrs[1]=32'h10190;
                 test_programs[s_i].prog_addrs[2]=32'h10194;
@@ -153,7 +160,7 @@ module top_tb #(
                     test_ifu_outs[s_i].ifu_out[key_PC].br_target_pred = key_PC + 4;
                 end 
             end
-            1 : begin // TEST SET 2: BREAKS BECASUE DYNAM FOR LOOP - Correctly predicted branches 
+            1 : begin // TEST SET 2: BREAKS BECAUSE DYNAM FOR LOOP - Correctly predicted branches 
                 // ififo_dispatch_ready = 1;
                 test_programs[s_i] = new();
                 test_programs[s_i].num_instrs=27;
@@ -246,32 +253,92 @@ module top_tb #(
     endtask
 
     task fetch_negedge_dump(int cycle);
-        $display("\nFETCH: -| Cycle: %4d |--------------------------------------------\n",cycle);
-        $display("FETCH: *****| AT %5dns NEGEDGE |*****", $time);
-        $display("FETCH: FIFO ENTRY FOR THIS INSTRUCTION:");
-        $display("FETCH: Set accessed: %6b", _top._core._ifu.icache.tag_array.addr0_reg);
-        $display("FETCH: IFIFO_enq_data.instr: 0x%8h", _top._core._ifu.IFIFO_enq_data.instr);
-        $display("FETCH: IFIFO_enq_data.pc: 0x%8h", _top._core._ifu.IFIFO_enq_data.pc);
-        $display("FETCH: IFIFO_enq_data.is_cond_br: %1b" , _top._core._ifu.IFIFO_enq_data.is_cond_br);
-        $display("FETCH: IFIFO_enq_data.br_dir_pred: %1b" , _top._core._ifu.IFIFO_enq_data.br_dir_pred);
-        $display("FETCH: IFIFO_enq_data.br_target_pred: 0x%8h" , _top._core._ifu.IFIFO_enq_data.br_target_pred);
+        // $display("Fetch_redirect_pc %8h", _top._core._ifu.fetch_redirect_PC);
+        $display("PC_wire %8h", _top._core._ifu.PC_wire);
+        // $display("next_pc %8h", _top._core._ifu.next_PC);
+        // $display("Fetch_redirect_valid %1b", _top._core._ifu.fetch_redirect_valid);
+        // $display("stall %1b", _top._core._ifu.stall);
+        $display("IFIFO STALL %1b ICACHE MISS %1b", _top._core._ifu.IFIFO_stall, _top._core._ifu.icache_miss);
+        // $display("tag_array_hit %1b", _top._core._ifu.icache.tag_array_hit);
+        // $display("pipeline_req_valid_latched %1b", _top._core._ifu.icache.pipeline_req_valid_latched);
+        if(_top._core._ifu.icache_hit) begin        
+            $display("FETCH: FIFO ENTRY ABOUT TO BE LATCHED FOR THIS INSTRUCTION:");
+            $display("FETCH: Set accessed: %6b", _top._core._ifu.icache.tag_array.addr0_reg);
+            $display("FETCH: IFIFO_enq_data.instr: 0x%8h", _top._core._ifu.IFIFO_enq_data.instr);
+            $display("FETCH: IFIFO_enq_data.pc: 0x%8h", _top._core._ifu.IFIFO_enq_data.pc);
+            $display("FETCH: IFIFO_enq_data.is_cond_br: %1b" , _top._core._ifu.IFIFO_enq_data.is_cond_br);
+            $display("FETCH: IFIFO_enq_data.br_dir_pred: %1b" , _top._core._ifu.IFIFO_enq_data.br_dir_pred);
+            $display("FETCH: IFIFO_enq_data.br_target_pred: 0x%8h" , _top._core._ifu.IFIFO_enq_data.br_target_pred);
+            $display();
+            $display("FETCH: enq_ready %1b", _top._core._ifu.IFIFO_enq_ready); // output - can fifo receive data?
+            $display("FETCH: enq_valid %1b", _top._core._ifu.icache_hit);      // input - enqueue if icache hit
+        end
         $display();
-        $display("FETCH: enq_ready %1b", _top._core._ifu.IFIFO_enq_ready); // output - can fifo receive data?
-        $display("FETCH: enq_valid %1b", _top._core._ifu.icache_hit);      // input - enqueue if icache hit
+    endtask
+    task fetch_posedge_dump(int cycle);
         $display("FETCH: deq_ready %1b", _top._core._ifu.ififo_dispatch_ready);  // input - interface from dispatch
         $display("FETCH: deq_valid %1b", _top._core._ifu.ififo_dispatch_valid);     // output - interface to dispatch
         $display("FETCH: deq_data 0x%8h", _top._core._ifu.ififo_dispatch_data); // output - dispatched instr
-    endtask
-    task fetch_posedge_dump(int cycle);
-        $display();
-        $display("*****| AT %5dns POSEDGE |*****", $time);
         $display("IFIFO STALL %1b ICACHE MISS %1b", _top._core._ifu.IFIFO_stall, _top._core._ifu.icache_miss);
-        $display("tag_array_hit %1b", _top._core._ifu.icache.tag_array_hit);
-        $display("pipeline_req_valid_latched %1b", _top._core._ifu.icache.pipeline_req_valid_latched);
-        $display("CURR_PC 0x%8h", curr_PC);
-        $display("LATCHED SRAM ADDR 0x%8h at time %6d", _top._core._ifu.PC_mux.out,$time);
-        $display("fetch_redirect_valid %1b, stall_gate_ZN %1b", _top._core._ifu.fetch_redirect_valid, _top._core._ifu.stall_gate.ZN);    
-        $display("pipeline_resp_rd_data 0x%8h", _top._core._ifu.icache.pipeline_resp_rd_data);
+        // $display("tag_array_hit %1b", _top._core._ifu.icache.tag_array_hit);
+        // $display("pipeline_req_valid_latched %1b", _top._core._ifu.icache.pipeline_req_valid_latched);
+        $display("LATCHED PC 0x%8h", _top._core._ifu.PC_wire);
+        $display("LATCHED SRAM ADDR index %6b", _top._core._ifu.icache.pipeline_req_addr_index_latched);
+        // $display("fetch_redirect_valid %1b, stall_gate_ZN %1b", _top._core._ifu.fetch_redirect_valid, _top._core._ifu.stall_gate.ZN);    
+        // $display("pipeline_resp_rd_data 0x%8h", _top._core._ifu.icache.pipeline_resp_rd_data);
+        $display();
+    endtask
+
+    task dispatch_negedge_dump(int cycle);
+    endtask
+    task dispatch_posedge_dump(int cycle);
+        if(_top._core._ifu.ififo_dispatch_valid) begin
+            $display("DISPATCH: IFIFO DISPATCH DATA 0x%8h", _top._core._dispatch.ififo_dispatch_data);
+            $display("DISPATCH: IFIFO DISPATCH READY %1b", _top._core._dispatch.ififo_dispatch_ready);
+            $display("DISPATCH: Ready ins: (ififo_dis_v: %1b rob_v: %1b (enq_ctr: %6b deq_ctr: %6b) iiq_ok: %1b lsq_ok: %1b)",
+                _top._core._ifu.ififo_dispatch_valid,
+                _top._core._dispatch.rob_dispatch_ready,
+                _top._core._dispatch._rob.rob_mem.enq_ctr_r,
+                _top._core._dispatch._rob.rob_mem.deq_ctr_r,
+                _top._core._dispatch.iiq_dispatch_ok,
+                _top._core._dispatch.lsq_dispatch_ok
+            );
+
+            $display("DISPATCH: IIQ DISP V: %1b", _top._core._dispatch.iiq_dispatch_valid);
+            $display("DECODE INSTR: %8h", _top._core._dispatch.instr);
+            $display("DISPATCH: IIQ DISP ENTRY:\n \nsrc1_valid: %1b\nsrc1_rob_id: %1d\nsrc1_ready: %1b\nsrc1_data: %d\nsrc2_valid: %1b\nsrc2_rob_id: %1d\nsrc2_ready: %1b\nsrc2_data: %d\ndst_valid: %1b\ninstr_rob_id: %1d\nimm: %d\npc: %8h\nfunct3: %3b\nis_r_type: %1b\nis_i_type: %1b\nis_u_type: %1b\nis_b_type: %1b\nis_j_type: %1b\nis_sub: %1b\nis_sra_srai: %1b\nis_lui: %1b\nis_jalr: %1b\nbr_dir_pred: %1b\nbr_target_pred: %8h",
+                _top._core._dispatch.iiq_dispatch_data.src1_valid,
+                _top._core._dispatch.iiq_dispatch_data.src1_rob_id,
+                _top._core._dispatch.iiq_dispatch_data.src1_ready,
+                _top._core._dispatch.iiq_dispatch_data.src1_data,
+                _top._core._dispatch.iiq_dispatch_data.src2_valid,
+                _top._core._dispatch.iiq_dispatch_data.src2_rob_id,
+                _top._core._dispatch.iiq_dispatch_data.src2_ready,
+                _top._core._dispatch.iiq_dispatch_data.src2_data,
+                _top._core._dispatch.iiq_dispatch_data.dst_valid,
+                _top._core._dispatch.iiq_dispatch_data.instr_rob_id,
+                _top._core._dispatch.iiq_dispatch_data.imm,
+                _top._core._dispatch.iiq_dispatch_data.pc,
+                _top._core._dispatch.iiq_dispatch_data.funct3,
+                _top._core._dispatch.iiq_dispatch_data.is_r_type,
+                _top._core._dispatch.iiq_dispatch_data.is_i_type,
+                _top._core._dispatch.iiq_dispatch_data.is_u_type,
+                _top._core._dispatch.iiq_dispatch_data.is_b_type,
+                _top._core._dispatch.iiq_dispatch_data.is_j_type,
+                _top._core._dispatch.iiq_dispatch_data.is_sub,
+                _top._core._dispatch.iiq_dispatch_data.is_sra_srai,
+                _top._core._dispatch.iiq_dispatch_data.is_lui,
+                _top._core._dispatch.iiq_dispatch_data.is_jalr,
+                _top._core._dispatch.iiq_dispatch_data.br_dir_pred,
+                _top._core._dispatch.iiq_dispatch_data.br_target_pred
+            );
+
+        end
+        $display();
+    endtask
+
+    task IIQ_posedge_dump(int cycle);
+        $display();
     endtask
 
     task check_stage(int s_i, int stage);
@@ -279,17 +346,18 @@ module top_tb #(
             IFU_STAGE: begin
                 if(_top._core._ifu.ififo_dispatch_valid) begin
                     num_directed_tests[s_i][IFU_STAGE]++;
-                    if(_top._core._ifu.ififo_dispatch_valid && _top._core._ifu.ififo_dispatch_data == test_ifu_outs[s_i].ifu_out[curr_PC]) begin
+                    if(_top._core._ifu.ififo_dispatch_valid && _top._core._ifu.ififo_dispatch_data == test_ifu_outs[s_i].ifu_out[prev_PC]) begin
                         num_directed_tests_passed[s_i][IFU_STAGE]++;
+                        $display("FETCH: PASSED CASE ON DISPATCH OUT 0x%8h:", prev_PC);
                     end
-                    else begin
-                        $display("FETCH: FAILED CASE:");
+                    else begin  // need prev_PC because next_PC gets latched into PC right before checking
+                        $display("FETCH: FAILED CASE ON DISPATCH OUT 0x%8h:", prev_PC);
                         $display("FETCH: _top._core._ifu.ififo_dispatch_valid %1b", _top._core._ifu.ififo_dispatch_valid);
-                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.instr 0x%8h EXPECTED: 0x%8h", _top._core._ifu.ififo_dispatch_data[97:66], test_ifu_outs[s_i].ifu_out[curr_PC][97:66]);
-                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.pc 0x%8h EXPECTED: 0x%8h", _top._core._ifu.ififo_dispatch_data[65:34], test_ifu_outs[s_i].ifu_out[curr_PC][65:34]);
-                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.is_cond_br %1b EXPECTED: %1b", _top._core._ifu.ififo_dispatch_data[33], test_ifu_outs[s_i].ifu_out[curr_PC][33]);
-                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.br_dir_pred %1b EXPECTED: %1b", _top._core._ifu.ififo_dispatch_data[32], test_ifu_outs[s_i].ifu_out[curr_PC][32]);
-                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.br_target_pred 0x%8h EXPECTED: 0x%8h", _top._core._ifu.ififo_dispatch_data[31:0], test_ifu_outs[s_i].ifu_out[curr_PC][31:0]);       
+                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.instr 0x%8h EXPECTED: 0x%8h", _top._core._ifu.ififo_dispatch_data[97:66], test_ifu_outs[s_i].ifu_out[prev_PC][97:66]);
+                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.pc 0x%8h EXPECTED: 0x%8h", _top._core._ifu.ififo_dispatch_data[65:34], test_ifu_outs[s_i].ifu_out[prev_PC][65:34]);
+                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.is_cond_br %1b EXPECTED: %1b", _top._core._ifu.ififo_dispatch_data[33], test_ifu_outs[s_i].ifu_out[prev_PC][33]);
+                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.br_dir_pred %1b EXPECTED: %1b", _top._core._ifu.ififo_dispatch_data[32], test_ifu_outs[s_i].ifu_out[prev_PC][32]);
+                        $display("FETCH: _top._core._ifu.ififo_dispatch_data.br_target_pred 0x%8h EXPECTED: 0x%8h", _top._core._ifu.ififo_dispatch_data[31:0], test_ifu_outs[s_i].ifu_out[prev_PC][31:0]);       
                     end
                 end
             end
@@ -322,11 +390,21 @@ module top_tb #(
         end
         // init main mem
         #1;
+        $display("INIT HAPPENING AT TIME %5d", $time);
         init = 1;
         #1;
         init = 0;
         #1;
 
+    endtask
+
+    task dump_arf(int cycle);
+        $display("ARF OUT AT CYCLE %5d AT TIME %5d===================", cycle, $time);
+        for(int i = 0; i < `ARF_N_ENTRIES; i++) begin
+            $display("ARF[%0d]: 0x%8h", i, arf_out_data[i]);
+        end
+        $display("END ARF OUT =======================================");
+        $display();
     endtask
     
     task run_directed_testcases(int s_i);
@@ -338,9 +416,6 @@ module top_tb #(
         // rst_aL = 1;
         // @(posedge clk);
         // #1;
-        
-        $display("STARTING TEST SET %0d time: %6d", s_i, $time);
-        fill_main_mem_and_start_read(s_i);
 
         // MAIN LOOP
         // Cycles:
@@ -349,32 +424,47 @@ module top_tb #(
         // Queues (IIQ, LSQ)
         // AGEX/ALU
         // D-cache/ALU wakeup/writeback ?
+        
+        $display("STARTING TEST SET %0d time: %6d", s_i, $time);
+        fill_main_mem_and_start_read(s_i);
 
         // loop comes in clk is high
         cycle = 0;
+        prev_PC = 0;
         curr_PC = test_programs[s_i].start_PC;
         while(test_programs[s_i].prog.exists(curr_PC)) begin
             
             // full cycle neg edge to pos edge with print dumps
             @(negedge clk); 
+            $display("*****| AT %5dns NEGEDGE |*****", $time);
             #1;
-            if(VERBOSE) begin
-                fetch_negedge_dump(cycle);
-            end
+            if(FETCH_VERBOSE) fetch_negedge_dump(cycle);
+            if(DISP_VERBOSE) dispatch_negedge_dump(cycle);
+
+            
             @(posedge clk);
+            $display("\n------| Cycle start: %4d |--------------------------------------------\n",cycle+1);
+            $display("*****| AT %5dns POSEDGE |*****", $time);
             #1;
-            if(VERBOSE) begin
-                fetch_posedge_dump(cycle);
+            if(_top._core._dispatch.retire) begin
+                dump_arf(cycle);
             end
+            if(FETCH_VERBOSE) fetch_posedge_dump(cycle);
+            if(DISP_VERBOSE) dispatch_posedge_dump(cycle);
+
 
             // check outputs of all stages
             for(int stage = IFU_STAGE; stage < NUM_STAGES; stage++) begin
-                check_stage(s_i, stage);
+                // check_stage(s_i, stage);
             end
             
+            prev_PC = curr_PC;
             curr_PC = _top._core._ifu.PC_wire;  // PC will have already been latched with the PC for next cycle
             cycle=cycle+1;
         end
+
+        #1000; // let last instruction finish
+
     endtask
    
     // Task to display test results
@@ -408,14 +498,49 @@ module top_tb #(
         //     random_testcase();
         // end
         $display("STARTING TESTBENCH time: %6d", $time);
+        $display("------| Cycle start: 0 |--------------------------------------------\n");
+        $monitor("%4t rob_enq_ctr: %6b rob_deq_ctr: %6b  next_enq_ctr: %6b next_deq_ctr: %6b\n", 
+            $time, 
+            _top._core._dispatch._rob.rob_mem.enq_ctr_r,
+            _top._core._dispatch._rob.rob_mem.deq_ctr_r,
+            _top._core._dispatch._rob.rob_mem.next_enq_ctr,
+            _top._core._dispatch._rob.rob_mem.next_deq_ctr,
+        );
+
+        // $monitor("%4t mem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n", 
+        //     $time, 
+        //     _top._core._ifu.mem_ctrl_resp_valid, 
+        //     _top._core._ifu.mem_ctrl_resp_block_data
+        // );
         directed_testsets();
         $finish;
     end
 
+    
     initial begin
-        #9;
-        $monitor("%t PC_mux_out: %b \npipeline_req_valid: %b pipeline_req_addr: %b \n mem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b", $time, _top._core._ifu.PC_mux_out, _top._core._ifu.icache.pipeline_req_valid, _top._core._ifu.icache.pipeline_req_addr, _top._core._ifu.mem_ctrl_resp_valid, _top._core._ifu.mem_ctrl_resp_block_data);
-        #120;
-        $finish;
-    end
+        // $monitor("%3t fetch_redirect_valid %b icache_miss: %b ififo_stall: %b PC_wire: %8h | pipeline_req_addr_offset_latched:%8h instr: %8h next_PC: %8h PC_mux_out: %8h\npipeline_req_valid: %b \nmem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n", 
+        $monitor("%3t retire: %1b ( dst_v: %1b (alu_brcast_v: %1b) is_exec: %1b not_br_mispred: %1b)retire_id: %1d retire_data: 0x%8h\nmem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n", 
+            $time, 
+            // _top._core._ifu.fetch_redirect_valid, 
+            // _top._core._ifu.icache_miss, 
+            // _top._core._ifu.IFIFO_stall, 
+            // _top._core._ifu.PC_wire, 
+            // _top._core._ifu.icache.pipeline_req_addr_offset_latched,
+            // _top._core._ifu.pred_NPC.instr, 
+            // _top._core._ifu.next_PC, 
+            // _top._core._ifu.PC_mux_out, 
+            // _top._core._ifu.icache.pipeline_req_valid, 
+            _top._core._dispatch.retire,
+            _top._core._dispatch._rob.retire_entry_data.dst_valid,
+            _top._core.alu_broadcast_valid,
+            _top._core._dispatch._rob.retire_entry_data.is_executed,
+            _top._core._dispatch._rob.not_br_mispred,
+            _top._core._dispatch.retire_arf_id,
+            _top._core._dispatch.retire_reg_data,
+            _top._core._ifu.mem_ctrl_resp_valid, 
+            _top._core._ifu.mem_ctrl_resp_block_data
+        );
+        // #400;
+        // $finish;
+    end 
 endmodule

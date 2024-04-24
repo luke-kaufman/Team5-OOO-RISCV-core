@@ -15,7 +15,7 @@ module top #(
     input block_data_t init_main_mem_state[HIGHEST_INSTR_BLOCK_ADDR:0],
     input wire rst_aL,
 
-    output wire [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] ARF_OUT
+    output logic [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] ARF_OUT
 );
     wire icache_mem_ctrl_req_valid;
     wire main_mem_block_addr_t icache_mem_ctrl_req_block_addr;

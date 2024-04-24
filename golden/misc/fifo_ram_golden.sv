@@ -81,7 +81,7 @@ module fifo_ram_golden #(
     end
 
     // state update
-    always_ff @(posedge clk or negedge rst_aL or posedge init) begin
+    always @(posedge clk or negedge rst_aL or posedge init) begin
         if (init) begin
             enq_ctr_r <= init_enq_up_counter_state;
             deq_ctr_r <= init_deq_up_counter_state;

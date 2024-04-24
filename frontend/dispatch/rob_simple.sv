@@ -9,15 +9,12 @@
 `include "misc/and/and_.v"
 `include "misc/inv.v"
 
-// IMPL STATUS: MISSING
-// TEST STATUS: MISSING
 // FIXME: convert int_wakeup -> iiq_wakeup
 // FIXME: convert lsu_wb -> ld_wb
 // FIXME: convert pc -> pc_npc, add npc_wb coming from alu
 
 // branch, store, register
 // branch: mispred vs. not mispred
-
 
 module rob_simple (
     input wire clk,
