@@ -314,6 +314,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         // issue2dispatch wakeup bypass
         src1_ready: (iiq_wakeup_valid   && rs1_valid && (iiq_wakeup_rob_id   == rob_id_src1))  ? 1'b1 :
                     (ld_broadcast_valid && rs1_valid && (ld_broadcast_rob_id == rob_id_src1))  ? 1'b1 :
+                                                                                   rs1_retired ? 1'b1 :
                                                                                                  rob_reg_ready_src1,
         // execute2dispatch data bypass
         src1_data: (alu_broadcast_valid && rs1_valid && (alu_broadcast_rob_id == rob_id_src1)) ? alu_broadcast_reg_data :
@@ -325,6 +326,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         // issue2dispatch wakeup bypass
         src2_ready: (iiq_wakeup_valid   && rs2_valid && (iiq_wakeup_rob_id   == rob_id_src2))  ? 1'b1 :
                     (ld_broadcast_valid && rs2_valid && (ld_broadcast_rob_id == rob_id_src2))  ? 1'b1 :
+                                                                                   rs2_retired ? 1'b1 :
                                                                                                  rob_reg_ready_src2,
         // execute2dispatch data bypass
         src2_data: (alu_broadcast_valid && rs2_valid && (alu_broadcast_rob_id == rob_id_src2)) ? alu_broadcast_reg_data :

@@ -519,7 +519,23 @@ module top_tb #(
     
     initial begin
         // $monitor("%3t fetch_redirect_valid %b icache_miss: %b ififo_stall: %b PC_wire: %8h | pipeline_req_addr_offset_latched:%8h instr: %8h next_PC: %8h PC_mux_out: %8h\npipeline_req_valid: %b \nmem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n", 
-        $monitor("%3t retire: %1b ( dst_v: %1b (alu_brcast_v: %1b  (iss_v: %1b)) is_exec: %1b not_br_mispred: %1b)retire_id: %1d retire_data: 0x%8h\nmem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n", 
+        $monitor("%3t retire: %1b (dst_v: %1b (alu_brcast_v: %1b  (iss_v: %1b)) is_exec: %1b not_br_mispred: %1b)retire_id: %1d retire_data: 0x%8h rob_ent_data: 0x%8h (exec_v: %1b alu_br_v: %1b alu_out: 0x%8h)
+        \nsel_main_adder_sum: %1b main_adder_sum: 0x%8h main_adder_op1: 0x%8h (is_r:%1b is_i:%1b src1:0x%8h is_lui:%1b ) main_adder_op2: 0x%8h (imm: 0x%8h is_sub:%1b src2: 0x%8h)
+        \ndisp_ready: %1b disp_valid: %1b 
+        \ndisp_data: %p
+        \nscheduled_entry: %p
+        \niibuff_din: %p
+        \nsel_sll_out: %1b
+        \nsel_srl_out: %1b
+        \nsel_sra_out: %1b
+        \nsel_unsigned_cmp_lt: %1b
+        \nsel_signed_cmp_lt: %1b
+        \nsel_and_out: %1b
+        \nsel_or_out: %1b
+        \nsel_xor_out: %1b
+        \nsel_pc_plus_4: %1b
+
+        \nmem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n", 
             $time, 
             // _top._core._ifu.fetch_redirect_valid, 
             // _top._core._ifu.icache_miss, 
@@ -534,10 +550,43 @@ module top_tb #(
             _top._core._dispatch._rob.retire_entry_data.dst_valid,
             _top._core.alu_broadcast_valid,
             _top._core._integer_issue.issue_valid,
-            _top._core._dispatch._rob.retire_entry_data.reg_ready,
+            _top._core._dispatch._rob.retire_entry_data.is_executed,
             _top._core._dispatch._rob.not_br_mispred,
             _top._core._dispatch.retire_arf_id,
             _top._core._dispatch.retire_reg_data,
+            _top._core._dispatch._rob.rob_mem.fifo_r[0][31:0],
+            _top._core._integer_execute.execute_valid,
+            _top._core._integer_execute.alu_broadcast_valid,
+            _top._core._integer_execute.dst,
+            _top._core._integer_execute.sel_main_adder_sum,
+            
+            _top._core._integer_execute.main_adder_sum,
+            _top._core._integer_execute.main_adder_op1,
+            _top._core._integer_execute.is_r_type,
+            _top._core._integer_execute.is_i_type,
+            _top._core._integer_execute.src1,
+            _top._core._integer_execute.is_lui,
+            _top._core._integer_execute.main_adder_op2,
+            _top._core._integer_execute.imm,
+            _top._core._integer_execute.is_sub,
+            _top._core._integer_execute.src2,
+
+            _top._core._integer_issue.dispatch_ready,
+            _top._core._integer_issue.dispatch_valid,
+            _top._core._integer_issue.dispatch_data,
+
+            _top._core._integer_issue.scheduled_entry,
+            _top._core._integer_issue.integer_issue_buffer.din,
+
+            _top._core._integer_execute.sel_sll_out,
+            _top._core._integer_execute.sel_srl_out,
+            _top._core._integer_execute.sel_sra_out,
+            _top._core._integer_execute.sel_unsigned_cmp_lt,
+            _top._core._integer_execute.sel_signed_cmp_lt,
+            _top._core._integer_execute.sel_and_out,
+            _top._core._integer_execute.sel_or_out,
+            _top._core._integer_execute.sel_xor_out,
+            _top._core._integer_execute.sel_pc_plus_4,
             _top._core._ifu.mem_ctrl_resp_valid, 
             _top._core._ifu.mem_ctrl_resp_block_data
         );

@@ -80,6 +80,7 @@ module rob_simple (
     // assign dispatch_entry_data.ld_mispred = 1'b0;
     assign dispatch_entry_data.br_mispred = 1'b0;
     assign dispatch_entry_data.reg_ready = 1'b0;
+    assign dispatch_entry_data.is_executed = 1'b0;
     assign dispatch_entry_data.reg_data = {`REG_DATA_WIDTH{1'b0}};
 
     wire rob_entry_t [`ROB_N_ENTRIES-1:0] entry_wr_data_int_wakeup;

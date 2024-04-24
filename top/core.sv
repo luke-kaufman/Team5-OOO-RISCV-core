@@ -177,7 +177,7 @@ module core (
     );
 
     // ARITHMETIC-LOGIC UNIT (ALU) (i.e. integer execute)
-    integer_execute integer_execute_dut (
+    integer_execute _integer_execute (
         .clk(clk),
         .rst_aL(rst_aL),
 
