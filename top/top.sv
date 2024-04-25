@@ -4,9 +4,10 @@
 `include "memory/main_mem.sv"
 
 module top #(
+    parameter VERBOSE = 0,
     parameter addr_t HIGHEST_PC,
     localparam main_mem_block_addr_t HIGHEST_INSTR_BLOCK_ADDR = HIGHEST_PC >> `MAIN_MEM_BLOCK_OFFSET_WIDTH
-)(
+) (
     input wire clk,
     input wire init,
     input addr_t init_pc,
@@ -41,7 +42,7 @@ module top #(
     cache_type_t mem_resp_cache_type; // TODO: figure out the enum 4-state bug
     wire block_data_t mem_resp_block_data;
 
-    core _core (
+    core #(.VERBOSE(VERBOSE)) _core (
         .clk(clk),
         .init(init),
         .init_pc(init_pc),

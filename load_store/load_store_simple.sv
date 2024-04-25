@@ -3,6 +3,7 @@
 `include "memory/cache.sv"
 
 module load_store_simple #(
+    parameter int unsigned VERBOSE = 0,
     parameter int unsigned LSQ_SIMPLE_N_ENTRIES = `LSQ_N_ENTRIES,
     localparam int unsigned CTR_WIDTH = $clog2(LSQ_SIMPLE_N_ENTRIES) + 1
 ) (
@@ -163,6 +164,7 @@ module load_store_simple #(
     assign eff_addr[0] = (lsq_deq_entry.width != BYTE) ? 1'b0 : eff_addr_unaligned[0]; // if (lw | lh | lhu | sw | sh)
 
     cache #(
+        .VERBOSE(VERBOSE),
         .CACHE_TYPE(DCACHE),
         .N_SETS(`DCACHE_NUM_SETS)
     ) dcache (

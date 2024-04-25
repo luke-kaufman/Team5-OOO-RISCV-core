@@ -8,7 +8,7 @@
 `include "integer/integer_execute.sv"
 `include "load_store/load_store_simple.sv"
 
-module core (
+module core #(parameter VERBOSE = 0) (
     input wire clk,
     input wire init,
     input addr_t init_pc,
@@ -192,7 +192,7 @@ module core (
     );
 
     // DUMB LSU
-    load_store_simple lsu (
+    load_store_simple #(.VERBOSE(VERBOSE)) lsu (
         .clk(clk), /*input*/
         .rst_aL(rst_aL), /*input*/
         .flush(fetch_redirect_valid), /*input*/

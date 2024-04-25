@@ -4,6 +4,7 @@
 `define NUM_SETS 2  // number of test sets
 
 module top_tb #(
+    parameter VERBOSE = 0,
     parameter N_RANDOM_TESTS = 100,
     parameter HIGHEST_PC = 32'h80000,
     localparam main_mem_block_addr_t HIGHEST_INSTR_BLOCK_ADDR = HIGHEST_PC >> `MAIN_MEM_BLOCK_OFFSET_WIDTH
@@ -85,8 +86,9 @@ module top_tb #(
 
     // TOP INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     top #(
+        .VERBOSE(VERBOSE),
         .HIGHEST_PC(HIGHEST_PC)
-    )_top (
+    ) _top (
         .clk(clk),
         .rst_aL(rst_aL),
         .init(init),
@@ -418,6 +420,7 @@ module top_tb #(
         main_mem_block_offset_t end_addr_block_offset;
         {start_addr_block_addr, start_addr_block_offset} = start_addr;
         {end_addr_block_addr, end_addr_block_offset} = end_addr;
+        // FIXME: prints same address multiple times
         $display("MAIN MEM OUT AT CYCLE %5d AT TIME %5d===================", cycle, $time);
         for (int j = start_addr_block_offset; j < 8; j += 4) begin
             $display("MAIN_MEM[0x%8h]: 0x%8h", {start_addr_block_addr, j}, main_mem_out_data[start_addr_block_addr][8*j+:32]);
@@ -544,7 +547,7 @@ module top_tb #(
         // );
         directed_testsets();
         dump_arf(cycle);
-        dump_main_mem(cycle, 32'h101a8, 32'h101a8 + 4);
+        dump_main_mem(cycle, 32'h101a4, 32'h101a4 + 4);
         $finish;
     end
 
@@ -722,7 +725,51 @@ module top_tb #(
     end
 
     always @(negedge clk) begin #1 $display();
-        $display();
+        $display("%0t lsu.dcache.pipeline_req_valid: %b", $time, _top._core.lsu.dcache.pipeline_req_valid);
+        $display("%0t lsu.dcache.pipeline_req_type: %s", $time, _top._core.lsu.dcache.pipeline_req_type.name);
+        $display("%0t lsu.dcache.pipeline_req_width: %s", $time, _top._core.lsu.dcache.pipeline_req_width.name);
+        $display("%0t lsu.dcache.pipeline_req_addr: %h", $time, _top._core.lsu.dcache.pipeline_req_addr);
+        $display("%0t lsu.dcache.pipeline_req_wr_data: %h\n", $time, _top._core.lsu.dcache.pipeline_req_wr_data);
+
+        $display("%0t lsu.dcache.pipeline_req_valid_latched: %b", $time, _top._core.lsu.dcache.pipeline_req_valid_latched);
+        $display("%0t lsu.dcache.pipeline_req_type_latched: %s", $time, _top._core.lsu.dcache.pipeline_req_type_latched.name);
+        $display("%0t lsu.dcache.pipeline_req_width_latched: %s", $time, _top._core.lsu.dcache.pipeline_req_width_latched.name);
+        $display("%0t lsu.dcache.pipeline_req_addr_latched: %h\n", $time, _top._core.lsu.dcache.pipeline_req_addr_latched);
+
+        $display("%0t lsu.dcache.tag_array.csb0 (aL): %b", $time, _top._core.lsu.dcache.tag_array.csb0);
+        $display("%0t lsu.dcache.tag_array.web0 (aL): %b", $time, _top._core.lsu.dcache.tag_array.web0);
+        $display("%0t lsu.dcache.tag_array.wmask0: %b", $time, _top._core.lsu.dcache.tag_array.wmask0);
+        $display("%0t lsu.dcache.tag_array.addr0: %b", $time, _top._core.lsu.dcache.tag_array.addr0);
+        $display("%0t lsu.dcache.tag_array.din0: %h", $time, _top._core.lsu.dcache.tag_array.din0);
+        $display("%0t lsu.dcache.tag_array.dout0: %h\n", $time, _top._core.lsu.dcache.tag_array.dout0);
+
+        $display(
+            "%0t lsu.dcache.data_array.csb0 (aL): %b", $time, _top._core.lsu.dcache.dcache_data_array.dcache_data_array.csb0);
+        $display(
+            "%0t lsu.dcache.data_array.web0 (aL): %b", $time, _top._core.lsu.dcache.dcache_data_array.dcache_data_array.web0);
+        $display(
+            "%0t lsu.dcache.data_array.wmask0: %b", $time, _top._core.lsu.dcache.dcache_data_array.dcache_data_array.wmask0);
+        $display(
+            "%0t lsu.dcache.data_array.addr0: %b", $time, _top._core.lsu.dcache.dcache_data_array.dcache_data_array.addr0);
+        $display(
+            "%0t lsu.dcache.data_array.din0: %h", $time, _top._core.lsu.dcache.dcache_data_array.dcache_data_array.din0);
+        $display(
+            "%0t lsu.dcache.data_array.dout0: %h\n", $time, _top._core.lsu.dcache.dcache_data_array.dcache_data_array.dout0);
+
+
+        $display("%0t lsu.dcache.tag_array_hit: %h\n", $time, _top._core.lsu.dcache.tag_array_hit);
+
+        $display("%0t lsu.dcache.mem_ctrl_req_valid: %b", $time, _top._core.lsu.dcache.mem_ctrl_req_valid);
+        $display("%0t lsu.dcache.mem_ctrl_req_type: %s", $time, _top._core.lsu.dcache.mem_ctrl_req_type.name);
+        $display("%0t lsu.dcache.mem_ctrl_req_block_addr: %h", $time, _top._core.lsu.dcache.mem_ctrl_req_block_addr);
+        $display("%0t lsu.dcache.mem_ctrl_req_block_data: %h", $time, _top._core.lsu.dcache.mem_ctrl_req_block_data);
+        $display("%0t lsu.dcache.mem_ctrl_req_ready: %b\n", $time, _top._core.lsu.dcache.mem_ctrl_req_ready);
+
+        $display("%0t lsu.dcache.mem_ctrl_resp_valid: %b", $time, _top._core.lsu.dcache.mem_ctrl_resp_valid);
+        $display("%0t lsu.dcache.mem_ctrl_resp_block_data: %h\n", $time, _top._core.lsu.dcache.mem_ctrl_resp_block_data);
+
+        $display("%0t lsu.dcache.pipeline_resp_valid: %b", $time, _top._core.lsu.dcache.pipeline_resp_valid);
+        $display("%0t lsu.dcache.pipeline_resp_rd_data: %h\n", $time, _top._core.lsu.dcache.pipeline_resp_rd_data);
     end
 
     always @(posedge clk) begin #1 $display();

@@ -202,7 +202,7 @@ module dispatch_tb #(
         //     _top._core._ifu.icache.pipeline_req_addr_offset_latched
         // });
         // $monitor("%0t ififo: %h", $time, _top._core._ifu.instruction_FIFO.entry_dout);
-        $monitor("%0t selected_instr: %h", $time, _top._core._ifu.selected_instr);
+        // $monitor("%0t selected_instr: %h", $time, _top._core._ifu.selected_instr);
         // $monitor("%0t tag_array_hit: %b", $time, _top._core._ifu.icache.tag_array_hit);
 
         // $monitor("%p", _top._main_mem.mem);
