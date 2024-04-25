@@ -544,7 +544,7 @@ module top_tb #(
         // );
         directed_testsets();
         dump_arf(cycle);
-        dump_main_mem(cycle, 32'h101a4, 32'h101a4 + 4);
+        dump_main_mem(cycle, 32'h101a8, 32'h101a8 + 4);
         $finish;
     end
 
@@ -722,7 +722,7 @@ module top_tb #(
     end
 
     always @(negedge clk) begin #1 $display();
-
+        $display();
     end
 
     always @(posedge clk) begin #1 $display();
