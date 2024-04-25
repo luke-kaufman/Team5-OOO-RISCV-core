@@ -78,7 +78,7 @@ module test #(
         // end
         // repeat (10)
         // y = 0;
-        //     $display("%b", `x);
+            $display("hello", "world");
 
 
     end

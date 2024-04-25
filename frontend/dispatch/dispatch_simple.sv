@@ -80,7 +80,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     wire is_jalr; // if is_i_type, 0 = else, 1 = jalr
     wire is_int_instr; // is integer instruction?
     wire is_ls_instr; // is load-store instruction?
-    wire [1:0] ls_width;
+    req_width_t ls_width;
     wire ld_sign;
     // NOTE: is_int_instr and is_ls_instr should be mutually exclusive
 
@@ -300,7 +300,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         // NOT FLUSHED ON REDIRECT
         .flush(1'b0),
 
-        .init_regfile_state({{29{32'b0}}, init_sp, {2{32'b0}}}),
+        .init_regfile_state({{23{32'b0}}, init_sp /* x8 */, {5{32'b0}}, init_sp /* x2 */, {2{32'b0}}}),
         .current_regfile_state(ARF_OUT)
     );
 
@@ -377,7 +377,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
                                                                             rs2_retired  ? arf_reg_data_src2      :
                                                                                            rob_reg_data_src2,
         instr_rob_id: dispatch_rob_id,
-        width: req_width_t'(ls_width),              // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
+        width: ls_width,              // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
         ld_sign: ld_sign             // 0: signed (LB, LH, LW), 1: unsigned (LBU, LHU)
         // , st_buf_id: 0 // only st_buf is allocated during dispatch, not ld_buf
     };

@@ -81,6 +81,7 @@ module top_tb #(
     block_data_t init_main_mem_state [HIGHEST_INSTR_BLOCK_ADDR:0];
     // ARF OUT from core
     wire [`ARF_N_ENTRIES-1:0][`REG_DATA_WIDTH-1:0] arf_out_data;
+    wire block_data_t main_mem_out_data[HIGHEST_INSTR_BLOCK_ADDR:0];
 
     // TOP INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     top #(
@@ -93,7 +94,8 @@ module top_tb #(
         .init_sp(init_sp),
 
         .init_main_mem_state(init_main_mem_state),  // input block_data_t [`MAIN_MEM_N_BLOCKS]
-        .ARF_OUT(arf_out_data) // output [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0]
+        .ARF_OUT(arf_out_data), // output [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0]
+        .MAIN_MEM_OUT(main_mem_out_data)
     );
     // END TOP INSTANTIATION :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -103,10 +105,11 @@ module top_tb #(
                 // ififo_dispatch_ready = 1;
                 test_programs[s_i] = new();
                 test_programs[s_i].num_instrs=1;
+                // test_programs[s_i].start_PC=32'h1018c;
                 test_programs[s_i].start_PC=32'h1018c;
                 init_sp = test_programs[s_i].start_PC-4;
-                test_programs[s_i].prog[32'h1018c]=32'hfe010113; // add sp,sp,-32
-                // test_programs[s_i].prog[32'h10190]=32'h00812e23; // sw s0,28(sp)
+                // test_programs[s_i].prog[32'h1018c]=32'hfe010113; // add sp,sp,-32
+                test_programs[s_i].prog[32'h1018c]=32'h00812e23; // sw s0,28(sp)
                 // test_programs[s_i].prog[32'h10194]=32'h00912c23; // sw s1,24(sp)
                 // test_programs[s_i].prog[32'h10198]=32'h02010413; // add s0,sp,32
                 // test_programs[s_i].prog[32'h1019c]=32'hfea42623; // sw a0,-20(s0)
@@ -407,6 +410,34 @@ module top_tb #(
         $display();
     endtask
 
+    task dump_main_mem(int cycle, addr_t start_addr, addr_t end_addr);
+        // TODO: currently works for only lw and sw
+        main_mem_block_addr_t start_addr_block_addr;
+        main_mem_block_offset_t start_addr_block_offset;
+        main_mem_block_addr_t end_addr_block_addr;
+        main_mem_block_offset_t end_addr_block_offset;
+        {start_addr_block_addr, start_addr_block_offset} = start_addr;
+        {end_addr_block_addr, end_addr_block_offset} = end_addr;
+        $display("MAIN MEM OUT AT CYCLE %5d AT TIME %5d===================", cycle, $time);
+        for (int j = start_addr_block_offset; j < 8; j += 4) begin
+            $display("MAIN_MEM[0x%8h]: 0x%8h", {start_addr_block_addr, j}, main_mem_out_data[start_addr_block_addr][8*j+:32]);
+        end
+        for (int i = start_addr_block_addr + 1; i < end_addr_block_addr; i++) begin
+            for (int j = 0; j < 8; j += 4) begin
+                $display("MAIN_MEM[0x%8h]: 0x%8h", {i, j}, main_mem_out_data[i][8*j+:32]);
+            end
+        end
+        for (int j = 0; j < end_addr_block_offset; j += 4) begin
+            $display("MAIN_MEM[0x%8h]: 0x%8h", {end_addr_block_addr, j}, main_mem_out_data[end_addr_block_addr][8*j+:32]);
+        end
+        $display("END MAIN MEM OUT =======================================");
+        $display();
+    endtask
+
+    // task dump_mem_test(main_mem_block_addr_t block_addr);
+    //     $display("MAIN_MEM[0x%8h]: 0x%8h", {i, j}, main_mem_out_data[i][8*j+:32]);
+    // endtask
+
     task run_directed_testcases(int s_i);
 
         // reset, wait, then start testing
@@ -463,7 +494,7 @@ module top_tb #(
             cycle=cycle+1;
         end
 
-        #1000; // let last instruction finish
+        #280; // let last instruction finish
 
     endtask
 
@@ -498,13 +529,13 @@ module top_tb #(
         // end
         $display("STARTING TESTBENCH time: %6d", $time);
         $display("------| Cycle start: 0 |--------------------------------------------\n");
-        $monitor("%4t rob_enq_ctr: %6b rob_deq_ctr: %6b  next_enq_ctr: %6b next_deq_ctr: %6b\n",
-            $time,
-            _top._core._dispatch._rob.rob_mem.enq_ctr_r,
-            _top._core._dispatch._rob.rob_mem.deq_ctr_r,
-            _top._core._dispatch._rob.rob_mem.next_enq_ctr,
-            _top._core._dispatch._rob.rob_mem.next_deq_ctr,
-        );
+        // $monitor("%4t rob_enq_ctr: %6b rob_deq_ctr: %6b  next_enq_ctr: %6b next_deq_ctr: %6b\n",
+        //     $time,
+        //     _top._core._dispatch._rob.rob_mem.enq_ctr_r,
+        //     _top._core._dispatch._rob.rob_mem.deq_ctr_r,
+        //     _top._core._dispatch._rob.rob_mem.next_enq_ctr,
+        //     _top._core._dispatch._rob.rob_mem.next_deq_ctr,
+        // );
 
         // $monitor("%4t mem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n",
         //     $time,
@@ -513,128 +544,201 @@ module top_tb #(
         // );
         directed_testsets();
         dump_arf(cycle);
+        dump_main_mem(cycle, 32'h101a4, 32'h101a4 + 4);
         $finish;
     end
 
 
     initial begin
         // $monitor("%3t fetch_redirect_valid %b icache_miss: %b ififo_stall: %b PC_wire: %8h | pipeline_req_addr_offset_latched:%8h instr: %8h next_PC: %8h PC_mux_out: %8h\npipeline_req_valid: %b \nmem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n",
-        $monitor("%3t retire: %1b (dst_v: %1b (alu_brcast_v: %1b  (iss_v: %1b)) is_exec: %1b not_br_mispred: %1b)retire_id: %1d retire_data: 0x%8h rob_ent_data: 0x%8h (exec_v: %1b alu_br_v: %1b alu_out: 0x%8h)
-        sel_main_adder_sum: %1b main_adder_sum: 0x%8h main_adder_op1: 0x%8h (is_r:%1b is_i:%1b src1:0x%8h is_lui:%1b ) main_adder_op2: 0x%8h (imm: 0x%8h is_sub:%1b src2: 0x%8h)
-        ififo_dispatch_data.instr: 0x%8h
-        rs1_retired: %b
-        arf_reg_data_src1: 0x%8h
-        disp_ready: %1b disp_valid: %1b
-        disp_data: %p
-        integer_issue.entries_ready: %b
-        integer_issue.scheduled_entry_idx_onehot: %b
-        integer_issue.ld_broadcast_rob_id: %b
-        integer_issue.alu_broadcast_rob_id: %b
-        integer_issue.scheduled_entry.src1_rob_id: %b
-        integer_issue.entries[1].src1_rob_id: %b
-        integer_issue.entries[0].src1_rob_id: %b
-        entries_src1_iiq_wakeup_ok: %b
-        entries_src1_alu_capture_ok: %b
-        entries_src1_ld_capture_ok: %b
-        integer_issue.entries_wr_en: %b
-        integer_issue.entries[1]: %p
-        integer_issue.entries[0]: %p
-        scheduled_entry: %p
-        iibuff_din: %p
-        sel_sll_out: %1b
-        sel_srl_out: %1b
-        sel_sra_out: %1b
-        sel_unsigned_cmp_lt: %1b
-        sel_signed_cmp_lt: %1b
-        sel_and_out: %1b
-        sel_or_out: %1b
-        sel_xor_out: %1b
-        sel_pc_plus_4: %1b
-        _rob.alu_wb_reg_data: 0x%8h
-        _rob.rob_mem.fifo_r[0]).reg_data: %p
+        // $monitor("%3t retire: %1b (dst_v: %1b (alu_brcast_v: %1b  (iss_v: %1b)) is_exec: %1b not_br_mispred: %1b)retire_id: %1d retire_data: 0x%8h rob_ent_data: 0x%8h (exec_v: %1b alu_br_v: %1b alu_out: 0x%8h)
+        // sel_main_adder_sum: %1b main_adder_sum: 0x%8h main_adder_op1: 0x%8h (is_r:%1b is_i:%1b src1:0x%8h is_lui:%1b ) main_adder_op2: 0x%8h (imm: 0x%8h is_sub:%1b src2: 0x%8h)
+        // ififo_dispatch_data.instr: 0x%8h
+        // rs1_retired: %b
+        // arf_reg_data_src1: 0x%8h
+        // disp_ready: %1b disp_valid: %1b
+        // disp_data: %p
+        // integer_issue.entries_ready: %b
+        // integer_issue.scheduled_entry_idx_onehot: %b
+        // integer_issue.ld_broadcast_rob_id: %b
+        // integer_issue.alu_broadcast_rob_id: %b
+        // integer_issue.scheduled_entry.src1_rob_id: %b
+        // integer_issue.entries[1].src1_rob_id: %b
+        // integer_issue.entries[0].src1_rob_id: %b
+        // entries_src1_iiq_wakeup_ok: %b
+        // entries_src1_alu_capture_ok: %b
+        // entries_src1_ld_capture_ok: %b
+        // integer_issue.entries_wr_en: %b
+        // integer_issue.entries[1]: %p
+        // integer_issue.entries[0]: %p
+        // scheduled_entry: %p
+        // iibuff_din: %p
+        // sel_sll_out: %1b
+        // sel_srl_out: %1b
+        // sel_sra_out: %1b
+        // sel_unsigned_cmp_lt: %1b
+        // sel_signed_cmp_lt: %1b
+        // sel_and_out: %1b
+        // sel_or_out: %1b
+        // sel_xor_out: %1b
+        // sel_pc_plus_4: %1b
+        // _rob.alu_wb_reg_data: 0x%8h
+        // _rob.rob_mem.fifo_r[0].reg_data: %p
 
-        \nmem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n",
-            $time,
-            // _top._core._ifu.fetch_redirect_valid,
-            // _top._core._ifu.icache_miss,
-            // _top._core._ifu.IFIFO_stall,
-            // _top._core._ifu.PC_wire,
-            // _top._core._ifu.icache.pipeline_req_addr_offset_latched,
-            // _top._core._ifu.pred_NPC.instr,
-            // _top._core._ifu.next_PC,
-            // _top._core._ifu.PC_mux_out,
-            // _top._core._ifu.icache.pipeline_req_valid,
-            _top._core._dispatch.retire,
-            _top._core._dispatch._rob.retire_entry_data.dst_valid,
-            _top._core.alu_broadcast_valid,
-            _top._core._integer_issue.issue_valid,
-            _top._core._dispatch._rob.retire_entry_data.is_executed,
-            _top._core._dispatch._rob.not_br_mispred,
-            _top._core._dispatch.retire_arf_id,
-            _top._core._dispatch.retire_reg_data,
-            _top._core._dispatch._rob.rob_mem.fifo_r[0][31:0],
-            _top._core._integer_execute.execute_valid,
-            _top._core._integer_execute.alu_broadcast_valid,
-            _top._core._integer_execute.dst,
+        // lsq_entries[0]: %p
+        // lsu.enq_ctr: %b
+        // lsu.deq_ctr: %b
 
+        // lsu.actual_base_addr: %h
 
-            _top._core._integer_execute.sel_main_adder_sum,
-            _top._core._integer_execute.main_adder_sum,
-            _top._core._integer_execute.main_adder_op1,
-            _top._core._integer_execute.is_r_type,
-            _top._core._integer_execute.is_i_type,
-            _top._core._integer_execute.src1,
-            _top._core._integer_execute.is_lui,
-            _top._core._integer_execute.main_adder_op2,
-            _top._core._integer_execute.imm,
-            _top._core._integer_execute.is_sub,
-            _top._core._integer_execute.src2,
+        // lsu.dcache.pipeline_req_valid: %b
+        // lsu.dcache.pipeline_req_type: %s
+        // lsu.dcache.pipeline_req_width: %s
+        // lsu.dcache.pipeline_req_addr: %h
+        // lsu.dcache.pipeline_req_wr_data: %h
 
-            _top._core._dispatch.ififo_dispatch_data.instr,
+        // lsu.dcache.dcache_data_array.csb0_reg: %b
+        // lsu.dcache.dcache_data_array.web0_reg: %b
+        // lsu.dcache.dcache_data_array.wmask_reg: %b
+        // lsu.dcache.dcache_data_array.addr_reg: %h
+        // lsu.dcache.dcache_data_array.din_reg: %h
 
-            _top._core._dispatch.rs1_retired,
-            _top._core._dispatch.arf_reg_data_src1,
+        // lsu.dcache.mem_ctrl_req_valid: %b
+        // lsu.dcache.mem_ctrl_req_type: %s
+        // lsu.dcache.mem_ctrl_req_block_addr: %d
+        // lsu.dcache.mem_ctrl_req_block_data: %h
+        // lsu.dcache.mem_ctrl_req_ready: %b
 
-            _top._core._integer_issue.dispatch_ready,
-            _top._core._integer_issue.dispatch_valid,
-            _top._core._integer_issue.dispatch_data,
+        // _main_mem.req_pipeline: %p
 
-            _top._core._integer_issue.entries_ready,
-            _top._core._integer_issue.scheduled_entry_idx_onehot,
+        // \nmem_ctrl_resp_valid: %b mem_ctrl_resp_block_data: %b\n",
+        //     $time,
+        //     // _top._core._ifu.fetch_redirect_valid,
+        //     // _top._core._ifu.icache_miss,
+        //     // _top._core._ifu.IFIFO_stall,
+        //     // _top._core._ifu.PC_wire,
+        //     // _top._core._ifu.icache.pipeline_req_addr_offset_latched,
+        //     // _top._core._ifu.pred_NPC.instr,
+        //     // _top._core._ifu.next_PC,
+        //     // _top._core._ifu.PC_mux_out,
+        //     // _top._core._ifu.icache.pipeline_req_valid,
+        //     _top._core._dispatch.retire,
+        //     _top._core._dispatch._rob.retire_entry_data.dst_valid,
+        //     _top._core.alu_broadcast_valid,
+        //     _top._core._integer_issue.issue_valid,
+        //     _top._core._dispatch._rob.retire_entry_data.is_executed,
+        //     _top._core._dispatch._rob.not_br_mispred,
+        //     _top._core._dispatch.retire_arf_id,
+        //     _top._core._dispatch.retire_reg_data,
+        //     _top._core._dispatch._rob.rob_mem.fifo_r[0][31:0],
+        //     _top._core._integer_execute.execute_valid,
+        //     _top._core._integer_execute.alu_broadcast_valid,
+        //     _top._core._integer_execute.dst,
 
-            _top._core._integer_issue.ld_broadcast_rob_id,
-            _top._core._integer_issue.alu_broadcast_rob_id,
-            _top._core._integer_issue.scheduled_entry.src1_rob_id,
-            _top._core._integer_issue.entries[1].src1_rob_id,
-            _top._core._integer_issue.entries[0].src1_rob_id,
+        //     _top._core._integer_execute.sel_main_adder_sum,
+        //     _top._core._integer_execute.main_adder_sum,
+        //     _top._core._integer_execute.main_adder_op1,
+        //     _top._core._integer_execute.is_r_type,
+        //     _top._core._integer_execute.is_i_type,
+        //     _top._core._integer_execute.src1,
+        //     _top._core._integer_execute.is_lui,
+        //     _top._core._integer_execute.main_adder_op2,
+        //     _top._core._integer_execute.imm,
+        //     _top._core._integer_execute.is_sub,
+        //     _top._core._integer_execute.src2,
 
-            _top._core._integer_issue.entries_src1_iiq_wakeup_ok,
-            _top._core._integer_issue.entries_src1_alu_capture_ok,
-            _top._core._integer_issue.entries_src1_ld_capture_ok,
-            _top._core._integer_issue.entries_wr_en,
-            _top._core._integer_issue.entries[1],
-            _top._core._integer_issue.entries[0],
+        //     _top._core._dispatch.ififo_dispatch_data.instr,
 
-            _top._core._integer_issue.scheduled_entry,
-            _top._core._integer_issue.integer_issue_buffer.din,
+        //     _top._core._dispatch.rs1_retired,
+        //     _top._core._dispatch.arf_reg_data_src1,
 
-            _top._core._integer_execute.sel_sll_out,
-            _top._core._integer_execute.sel_srl_out,
-            _top._core._integer_execute.sel_sra_out,
-            _top._core._integer_execute.sel_unsigned_cmp_lt,
-            _top._core._integer_execute.sel_signed_cmp_lt,
-            _top._core._integer_execute.sel_and_out,
-            _top._core._integer_execute.sel_or_out,
-            _top._core._integer_execute.sel_xor_out,
-            _top._core._integer_execute.sel_pc_plus_4,
+        //     _top._core._integer_issue.dispatch_ready,
+        //     _top._core._integer_issue.dispatch_valid,
+        //     _top._core._integer_issue.dispatch_data,
 
-            _top._core._dispatch._rob.alu_wb_reg_data,
-            (rob_entry_t'(_top._core._dispatch._rob.rob_mem.fifo_r[0])),
+        //     _top._core._integer_issue.entries_ready,
+        //     _top._core._integer_issue.scheduled_entry_idx_onehot,
 
-            _top._core._ifu.mem_ctrl_resp_valid,
-            _top._core._ifu.mem_ctrl_resp_block_data
-        );
+        //     _top._core._integer_issue.ld_broadcast_rob_id,
+        //     _top._core._integer_issue.alu_broadcast_rob_id,
+        //     _top._core._integer_issue.scheduled_entry.src1_rob_id,
+        //     _top._core._integer_issue.entries[1].src1_rob_id,
+        //     _top._core._integer_issue.entries[0].src1_rob_id,
+
+        //     _top._core._integer_issue.entries_src1_iiq_wakeup_ok,
+        //     _top._core._integer_issue.entries_src1_alu_capture_ok,
+        //     _top._core._integer_issue.entries_src1_ld_capture_ok,
+        //     _top._core._integer_issue.entries_wr_en,
+        //     _top._core._integer_issue.entries[1],
+        //     _top._core._integer_issue.entries[0],
+
+        //     _top._core._integer_issue.scheduled_entry,
+        //     _top._core._integer_issue.integer_issue_buffer.din,
+
+        //     _top._core._integer_execute.sel_sll_out,
+        //     _top._core._integer_execute.sel_srl_out,
+        //     _top._core._integer_execute.sel_sra_out,
+        //     _top._core._integer_execute.sel_unsigned_cmp_lt,
+        //     _top._core._integer_execute.sel_signed_cmp_lt,
+        //     _top._core._integer_execute.sel_and_out,
+        //     _top._core._integer_execute.sel_or_out,
+        //     _top._core._integer_execute.sel_xor_out,
+        //     _top._core._integer_execute.sel_pc_plus_4,
+
+        //     _top._core._dispatch._rob.alu_wb_reg_data,
+        //     (rob_entry_t'(_top._core._dispatch._rob.rob_mem.fifo_r[0])),
+
+        //     _top._core.lsu.lsq_entries[0],
+        //     _top._core.lsu.enq_ctr,
+        //     _top._core.lsu._lsq_simple.deq_ctr,
+
+        //     _top._core.lsu.actual_base_addr,
+
+        //     _top._core.lsu.dcache.pipeline_req_valid,
+        //     _top._core.lsu.dcache.pipeline_req_type.name,
+        //     _top._core.lsu.dcache.pipeline_req_width.name,
+        //     _top._core.lsu.dcache.pipeline_req_addr,
+        //     _top._core.lsu.dcache.pipeline_req_wr_data,
+
+        //     _top._core.lsu.dcache.dcache_data_array.dcache_data_array.csb0_reg,
+        //     _top._core.lsu.dcache.dcache_data_array.dcache_data_array.web0_reg,
+        //     _top._core.lsu.dcache.dcache_data_array.dcache_data_array.wmask0_reg,
+        //     _top._core.lsu.dcache.dcache_data_array.dcache_data_array.addr0_reg,
+        //     _top._core.lsu.dcache.dcache_data_array.dcache_data_array.din0_reg,
+
+        //     _top._core.lsu.dcache.mem_ctrl_req_valid,
+        //     _top._core.lsu.dcache.mem_ctrl_req_type,
+        //     _top._core.lsu.dcache.mem_ctrl_req_block_addr,
+        //     _top._core.lsu.dcache.mem_ctrl_req_block_data,
+        //     _top._core.lsu.dcache.mem_ctrl_req_ready,
+
+        //     _top._main_mem.req_pipeline,
+
+        //     _top._core._ifu.mem_ctrl_resp_valid,
+        //     _top._core._ifu.mem_ctrl_resp_block_data
+        // );
         // #400;
         // $finish;
     end
+
+    always @(negedge clk) begin #1 $display();
+
+    end
+
+    always @(posedge clk) begin #1 $display();
+
+    end
+
+    always @(posedge clk) begin #4 $display();
+
+    end
+
+    always @(negedge clk) begin #4 $display();
+
+    end
+
+
 endmodule
+
+// pipeline write addr:         0001 0000 0001 1010 0100
+// main mem write block addr:      1 0000 0001 1010 0

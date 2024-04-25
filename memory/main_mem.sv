@@ -25,7 +25,9 @@ module main_mem #(
     // FROM MAIN_MEM TO MEM_CTRL (RESPONSE) (LATENCY-SENSITIVE)
     output logic resp_valid,
     output cache_type_t resp_cache_type,
-    output block_data_t resp_block_data // for reads
+    output block_data_t resp_block_data, // for reads
+
+    output block_data_t MAIN_MEM_OUT[HIGHEST_INSTR_BLOCK_ADDR:0]
 );
     // block_data_t mem[`MAIN_MEM_N_BLOCKS];
     block_data_t mem[HIGHEST_INSTR_BLOCK_ADDR:0];
@@ -90,6 +92,8 @@ module main_mem #(
             end
         end
     end
+
+    assign MAIN_MEM_OUT = mem;
 endmodule
 
 `endif

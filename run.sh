@@ -7,7 +7,7 @@ fi
 TESTBENCH_PATH=$(find . -name ${1}.v -o -name ${1}.sv)
 
 if [[ "$(hostname)" == "vsc"* ]]; then
-    FLAGS='-sv -lint -suppress 13314'
+    FLAGS='-sv -lint -suppress 13314,2643'
     # TODO: figure out a way to get rid of this warning without suppressing it
     VERILOG=vlog
 else

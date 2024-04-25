@@ -224,7 +224,7 @@ module cache #(
             .din0(data_array_din),
             .dout0(data_array_dout)
         );
-    end else if (CACHE_TYPE == DCACHE) begin
+    end else if (CACHE_TYPE == DCACHE) begin : dcache_data_array
         sram_64x128_1rw_wsize8 dcache_data_array (
             .clk0(clk),
             .init(init),

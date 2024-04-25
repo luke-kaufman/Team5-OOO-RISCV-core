@@ -3,7 +3,8 @@
 `include "memory/cache.sv"
 
 module load_store_simple #(
-    parameter int unsigned LSQ_SIMPLE_N_ENTRIES = 8
+    parameter int unsigned LSQ_SIMPLE_N_ENTRIES = `LSQ_N_ENTRIES,
+    localparam int unsigned CTR_WIDTH = $clog2(LSQ_SIMPLE_N_ENTRIES) + 1
 ) (
     input logic clk,
     input logic init,
@@ -46,6 +47,8 @@ module load_store_simple #(
 
     lsq_simple_entry_t lsq_deq_entry;
     lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_entries;
+    logic [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_entries_valid;
+    logic [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_entries_ready;
     logic [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_wr_en;
     lsq_simple_entry_t [LSQ_SIMPLE_N_ENTRIES-1:0] lsq_wr_data;
 
@@ -55,18 +58,35 @@ module load_store_simple #(
     wire [LSQ_SIMPLE_N_ENTRIES-1:0] store_data_iiq_wakeup_capture;
     wire [LSQ_SIMPLE_N_ENTRIES-1:0] store_data_alu_broadcast_capture;
     wire [LSQ_SIMPLE_N_ENTRIES-1:0] store_data_lsu_broadcast_capture;
+    wire [CTR_WIDTH-1:0] enq_ctr;
     for (genvar i = 0; i < LSQ_SIMPLE_N_ENTRIES; i++) begin
+        assign lsq_entries_valid[i] = i < enq_ctr;
         assign base_addr_iiq_wakeup_capture[i]     = iiq_wakeup_valid &
+                                                     lsq_entries_valid[i] &
+                                                     ~lsq_entries[i].base_addr_ready &
                                                      (lsq_entries[i].base_addr_rob_id == iiq_wakeup_rob_id);
         assign base_addr_alu_broadcast_capture[i]  = alu_broadcast_valid &
+                                                     lsq_entries_valid[i] &
+                                                     lsq_entries[i].base_addr_ready & // TODO: double-check
                                                      (lsq_entries[i].base_addr_rob_id == alu_broadcast_rob_id);
         assign base_addr_lsu_broadcast_capture[i]  = lsu_broadcast_valid &
+                                                     lsq_entries_valid[i] &
+                                                     ~lsq_entries[i].base_addr_ready & // TODO: double-check
                                                      (lsq_entries[i].base_addr_rob_id == lsu_broadcast_rob_id);
         assign store_data_iiq_wakeup_capture[i]    = iiq_wakeup_valid &
+                                                     lsq_entries_valid[i] &
+                                                     lsq_entries[i].ld_st & // if store
+                                                     ~lsq_entries[i].base_addr_ready &
                                                      (lsq_entries[i].st_data_rob_id == iiq_wakeup_rob_id);
         assign store_data_alu_broadcast_capture[i] = alu_broadcast_valid &
+                                                     lsq_entries_valid[i] &
+                                                     lsq_entries[i].ld_st & // if store
+                                                     lsq_entries[i].base_addr_ready & // TODO: double-check
                                                      (lsq_entries[i].st_data_rob_id == alu_broadcast_rob_id);
         assign store_data_lsu_broadcast_capture[i] = lsu_broadcast_valid &
+                                                     lsq_entries_valid[i] &
+                                                     lsq_entries[i].ld_st & // if store
+                                                     ~lsq_entries[i].base_addr_ready & // TODO: double-check
                                                      (lsq_entries[i].st_data_rob_id == lsu_broadcast_rob_id);
         assign lsq_wr_en[i] = base_addr_iiq_wakeup_capture[i]     |
                               base_addr_alu_broadcast_capture[i]  |
@@ -118,16 +138,22 @@ module load_store_simple #(
         .wr_data(lsq_wr_data),
 
         .entries(lsq_entries),
+        .enq_ctr_out(enq_ctr),
 
         // for testing
-        .init_entries('0)
+        .init_entries('0),
+        .init_enq_ctr('0),
+        .init_deq_ctr('0)
     );
 
     // alu broadcast bypass into dcache request (base addr and store data)
-    wire addr_t actual_base_addr   = alu_broadcast_rob_id == lsq_deq_entry.base_addr_rob_id ? alu_broadcast_reg_data  :
-                                                                                              lsq_deq_entry.base_addr ;
-    wire reg_data_t actual_st_data = alu_broadcast_rob_id == lsq_deq_entry.st_data_rob_id   ? alu_broadcast_reg_data  :
-                                                                                              lsq_deq_entry.st_data   ;
+    // TODO: ADD LSU BROADCAST BYPASS PATH
+    wire addr_t actual_base_addr   = alu_broadcast_valid & (alu_broadcast_rob_id == lsq_deq_entry.base_addr_rob_id) ?
+                                        alu_broadcast_reg_data  :
+                                        lsq_deq_entry.base_addr ;
+    wire reg_data_t actual_st_data = alu_broadcast_valid & (alu_broadcast_rob_id == lsq_deq_entry.st_data_rob_id)   ?
+                                        alu_broadcast_reg_data  :
+                                        lsq_deq_entry.st_data   ;
 
     // TODO: verify that loads and stores in test programs are always aligned
     wire addr_t eff_addr_unaligned = actual_base_addr + lsq_deq_entry.imm;

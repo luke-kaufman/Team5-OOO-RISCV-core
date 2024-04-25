@@ -74,13 +74,13 @@ module integer_issue (
     );
 
     // issue scheduling
-    wire [`IIQ_N_ENTRIES-1:0] instr_valid;
+    wire [`IIQ_N_ENTRIES-1:0] entries_valid;
     wire [`IIQ_N_ENTRIES-1:0] entries_ready;
     for (genvar i = 0; i < `IIQ_N_ENTRIES; i++) begin
-        assign instr_valid[i] = (i < enq_ctr); // TODO: double check that this works
+        assign entries_valid[i] = (i < enq_ctr); // TODO: double check that this works
         wire src1_ok = ~entries[i].src1_valid || (entries[i].src1_valid && entries[i].src1_ready);
         wire src2_ok = ~entries[i].src2_valid || (entries[i].src2_valid && entries[i].src2_ready);
-        assign entries_ready[i] = instr_valid[i] && src1_ok && src2_ok;
+        assign entries_ready[i] = entries_valid[i] && src1_ok && src2_ok;
     end
     ff1 #(
         .WIDTH(`IIQ_N_ENTRIES)
@@ -113,7 +113,7 @@ module integer_issue (
             .lt()
         );
         assign entries_src1_iiq_wakeup_ok[i] = issue_valid &
-                                               instr_valid[i] &
+                                               entries_valid[i] &
                                                entries[i].src1_valid &
                                                ~entries[i].src1_ready &
                                                entries_src1_iiq_wakeup[i];
@@ -127,7 +127,7 @@ module integer_issue (
             .lt()
         );
         assign entries_src2_iiq_wakeup_ok[i] = issue_valid &
-                                               instr_valid[i] &
+                                               entries_valid[i] &
                                                entries[i].src2_valid &
                                                ~entries[i].src2_ready &
                                                entries_src2_iiq_wakeup[i];
@@ -141,7 +141,7 @@ module integer_issue (
             .lt()
         );
         assign entries_src1_alu_capture_ok[i] = alu_broadcast_valid &
-                                                instr_valid[i] &
+                                                entries_valid[i] &
                                                 entries[i].src1_valid &
                                                 entries[i].src1_ready & // TODO: double-check
                                                 entries_src1_alu_capture[i];
@@ -155,7 +155,7 @@ module integer_issue (
             .lt()
         );
         assign entries_src2_alu_capture_ok[i] = alu_broadcast_valid &
-                                                instr_valid[i] &
+                                                entries_valid[i] &
                                                 entries[i].src2_valid &
                                                 entries[i].src2_ready & // TODO: double-check
                                                 entries_src2_alu_capture[i];
@@ -169,7 +169,7 @@ module integer_issue (
             .lt()
         );
         assign entries_src1_ld_capture_ok[i] = ld_broadcast_valid &
-                                               instr_valid[i] &
+                                               entries_valid[i] &
                                                entries[i].src1_valid &
                                                ~entries[i].src1_ready & // TODO: double-check
                                                entries_src1_ld_capture[i];
@@ -183,7 +183,7 @@ module integer_issue (
             .lt()
         );
         assign entries_src2_ld_capture_ok[i] = ld_broadcast_valid &
-                                               instr_valid[i] &
+                                               entries_valid[i] &
                                                entries[i].src2_valid &
                                                ~entries[i].src2_ready & // TODO: double-check
                                                entries_src2_ld_capture[i];
@@ -240,11 +240,13 @@ module integer_issue (
     // select between the issue data from iiq and bypass data from alu and load
     assign integer_issue_buffer_din = '{
         entry_valid : issue_valid,
+        // FIXME: add check for src1_valid?
         src1_data: alu_broadcast_valid && (alu_broadcast_rob_id == scheduled_entry.src1_rob_id) ?
                         alu_broadcast_reg_data :
                         ld_broadcast_valid && (ld_broadcast_rob_id == scheduled_entry.src1_rob_id) ?
                             ld_broadcast_reg_data :
                             scheduled_entry.src1_data,
+        // FIXME: add check for src2_valid?
         src2_data: alu_broadcast_valid && (alu_broadcast_rob_id == scheduled_entry.src2_rob_id) ?
                         alu_broadcast_reg_data :
                         ld_broadcast_valid && (ld_broadcast_rob_id == scheduled_entry.src2_rob_id) ?

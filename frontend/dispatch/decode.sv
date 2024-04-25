@@ -23,7 +23,7 @@ module decode (
     output logic is_jalr, // if is_i_type, 0 = else, 1 = jalr
     output logic is_int_instr,
     output logic is_ls_instr,
-    output logic [1:0] ls_width,
+    output req_width_t ls_width,
     output logic ld_sign
 );
     // FIXME: convert to structural
@@ -69,6 +69,9 @@ module decode (
     assign is_ls_instr  = (opcode == `LD_OPCODE)  || (opcode == `ST_OPCODE);
     assign is_int_instr = ~is_ls_instr;
 
-    assign ls_width = funct3[1:0];
+    assign ls_width = funct3[1:0] == 2'b00 ? BYTE     :
+                      funct3[1:0] == 2'b01 ? HALFWORD :
+                      funct3[1:0] == 2'b10 ? WORD     :
+                                             ERROR    ;
     assign ld_sign  = funct3[2]  ;
 endmodule
