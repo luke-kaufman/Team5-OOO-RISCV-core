@@ -33,6 +33,8 @@ module cache #(
     output req_type_t mem_ctrl_req_type, // 0: read, 1: write
     output main_mem_block_addr_t mem_ctrl_req_block_addr,
     output block_data_t mem_ctrl_req_block_data, // (only for dcache and stores)
+    output req_width_t mem_ctrl_req_width, // (only for dcache and stores) TODO: temporary
+    output addr_t mem_ctrl_req_addr, // (only for dcache and stores) TODO: temporary
     input logic mem_ctrl_req_ready, // (icache has priority. for icache, if valid is true, then ready is also true.)
 
     // FROM MEM_CTRL TO CACHE (RESPONSE) (LATENCY-SENSITIVE)
@@ -113,9 +115,13 @@ module cache #(
         pipeline_req_addr_index_latched,
         pipeline_req_addr_offset_latched
     } = pipeline_req_addr_latched; // TODO: double-check
+    word_t pipeline_req_wr_data_latched;
     logic pipeline_resp_was_valid; // skid preventing latch
     logic mem_ctrl_resp_waiting;   // double request preventing latch
     logic [1:0] mem_ctrl_resp_writing;
+    logic tag_array_hit_latched;
+    logic sel_way0_latched;
+    logic sel_way1_latched;
 
     // TODO: double-check if pipeline_req_valid_latched is good
     wire sel_way0 = pipeline_req_valid_latched &
@@ -136,9 +142,13 @@ module cache #(
             // pipeline_req_addr_tag_latched <= '0;
             // pipeline_req_addr_index_latched <= '0;
             // pipeline_req_addr_offset_latched <= '0;
+            pipeline_req_wr_data_latched <= '0;
             pipeline_resp_was_valid <= '0;
             mem_ctrl_resp_waiting <= '0;
             mem_ctrl_resp_writing <= '0;
+            tag_array_hit_latched <= '0;
+            sel_way0_latched <= '0;
+            sel_way1_latched <= '0;
         end else begin
             pipeline_req_valid_latched <= pipeline_req_valid;
             pipeline_req_type_latched <= pipeline_req_type;
@@ -147,6 +157,7 @@ module cache #(
             // pipeline_req_addr_tag_latched <= pipeline_req_addr_tag;
             // pipeline_req_addr_index_latched <= pipeline_req_addr_index;
             // pipeline_req_addr_offset_latched <= pipeline_req_addr_offset;
+            pipeline_req_wr_data_latched <= pipeline_req_wr_data;
             if (pipeline_resp_was_valid) begin
                 pipeline_resp_was_valid <= 0;
             end else if (pipeline_resp_valid) begin
@@ -168,6 +179,9 @@ module cache #(
             end else begin
                 mem_ctrl_resp_writing <= mem_ctrl_resp_writing;
             end
+            tag_array_hit_latched <= tag_array_hit;
+            sel_way0_latched <= sel_way0;
+            sel_way1_latched <= sel_way1;
         end
     end
 
@@ -178,22 +192,26 @@ module cache #(
     assign mem_ctrl_req_type = ~tag_array_hit ? READ : // all misses should do a refill first
                                                 pipeline_req_type_latched; // write-through
     assign mem_ctrl_req_block_addr = {pipeline_req_addr_tag_latched, pipeline_req_addr_index_latched};
-    assign mem_ctrl_req_block_data = sel_way0 ? data_array_dout.way0_data :
-                                     sel_way1 ? data_array_dout.way1_data :
-                                                0; // since miss, a read request is being made and this value is not used
+    // assign mem_ctrl_req_block_data = sel_way0 ? data_array_dout.way0_data :
+    //                                  sel_way1 ? data_array_dout.way1_data :
+    //                                             0; // since miss, a read request is being made and this value is not used
+    assign mem_ctrl_req_block_data = {32'b0, pipeline_req_wr_data_latched}; // TODO: temporary
+    assign mem_ctrl_req_width = pipeline_req_width_latched; // TODO: temporary
+    assign mem_ctrl_req_addr = pipeline_req_addr_latched; // TODO: temporary
 
     assign pipeline_resp_valid = pipeline_req_cache_type == ICACHE ? pipeline_req_valid_latched &
                                                                      tag_array_hit              :
-                                 pipeline_req_cache_type == DCACHE ? pipeline_req_valid_latched &
+                                 pipeline_req_cache_type == DCACHE ? pipeline_req_valid_latched & // TODO: double latch
                                                                      ~pipeline_resp_was_valid   &
-                                                                     tag_array_hit              :
+                                                                     tag_array_hit_latched      :
                                                                      0;
+    // FIXME: serialize this as well (double latch?)
     assign pipeline_resp_rd_data = sel_way0 ? data_array_dout.way0_data[8*pipeline_req_addr_offset_latched+:32] :
                                    sel_way1 ? data_array_dout.way1_data[8*pipeline_req_addr_offset_latched+:32] :
                                               0; // since miss, a read request is being made and this value is not used
 
-    wire data_array_csb = mem_ctrl_resp_valid | pipeline_req_valid;
-    wire data_array_web = mem_ctrl_resp_valid | (pipeline_req_valid & (pipeline_req_type == WRITE));
+    wire icache_data_array_csb = mem_ctrl_resp_valid | pipeline_req_valid;
+    wire icache_data_array_web = mem_ctrl_resp_valid | (pipeline_req_valid & (pipeline_req_type == WRITE));
     wire [1:0] icache_data_array_wmask = {
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b00) ? 2'b01                                           :
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b01) ? 2'b10                                           :
@@ -201,17 +219,8 @@ module cache #(
         ({tag_array_dout.way1_valid, tag_array_dout.way0_valid} == 2'b11) ? {random_way, ~random_way}                       :
                                                                             0
     };
-    // NOTE: we assume that the pipeline already force aligns the stores to the correct offset!
-    wire [7:0] dcache_data_array_store_wmask = pipeline_req_width == BYTE     ? 1'b1 << pipeline_req_addr_offset[2:0]      :
-                                               pipeline_req_width == HALFWORD ? 2'b11 << pipeline_req_addr_offset[2:0]     :
-                                               pipeline_req_width == WORD     ? 4'b1111 << pipeline_req_addr_offset[2:0]   :
-                                                                                0                                          ;
-    wire [15:0] dcache_data_array_wmask = {
-        {8{random_way == 1'b1}} | ({8{sel_way1}} & dcache_data_array_store_wmask),
-        {8{random_way == 1'b0}} | ({8{sel_way0}} & dcache_data_array_store_wmask)
-    };
-    wire [N_INDEX_BITS-1:0] data_array_addr = pipeline_req_addr_index;
-    wire data_array_set_t data_array_din = '{
+    wire [N_INDEX_BITS-1:0] icache_data_array_addr = pipeline_req_addr_index;
+    wire data_array_set_t icache_data_array_din = '{
         way0_data: mem_ctrl_resp_valid            ? mem_ctrl_resp_block_data                   :
                    pipeline_req_width == BYTE     ? {8{pipeline_req_wr_data[7:0]}}             :
                    pipeline_req_width == HALFWORD ? {4{pipeline_req_wr_data[15:0]}}            :
@@ -223,31 +232,58 @@ module cache #(
                    pipeline_req_width == WORD     ? {2{pipeline_req_wr_data}}                  :
                                                     0
     };
+
+    wire dcache_data_array_csb = mem_ctrl_resp_valid | tag_array_hit;
+    wire dcache_data_array_web = mem_ctrl_resp_valid | (tag_array_hit & (pipeline_req_type_latched == WRITE));
+    wire [7:0] dcache_data_array_store_wmask = pipeline_req_width_latched == BYTE     ?
+                                                    1'b1 << pipeline_req_addr_offset_latched[2:0] :
+                                               pipeline_req_width_latched == HALFWORD ?
+                                               2'b11 << pipeline_req_addr_offset_latched[2:0]     :
+                                               pipeline_req_width_latched == WORD     ?
+                                               4'b1111 << pipeline_req_addr_offset_latched[2:0]   :
+                                                                                0                 ;
+    wire [15:0] dcache_data_array_wmask = {
+        {8{mem_ctrl_resp_valid & (random_way == 1'b1)}} | ({8{sel_way1}} & dcache_data_array_store_wmask),
+        {8{mem_ctrl_resp_valid & (random_way == 1'b0)}} | ({8{sel_way0}} & dcache_data_array_store_wmask)
+    };
+    wire [N_INDEX_BITS-1:0] dcache_data_array_addr = pipeline_req_addr_index_latched;
+    wire data_array_set_t dcache_data_array_din = '{
+        way0_data: mem_ctrl_resp_valid            ? mem_ctrl_resp_block_data                   :
+                   pipeline_req_width_latched == BYTE     ? {8{pipeline_req_wr_data_latched[7:0]}}             :
+                   pipeline_req_width_latched == HALFWORD ? {4{pipeline_req_wr_data_latched[15:0]}}            :
+                   pipeline_req_width_latched == WORD     ? {2{pipeline_req_wr_data_latched}}                  :
+                                                    0                                          ,
+        way1_data: mem_ctrl_resp_valid            ? mem_ctrl_resp_block_data                   :
+                   pipeline_req_width_latched == BYTE     ? {8{pipeline_req_wr_data_latched[7:0]}}             :
+                   pipeline_req_width_latched == HALFWORD ? {4{pipeline_req_wr_data_latched[15:0]}}            :
+                   pipeline_req_width_latched == WORD     ? {2{pipeline_req_wr_data_latched}}                  :
+                                                    0
+    };
     wire data_array_set_t data_array_dout;
 
     // Data array
-    if (CACHE_TYPE == ICACHE) begin : icache_data_array
+    if (CACHE_TYPE == ICACHE) begin : icache_if
         sram_64x128_1rw_wsize64 #(.VERBOSE(VERBOSE)) icache_data_array (
             .clk0(clk),
             .init(init),
             .rst_aL(rst_aL),
-            .csb0(~data_array_csb), // active low
-            .web0(~data_array_web), // active low
+            .csb0(~icache_data_array_csb), // active low
+            .web0(~icache_data_array_web), // active low
             .wmask0(icache_data_array_wmask),
-            .addr0(data_array_addr),
-            .din0(data_array_din),
+            .addr0(icache_data_array_addr),
+            .din0(icache_data_array_din),
             .dout0(data_array_dout)
         );
-    end else if (CACHE_TYPE == DCACHE) begin : dcache_data_array
+    end else if (CACHE_TYPE == DCACHE) begin : dcache_if
         sram_64x128_1rw_wsize8 #(.VERBOSE(VERBOSE)) dcache_data_array (
             .clk0(clk),
             .init(init),
             .rst_aL(rst_aL),
-            .csb0(~data_array_csb), // active low
-            .web0(~data_array_web), // active low
+            .csb0(~dcache_data_array_csb), // active low
+            .web0(~dcache_data_array_web), // active low
             .wmask0(dcache_data_array_wmask),
-            .addr0(data_array_addr),
-            .din0(data_array_din),
+            .addr0(dcache_data_array_addr),
+            .din0(dcache_data_array_din),
             .dout0(data_array_dout)
         );
     end

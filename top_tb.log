@@ -1,5 +1,5 @@
 Questa Intel FPGA Edition-64 vlog 2021.3 Compiler 2021.07 Jul 13 2021
-Start time: 14:09:39 on Apr 25,2024
+Start time: 19:14:54 on Apr 25,2024
 vlog -sv -lint -suppress 13314,2643 ./testing/top_tb.sv 
 -- Compiling package top_tb_sv_unit
 -- Compiling module lfsr_8bit
@@ -57,14 +57,14 @@ Top level modules:
 	regfile
 	fifo_ram
 	top_tb
-End time: 14:09:39 on Apr 25,2024, Elapsed time: 0:00:00
+End time: 19:14:55 on Apr 25,2024, Elapsed time: 0:00:01
 Errors: 0, Warnings: 0, Suppressed Warnings: 14
 Reading pref.tcl
 
 # 2021.3
 
 # vsim -c -L stdcells -sv_seed 1 -do "run -all; quit" top_tb 
-# Start time: 14:09:40 on Apr 25,2024
+# Start time: 19:14:56 on Apr 25,2024
 # ** Note: (vsim-3812) Design is being optimized...
 # //  Questa Intel FPGA Edition-64
 # //  Version 2021.3 linux_x86_64 Jul 13 2021
@@ -128,29 +128,42 @@ Reading pref.tcl
 # 6 lsu.dcache.tag_array.wmask0: 01
 # 6 lsu.dcache.tag_array.addr0: 000000
 # 6 lsu.dcache.tag_array.din0: 800000800000
+# 6 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 6 lsu.dcache.tag_array.web0_reg (aL): 1
+# 6 lsu.dcache.tag_array.wmask0_reg: 01
+# 6 lsu.dcache.tag_array.addr0_reg: 000000
+# 6 lsu.dcache.tag_array.din0_reg: 000000000000
 # 6 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 6 lsu.dcache.data_array.csb0 (aL): 1
 # 6 lsu.dcache.data_array.web0 (aL): 1
-# 6 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 6 lsu.dcache.data_array.addr0: 000000
 # 6 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 6 lsu.dcache.data_array.csb0_reg (aL): 1
+# 6 lsu.dcache.data_array.web0_reg (aL): 1
+# 6 lsu.dcache.data_array.wmask0_reg: 0000000000000001
+# 6 lsu.dcache.data_array.addr0_reg: 000000
+# 6 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 6 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 6 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 6 lsu.dcache.pipeline_req_valid: 0
+# 6 lsu.dcache.pipeline_req_valid_latched: 0
+# 6 lsu.dcache.pipeline_resp_was_valid: 0
 # 6 lsu.dcache.tag_array_hit: 0
-# 
-# 6 lsu.dcache.mem_ctrl_req_valid: 0
-# 6 lsu.dcache.mem_ctrl_req_type: READ
-# 6 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 6 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 6 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 6 lsu.dcache.mem_ctrl_resp_valid: 0
-# 6 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 6 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 6 lsu.dcache.pipeline_resp_valid: 0
 # 6 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 6 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 6 rob_ptr: 0000
+# 6 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 6 lsq_enq_ctr: 0000
+# 6 lsq_deq_ctr: 0000
+# 6 ld_broadcast_reg_data: 00000000
+#  
 #  
 # 
 # ------| Cycle start:    1 |--------------------------------------------
@@ -177,29 +190,42 @@ Reading pref.tcl
 # 16 lsu.dcache.tag_array.wmask0: 01
 # 16 lsu.dcache.tag_array.addr0: 000000
 # 16 lsu.dcache.tag_array.din0: 800000800000
+# 16 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 16 lsu.dcache.tag_array.web0_reg (aL): 1
+# 16 lsu.dcache.tag_array.wmask0_reg: 01
+# 16 lsu.dcache.tag_array.addr0_reg: 000000
+# 16 lsu.dcache.tag_array.din0_reg: 800000800000
 # 16 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 16 lsu.dcache.data_array.csb0 (aL): 1
 # 16 lsu.dcache.data_array.web0 (aL): 1
-# 16 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 16 lsu.dcache.data_array.addr0: 000000
 # 16 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 16 lsu.dcache.data_array.csb0_reg (aL): 1
+# 16 lsu.dcache.data_array.web0_reg (aL): 1
+# 16 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 16 lsu.dcache.data_array.addr0_reg: 000000
+# 16 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 16 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 16 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 16 lsu.dcache.pipeline_req_valid: 0
+# 16 lsu.dcache.pipeline_req_valid_latched: 0
+# 16 lsu.dcache.pipeline_resp_was_valid: 0
 # 16 lsu.dcache.tag_array_hit: 0
-# 
-# 16 lsu.dcache.mem_ctrl_req_valid: 0
-# 16 lsu.dcache.mem_ctrl_req_type: READ
-# 16 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 16 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 16 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 16 lsu.dcache.mem_ctrl_resp_valid: 0
-# 16 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 16 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 16 lsu.dcache.pipeline_resp_valid: 0
 # 16 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 16 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 16 rob_ptr: 0000
+# 16 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 16 lsq_enq_ctr: 0000
+# 16 lsq_deq_ctr: 0000
+# 16 ld_broadcast_reg_data: 00000000
+#  
 #  
 # 
 # ------| Cycle start:    2 |--------------------------------------------
@@ -226,29 +252,42 @@ Reading pref.tcl
 # 26 lsu.dcache.tag_array.wmask0: 01
 # 26 lsu.dcache.tag_array.addr0: 000000
 # 26 lsu.dcache.tag_array.din0: 800000800000
+# 26 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 26 lsu.dcache.tag_array.web0_reg (aL): 1
+# 26 lsu.dcache.tag_array.wmask0_reg: 01
+# 26 lsu.dcache.tag_array.addr0_reg: 000000
+# 26 lsu.dcache.tag_array.din0_reg: 800000800000
 # 26 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 26 lsu.dcache.data_array.csb0 (aL): 1
 # 26 lsu.dcache.data_array.web0 (aL): 1
-# 26 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 26 lsu.dcache.data_array.addr0: 000000
 # 26 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 26 lsu.dcache.data_array.csb0_reg (aL): 1
+# 26 lsu.dcache.data_array.web0_reg (aL): 1
+# 26 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 26 lsu.dcache.data_array.addr0_reg: 000000
+# 26 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 26 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 26 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 26 lsu.dcache.pipeline_req_valid: 0
+# 26 lsu.dcache.pipeline_req_valid_latched: 0
+# 26 lsu.dcache.pipeline_resp_was_valid: 0
 # 26 lsu.dcache.tag_array_hit: 0
-# 
-# 26 lsu.dcache.mem_ctrl_req_valid: 0
-# 26 lsu.dcache.mem_ctrl_req_type: READ
-# 26 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 26 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 26 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 26 lsu.dcache.mem_ctrl_resp_valid: 0
-# 26 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 26 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 26 lsu.dcache.pipeline_resp_valid: 0
 # 26 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 26 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 26 rob_ptr: 0000
+# 26 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 26 lsq_enq_ctr: 0000
+# 26 lsq_deq_ctr: 0000
+# 26 ld_broadcast_reg_data: 00000000
+#  
 #  
 # 
 # ------| Cycle start:    3 |--------------------------------------------
@@ -275,29 +314,42 @@ Reading pref.tcl
 # 36 lsu.dcache.tag_array.wmask0: 01
 # 36 lsu.dcache.tag_array.addr0: 000000
 # 36 lsu.dcache.tag_array.din0: 800000800000
+# 36 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 36 lsu.dcache.tag_array.web0_reg (aL): 1
+# 36 lsu.dcache.tag_array.wmask0_reg: 01
+# 36 lsu.dcache.tag_array.addr0_reg: 000000
+# 36 lsu.dcache.tag_array.din0_reg: 800000800000
 # 36 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 36 lsu.dcache.data_array.csb0 (aL): 1
 # 36 lsu.dcache.data_array.web0 (aL): 1
-# 36 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 36 lsu.dcache.data_array.addr0: 000000
 # 36 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 36 lsu.dcache.data_array.csb0_reg (aL): 1
+# 36 lsu.dcache.data_array.web0_reg (aL): 1
+# 36 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 36 lsu.dcache.data_array.addr0_reg: 000000
+# 36 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 36 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 36 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 36 lsu.dcache.pipeline_req_valid: 0
+# 36 lsu.dcache.pipeline_req_valid_latched: 0
+# 36 lsu.dcache.pipeline_resp_was_valid: 0
 # 36 lsu.dcache.tag_array_hit: 0
-# 
-# 36 lsu.dcache.mem_ctrl_req_valid: 0
-# 36 lsu.dcache.mem_ctrl_req_type: READ
-# 36 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 36 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 36 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 36 lsu.dcache.mem_ctrl_resp_valid: 0
-# 36 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 36 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 36 lsu.dcache.pipeline_resp_valid: 0
 # 36 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 36 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 36 rob_ptr: 0000
+# 36 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 36 lsq_enq_ctr: 0000
+# 36 lsq_deq_ctr: 0000
+# 36 ld_broadcast_reg_data: 00000000
+#  
 #  
 # 
 # ------| Cycle start:    4 |--------------------------------------------
@@ -324,29 +376,42 @@ Reading pref.tcl
 # 46 lsu.dcache.tag_array.wmask0: 01
 # 46 lsu.dcache.tag_array.addr0: 000000
 # 46 lsu.dcache.tag_array.din0: 800000800000
+# 46 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 46 lsu.dcache.tag_array.web0_reg (aL): 1
+# 46 lsu.dcache.tag_array.wmask0_reg: 01
+# 46 lsu.dcache.tag_array.addr0_reg: 000000
+# 46 lsu.dcache.tag_array.din0_reg: 800000800000
 # 46 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 46 lsu.dcache.data_array.csb0 (aL): 1
 # 46 lsu.dcache.data_array.web0 (aL): 1
-# 46 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 46 lsu.dcache.data_array.addr0: 000000
 # 46 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 46 lsu.dcache.data_array.csb0_reg (aL): 1
+# 46 lsu.dcache.data_array.web0_reg (aL): 1
+# 46 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 46 lsu.dcache.data_array.addr0_reg: 000000
+# 46 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 46 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 46 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 46 lsu.dcache.pipeline_req_valid: 0
+# 46 lsu.dcache.pipeline_req_valid_latched: 0
+# 46 lsu.dcache.pipeline_resp_was_valid: 0
 # 46 lsu.dcache.tag_array_hit: 0
-# 
-# 46 lsu.dcache.mem_ctrl_req_valid: 0
-# 46 lsu.dcache.mem_ctrl_req_type: READ
-# 46 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 46 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 46 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 46 lsu.dcache.mem_ctrl_resp_valid: 0
-# 46 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 46 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 46 lsu.dcache.pipeline_resp_valid: 0
 # 46 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 46 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 46 rob_ptr: 0000
+# 46 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 46 lsq_enq_ctr: 0000
+# 46 lsq_deq_ctr: 0000
+# 46 ld_broadcast_reg_data: 00000000
+#  
 #  
 # 
 # ------| Cycle start:    5 |--------------------------------------------
@@ -373,29 +438,42 @@ Reading pref.tcl
 # 56 lsu.dcache.tag_array.wmask0: 01
 # 56 lsu.dcache.tag_array.addr0: 000000
 # 56 lsu.dcache.tag_array.din0: 800000800000
+# 56 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 56 lsu.dcache.tag_array.web0_reg (aL): 1
+# 56 lsu.dcache.tag_array.wmask0_reg: 01
+# 56 lsu.dcache.tag_array.addr0_reg: 000000
+# 56 lsu.dcache.tag_array.din0_reg: 800000800000
 # 56 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 56 lsu.dcache.data_array.csb0 (aL): 1
 # 56 lsu.dcache.data_array.web0 (aL): 1
-# 56 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 56 lsu.dcache.data_array.addr0: 000000
 # 56 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 56 lsu.dcache.data_array.csb0_reg (aL): 1
+# 56 lsu.dcache.data_array.web0_reg (aL): 1
+# 56 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 56 lsu.dcache.data_array.addr0_reg: 000000
+# 56 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 56 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 56 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 56 lsu.dcache.pipeline_req_valid: 0
+# 56 lsu.dcache.pipeline_req_valid_latched: 0
+# 56 lsu.dcache.pipeline_resp_was_valid: 0
 # 56 lsu.dcache.tag_array_hit: 0
-# 
-# 56 lsu.dcache.mem_ctrl_req_valid: 0
-# 56 lsu.dcache.mem_ctrl_req_type: READ
-# 56 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 56 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 56 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 56 lsu.dcache.mem_ctrl_resp_valid: 0
-# 56 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 56 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 56 lsu.dcache.pipeline_resp_valid: 0
 # 56 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 56 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 56 rob_ptr: 0000
+# 56 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 56 lsq_enq_ctr: 0000
+# 56 lsq_deq_ctr: 0000
+# 56 ld_broadcast_reg_data: 00000000
+#  
 #  
 # 
 # ------| Cycle start:    6 |--------------------------------------------
@@ -422,29 +500,42 @@ Reading pref.tcl
 # 66 lsu.dcache.tag_array.wmask0: 01
 # 66 lsu.dcache.tag_array.addr0: 000000
 # 66 lsu.dcache.tag_array.din0: 800000800000
+# 66 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 66 lsu.dcache.tag_array.web0_reg (aL): 1
+# 66 lsu.dcache.tag_array.wmask0_reg: 01
+# 66 lsu.dcache.tag_array.addr0_reg: 000000
+# 66 lsu.dcache.tag_array.din0_reg: 800000800000
 # 66 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 66 lsu.dcache.data_array.csb0 (aL): 1
 # 66 lsu.dcache.data_array.web0 (aL): 1
-# 66 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 66 lsu.dcache.data_array.addr0: 000000
 # 66 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 66 lsu.dcache.data_array.csb0_reg (aL): 1
+# 66 lsu.dcache.data_array.web0_reg (aL): 1
+# 66 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 66 lsu.dcache.data_array.addr0_reg: 000000
+# 66 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 66 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 66 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 66 lsu.dcache.pipeline_req_valid: 0
+# 66 lsu.dcache.pipeline_req_valid_latched: 0
+# 66 lsu.dcache.pipeline_resp_was_valid: 0
 # 66 lsu.dcache.tag_array_hit: 0
-# 
-# 66 lsu.dcache.mem_ctrl_req_valid: 0
-# 66 lsu.dcache.mem_ctrl_req_type: READ
-# 66 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 66 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 66 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 66 lsu.dcache.mem_ctrl_resp_valid: 0
-# 66 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 66 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 66 lsu.dcache.pipeline_resp_valid: 0
 # 66 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 66 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 66 rob_ptr: 0000
+# 66 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 66 lsq_enq_ctr: 0000
+# 66 lsq_deq_ctr: 0000
+# 66 ld_broadcast_reg_data: 00000000
+#  
 #  
 # 
 # ------| Cycle start:    7 |--------------------------------------------
@@ -471,29 +562,42 @@ Reading pref.tcl
 # 76 lsu.dcache.tag_array.wmask0: 01
 # 76 lsu.dcache.tag_array.addr0: 000000
 # 76 lsu.dcache.tag_array.din0: 800000800000
+# 76 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 76 lsu.dcache.tag_array.web0_reg (aL): 1
+# 76 lsu.dcache.tag_array.wmask0_reg: 01
+# 76 lsu.dcache.tag_array.addr0_reg: 000000
+# 76 lsu.dcache.tag_array.din0_reg: 800000800000
 # 76 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 76 lsu.dcache.data_array.csb0 (aL): 1
 # 76 lsu.dcache.data_array.web0 (aL): 1
-# 76 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 76 lsu.dcache.data_array.addr0: 000000
 # 76 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 76 lsu.dcache.data_array.csb0_reg (aL): 1
+# 76 lsu.dcache.data_array.web0_reg (aL): 1
+# 76 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 76 lsu.dcache.data_array.addr0_reg: 000000
+# 76 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 76 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 76 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 76 lsu.dcache.pipeline_req_valid: 0
+# 76 lsu.dcache.pipeline_req_valid_latched: 0
+# 76 lsu.dcache.pipeline_resp_was_valid: 0
 # 76 lsu.dcache.tag_array_hit: 0
-# 
-# 76 lsu.dcache.mem_ctrl_req_valid: 0
-# 76 lsu.dcache.mem_ctrl_req_type: READ
-# 76 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 76 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 76 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 76 lsu.dcache.mem_ctrl_resp_valid: 0
-# 76 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 76 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 76 lsu.dcache.pipeline_resp_valid: 0
 # 76 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 76 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 76 rob_ptr: 0000
+# 76 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 76 lsq_enq_ctr: 0000
+# 76 lsq_deq_ctr: 0000
+# 76 ld_broadcast_reg_data: 00000000
+#  
 #  
 # 
 # ------| Cycle start:    8 |--------------------------------------------
@@ -520,29 +624,42 @@ Reading pref.tcl
 # 86 lsu.dcache.tag_array.wmask0: 01
 # 86 lsu.dcache.tag_array.addr0: 000000
 # 86 lsu.dcache.tag_array.din0: 800000800000
+# 86 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 86 lsu.dcache.tag_array.web0_reg (aL): 1
+# 86 lsu.dcache.tag_array.wmask0_reg: 01
+# 86 lsu.dcache.tag_array.addr0_reg: 000000
+# 86 lsu.dcache.tag_array.din0_reg: 800000800000
 # 86 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 86 lsu.dcache.data_array.csb0 (aL): 1
 # 86 lsu.dcache.data_array.web0 (aL): 1
-# 86 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 86 lsu.dcache.data_array.addr0: 000000
 # 86 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 86 lsu.dcache.data_array.csb0_reg (aL): 1
+# 86 lsu.dcache.data_array.web0_reg (aL): 1
+# 86 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 86 lsu.dcache.data_array.addr0_reg: 000000
+# 86 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 86 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 86 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 86 lsu.dcache.pipeline_req_valid: 0
+# 86 lsu.dcache.pipeline_req_valid_latched: 0
+# 86 lsu.dcache.pipeline_resp_was_valid: 0
 # 86 lsu.dcache.tag_array_hit: 0
-# 
-# 86 lsu.dcache.mem_ctrl_req_valid: 0
-# 86 lsu.dcache.mem_ctrl_req_type: READ
-# 86 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 86 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 86 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 86 lsu.dcache.mem_ctrl_resp_valid: 0
-# 86 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 86 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 86 lsu.dcache.pipeline_resp_valid: 0
 # 86 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 86 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 86 rob_ptr: 0000
+# 86 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 86 lsq_enq_ctr: 0000
+# 86 lsq_deq_ctr: 0000
+# 86 ld_broadcast_reg_data: 00000000
+#  
 #  
 # 
 # ------| Cycle start:    9 |--------------------------------------------
@@ -569,55 +686,68 @@ Reading pref.tcl
 # 96 lsu.dcache.tag_array.wmask0: 01
 # 96 lsu.dcache.tag_array.addr0: 000000
 # 96 lsu.dcache.tag_array.din0: 800000800000
+# 96 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 96 lsu.dcache.tag_array.web0_reg (aL): 1
+# 96 lsu.dcache.tag_array.wmask0_reg: 01
+# 96 lsu.dcache.tag_array.addr0_reg: 000000
+# 96 lsu.dcache.tag_array.din0_reg: 800000800000
 # 96 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 96 lsu.dcache.data_array.csb0 (aL): 1
 # 96 lsu.dcache.data_array.web0 (aL): 1
-# 96 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 96 lsu.dcache.data_array.addr0: 000000
 # 96 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 96 lsu.dcache.data_array.csb0_reg (aL): 1
+# 96 lsu.dcache.data_array.web0_reg (aL): 1
+# 96 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 96 lsu.dcache.data_array.addr0_reg: 000000
+# 96 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 96 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 96 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 96 lsu.dcache.pipeline_req_valid: 0
+# 96 lsu.dcache.pipeline_req_valid_latched: 0
+# 96 lsu.dcache.pipeline_resp_was_valid: 0
 # 96 lsu.dcache.tag_array_hit: 0
-# 
-# 96 lsu.dcache.mem_ctrl_req_valid: 0
-# 96 lsu.dcache.mem_ctrl_req_type: READ
-# 96 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 96 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 96 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 96 lsu.dcache.mem_ctrl_resp_valid: 0
-# 96 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 96 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 96 lsu.dcache.pipeline_resp_valid: 0
 # 96 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 96 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 96 rob_ptr: 0000
+# 96 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 96 lsq_enq_ctr: 0000
+# 96 lsq_deq_ctr: 0000
+# 96 ld_broadcast_reg_data: 00000000
+#  
 #  
 # 
 # ------| Cycle start:   10 |--------------------------------------------
 # 
 # *****| AT   100ns POSEDGE |*****
 #  
-# DISPATCH: IFIFO DISPATCH DATA 0x204b88c0004063000010190
+# DISPATCH: IFIFO DISPATCH DATA 0x4063000010190
 # DISPATCH: IFIFO DISPATCH READY 1
 # DISPATCH: Ready ins: (ififo_dis_v: 1 rob_v: 1 (enq_ctr: 000000 deq_ctr: 000000) iiq_ok: 1 lsq_ok: 1)
-# DISPATCH: IIQ DISP V: 0
-# DECODE INSTR: 00812e23
+# DISPATCH: IIQ DISP V: 1
+# DECODE INSTR: 00000000
 # DISPATCH: IIQ DISP ENTRY:
 #  
-# src1_valid: 1
+# src1_valid: 0
 # src1_rob_id: 0
 # src1_ready: 1
-# src1_data:      65928
-# src2_valid: 1
+# src1_data:          0
+# src2_valid: 0
 # src2_rob_id: 0
 # src2_ready: 1
-# src2_data:      65928
+# src2_data:          0
 # dst_valid: 0
 # instr_rob_id: 0
-# imm:         28
+# imm:          0
 # pc: 0001018c
-# funct3: 010
+# funct3: 000
 # is_r_type: 0
 # is_i_type: 0
 # is_u_type: 0
@@ -631,6 +761,7 @@ Reading pref.tcl
 # br_target_pred: 00010190
 #  
 #  
+# *****| AT   105ns NEGEDGE |*****
 #  
 # 106 lsu.dcache.pipeline_req_valid: 0
 # 106 lsu.dcache.pipeline_req_type: READ
@@ -648,932 +779,1339 @@ Reading pref.tcl
 # 106 lsu.dcache.tag_array.wmask0: 01
 # 106 lsu.dcache.tag_array.addr0: 000000
 # 106 lsu.dcache.tag_array.din0: 800000800000
+# 106 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 106 lsu.dcache.tag_array.web0_reg (aL): 1
+# 106 lsu.dcache.tag_array.wmask0_reg: 01
+# 106 lsu.dcache.tag_array.addr0_reg: 000000
+# 106 lsu.dcache.tag_array.din0_reg: 800000800000
 # 106 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 106 lsu.dcache.data_array.csb0 (aL): 1
 # 106 lsu.dcache.data_array.web0 (aL): 1
-# 106 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 106 lsu.dcache.data_array.addr0: 000000
 # 106 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 106 lsu.dcache.data_array.csb0_reg (aL): 1
+# 106 lsu.dcache.data_array.web0_reg (aL): 1
+# 106 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 106 lsu.dcache.data_array.addr0_reg: 000000
+# 106 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 106 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 106 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 106 lsu.dcache.pipeline_req_valid: 0
+# 106 lsu.dcache.pipeline_req_valid_latched: 0
+# 106 lsu.dcache.pipeline_resp_was_valid: 0
 # 106 lsu.dcache.tag_array_hit: 0
-# 
-# 106 lsu.dcache.mem_ctrl_req_valid: 0
-# 106 lsu.dcache.mem_ctrl_req_type: READ
-# 106 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 106 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 106 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 106 lsu.dcache.mem_ctrl_resp_valid: 0
-# 106 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 106 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 106 lsu.dcache.pipeline_resp_valid: 0
 # 106 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 106 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 106 rob_ptr: 0000
+# 106 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 106 lsq_enq_ctr: 0000
+# 106 lsq_deq_ctr: 0000
+# 106 ld_broadcast_reg_data: 00000000
+#  
+#  
+# 
+# ------| Cycle start:   11 |--------------------------------------------
+# 
+# *****| AT   110ns POSEDGE |*****
 #  
 #  
 #  
+# *****| AT   115ns NEGEDGE |*****
 #  
-# 116 lsu.dcache.pipeline_req_valid: 1
-# 116 lsu.dcache.pipeline_req_type: WRITE
-# 116 lsu.dcache.pipeline_req_width: WORD
-# 116 lsu.dcache.pipeline_req_addr: 000101a4
-# 116 lsu.dcache.pipeline_req_wr_data: 00010188
+# 116 lsu.dcache.pipeline_req_valid: 0
+# 116 lsu.dcache.pipeline_req_type: READ
+# 116 lsu.dcache.pipeline_req_width: BYTE
+# 116 lsu.dcache.pipeline_req_addr: 00000000
+# 116 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
 # 116 lsu.dcache.pipeline_req_valid_latched: 0
 # 116 lsu.dcache.pipeline_req_type_latched: READ
 # 116 lsu.dcache.pipeline_req_width_latched: BYTE
 # 116 lsu.dcache.pipeline_req_addr_latched: 00000000
 # 
-# 116 lsu.dcache.tag_array.csb0 (aL): 0
+# 116 lsu.dcache.tag_array.csb0 (aL): 1
 # 116 lsu.dcache.tag_array.web0 (aL): 1
 # 116 lsu.dcache.tag_array.wmask0: 01
-# 116 lsu.dcache.tag_array.addr0: 110100
-# 116 lsu.dcache.tag_array.din0: 800080800080
+# 116 lsu.dcache.tag_array.addr0: 000000
+# 116 lsu.dcache.tag_array.din0: 800000800000
+# 116 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 116 lsu.dcache.tag_array.web0_reg (aL): 1
+# 116 lsu.dcache.tag_array.wmask0_reg: 01
+# 116 lsu.dcache.tag_array.addr0_reg: 000000
+# 116 lsu.dcache.tag_array.din0_reg: 800000800000
 # 116 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 116 lsu.dcache.data_array.csb0 (aL): 0
-# 116 lsu.dcache.data_array.web0 (aL): 0
-# 116 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 116 lsu.dcache.data_array.addr0: 110100
-# 116 lsu.dcache.data_array.din0: 00010188000101880001018800010188
+# 116 lsu.dcache.data_array.csb0 (aL): 1
+# 116 lsu.dcache.data_array.web0 (aL): 1
+# 116 lsu.dcache.data_array.addr0: 000000
+# 116 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 116 lsu.dcache.data_array.csb0_reg (aL): 1
+# 116 lsu.dcache.data_array.web0_reg (aL): 1
+# 116 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 116 lsu.dcache.data_array.addr0_reg: 000000
+# 116 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 116 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 116 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 116 lsu.dcache.pipeline_req_valid: 0
+# 116 lsu.dcache.pipeline_req_valid_latched: 0
+# 116 lsu.dcache.pipeline_resp_was_valid: 0
 # 116 lsu.dcache.tag_array_hit: 0
-# 
-# 116 lsu.dcache.mem_ctrl_req_valid: 0
-# 116 lsu.dcache.mem_ctrl_req_type: READ
-# 116 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 116 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 116 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 116 lsu.dcache.mem_ctrl_resp_valid: 0
-# 116 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 116 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 116 lsu.dcache.pipeline_resp_valid: 0
 # 116 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 116 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}}
+# 116 rob_ptr: 0000
+# 116 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 116 lsq_enq_ctr: 0000
+# 116 lsq_deq_ctr: 0000
+# 116 ld_broadcast_reg_data: 00000000
 #  
 #  
-#  
-#  
-# 126 lsu.dcache.pipeline_req_valid: 1
-# 126 lsu.dcache.pipeline_req_type: WRITE
-# 126 lsu.dcache.pipeline_req_width: WORD
-# 126 lsu.dcache.pipeline_req_addr: 000101a4
-# 126 lsu.dcache.pipeline_req_wr_data: 00010188
 # 
-# 126 lsu.dcache.pipeline_req_valid_latched: 1
-# 126 lsu.dcache.pipeline_req_type_latched: WRITE
-# 126 lsu.dcache.pipeline_req_width_latched: WORD
-# 126 lsu.dcache.pipeline_req_addr_latched: 000101a4
+# ------| Cycle start:   12 |--------------------------------------------
 # 
-# 126 lsu.dcache.tag_array.csb0 (aL): 0
+# *****| AT   120ns POSEDGE |*****
+#  
+#  
+#  
+# *****| AT   125ns NEGEDGE |*****
+#  
+# 126 lsu.dcache.pipeline_req_valid: 0
+# 126 lsu.dcache.pipeline_req_type: READ
+# 126 lsu.dcache.pipeline_req_width: BYTE
+# 126 lsu.dcache.pipeline_req_addr: 0001018c
+# 126 lsu.dcache.pipeline_req_wr_data: 0001018c
+# 
+# 126 lsu.dcache.pipeline_req_valid_latched: 0
+# 126 lsu.dcache.pipeline_req_type_latched: READ
+# 126 lsu.dcache.pipeline_req_width_latched: BYTE
+# 126 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 126 lsu.dcache.tag_array.csb0 (aL): 1
 # 126 lsu.dcache.tag_array.web0 (aL): 1
 # 126 lsu.dcache.tag_array.wmask0: 01
-# 126 lsu.dcache.tag_array.addr0: 110100
+# 126 lsu.dcache.tag_array.addr0: 110001
 # 126 lsu.dcache.tag_array.din0: 800080800080
+# 126 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 126 lsu.dcache.tag_array.web0_reg (aL): 1
+# 126 lsu.dcache.tag_array.wmask0_reg: 01
+# 126 lsu.dcache.tag_array.addr0_reg: 000000
+# 126 lsu.dcache.tag_array.din0_reg: 800000800000
 # 126 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 126 lsu.dcache.data_array.csb0 (aL): 0
-# 126 lsu.dcache.data_array.web0 (aL): 0
-# 126 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 126 lsu.dcache.data_array.addr0: 110100
-# 126 lsu.dcache.data_array.din0: 00010188000101880001018800010188
+# 126 lsu.dcache.data_array.csb0 (aL): 1
+# 126 lsu.dcache.data_array.web0 (aL): 1
+# 126 lsu.dcache.data_array.addr0: 000000
+# 126 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 126 lsu.dcache.data_array.csb0_reg (aL): 1
+# 126 lsu.dcache.data_array.web0_reg (aL): 1
+# 126 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 126 lsu.dcache.data_array.addr0_reg: 000000
+# 126 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 126 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 126 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 126 lsu.dcache.pipeline_req_valid: 0
+# 126 lsu.dcache.pipeline_req_valid_latched: 0
+# 126 lsu.dcache.pipeline_resp_was_valid: 0
 # 126 lsu.dcache.tag_array_hit: 0
-# 
-# 126 lsu.dcache.mem_ctrl_req_valid: 1
-# 126 lsu.dcache.mem_ctrl_req_type: READ
-# 126 lsu.dcache.mem_ctrl_req_block_addr: 00002034
-# 126 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 126 lsu.dcache.mem_ctrl_req_ready: 1
-# 
-# 126 lsu.dcache.mem_ctrl_resp_valid: 0
-# 126 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 126 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 126 lsu.dcache.pipeline_resp_valid: 0
 # 126 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 126 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:0, reg_data:0}}
+# 126 rob_ptr: 0000
+# 126 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 126 lsq_enq_ctr: 0000
+# 126 lsq_deq_ctr: 0000
+# 126 ld_broadcast_reg_data: 00000000
 #  
 #  
-#  
-#  
-# 136 lsu.dcache.pipeline_req_valid: 1
-# 136 lsu.dcache.pipeline_req_type: WRITE
-# 136 lsu.dcache.pipeline_req_width: WORD
-# 136 lsu.dcache.pipeline_req_addr: 000101a4
-# 136 lsu.dcache.pipeline_req_wr_data: 00010188
 # 
-# 136 lsu.dcache.pipeline_req_valid_latched: 1
-# 136 lsu.dcache.pipeline_req_type_latched: WRITE
-# 136 lsu.dcache.pipeline_req_width_latched: WORD
-# 136 lsu.dcache.pipeline_req_addr_latched: 000101a4
+# ------| Cycle start:   13 |--------------------------------------------
 # 
-# 136 lsu.dcache.tag_array.csb0 (aL): 0
+# *****| AT   130ns POSEDGE |*****
+#  
+#  
+#  
+# *****| AT   135ns NEGEDGE |*****
+#  
+# 136 lsu.dcache.pipeline_req_valid: 0
+# 136 lsu.dcache.pipeline_req_type: READ
+# 136 lsu.dcache.pipeline_req_width: BYTE
+# 136 lsu.dcache.pipeline_req_addr: 00000000
+# 136 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 136 lsu.dcache.pipeline_req_valid_latched: 0
+# 136 lsu.dcache.pipeline_req_type_latched: READ
+# 136 lsu.dcache.pipeline_req_width_latched: BYTE
+# 136 lsu.dcache.pipeline_req_addr_latched: 0001018c
+# 
+# 136 lsu.dcache.tag_array.csb0 (aL): 1
 # 136 lsu.dcache.tag_array.web0 (aL): 1
 # 136 lsu.dcache.tag_array.wmask0: 01
-# 136 lsu.dcache.tag_array.addr0: 110100
-# 136 lsu.dcache.tag_array.din0: 800080800080
+# 136 lsu.dcache.tag_array.addr0: 000000
+# 136 lsu.dcache.tag_array.din0: 800000800000
+# 136 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 136 lsu.dcache.tag_array.web0_reg (aL): 1
+# 136 lsu.dcache.tag_array.wmask0_reg: 01
+# 136 lsu.dcache.tag_array.addr0_reg: 110001
+# 136 lsu.dcache.tag_array.din0_reg: 800080800080
 # 136 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 136 lsu.dcache.data_array.csb0 (aL): 0
-# 136 lsu.dcache.data_array.web0 (aL): 0
-# 136 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 136 lsu.dcache.data_array.addr0: 110100
-# 136 lsu.dcache.data_array.din0: 00010188000101880001018800010188
+# 136 lsu.dcache.data_array.csb0 (aL): 1
+# 136 lsu.dcache.data_array.web0 (aL): 1
+# 136 lsu.dcache.data_array.addr0: 110001
+# 136 lsu.dcache.data_array.din0: 8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c
+# 136 lsu.dcache.data_array.csb0_reg (aL): 1
+# 136 lsu.dcache.data_array.web0_reg (aL): 1
+# 136 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 136 lsu.dcache.data_array.addr0_reg: 000000
+# 136 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 136 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 136 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 136 lsu.dcache.pipeline_req_valid: 0
+# 136 lsu.dcache.pipeline_req_valid_latched: 0
+# 136 lsu.dcache.pipeline_resp_was_valid: 0
 # 136 lsu.dcache.tag_array_hit: 0
-# 
-# 136 lsu.dcache.mem_ctrl_req_valid: 0
-# 136 lsu.dcache.mem_ctrl_req_type: READ
-# 136 lsu.dcache.mem_ctrl_req_block_addr: 00002034
-# 136 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 136 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 136 lsu.dcache.mem_ctrl_resp_valid: 0
-# 136 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 136 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 136 lsu.dcache.pipeline_resp_valid: 0
 # 136 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 136 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 136 rob_ptr: 0000
+# 136 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 136 lsq_enq_ctr: 0000
+# 136 lsq_deq_ctr: 0000
+# 136 ld_broadcast_reg_data: 00000000
 #  
 #  
-#  
-#  
-# 146 lsu.dcache.pipeline_req_valid: 1
-# 146 lsu.dcache.pipeline_req_type: WRITE
-# 146 lsu.dcache.pipeline_req_width: WORD
-# 146 lsu.dcache.pipeline_req_addr: 000101a4
-# 146 lsu.dcache.pipeline_req_wr_data: 00010188
 # 
-# 146 lsu.dcache.pipeline_req_valid_latched: 1
-# 146 lsu.dcache.pipeline_req_type_latched: WRITE
-# 146 lsu.dcache.pipeline_req_width_latched: WORD
-# 146 lsu.dcache.pipeline_req_addr_latched: 000101a4
+# ------| Cycle start:   14 |--------------------------------------------
 # 
-# 146 lsu.dcache.tag_array.csb0 (aL): 0
+# *****| AT   140ns POSEDGE |*****
+#  
+#  
+#  
+# *****| AT   145ns NEGEDGE |*****
+#  
+# 146 lsu.dcache.pipeline_req_valid: 0
+# 146 lsu.dcache.pipeline_req_type: READ
+# 146 lsu.dcache.pipeline_req_width: BYTE
+# 146 lsu.dcache.pipeline_req_addr: 00000000
+# 146 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 146 lsu.dcache.pipeline_req_valid_latched: 0
+# 146 lsu.dcache.pipeline_req_type_latched: READ
+# 146 lsu.dcache.pipeline_req_width_latched: BYTE
+# 146 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 146 lsu.dcache.tag_array.csb0 (aL): 1
 # 146 lsu.dcache.tag_array.web0 (aL): 1
 # 146 lsu.dcache.tag_array.wmask0: 01
-# 146 lsu.dcache.tag_array.addr0: 110100
-# 146 lsu.dcache.tag_array.din0: 800080800080
+# 146 lsu.dcache.tag_array.addr0: 000000
+# 146 lsu.dcache.tag_array.din0: 800000800000
+# 146 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 146 lsu.dcache.tag_array.web0_reg (aL): 1
+# 146 lsu.dcache.tag_array.wmask0_reg: 01
+# 146 lsu.dcache.tag_array.addr0_reg: 000000
+# 146 lsu.dcache.tag_array.din0_reg: 800000800000
 # 146 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 146 lsu.dcache.data_array.csb0 (aL): 0
-# 146 lsu.dcache.data_array.web0 (aL): 0
-# 146 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 146 lsu.dcache.data_array.addr0: 110100
-# 146 lsu.dcache.data_array.din0: 00010188000101880001018800010188
+# 146 lsu.dcache.data_array.csb0 (aL): 1
+# 146 lsu.dcache.data_array.web0 (aL): 1
+# 146 lsu.dcache.data_array.addr0: 000000
+# 146 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 146 lsu.dcache.data_array.csb0_reg (aL): 1
+# 146 lsu.dcache.data_array.web0_reg (aL): 1
+# 146 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 146 lsu.dcache.data_array.addr0_reg: 110001
+# 146 lsu.dcache.data_array.din0_reg: 8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c
 # 146 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 146 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 146 lsu.dcache.pipeline_req_valid: 0
+# 146 lsu.dcache.pipeline_req_valid_latched: 0
+# 146 lsu.dcache.pipeline_resp_was_valid: 0
 # 146 lsu.dcache.tag_array_hit: 0
-# 
-# 146 lsu.dcache.mem_ctrl_req_valid: 0
-# 146 lsu.dcache.mem_ctrl_req_type: READ
-# 146 lsu.dcache.mem_ctrl_req_block_addr: 00002034
-# 146 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 146 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 146 lsu.dcache.mem_ctrl_resp_valid: 0
-# 146 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 146 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 146 lsu.dcache.pipeline_resp_valid: 0
 # 146 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 146 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 146 rob_ptr: 0001
+# 146 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 146 lsq_enq_ctr: 0000
+# 146 lsq_deq_ctr: 0000
+# 146 ld_broadcast_reg_data: 00000000
 #  
 #  
-#  
-#  
-# 156 lsu.dcache.pipeline_req_valid: 1
-# 156 lsu.dcache.pipeline_req_type: WRITE
-# 156 lsu.dcache.pipeline_req_width: WORD
-# 156 lsu.dcache.pipeline_req_addr: 000101a4
-# 156 lsu.dcache.pipeline_req_wr_data: 00010188
 # 
-# 156 lsu.dcache.pipeline_req_valid_latched: 1
-# 156 lsu.dcache.pipeline_req_type_latched: WRITE
-# 156 lsu.dcache.pipeline_req_width_latched: WORD
-# 156 lsu.dcache.pipeline_req_addr_latched: 000101a4
+# ------| Cycle start:   15 |--------------------------------------------
 # 
-# 156 lsu.dcache.tag_array.csb0 (aL): 0
+# *****| AT   150ns POSEDGE |*****
+#  
+#  
+#  
+# *****| AT   155ns NEGEDGE |*****
+#  
+# 156 lsu.dcache.pipeline_req_valid: 0
+# 156 lsu.dcache.pipeline_req_type: READ
+# 156 lsu.dcache.pipeline_req_width: BYTE
+# 156 lsu.dcache.pipeline_req_addr: 00000000
+# 156 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 156 lsu.dcache.pipeline_req_valid_latched: 0
+# 156 lsu.dcache.pipeline_req_type_latched: READ
+# 156 lsu.dcache.pipeline_req_width_latched: BYTE
+# 156 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 156 lsu.dcache.tag_array.csb0 (aL): 1
 # 156 lsu.dcache.tag_array.web0 (aL): 1
 # 156 lsu.dcache.tag_array.wmask0: 01
-# 156 lsu.dcache.tag_array.addr0: 110100
-# 156 lsu.dcache.tag_array.din0: 800080800080
+# 156 lsu.dcache.tag_array.addr0: 000000
+# 156 lsu.dcache.tag_array.din0: 800000800000
+# 156 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 156 lsu.dcache.tag_array.web0_reg (aL): 1
+# 156 lsu.dcache.tag_array.wmask0_reg: 01
+# 156 lsu.dcache.tag_array.addr0_reg: 000000
+# 156 lsu.dcache.tag_array.din0_reg: 800000800000
 # 156 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 156 lsu.dcache.data_array.csb0 (aL): 0
-# 156 lsu.dcache.data_array.web0 (aL): 0
-# 156 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 156 lsu.dcache.data_array.addr0: 110100
-# 156 lsu.dcache.data_array.din0: 00010188000101880001018800010188
+# 156 lsu.dcache.data_array.csb0 (aL): 1
+# 156 lsu.dcache.data_array.web0 (aL): 1
+# 156 lsu.dcache.data_array.addr0: 000000
+# 156 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 156 lsu.dcache.data_array.csb0_reg (aL): 1
+# 156 lsu.dcache.data_array.web0_reg (aL): 1
+# 156 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 156 lsu.dcache.data_array.addr0_reg: 000000
+# 156 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 156 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 156 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 156 lsu.dcache.pipeline_req_valid: 0
+# 156 lsu.dcache.pipeline_req_valid_latched: 0
+# 156 lsu.dcache.pipeline_resp_was_valid: 0
 # 156 lsu.dcache.tag_array_hit: 0
-# 
-# 156 lsu.dcache.mem_ctrl_req_valid: 0
-# 156 lsu.dcache.mem_ctrl_req_type: READ
-# 156 lsu.dcache.mem_ctrl_req_block_addr: 00002034
-# 156 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 156 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 156 lsu.dcache.mem_ctrl_resp_valid: 0
-# 156 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 156 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 156 lsu.dcache.pipeline_resp_valid: 0
 # 156 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 156 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 156 rob_ptr: 0001
+# 156 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 156 lsq_enq_ctr: 0000
+# 156 lsq_deq_ctr: 0000
+# 156 ld_broadcast_reg_data: 00000000
 #  
 #  
-#  
-#  
-# 166 lsu.dcache.pipeline_req_valid: 1
-# 166 lsu.dcache.pipeline_req_type: WRITE
-# 166 lsu.dcache.pipeline_req_width: WORD
-# 166 lsu.dcache.pipeline_req_addr: 000101a4
-# 166 lsu.dcache.pipeline_req_wr_data: 00010188
 # 
-# 166 lsu.dcache.pipeline_req_valid_latched: 1
-# 166 lsu.dcache.pipeline_req_type_latched: WRITE
-# 166 lsu.dcache.pipeline_req_width_latched: WORD
-# 166 lsu.dcache.pipeline_req_addr_latched: 000101a4
+# ------| Cycle start:   16 |--------------------------------------------
 # 
-# 166 lsu.dcache.tag_array.csb0 (aL): 0
+# *****| AT   160ns POSEDGE |*****
+#  
+#  
+#  
+# *****| AT   165ns NEGEDGE |*****
+#  
+# 166 lsu.dcache.pipeline_req_valid: 0
+# 166 lsu.dcache.pipeline_req_type: READ
+# 166 lsu.dcache.pipeline_req_width: BYTE
+# 166 lsu.dcache.pipeline_req_addr: 00000000
+# 166 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 166 lsu.dcache.pipeline_req_valid_latched: 0
+# 166 lsu.dcache.pipeline_req_type_latched: READ
+# 166 lsu.dcache.pipeline_req_width_latched: BYTE
+# 166 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 166 lsu.dcache.tag_array.csb0 (aL): 1
 # 166 lsu.dcache.tag_array.web0 (aL): 1
 # 166 lsu.dcache.tag_array.wmask0: 01
-# 166 lsu.dcache.tag_array.addr0: 110100
-# 166 lsu.dcache.tag_array.din0: 800080800080
+# 166 lsu.dcache.tag_array.addr0: 000000
+# 166 lsu.dcache.tag_array.din0: 800000800000
+# 166 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 166 lsu.dcache.tag_array.web0_reg (aL): 1
+# 166 lsu.dcache.tag_array.wmask0_reg: 01
+# 166 lsu.dcache.tag_array.addr0_reg: 000000
+# 166 lsu.dcache.tag_array.din0_reg: 800000800000
 # 166 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 166 lsu.dcache.data_array.csb0 (aL): 0
-# 166 lsu.dcache.data_array.web0 (aL): 0
-# 166 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 166 lsu.dcache.data_array.addr0: 110100
-# 166 lsu.dcache.data_array.din0: 00010188000101880001018800010188
+# 166 lsu.dcache.data_array.csb0 (aL): 1
+# 166 lsu.dcache.data_array.web0 (aL): 1
+# 166 lsu.dcache.data_array.addr0: 000000
+# 166 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 166 lsu.dcache.data_array.csb0_reg (aL): 1
+# 166 lsu.dcache.data_array.web0_reg (aL): 1
+# 166 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 166 lsu.dcache.data_array.addr0_reg: 000000
+# 166 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 166 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 166 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 166 lsu.dcache.pipeline_req_valid: 0
+# 166 lsu.dcache.pipeline_req_valid_latched: 0
+# 166 lsu.dcache.pipeline_resp_was_valid: 0
 # 166 lsu.dcache.tag_array_hit: 0
-# 
-# 166 lsu.dcache.mem_ctrl_req_valid: 0
-# 166 lsu.dcache.mem_ctrl_req_type: READ
-# 166 lsu.dcache.mem_ctrl_req_block_addr: 00002034
-# 166 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 166 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 166 lsu.dcache.mem_ctrl_resp_valid: 0
-# 166 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 166 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 166 lsu.dcache.pipeline_resp_valid: 0
 # 166 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 166 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 166 rob_ptr: 0001
+# 166 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 166 lsq_enq_ctr: 0000
+# 166 lsq_deq_ctr: 0000
+# 166 ld_broadcast_reg_data: 00000000
 #  
 #  
-#  
-#  
-# 176 lsu.dcache.pipeline_req_valid: 1
-# 176 lsu.dcache.pipeline_req_type: WRITE
-# 176 lsu.dcache.pipeline_req_width: WORD
-# 176 lsu.dcache.pipeline_req_addr: 000101a4
-# 176 lsu.dcache.pipeline_req_wr_data: 00010188
 # 
-# 176 lsu.dcache.pipeline_req_valid_latched: 1
-# 176 lsu.dcache.pipeline_req_type_latched: WRITE
-# 176 lsu.dcache.pipeline_req_width_latched: WORD
-# 176 lsu.dcache.pipeline_req_addr_latched: 000101a4
+# ------| Cycle start:   17 |--------------------------------------------
 # 
-# 176 lsu.dcache.tag_array.csb0 (aL): 0
+# *****| AT   170ns POSEDGE |*****
+#  
+#  
+#  
+# *****| AT   175ns NEGEDGE |*****
+#  
+# 176 lsu.dcache.pipeline_req_valid: 0
+# 176 lsu.dcache.pipeline_req_type: READ
+# 176 lsu.dcache.pipeline_req_width: BYTE
+# 176 lsu.dcache.pipeline_req_addr: 00000000
+# 176 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 176 lsu.dcache.pipeline_req_valid_latched: 0
+# 176 lsu.dcache.pipeline_req_type_latched: READ
+# 176 lsu.dcache.pipeline_req_width_latched: BYTE
+# 176 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 176 lsu.dcache.tag_array.csb0 (aL): 1
 # 176 lsu.dcache.tag_array.web0 (aL): 1
 # 176 lsu.dcache.tag_array.wmask0: 01
-# 176 lsu.dcache.tag_array.addr0: 110100
-# 176 lsu.dcache.tag_array.din0: 800080800080
+# 176 lsu.dcache.tag_array.addr0: 000000
+# 176 lsu.dcache.tag_array.din0: 800000800000
+# 176 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 176 lsu.dcache.tag_array.web0_reg (aL): 1
+# 176 lsu.dcache.tag_array.wmask0_reg: 01
+# 176 lsu.dcache.tag_array.addr0_reg: 000000
+# 176 lsu.dcache.tag_array.din0_reg: 800000800000
 # 176 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 176 lsu.dcache.data_array.csb0 (aL): 0
-# 176 lsu.dcache.data_array.web0 (aL): 0
-# 176 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 176 lsu.dcache.data_array.addr0: 110100
-# 176 lsu.dcache.data_array.din0: 00010188000101880001018800010188
+# 176 lsu.dcache.data_array.csb0 (aL): 1
+# 176 lsu.dcache.data_array.web0 (aL): 1
+# 176 lsu.dcache.data_array.addr0: 000000
+# 176 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 176 lsu.dcache.data_array.csb0_reg (aL): 1
+# 176 lsu.dcache.data_array.web0_reg (aL): 1
+# 176 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 176 lsu.dcache.data_array.addr0_reg: 000000
+# 176 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 176 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 176 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 176 lsu.dcache.pipeline_req_valid: 0
+# 176 lsu.dcache.pipeline_req_valid_latched: 0
+# 176 lsu.dcache.pipeline_resp_was_valid: 0
 # 176 lsu.dcache.tag_array_hit: 0
-# 
-# 176 lsu.dcache.mem_ctrl_req_valid: 0
-# 176 lsu.dcache.mem_ctrl_req_type: READ
-# 176 lsu.dcache.mem_ctrl_req_block_addr: 00002034
-# 176 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 176 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 176 lsu.dcache.mem_ctrl_resp_valid: 0
-# 176 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 176 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 176 lsu.dcache.pipeline_resp_valid: 0
 # 176 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 176 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 176 rob_ptr: 0001
+# 176 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 176 lsq_enq_ctr: 0000
+# 176 lsq_deq_ctr: 0000
+# 176 ld_broadcast_reg_data: 00000000
 #  
 #  
-#  
-#  
-# 186 lsu.dcache.pipeline_req_valid: 1
-# 186 lsu.dcache.pipeline_req_type: WRITE
-# 186 lsu.dcache.pipeline_req_width: WORD
-# 186 lsu.dcache.pipeline_req_addr: 000101a4
-# 186 lsu.dcache.pipeline_req_wr_data: 00010188
 # 
-# 186 lsu.dcache.pipeline_req_valid_latched: 1
-# 186 lsu.dcache.pipeline_req_type_latched: WRITE
-# 186 lsu.dcache.pipeline_req_width_latched: WORD
-# 186 lsu.dcache.pipeline_req_addr_latched: 000101a4
+# ------| Cycle start:   18 |--------------------------------------------
 # 
-# 186 lsu.dcache.tag_array.csb0 (aL): 0
-# 186 lsu.dcache.tag_array.web0 (aL): 0
+# *****| AT   180ns POSEDGE |*****
+#  
+#  
+#  
+# *****| AT   185ns NEGEDGE |*****
+#  
+# 186 lsu.dcache.pipeline_req_valid: 0
+# 186 lsu.dcache.pipeline_req_type: READ
+# 186 lsu.dcache.pipeline_req_width: BYTE
+# 186 lsu.dcache.pipeline_req_addr: 00000000
+# 186 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 186 lsu.dcache.pipeline_req_valid_latched: 0
+# 186 lsu.dcache.pipeline_req_type_latched: READ
+# 186 lsu.dcache.pipeline_req_width_latched: BYTE
+# 186 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 186 lsu.dcache.tag_array.csb0 (aL): 1
+# 186 lsu.dcache.tag_array.web0 (aL): 1
 # 186 lsu.dcache.tag_array.wmask0: 01
-# 186 lsu.dcache.tag_array.addr0: 110100
-# 186 lsu.dcache.tag_array.din0: 800080800080
+# 186 lsu.dcache.tag_array.addr0: 000000
+# 186 lsu.dcache.tag_array.din0: 800000800000
+# 186 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 186 lsu.dcache.tag_array.web0_reg (aL): 1
+# 186 lsu.dcache.tag_array.wmask0_reg: 01
+# 186 lsu.dcache.tag_array.addr0_reg: 000000
+# 186 lsu.dcache.tag_array.din0_reg: 800000800000
 # 186 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 186 lsu.dcache.data_array.csb0 (aL): 0
-# 186 lsu.dcache.data_array.web0 (aL): 0
-# 186 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 186 lsu.dcache.data_array.addr0: 110100
-# 186 lsu.dcache.data_array.din0: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# 186 lsu.dcache.data_array.csb0 (aL): 1
+# 186 lsu.dcache.data_array.web0 (aL): 1
+# 186 lsu.dcache.data_array.addr0: 000000
+# 186 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 186 lsu.dcache.data_array.csb0_reg (aL): 1
+# 186 lsu.dcache.data_array.web0_reg (aL): 1
+# 186 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 186 lsu.dcache.data_array.addr0_reg: 000000
+# 186 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 186 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 186 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 186 lsu.dcache.pipeline_req_valid: 0
+# 186 lsu.dcache.pipeline_req_valid_latched: 0
+# 186 lsu.dcache.pipeline_resp_was_valid: 0
 # 186 lsu.dcache.tag_array_hit: 0
-# 
-# 186 lsu.dcache.mem_ctrl_req_valid: 0
-# 186 lsu.dcache.mem_ctrl_req_type: READ
-# 186 lsu.dcache.mem_ctrl_req_block_addr: 00002034
-# 186 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 186 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 186 lsu.dcache.mem_ctrl_resp_valid: 1
-# 186 lsu.dcache.mem_ctrl_resp_block_data: xxxxxxxxxxxxxxxx
+# 186 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 186 lsu.dcache.pipeline_resp_valid: 0
 # 186 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 186 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 186 rob_ptr: 0001
+# 186 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 186 lsq_enq_ctr: 0000
+# 186 lsq_deq_ctr: 0000
+# 186 ld_broadcast_reg_data: 00000000
 #  
 #  
-#  
-#  
-# 196 lsu.dcache.pipeline_req_valid: 1
-# 196 lsu.dcache.pipeline_req_type: WRITE
-# 196 lsu.dcache.pipeline_req_width: WORD
-# 196 lsu.dcache.pipeline_req_addr: 000101a4
-# 196 lsu.dcache.pipeline_req_wr_data: 00010188
 # 
-# 196 lsu.dcache.pipeline_req_valid_latched: 1
-# 196 lsu.dcache.pipeline_req_type_latched: WRITE
-# 196 lsu.dcache.pipeline_req_width_latched: WORD
-# 196 lsu.dcache.pipeline_req_addr_latched: 000101a4
+# ------| Cycle start:   19 |--------------------------------------------
 # 
-# 196 lsu.dcache.tag_array.csb0 (aL): 0
+# *****| AT   190ns POSEDGE |*****
+#  
+# DISPATCH: IFIFO DISPATCH DATA 0x4064000010194
+# DISPATCH: IFIFO DISPATCH READY 1
+# DISPATCH: Ready ins: (ififo_dis_v: 1 rob_v: 1 (enq_ctr: 000001 deq_ctr: 000001) iiq_ok: 1 lsq_ok: 1)
+# DISPATCH: IIQ DISP V: 1
+# DECODE INSTR: 00000000
+# DISPATCH: IIQ DISP ENTRY:
+#  
+# src1_valid: 0
+# src1_rob_id: 0
+# src1_ready: 1
+# src1_data:          0
+# src2_valid: 0
+# src2_rob_id: 0
+# src2_ready: 1
+# src2_data:          0
+# dst_valid: 0
+# instr_rob_id: 1
+# imm:          0
+# pc: 00010190
+# funct3: 000
+# is_r_type: 0
+# is_i_type: 0
+# is_u_type: 0
+# is_b_type: 0
+# is_j_type: 0
+# is_sub: 0
+# is_sra_srai: 0
+# is_lui: 0
+# is_jalr: 0
+# br_dir_pred: 0
+# br_target_pred: 00010194
+#  
+#  
+# *****| AT   195ns NEGEDGE |*****
+#  
+# 196 lsu.dcache.pipeline_req_valid: 0
+# 196 lsu.dcache.pipeline_req_type: READ
+# 196 lsu.dcache.pipeline_req_width: BYTE
+# 196 lsu.dcache.pipeline_req_addr: 00000000
+# 196 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 196 lsu.dcache.pipeline_req_valid_latched: 0
+# 196 lsu.dcache.pipeline_req_type_latched: READ
+# 196 lsu.dcache.pipeline_req_width_latched: BYTE
+# 196 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 196 lsu.dcache.tag_array.csb0 (aL): 1
 # 196 lsu.dcache.tag_array.web0 (aL): 1
 # 196 lsu.dcache.tag_array.wmask0: 01
-# 196 lsu.dcache.tag_array.addr0: 110100
-# 196 lsu.dcache.tag_array.din0: 800080800080
+# 196 lsu.dcache.tag_array.addr0: 000000
+# 196 lsu.dcache.tag_array.din0: 800000800000
+# 196 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 196 lsu.dcache.tag_array.web0_reg (aL): 1
+# 196 lsu.dcache.tag_array.wmask0_reg: 01
+# 196 lsu.dcache.tag_array.addr0_reg: 000000
+# 196 lsu.dcache.tag_array.din0_reg: 800000800000
 # 196 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 196 lsu.dcache.data_array.csb0 (aL): 0
-# 196 lsu.dcache.data_array.web0 (aL): 0
-# 196 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 196 lsu.dcache.data_array.addr0: 110100
-# 196 lsu.dcache.data_array.din0: 00010188000101880001018800010188
+# 196 lsu.dcache.data_array.csb0 (aL): 1
+# 196 lsu.dcache.data_array.web0 (aL): 1
+# 196 lsu.dcache.data_array.addr0: 000000
+# 196 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 196 lsu.dcache.data_array.csb0_reg (aL): 1
+# 196 lsu.dcache.data_array.web0_reg (aL): 1
+# 196 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 196 lsu.dcache.data_array.addr0_reg: 000000
+# 196 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 196 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 196 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 196 lsu.dcache.pipeline_req_valid: 0
+# 196 lsu.dcache.pipeline_req_valid_latched: 0
+# 196 lsu.dcache.pipeline_resp_was_valid: 0
 # 196 lsu.dcache.tag_array_hit: 0
-# 
-# 196 lsu.dcache.mem_ctrl_req_valid: 0
-# 196 lsu.dcache.mem_ctrl_req_type: READ
-# 196 lsu.dcache.mem_ctrl_req_block_addr: 00002034
-# 196 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 196 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 196 lsu.dcache.mem_ctrl_resp_valid: 0
-# 196 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 196 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 196 lsu.dcache.pipeline_resp_valid: 0
 # 196 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 196 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 196 rob_ptr: 0001
+# 196 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 196 lsq_enq_ctr: 0000
+# 196 lsq_deq_ctr: 0000
+# 196 ld_broadcast_reg_data: 00000000
 #  
 #  
-#  
-#  
-# 206 lsu.dcache.pipeline_req_valid: 1
-# 206 lsu.dcache.pipeline_req_type: WRITE
-# 206 lsu.dcache.pipeline_req_width: WORD
-# 206 lsu.dcache.pipeline_req_addr: 000101a4
-# 206 lsu.dcache.pipeline_req_wr_data: 00010188
 # 
-# 206 lsu.dcache.pipeline_req_valid_latched: 1
-# 206 lsu.dcache.pipeline_req_type_latched: WRITE
-# 206 lsu.dcache.pipeline_req_width_latched: WORD
-# 206 lsu.dcache.pipeline_req_addr_latched: 000101a4
+# ------| Cycle start:   20 |--------------------------------------------
 # 
-# 206 lsu.dcache.tag_array.csb0 (aL): 0
+# *****| AT   200ns POSEDGE |*****
+#  
+# DISPATCH: IFIFO DISPATCH DATA 0x704820c0004065000010198
+# DISPATCH: IFIFO DISPATCH READY 1
+# DISPATCH: Ready ins: (ififo_dis_v: 1 rob_v: 1 (enq_ctr: 000010 deq_ctr: 000001) iiq_ok: 1 lsq_ok: 1)
+# DISPATCH: IIQ DISP V: 0
+# DECODE INSTR: 01c12083
+# DISPATCH: IIQ DISP ENTRY:
+#  
+# src1_valid: 1
+# src1_rob_id: 0
+# src1_ready: 1
+# src1_data:      65928
+# src2_valid: 0
+# src2_rob_id: 0
+# src2_ready: 1
+# src2_data:          0
+# dst_valid: 1
+# instr_rob_id: 2
+# imm:         28
+# pc: 00010194
+# funct3: 010
+# is_r_type: 0
+# is_i_type: 1
+# is_u_type: 0
+# is_b_type: 0
+# is_j_type: 0
+# is_sub: 0
+# is_sra_srai: 0
+# is_lui: 0
+# is_jalr: 0
+# br_dir_pred: 0
+# br_target_pred: 00010198
+#  
+#  
+#  
+# 206 lsu.dcache.pipeline_req_valid: 0
+# 206 lsu.dcache.pipeline_req_type: READ
+# 206 lsu.dcache.pipeline_req_width: BYTE
+# 206 lsu.dcache.pipeline_req_addr: 00000000
+# 206 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 206 lsu.dcache.pipeline_req_valid_latched: 0
+# 206 lsu.dcache.pipeline_req_type_latched: READ
+# 206 lsu.dcache.pipeline_req_width_latched: BYTE
+# 206 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 206 lsu.dcache.tag_array.csb0 (aL): 1
 # 206 lsu.dcache.tag_array.web0 (aL): 1
-# 206 lsu.dcache.tag_array.wmask0: 10
-# 206 lsu.dcache.tag_array.addr0: 110100
-# 206 lsu.dcache.tag_array.din0: 800080800080
-# 206 lsu.dcache.tag_array.dout0: 000000800080
+# 206 lsu.dcache.tag_array.wmask0: 01
+# 206 lsu.dcache.tag_array.addr0: 000000
+# 206 lsu.dcache.tag_array.din0: 800000800000
+# 206 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 206 lsu.dcache.tag_array.web0_reg (aL): 1
+# 206 lsu.dcache.tag_array.wmask0_reg: 01
+# 206 lsu.dcache.tag_array.addr0_reg: 000000
+# 206 lsu.dcache.tag_array.din0_reg: 800000800000
+# 206 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 206 lsu.dcache.data_array.csb0 (aL): 0
-# 206 lsu.dcache.data_array.web0 (aL): 0
-# 206 lsu.dcache.data_array.wmask0: xxxxxxxx1111xxxx
-# 206 lsu.dcache.data_array.addr0: 110100
-# 206 lsu.dcache.data_array.din0: 00010188000101880001018800010188
+# 206 lsu.dcache.data_array.csb0 (aL): 1
+# 206 lsu.dcache.data_array.web0 (aL): 1
+# 206 lsu.dcache.data_array.addr0: 000000
+# 206 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 206 lsu.dcache.data_array.csb0_reg (aL): 1
+# 206 lsu.dcache.data_array.web0_reg (aL): 1
+# 206 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 206 lsu.dcache.data_array.addr0_reg: 000000
+# 206 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 206 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
-# 206 lsu.dcache.tag_array_hit: 1
+# 206 lsu.dcache.pipeline_resp_valid: 0
 # 
-# 206 lsu.dcache.mem_ctrl_req_valid: 0
-# 206 lsu.dcache.mem_ctrl_req_type: WRITE
-# 206 lsu.dcache.mem_ctrl_req_block_addr: 00002034
-# 206 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 206 lsu.dcache.mem_ctrl_req_ready: 0
+# 206 lsu.dcache.pipeline_req_valid: 0
+# 206 lsu.dcache.pipeline_req_valid_latched: 0
+# 206 lsu.dcache.pipeline_resp_was_valid: 0
+# 206 lsu.dcache.tag_array_hit: 0
+# 206 lsu.dcache.tag_array_hit_latched: 0
 # 
-# 206 lsu.dcache.mem_ctrl_resp_valid: 0
-# 206 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
-# 
-# 206 lsu.dcache.pipeline_resp_valid: 1
+# 206 lsu.dcache.pipeline_resp_valid: 0
 # 206 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 206 rob_entries[2:0]: '{'{dst_valid:0, dst_arf_id:0, pc_npc:0, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 206 rob_ptr: 0001
+# 206 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}}
+# 206 lsq_enq_ctr: 0000
+# 206 lsq_deq_ctr: 0000
+# 206 ld_broadcast_reg_data: 00000000
 #  
 #  
 #  
 #  
-# 216 lsu.dcache.pipeline_req_valid: 0
+#  
+# 216 lsu.dcache.pipeline_req_valid: 1
 # 216 lsu.dcache.pipeline_req_type: READ
-# 216 lsu.dcache.pipeline_req_width: BYTE
-# 216 lsu.dcache.pipeline_req_addr: 00000000
+# 216 lsu.dcache.pipeline_req_width: WORD
+# 216 lsu.dcache.pipeline_req_addr: 000101a4
 # 216 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 216 lsu.dcache.pipeline_req_valid_latched: 1
-# 216 lsu.dcache.pipeline_req_type_latched: WRITE
-# 216 lsu.dcache.pipeline_req_width_latched: WORD
-# 216 lsu.dcache.pipeline_req_addr_latched: 000101a4
+# 216 lsu.dcache.pipeline_req_valid_latched: 0
+# 216 lsu.dcache.pipeline_req_type_latched: READ
+# 216 lsu.dcache.pipeline_req_width_latched: BYTE
+# 216 lsu.dcache.pipeline_req_addr_latched: 00000000
 # 
-# 216 lsu.dcache.tag_array.csb0 (aL): 1
+# 216 lsu.dcache.tag_array.csb0 (aL): 0
 # 216 lsu.dcache.tag_array.web0 (aL): 1
-# 216 lsu.dcache.tag_array.wmask0: 10
-# 216 lsu.dcache.tag_array.addr0: 000000
-# 216 lsu.dcache.tag_array.din0: 800000800000
-# 216 lsu.dcache.tag_array.dout0: 000000800080
+# 216 lsu.dcache.tag_array.wmask0: 01
+# 216 lsu.dcache.tag_array.addr0: 110100
+# 216 lsu.dcache.tag_array.din0: 800080800080
+# 216 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 216 lsu.dcache.tag_array.web0_reg (aL): 1
+# 216 lsu.dcache.tag_array.wmask0_reg: 01
+# 216 lsu.dcache.tag_array.addr0_reg: 000000
+# 216 lsu.dcache.tag_array.din0_reg: 800000800000
+# 216 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 216 lsu.dcache.data_array.csb0 (aL): 1
 # 216 lsu.dcache.data_array.web0 (aL): 1
-# 216 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxx1
 # 216 lsu.dcache.data_array.addr0: 000000
 # 216 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 216 lsu.dcache.data_array.csb0_reg (aL): 1
+# 216 lsu.dcache.data_array.web0_reg (aL): 1
+# 216 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 216 lsu.dcache.data_array.addr0_reg: 000000
+# 216 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 216 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
-# 216 lsu.dcache.tag_array_hit: 1
+# 216 lsu.dcache.pipeline_resp_valid: 0
 # 
-# 216 lsu.dcache.mem_ctrl_req_valid: 1
-# 216 lsu.dcache.mem_ctrl_req_type: WRITE
-# 216 lsu.dcache.mem_ctrl_req_block_addr: 00002034
-# 216 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 216 lsu.dcache.mem_ctrl_req_ready: 1
-# 
-# 216 lsu.dcache.mem_ctrl_resp_valid: 0
-# 216 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 216 lsu.dcache.pipeline_req_valid: 1
+# 216 lsu.dcache.pipeline_req_valid_latched: 0
+# 216 lsu.dcache.pipeline_resp_was_valid: 0
+# 216 lsu.dcache.tag_array_hit: 0
+# 216 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 216 lsu.dcache.pipeline_resp_valid: 0
 # 216 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 216 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 216 rob_ptr: 0001
+# 216 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 216 lsq_enq_ctr: 0001
+# 216 lsq_deq_ctr: 0000
+# 216 ld_broadcast_reg_data: 00000000
 #  
 #  
 #  
 #  
-# 226 lsu.dcache.pipeline_req_valid: 0
+#  
+# 226 lsu.dcache.pipeline_req_valid: 1
 # 226 lsu.dcache.pipeline_req_type: READ
-# 226 lsu.dcache.pipeline_req_width: BYTE
-# 226 lsu.dcache.pipeline_req_addr: 00000000
+# 226 lsu.dcache.pipeline_req_width: WORD
+# 226 lsu.dcache.pipeline_req_addr: 000101a4
 # 226 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 226 lsu.dcache.pipeline_req_valid_latched: 0
+# 226 lsu.dcache.pipeline_req_valid_latched: 1
 # 226 lsu.dcache.pipeline_req_type_latched: READ
-# 226 lsu.dcache.pipeline_req_width_latched: BYTE
-# 226 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 226 lsu.dcache.pipeline_req_width_latched: WORD
+# 226 lsu.dcache.pipeline_req_addr_latched: 000101a4
 # 
-# 226 lsu.dcache.tag_array.csb0 (aL): 1
+# 226 lsu.dcache.tag_array.csb0 (aL): 0
 # 226 lsu.dcache.tag_array.web0 (aL): 1
-# 226 lsu.dcache.tag_array.wmask0: 10
-# 226 lsu.dcache.tag_array.addr0: 000000
-# 226 lsu.dcache.tag_array.din0: 800000800000
-# 226 lsu.dcache.tag_array.dout0: 000000800080
+# 226 lsu.dcache.tag_array.wmask0: 01
+# 226 lsu.dcache.tag_array.addr0: 110100
+# 226 lsu.dcache.tag_array.din0: 800080800080
+# 226 lsu.dcache.tag_array.csb0_reg (aL): 0
+# 226 lsu.dcache.tag_array.web0_reg (aL): 1
+# 226 lsu.dcache.tag_array.wmask0_reg: 01
+# 226 lsu.dcache.tag_array.addr0_reg: 110100
+# 226 lsu.dcache.tag_array.din0_reg: 800080800080
+# 226 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 226 lsu.dcache.data_array.csb0 (aL): 1
 # 226 lsu.dcache.data_array.web0 (aL): 1
-# 226 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 226 lsu.dcache.data_array.addr0: 000000
+# 226 lsu.dcache.data_array.addr0: 110100
 # 226 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 226 lsu.dcache.data_array.csb0_reg (aL): 1
+# 226 lsu.dcache.data_array.web0_reg (aL): 1
+# 226 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 226 lsu.dcache.data_array.addr0_reg: 000000
+# 226 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 226 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 226 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 226 lsu.dcache.pipeline_req_valid: 1
+# 226 lsu.dcache.pipeline_req_valid_latched: 1
+# 226 lsu.dcache.pipeline_resp_was_valid: 0
 # 226 lsu.dcache.tag_array_hit: 0
-# 
-# 226 lsu.dcache.mem_ctrl_req_valid: 0
-# 226 lsu.dcache.mem_ctrl_req_type: READ
-# 226 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 226 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 226 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 226 lsu.dcache.mem_ctrl_resp_valid: 0
-# 226 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 226 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 226 lsu.dcache.pipeline_resp_valid: 0
 # 226 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 226 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 226 rob_ptr: 0001
+# 226 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 226 lsq_enq_ctr: 0001
+# 226 lsq_deq_ctr: 0000
+# 226 ld_broadcast_reg_data: 00000000
 #  
 #  
 #  
 #  
-# 236 lsu.dcache.pipeline_req_valid: 0
+#  
+# 236 lsu.dcache.pipeline_req_valid: 1
 # 236 lsu.dcache.pipeline_req_type: READ
-# 236 lsu.dcache.pipeline_req_width: BYTE
-# 236 lsu.dcache.pipeline_req_addr: 00000000
+# 236 lsu.dcache.pipeline_req_width: WORD
+# 236 lsu.dcache.pipeline_req_addr: 000101a4
 # 236 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 236 lsu.dcache.pipeline_req_valid_latched: 0
+# 236 lsu.dcache.pipeline_req_valid_latched: 1
 # 236 lsu.dcache.pipeline_req_type_latched: READ
-# 236 lsu.dcache.pipeline_req_width_latched: BYTE
-# 236 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 236 lsu.dcache.pipeline_req_width_latched: WORD
+# 236 lsu.dcache.pipeline_req_addr_latched: 000101a4
 # 
-# 236 lsu.dcache.tag_array.csb0 (aL): 1
+# 236 lsu.dcache.tag_array.csb0 (aL): 0
 # 236 lsu.dcache.tag_array.web0 (aL): 1
-# 236 lsu.dcache.tag_array.wmask0: 10
-# 236 lsu.dcache.tag_array.addr0: 000000
-# 236 lsu.dcache.tag_array.din0: 800000800000
-# 236 lsu.dcache.tag_array.dout0: 000000800080
+# 236 lsu.dcache.tag_array.wmask0: 01
+# 236 lsu.dcache.tag_array.addr0: 110100
+# 236 lsu.dcache.tag_array.din0: 800080800080
+# 236 lsu.dcache.tag_array.csb0_reg (aL): 0
+# 236 lsu.dcache.tag_array.web0_reg (aL): 1
+# 236 lsu.dcache.tag_array.wmask0_reg: 01
+# 236 lsu.dcache.tag_array.addr0_reg: 110100
+# 236 lsu.dcache.tag_array.din0_reg: 800080800080
+# 236 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 236 lsu.dcache.data_array.csb0 (aL): 1
 # 236 lsu.dcache.data_array.web0 (aL): 1
-# 236 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 236 lsu.dcache.data_array.addr0: 000000
+# 236 lsu.dcache.data_array.addr0: 110100
 # 236 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 236 lsu.dcache.data_array.csb0_reg (aL): 1
+# 236 lsu.dcache.data_array.web0_reg (aL): 1
+# 236 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 236 lsu.dcache.data_array.addr0_reg: 110100
+# 236 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 236 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 236 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 236 lsu.dcache.pipeline_req_valid: 1
+# 236 lsu.dcache.pipeline_req_valid_latched: 1
+# 236 lsu.dcache.pipeline_resp_was_valid: 0
 # 236 lsu.dcache.tag_array_hit: 0
-# 
-# 236 lsu.dcache.mem_ctrl_req_valid: 0
-# 236 lsu.dcache.mem_ctrl_req_type: READ
-# 236 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 236 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 236 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 236 lsu.dcache.mem_ctrl_resp_valid: 0
-# 236 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 236 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 236 lsu.dcache.pipeline_resp_valid: 0
 # 236 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 236 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 236 rob_ptr: 0010
+# 236 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 236 lsq_enq_ctr: 0001
+# 236 lsq_deq_ctr: 0000
+# 236 ld_broadcast_reg_data: 00000000
 #  
 #  
 #  
 #  
-# 246 lsu.dcache.pipeline_req_valid: 0
+#  
+# 246 lsu.dcache.pipeline_req_valid: 1
 # 246 lsu.dcache.pipeline_req_type: READ
-# 246 lsu.dcache.pipeline_req_width: BYTE
-# 246 lsu.dcache.pipeline_req_addr: 00000000
+# 246 lsu.dcache.pipeline_req_width: WORD
+# 246 lsu.dcache.pipeline_req_addr: 000101a4
 # 246 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 246 lsu.dcache.pipeline_req_valid_latched: 0
+# 246 lsu.dcache.pipeline_req_valid_latched: 1
 # 246 lsu.dcache.pipeline_req_type_latched: READ
-# 246 lsu.dcache.pipeline_req_width_latched: BYTE
-# 246 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 246 lsu.dcache.pipeline_req_width_latched: WORD
+# 246 lsu.dcache.pipeline_req_addr_latched: 000101a4
 # 
-# 246 lsu.dcache.tag_array.csb0 (aL): 1
+# 246 lsu.dcache.tag_array.csb0 (aL): 0
 # 246 lsu.dcache.tag_array.web0 (aL): 1
-# 246 lsu.dcache.tag_array.wmask0: 10
-# 246 lsu.dcache.tag_array.addr0: 000000
-# 246 lsu.dcache.tag_array.din0: 800000800000
-# 246 lsu.dcache.tag_array.dout0: 000000800080
+# 246 lsu.dcache.tag_array.wmask0: 01
+# 246 lsu.dcache.tag_array.addr0: 110100
+# 246 lsu.dcache.tag_array.din0: 800080800080
+# 246 lsu.dcache.tag_array.csb0_reg (aL): 0
+# 246 lsu.dcache.tag_array.web0_reg (aL): 1
+# 246 lsu.dcache.tag_array.wmask0_reg: 01
+# 246 lsu.dcache.tag_array.addr0_reg: 110100
+# 246 lsu.dcache.tag_array.din0_reg: 800080800080
+# 246 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 246 lsu.dcache.data_array.csb0 (aL): 1
 # 246 lsu.dcache.data_array.web0 (aL): 1
-# 246 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 246 lsu.dcache.data_array.addr0: 000000
+# 246 lsu.dcache.data_array.addr0: 110100
 # 246 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 246 lsu.dcache.data_array.csb0_reg (aL): 1
+# 246 lsu.dcache.data_array.web0_reg (aL): 1
+# 246 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 246 lsu.dcache.data_array.addr0_reg: 110100
+# 246 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 246 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 246 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 246 lsu.dcache.pipeline_req_valid: 1
+# 246 lsu.dcache.pipeline_req_valid_latched: 1
+# 246 lsu.dcache.pipeline_resp_was_valid: 0
 # 246 lsu.dcache.tag_array_hit: 0
-# 
-# 246 lsu.dcache.mem_ctrl_req_valid: 0
-# 246 lsu.dcache.mem_ctrl_req_type: READ
-# 246 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 246 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 246 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 246 lsu.dcache.mem_ctrl_resp_valid: 0
-# 246 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 246 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 246 lsu.dcache.pipeline_resp_valid: 0
 # 246 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 246 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 246 rob_ptr: 0010
+# 246 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 246 lsq_enq_ctr: 0001
+# 246 lsq_deq_ctr: 0000
+# 246 ld_broadcast_reg_data: 00000000
 #  
 #  
 #  
 #  
-# 256 lsu.dcache.pipeline_req_valid: 0
+#  
+# 256 lsu.dcache.pipeline_req_valid: 1
 # 256 lsu.dcache.pipeline_req_type: READ
-# 256 lsu.dcache.pipeline_req_width: BYTE
-# 256 lsu.dcache.pipeline_req_addr: 00000000
+# 256 lsu.dcache.pipeline_req_width: WORD
+# 256 lsu.dcache.pipeline_req_addr: 000101a4
 # 256 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 256 lsu.dcache.pipeline_req_valid_latched: 0
+# 256 lsu.dcache.pipeline_req_valid_latched: 1
 # 256 lsu.dcache.pipeline_req_type_latched: READ
-# 256 lsu.dcache.pipeline_req_width_latched: BYTE
-# 256 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 256 lsu.dcache.pipeline_req_width_latched: WORD
+# 256 lsu.dcache.pipeline_req_addr_latched: 000101a4
 # 
-# 256 lsu.dcache.tag_array.csb0 (aL): 1
+# 256 lsu.dcache.tag_array.csb0 (aL): 0
 # 256 lsu.dcache.tag_array.web0 (aL): 1
-# 256 lsu.dcache.tag_array.wmask0: 10
-# 256 lsu.dcache.tag_array.addr0: 000000
-# 256 lsu.dcache.tag_array.din0: 800000800000
-# 256 lsu.dcache.tag_array.dout0: 000000800080
+# 256 lsu.dcache.tag_array.wmask0: 01
+# 256 lsu.dcache.tag_array.addr0: 110100
+# 256 lsu.dcache.tag_array.din0: 800080800080
+# 256 lsu.dcache.tag_array.csb0_reg (aL): 0
+# 256 lsu.dcache.tag_array.web0_reg (aL): 1
+# 256 lsu.dcache.tag_array.wmask0_reg: 01
+# 256 lsu.dcache.tag_array.addr0_reg: 110100
+# 256 lsu.dcache.tag_array.din0_reg: 800080800080
+# 256 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 256 lsu.dcache.data_array.csb0 (aL): 1
 # 256 lsu.dcache.data_array.web0 (aL): 1
-# 256 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 256 lsu.dcache.data_array.addr0: 000000
+# 256 lsu.dcache.data_array.addr0: 110100
 # 256 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 256 lsu.dcache.data_array.csb0_reg (aL): 1
+# 256 lsu.dcache.data_array.web0_reg (aL): 1
+# 256 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 256 lsu.dcache.data_array.addr0_reg: 110100
+# 256 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 256 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 256 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 256 lsu.dcache.pipeline_req_valid: 1
+# 256 lsu.dcache.pipeline_req_valid_latched: 1
+# 256 lsu.dcache.pipeline_resp_was_valid: 0
 # 256 lsu.dcache.tag_array_hit: 0
-# 
-# 256 lsu.dcache.mem_ctrl_req_valid: 0
-# 256 lsu.dcache.mem_ctrl_req_type: READ
-# 256 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 256 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 256 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 256 lsu.dcache.mem_ctrl_resp_valid: 0
-# 256 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 256 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 256 lsu.dcache.pipeline_resp_valid: 0
 # 256 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 256 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 256 rob_ptr: 0010
+# 256 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 256 lsq_enq_ctr: 0001
+# 256 lsq_deq_ctr: 0000
+# 256 ld_broadcast_reg_data: 00000000
 #  
 #  
 #  
 #  
-# 266 lsu.dcache.pipeline_req_valid: 0
+#  
+# 266 lsu.dcache.pipeline_req_valid: 1
 # 266 lsu.dcache.pipeline_req_type: READ
-# 266 lsu.dcache.pipeline_req_width: BYTE
-# 266 lsu.dcache.pipeline_req_addr: 00000000
+# 266 lsu.dcache.pipeline_req_width: WORD
+# 266 lsu.dcache.pipeline_req_addr: 000101a4
 # 266 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 266 lsu.dcache.pipeline_req_valid_latched: 0
+# 266 lsu.dcache.pipeline_req_valid_latched: 1
 # 266 lsu.dcache.pipeline_req_type_latched: READ
-# 266 lsu.dcache.pipeline_req_width_latched: BYTE
-# 266 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 266 lsu.dcache.pipeline_req_width_latched: WORD
+# 266 lsu.dcache.pipeline_req_addr_latched: 000101a4
 # 
-# 266 lsu.dcache.tag_array.csb0 (aL): 1
+# 266 lsu.dcache.tag_array.csb0 (aL): 0
 # 266 lsu.dcache.tag_array.web0 (aL): 1
-# 266 lsu.dcache.tag_array.wmask0: 10
-# 266 lsu.dcache.tag_array.addr0: 000000
-# 266 lsu.dcache.tag_array.din0: 800000800000
-# 266 lsu.dcache.tag_array.dout0: 000000800080
+# 266 lsu.dcache.tag_array.wmask0: 01
+# 266 lsu.dcache.tag_array.addr0: 110100
+# 266 lsu.dcache.tag_array.din0: 800080800080
+# 266 lsu.dcache.tag_array.csb0_reg (aL): 0
+# 266 lsu.dcache.tag_array.web0_reg (aL): 1
+# 266 lsu.dcache.tag_array.wmask0_reg: 01
+# 266 lsu.dcache.tag_array.addr0_reg: 110100
+# 266 lsu.dcache.tag_array.din0_reg: 800080800080
+# 266 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 266 lsu.dcache.data_array.csb0 (aL): 1
 # 266 lsu.dcache.data_array.web0 (aL): 1
-# 266 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 266 lsu.dcache.data_array.addr0: 000000
+# 266 lsu.dcache.data_array.addr0: 110100
 # 266 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 266 lsu.dcache.data_array.csb0_reg (aL): 1
+# 266 lsu.dcache.data_array.web0_reg (aL): 1
+# 266 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 266 lsu.dcache.data_array.addr0_reg: 110100
+# 266 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 266 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 266 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 266 lsu.dcache.pipeline_req_valid: 1
+# 266 lsu.dcache.pipeline_req_valid_latched: 1
+# 266 lsu.dcache.pipeline_resp_was_valid: 0
 # 266 lsu.dcache.tag_array_hit: 0
-# 
-# 266 lsu.dcache.mem_ctrl_req_valid: 0
-# 266 lsu.dcache.mem_ctrl_req_type: READ
-# 266 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 266 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 266 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 266 lsu.dcache.mem_ctrl_resp_valid: 0
-# 266 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 266 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 266 lsu.dcache.pipeline_resp_valid: 0
 # 266 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 266 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 266 rob_ptr: 0010
+# 266 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 266 lsq_enq_ctr: 0001
+# 266 lsq_deq_ctr: 0000
+# 266 ld_broadcast_reg_data: 00000000
 #  
 #  
 #  
 #  
-# 276 lsu.dcache.pipeline_req_valid: 0
+#  
+# 276 lsu.dcache.pipeline_req_valid: 1
 # 276 lsu.dcache.pipeline_req_type: READ
-# 276 lsu.dcache.pipeline_req_width: BYTE
-# 276 lsu.dcache.pipeline_req_addr: 00000000
+# 276 lsu.dcache.pipeline_req_width: WORD
+# 276 lsu.dcache.pipeline_req_addr: 000101a4
 # 276 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 276 lsu.dcache.pipeline_req_valid_latched: 0
+# 276 lsu.dcache.pipeline_req_valid_latched: 1
 # 276 lsu.dcache.pipeline_req_type_latched: READ
-# 276 lsu.dcache.pipeline_req_width_latched: BYTE
-# 276 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 276 lsu.dcache.pipeline_req_width_latched: WORD
+# 276 lsu.dcache.pipeline_req_addr_latched: 000101a4
 # 
 # 276 lsu.dcache.tag_array.csb0 (aL): 0
-# 276 lsu.dcache.tag_array.web0 (aL): 0
-# 276 lsu.dcache.tag_array.wmask0: 10
-# 276 lsu.dcache.tag_array.addr0: 000000
-# 276 lsu.dcache.tag_array.din0: 800000800000
-# 276 lsu.dcache.tag_array.dout0: 000000800080
+# 276 lsu.dcache.tag_array.web0 (aL): 1
+# 276 lsu.dcache.tag_array.wmask0: 01
+# 276 lsu.dcache.tag_array.addr0: 110100
+# 276 lsu.dcache.tag_array.din0: 800080800080
+# 276 lsu.dcache.tag_array.csb0_reg (aL): 0
+# 276 lsu.dcache.tag_array.web0_reg (aL): 1
+# 276 lsu.dcache.tag_array.wmask0_reg: 01
+# 276 lsu.dcache.tag_array.addr0_reg: 110100
+# 276 lsu.dcache.tag_array.din0_reg: 800080800080
+# 276 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 276 lsu.dcache.data_array.csb0 (aL): 0
-# 276 lsu.dcache.data_array.web0 (aL): 0
-# 276 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 276 lsu.dcache.data_array.addr0: 000000
-# 276 lsu.dcache.data_array.din0: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# 276 lsu.dcache.data_array.csb0 (aL): 1
+# 276 lsu.dcache.data_array.web0 (aL): 1
+# 276 lsu.dcache.data_array.addr0: 110100
+# 276 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 276 lsu.dcache.data_array.csb0_reg (aL): 1
+# 276 lsu.dcache.data_array.web0_reg (aL): 1
+# 276 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 276 lsu.dcache.data_array.addr0_reg: 110100
+# 276 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 276 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 276 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 276 lsu.dcache.pipeline_req_valid: 1
+# 276 lsu.dcache.pipeline_req_valid_latched: 1
+# 276 lsu.dcache.pipeline_resp_was_valid: 0
 # 276 lsu.dcache.tag_array_hit: 0
-# 
-# 276 lsu.dcache.mem_ctrl_req_valid: 0
-# 276 lsu.dcache.mem_ctrl_req_type: READ
-# 276 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 276 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 276 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 276 lsu.dcache.mem_ctrl_resp_valid: 1
-# 276 lsu.dcache.mem_ctrl_resp_block_data: xxxxxxxxxxxxxxxx
+# 276 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 276 lsu.dcache.pipeline_resp_valid: 0
 # 276 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 276 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 276 rob_ptr: 0010
+# 276 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 276 lsq_enq_ctr: 0001
+# 276 lsq_deq_ctr: 0000
+# 276 ld_broadcast_reg_data: 00000000
 #  
 #  
 #  
 #  
-# 286 lsu.dcache.pipeline_req_valid: 0
+#  
+# 286 lsu.dcache.pipeline_req_valid: 1
 # 286 lsu.dcache.pipeline_req_type: READ
-# 286 lsu.dcache.pipeline_req_width: BYTE
-# 286 lsu.dcache.pipeline_req_addr: 00000000
+# 286 lsu.dcache.pipeline_req_width: WORD
+# 286 lsu.dcache.pipeline_req_addr: 000101a4
 # 286 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 286 lsu.dcache.pipeline_req_valid_latched: 0
+# 286 lsu.dcache.pipeline_req_valid_latched: 1
 # 286 lsu.dcache.pipeline_req_type_latched: READ
-# 286 lsu.dcache.pipeline_req_width_latched: BYTE
-# 286 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 286 lsu.dcache.pipeline_req_width_latched: WORD
+# 286 lsu.dcache.pipeline_req_addr_latched: 000101a4
 # 
-# 286 lsu.dcache.tag_array.csb0 (aL): 1
-# 286 lsu.dcache.tag_array.web0 (aL): 1
-# 286 lsu.dcache.tag_array.wmask0: 10
-# 286 lsu.dcache.tag_array.addr0: 000000
-# 286 lsu.dcache.tag_array.din0: 800000800000
-# 286 lsu.dcache.tag_array.dout0: 000000800080
+# 286 lsu.dcache.tag_array.csb0 (aL): 0
+# 286 lsu.dcache.tag_array.web0 (aL): 0
+# 286 lsu.dcache.tag_array.wmask0: 01
+# 286 lsu.dcache.tag_array.addr0: 110100
+# 286 lsu.dcache.tag_array.din0: 800080800080
+# 286 lsu.dcache.tag_array.csb0_reg (aL): 0
+# 286 lsu.dcache.tag_array.web0_reg (aL): 1
+# 286 lsu.dcache.tag_array.wmask0_reg: 01
+# 286 lsu.dcache.tag_array.addr0_reg: 110100
+# 286 lsu.dcache.tag_array.din0_reg: 800080800080
+# 286 lsu.dcache.tag_array.dout0: 000000000000
 # 
-# 286 lsu.dcache.data_array.csb0 (aL): 1
-# 286 lsu.dcache.data_array.web0 (aL): 1
-# 286 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 286 lsu.dcache.data_array.addr0: 000000
-# 286 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 286 lsu.dcache.data_array.csb0 (aL): 0
+# 286 lsu.dcache.data_array.web0 (aL): 0
+# 286 lsu.dcache.data_array.addr0: 110100
+# 286 lsu.dcache.data_array.din0: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# 286 lsu.dcache.data_array.csb0_reg (aL): 1
+# 286 lsu.dcache.data_array.web0_reg (aL): 1
+# 286 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 286 lsu.dcache.data_array.addr0_reg: 110100
+# 286 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 286 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 286 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 286 lsu.dcache.pipeline_req_valid: 1
+# 286 lsu.dcache.pipeline_req_valid_latched: 1
+# 286 lsu.dcache.pipeline_resp_was_valid: 0
 # 286 lsu.dcache.tag_array_hit: 0
-# 
-# 286 lsu.dcache.mem_ctrl_req_valid: 0
-# 286 lsu.dcache.mem_ctrl_req_type: READ
-# 286 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 286 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 286 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 286 lsu.dcache.mem_ctrl_resp_valid: 0
-# 286 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 286 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 286 lsu.dcache.pipeline_resp_valid: 0
 # 286 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 286 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 286 rob_ptr: 0010
+# 286 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 286 lsq_enq_ctr: 0001
+# 286 lsq_deq_ctr: 0000
+# 286 ld_broadcast_reg_data: 00000000
 #  
 #  
 #  
 #  
-# 296 lsu.dcache.pipeline_req_valid: 0
+#  
+# 296 lsu.dcache.pipeline_req_valid: 1
 # 296 lsu.dcache.pipeline_req_type: READ
-# 296 lsu.dcache.pipeline_req_width: BYTE
-# 296 lsu.dcache.pipeline_req_addr: 00000000
+# 296 lsu.dcache.pipeline_req_width: WORD
+# 296 lsu.dcache.pipeline_req_addr: 000101a4
 # 296 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 296 lsu.dcache.pipeline_req_valid_latched: 0
+# 296 lsu.dcache.pipeline_req_valid_latched: 1
 # 296 lsu.dcache.pipeline_req_type_latched: READ
-# 296 lsu.dcache.pipeline_req_width_latched: BYTE
-# 296 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 296 lsu.dcache.pipeline_req_width_latched: WORD
+# 296 lsu.dcache.pipeline_req_addr_latched: 000101a4
 # 
-# 296 lsu.dcache.tag_array.csb0 (aL): 1
+# 296 lsu.dcache.tag_array.csb0 (aL): 0
 # 296 lsu.dcache.tag_array.web0 (aL): 1
-# 296 lsu.dcache.tag_array.wmask0: 10
-# 296 lsu.dcache.tag_array.addr0: 000000
-# 296 lsu.dcache.tag_array.din0: 800000800000
-# 296 lsu.dcache.tag_array.dout0: 000000800080
+# 296 lsu.dcache.tag_array.wmask0: 01
+# 296 lsu.dcache.tag_array.addr0: 110100
+# 296 lsu.dcache.tag_array.din0: 800080800080
+# 296 lsu.dcache.tag_array.csb0_reg (aL): 0
+# 296 lsu.dcache.tag_array.web0_reg (aL): 0
+# 296 lsu.dcache.tag_array.wmask0_reg: 01
+# 296 lsu.dcache.tag_array.addr0_reg: 110100
+# 296 lsu.dcache.tag_array.din0_reg: 800080800080
+# 296 lsu.dcache.tag_array.dout0: 000000000000
 # 
 # 296 lsu.dcache.data_array.csb0 (aL): 1
 # 296 lsu.dcache.data_array.web0 (aL): 1
-# 296 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 296 lsu.dcache.data_array.addr0: 000000
+# 296 lsu.dcache.data_array.addr0: 110100
 # 296 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 296 lsu.dcache.data_array.csb0_reg (aL): 0
+# 296 lsu.dcache.data_array.web0_reg (aL): 0
+# 296 lsu.dcache.data_array.wmask0_reg: 1111111100000000
+# 296 lsu.dcache.data_array.addr0_reg: 110100
+# 296 lsu.dcache.data_array.din0_reg: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 # 296 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
+# 296 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 296 lsu.dcache.pipeline_req_valid: 1
+# 296 lsu.dcache.pipeline_req_valid_latched: 1
+# 296 lsu.dcache.pipeline_resp_was_valid: 0
 # 296 lsu.dcache.tag_array_hit: 0
-# 
-# 296 lsu.dcache.mem_ctrl_req_valid: 0
-# 296 lsu.dcache.mem_ctrl_req_type: READ
-# 296 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 296 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 296 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 296 lsu.dcache.mem_ctrl_resp_valid: 0
-# 296 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 296 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 296 lsu.dcache.pipeline_resp_valid: 0
 # 296 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 296 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 296 rob_ptr: 0010
+# 296 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 296 lsq_enq_ctr: 0001
+# 296 lsq_deq_ctr: 0000
+# 296 ld_broadcast_reg_data: 00000000
 #  
 #  
 #  
 #  
-# 306 lsu.dcache.pipeline_req_valid: 0
+#  
+# 306 lsu.dcache.pipeline_req_valid: 1
 # 306 lsu.dcache.pipeline_req_type: READ
-# 306 lsu.dcache.pipeline_req_width: BYTE
-# 306 lsu.dcache.pipeline_req_addr: 00000000
+# 306 lsu.dcache.pipeline_req_width: WORD
+# 306 lsu.dcache.pipeline_req_addr: 000101a4
 # 306 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 306 lsu.dcache.pipeline_req_valid_latched: 0
+# 306 lsu.dcache.pipeline_req_valid_latched: 1
 # 306 lsu.dcache.pipeline_req_type_latched: READ
-# 306 lsu.dcache.pipeline_req_width_latched: BYTE
-# 306 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 306 lsu.dcache.pipeline_req_width_latched: WORD
+# 306 lsu.dcache.pipeline_req_addr_latched: 000101a4
 # 
-# 306 lsu.dcache.tag_array.csb0 (aL): 1
+# 306 lsu.dcache.tag_array.csb0 (aL): 0
 # 306 lsu.dcache.tag_array.web0 (aL): 1
 # 306 lsu.dcache.tag_array.wmask0: 10
-# 306 lsu.dcache.tag_array.addr0: 000000
-# 306 lsu.dcache.tag_array.din0: 800000800000
+# 306 lsu.dcache.tag_array.addr0: 110100
+# 306 lsu.dcache.tag_array.din0: 800080800080
+# 306 lsu.dcache.tag_array.csb0_reg (aL): 0
+# 306 lsu.dcache.tag_array.web0_reg (aL): 1
+# 306 lsu.dcache.tag_array.wmask0_reg: 01
+# 306 lsu.dcache.tag_array.addr0_reg: 110100
+# 306 lsu.dcache.tag_array.din0_reg: 800080800080
 # 306 lsu.dcache.tag_array.dout0: 000000800080
 # 
-# 306 lsu.dcache.data_array.csb0 (aL): 1
+# 306 lsu.dcache.data_array.csb0 (aL): 0
 # 306 lsu.dcache.data_array.web0 (aL): 1
-# 306 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 306 lsu.dcache.data_array.addr0: 000000
+# 306 lsu.dcache.data_array.addr0: 110100
 # 306 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 306 lsu.dcache.data_array.csb0_reg (aL): 1
+# 306 lsu.dcache.data_array.web0_reg (aL): 1
+# 306 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 306 lsu.dcache.data_array.addr0_reg: 110100
+# 306 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
 # 306 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
 # 
-# 306 lsu.dcache.tag_array_hit: 0
+# 306 lsu.dcache.pipeline_resp_valid: 0
 # 
-# 306 lsu.dcache.mem_ctrl_req_valid: 0
-# 306 lsu.dcache.mem_ctrl_req_type: READ
-# 306 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 306 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 306 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 306 lsu.dcache.mem_ctrl_resp_valid: 0
-# 306 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 306 lsu.dcache.pipeline_req_valid: 1
+# 306 lsu.dcache.pipeline_req_valid_latched: 1
+# 306 lsu.dcache.pipeline_resp_was_valid: 0
+# 306 lsu.dcache.tag_array_hit: 1
+# 306 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 306 lsu.dcache.pipeline_resp_valid: 0
 # 306 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 306 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 306 rob_ptr: 0010
+# 306 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 306 lsq_enq_ctr: 0001
+# 306 lsq_deq_ctr: 0000
+# 306 ld_broadcast_reg_data: 00000000
 #  
 #  
 #  
 #  
-# 316 lsu.dcache.pipeline_req_valid: 0
+#  
+# 316 lsu.dcache.pipeline_req_valid: 1
 # 316 lsu.dcache.pipeline_req_type: READ
-# 316 lsu.dcache.pipeline_req_width: BYTE
-# 316 lsu.dcache.pipeline_req_addr: 00000000
+# 316 lsu.dcache.pipeline_req_width: WORD
+# 316 lsu.dcache.pipeline_req_addr: 000101a4
 # 316 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 316 lsu.dcache.pipeline_req_valid_latched: 0
+# 316 lsu.dcache.pipeline_req_valid_latched: 1
 # 316 lsu.dcache.pipeline_req_type_latched: READ
-# 316 lsu.dcache.pipeline_req_width_latched: BYTE
-# 316 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 316 lsu.dcache.pipeline_req_width_latched: WORD
+# 316 lsu.dcache.pipeline_req_addr_latched: 000101a4
 # 
-# 316 lsu.dcache.tag_array.csb0 (aL): 1
+# 316 lsu.dcache.tag_array.csb0 (aL): 0
 # 316 lsu.dcache.tag_array.web0 (aL): 1
 # 316 lsu.dcache.tag_array.wmask0: 10
-# 316 lsu.dcache.tag_array.addr0: 000000
-# 316 lsu.dcache.tag_array.din0: 800000800000
+# 316 lsu.dcache.tag_array.addr0: 110100
+# 316 lsu.dcache.tag_array.din0: 800080800080
+# 316 lsu.dcache.tag_array.csb0_reg (aL): 0
+# 316 lsu.dcache.tag_array.web0_reg (aL): 1
+# 316 lsu.dcache.tag_array.wmask0_reg: 10
+# 316 lsu.dcache.tag_array.addr0_reg: 110100
+# 316 lsu.dcache.tag_array.din0_reg: 800080800080
 # 316 lsu.dcache.tag_array.dout0: 000000800080
 # 
-# 316 lsu.dcache.data_array.csb0 (aL): 1
+# 316 lsu.dcache.data_array.csb0 (aL): 0
 # 316 lsu.dcache.data_array.web0 (aL): 1
-# 316 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 316 lsu.dcache.data_array.addr0: 000000
+# 316 lsu.dcache.data_array.addr0: 110100
 # 316 lsu.dcache.data_array.din0: 00000000000000000000000000000000
-# 316 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
+# 316 lsu.dcache.data_array.csb0_reg (aL): 0
+# 316 lsu.dcache.data_array.web0_reg (aL): 1
+# 316 lsu.dcache.data_array.wmask0_reg: 0000000011110000
+# 316 lsu.dcache.data_array.addr0_reg: 110100
+# 316 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 316 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
 # 
-# 316 lsu.dcache.tag_array_hit: 0
+# 316 lsu.dcache.pipeline_resp_valid: 1
 # 
-# 316 lsu.dcache.mem_ctrl_req_valid: 0
-# 316 lsu.dcache.mem_ctrl_req_type: READ
-# 316 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 316 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 316 lsu.dcache.mem_ctrl_req_ready: 0
+# 316 lsu.dcache.pipeline_req_valid: 1
+# 316 lsu.dcache.pipeline_req_valid_latched: 1
+# 316 lsu.dcache.pipeline_resp_was_valid: 0
+# 316 lsu.dcache.tag_array_hit: 1
+# 316 lsu.dcache.tag_array_hit_latched: 1
 # 
-# 316 lsu.dcache.mem_ctrl_resp_valid: 0
-# 316 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
-# 
-# 316 lsu.dcache.pipeline_resp_valid: 0
+# 316 lsu.dcache.pipeline_resp_valid: 1
 # 316 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 316 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:0, is_executed:0, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 316 rob_ptr: 0010
+# 316 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 316 lsq_enq_ctr: 0001
+# 316 lsq_deq_ctr: 0000
+# 316 ld_broadcast_reg_data: 00000000
+#  
 #  
 #  
 #  
@@ -1584,39 +2122,52 @@ Reading pref.tcl
 # 326 lsu.dcache.pipeline_req_addr: 00000000
 # 326 lsu.dcache.pipeline_req_wr_data: 00000000
 # 
-# 326 lsu.dcache.pipeline_req_valid_latched: 0
+# 326 lsu.dcache.pipeline_req_valid_latched: 1
 # 326 lsu.dcache.pipeline_req_type_latched: READ
-# 326 lsu.dcache.pipeline_req_width_latched: BYTE
-# 326 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 326 lsu.dcache.pipeline_req_width_latched: WORD
+# 326 lsu.dcache.pipeline_req_addr_latched: 000101a4
 # 
 # 326 lsu.dcache.tag_array.csb0 (aL): 1
 # 326 lsu.dcache.tag_array.web0 (aL): 1
 # 326 lsu.dcache.tag_array.wmask0: 10
 # 326 lsu.dcache.tag_array.addr0: 000000
 # 326 lsu.dcache.tag_array.din0: 800000800000
+# 326 lsu.dcache.tag_array.csb0_reg (aL): 0
+# 326 lsu.dcache.tag_array.web0_reg (aL): 1
+# 326 lsu.dcache.tag_array.wmask0_reg: 10
+# 326 lsu.dcache.tag_array.addr0_reg: 110100
+# 326 lsu.dcache.tag_array.din0_reg: 800080800080
 # 326 lsu.dcache.tag_array.dout0: 000000800080
 # 
-# 326 lsu.dcache.data_array.csb0 (aL): 1
+# 326 lsu.dcache.data_array.csb0 (aL): 0
 # 326 lsu.dcache.data_array.web0 (aL): 1
-# 326 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
-# 326 lsu.dcache.data_array.addr0: 000000
+# 326 lsu.dcache.data_array.addr0: 110100
 # 326 lsu.dcache.data_array.din0: 00000000000000000000000000000000
-# 326 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
+# 326 lsu.dcache.data_array.csb0_reg (aL): 0
+# 326 lsu.dcache.data_array.web0_reg (aL): 1
+# 326 lsu.dcache.data_array.wmask0_reg: 0000000011110000
+# 326 lsu.dcache.data_array.addr0_reg: 110100
+# 326 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 326 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
 # 
-# 326 lsu.dcache.tag_array_hit: 0
+# 326 lsu.dcache.pipeline_resp_valid: 0
 # 
-# 326 lsu.dcache.mem_ctrl_req_valid: 0
-# 326 lsu.dcache.mem_ctrl_req_type: READ
-# 326 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 326 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 326 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 326 lsu.dcache.mem_ctrl_resp_valid: 0
-# 326 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 326 lsu.dcache.pipeline_req_valid: 0
+# 326 lsu.dcache.pipeline_req_valid_latched: 1
+# 326 lsu.dcache.pipeline_resp_was_valid: 1
+# 326 lsu.dcache.tag_array_hit: 1
+# 326 lsu.dcache.tag_array_hit_latched: 1
 # 
 # 326 lsu.dcache.pipeline_resp_valid: 0
 # 326 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 326 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 326 rob_ptr: 0010
+# 326 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 326 lsq_enq_ctr: 0001
+# 326 lsq_deq_ctr: 0001
+# 326 ld_broadcast_reg_data: 00000000
+#  
 #  
 #  
 #  
@@ -1637,29 +2188,42 @@ Reading pref.tcl
 # 336 lsu.dcache.tag_array.wmask0: 10
 # 336 lsu.dcache.tag_array.addr0: 000000
 # 336 lsu.dcache.tag_array.din0: 800000800000
+# 336 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 336 lsu.dcache.tag_array.web0_reg (aL): 1
+# 336 lsu.dcache.tag_array.wmask0_reg: 10
+# 336 lsu.dcache.tag_array.addr0_reg: 000000
+# 336 lsu.dcache.tag_array.din0_reg: 800000800000
 # 336 lsu.dcache.tag_array.dout0: 000000800080
 # 
 # 336 lsu.dcache.data_array.csb0 (aL): 1
 # 336 lsu.dcache.data_array.web0 (aL): 1
-# 336 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 336 lsu.dcache.data_array.addr0: 000000
 # 336 lsu.dcache.data_array.din0: 00000000000000000000000000000000
-# 336 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
+# 336 lsu.dcache.data_array.csb0_reg (aL): 0
+# 336 lsu.dcache.data_array.web0_reg (aL): 1
+# 336 lsu.dcache.data_array.wmask0_reg: 0000000011110000
+# 336 lsu.dcache.data_array.addr0_reg: 110100
+# 336 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 336 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
 # 
+# 336 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 336 lsu.dcache.pipeline_req_valid: 0
+# 336 lsu.dcache.pipeline_req_valid_latched: 0
+# 336 lsu.dcache.pipeline_resp_was_valid: 0
 # 336 lsu.dcache.tag_array_hit: 0
-# 
-# 336 lsu.dcache.mem_ctrl_req_valid: 0
-# 336 lsu.dcache.mem_ctrl_req_type: READ
-# 336 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 336 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 336 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 336 lsu.dcache.mem_ctrl_resp_valid: 0
-# 336 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 336 lsu.dcache.tag_array_hit_latched: 1
 # 
 # 336 lsu.dcache.pipeline_resp_valid: 0
 # 336 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 336 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 336 rob_ptr: 0011
+# 336 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 336 lsq_enq_ctr: 0001
+# 336 lsq_deq_ctr: 0001
+# 336 ld_broadcast_reg_data: 00000000
+#  
 #  
 #  
 #  
@@ -1680,29 +2244,42 @@ Reading pref.tcl
 # 346 lsu.dcache.tag_array.wmask0: 10
 # 346 lsu.dcache.tag_array.addr0: 000000
 # 346 lsu.dcache.tag_array.din0: 800000800000
+# 346 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 346 lsu.dcache.tag_array.web0_reg (aL): 1
+# 346 lsu.dcache.tag_array.wmask0_reg: 10
+# 346 lsu.dcache.tag_array.addr0_reg: 000000
+# 346 lsu.dcache.tag_array.din0_reg: 800000800000
 # 346 lsu.dcache.tag_array.dout0: 000000800080
 # 
 # 346 lsu.dcache.data_array.csb0 (aL): 1
 # 346 lsu.dcache.data_array.web0 (aL): 1
-# 346 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 346 lsu.dcache.data_array.addr0: 000000
 # 346 lsu.dcache.data_array.din0: 00000000000000000000000000000000
-# 346 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
+# 346 lsu.dcache.data_array.csb0_reg (aL): 1
+# 346 lsu.dcache.data_array.web0_reg (aL): 1
+# 346 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 346 lsu.dcache.data_array.addr0_reg: 000000
+# 346 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 346 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
 # 
+# 346 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 346 lsu.dcache.pipeline_req_valid: 0
+# 346 lsu.dcache.pipeline_req_valid_latched: 0
+# 346 lsu.dcache.pipeline_resp_was_valid: 0
 # 346 lsu.dcache.tag_array_hit: 0
-# 
-# 346 lsu.dcache.mem_ctrl_req_valid: 0
-# 346 lsu.dcache.mem_ctrl_req_type: READ
-# 346 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 346 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 346 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 346 lsu.dcache.mem_ctrl_resp_valid: 0
-# 346 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 346 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 346 lsu.dcache.pipeline_resp_valid: 0
 # 346 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 346 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 346 rob_ptr: 0100
+# 346 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 346 lsq_enq_ctr: 0001
+# 346 lsq_deq_ctr: 0001
+# 346 ld_broadcast_reg_data: 00000000
+#  
 #  
 #  
 #  
@@ -1723,29 +2300,42 @@ Reading pref.tcl
 # 356 lsu.dcache.tag_array.wmask0: 10
 # 356 lsu.dcache.tag_array.addr0: 000000
 # 356 lsu.dcache.tag_array.din0: 800000800000
+# 356 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 356 lsu.dcache.tag_array.web0_reg (aL): 1
+# 356 lsu.dcache.tag_array.wmask0_reg: 10
+# 356 lsu.dcache.tag_array.addr0_reg: 000000
+# 356 lsu.dcache.tag_array.din0_reg: 800000800000
 # 356 lsu.dcache.tag_array.dout0: 000000800080
 # 
 # 356 lsu.dcache.data_array.csb0 (aL): 1
 # 356 lsu.dcache.data_array.web0 (aL): 1
-# 356 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 356 lsu.dcache.data_array.addr0: 000000
 # 356 lsu.dcache.data_array.din0: 00000000000000000000000000000000
-# 356 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
+# 356 lsu.dcache.data_array.csb0_reg (aL): 1
+# 356 lsu.dcache.data_array.web0_reg (aL): 1
+# 356 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 356 lsu.dcache.data_array.addr0_reg: 000000
+# 356 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 356 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
 # 
+# 356 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 356 lsu.dcache.pipeline_req_valid: 0
+# 356 lsu.dcache.pipeline_req_valid_latched: 0
+# 356 lsu.dcache.pipeline_resp_was_valid: 0
 # 356 lsu.dcache.tag_array_hit: 0
-# 
-# 356 lsu.dcache.mem_ctrl_req_valid: 0
-# 356 lsu.dcache.mem_ctrl_req_type: READ
-# 356 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 356 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 356 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 356 lsu.dcache.mem_ctrl_resp_valid: 0
-# 356 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 356 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 356 lsu.dcache.pipeline_resp_valid: 0
 # 356 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 356 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 356 rob_ptr: 0100
+# 356 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 356 lsq_enq_ctr: 0001
+# 356 lsq_deq_ctr: 0001
+# 356 ld_broadcast_reg_data: 00000000
+#  
 #  
 #  
 #  
@@ -1766,29 +2356,42 @@ Reading pref.tcl
 # 366 lsu.dcache.tag_array.wmask0: 10
 # 366 lsu.dcache.tag_array.addr0: 000000
 # 366 lsu.dcache.tag_array.din0: 800000800000
+# 366 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 366 lsu.dcache.tag_array.web0_reg (aL): 1
+# 366 lsu.dcache.tag_array.wmask0_reg: 10
+# 366 lsu.dcache.tag_array.addr0_reg: 000000
+# 366 lsu.dcache.tag_array.din0_reg: 800000800000
 # 366 lsu.dcache.tag_array.dout0: 000000800080
 # 
 # 366 lsu.dcache.data_array.csb0 (aL): 1
 # 366 lsu.dcache.data_array.web0 (aL): 1
-# 366 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 366 lsu.dcache.data_array.addr0: 000000
 # 366 lsu.dcache.data_array.din0: 00000000000000000000000000000000
-# 366 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
+# 366 lsu.dcache.data_array.csb0_reg (aL): 1
+# 366 lsu.dcache.data_array.web0_reg (aL): 1
+# 366 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 366 lsu.dcache.data_array.addr0_reg: 000000
+# 366 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 366 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
 # 
+# 366 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 366 lsu.dcache.pipeline_req_valid: 0
+# 366 lsu.dcache.pipeline_req_valid_latched: 0
+# 366 lsu.dcache.pipeline_resp_was_valid: 0
 # 366 lsu.dcache.tag_array_hit: 0
-# 
-# 366 lsu.dcache.mem_ctrl_req_valid: 0
-# 366 lsu.dcache.mem_ctrl_req_type: READ
-# 366 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 366 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 366 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 366 lsu.dcache.mem_ctrl_resp_valid: 0
-# 366 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 366 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 366 lsu.dcache.pipeline_resp_valid: 0
 # 366 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 366 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 366 rob_ptr: 0100
+# 366 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 366 lsq_enq_ctr: 0001
+# 366 lsq_deq_ctr: 0001
+# 366 ld_broadcast_reg_data: 00000000
+#  
 #  
 #  
 #  
@@ -1809,32 +2412,717 @@ Reading pref.tcl
 # 376 lsu.dcache.tag_array.wmask0: 10
 # 376 lsu.dcache.tag_array.addr0: 000000
 # 376 lsu.dcache.tag_array.din0: 800000800000
+# 376 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 376 lsu.dcache.tag_array.web0_reg (aL): 1
+# 376 lsu.dcache.tag_array.wmask0_reg: 10
+# 376 lsu.dcache.tag_array.addr0_reg: 000000
+# 376 lsu.dcache.tag_array.din0_reg: 800000800000
 # 376 lsu.dcache.tag_array.dout0: 000000800080
 # 
 # 376 lsu.dcache.data_array.csb0 (aL): 1
 # 376 lsu.dcache.data_array.web0 (aL): 1
-# 376 lsu.dcache.data_array.wmask0: xxxxxxxxxxxxxxxx
 # 376 lsu.dcache.data_array.addr0: 000000
 # 376 lsu.dcache.data_array.din0: 00000000000000000000000000000000
-# 376 lsu.dcache.data_array.dout0: 00000000000000000000000000000000
+# 376 lsu.dcache.data_array.csb0_reg (aL): 1
+# 376 lsu.dcache.data_array.web0_reg (aL): 1
+# 376 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 376 lsu.dcache.data_array.addr0_reg: 000000
+# 376 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 376 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
 # 
+# 376 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 376 lsu.dcache.pipeline_req_valid: 0
+# 376 lsu.dcache.pipeline_req_valid_latched: 0
+# 376 lsu.dcache.pipeline_resp_was_valid: 0
 # 376 lsu.dcache.tag_array_hit: 0
-# 
-# 376 lsu.dcache.mem_ctrl_req_valid: 0
-# 376 lsu.dcache.mem_ctrl_req_type: READ
-# 376 lsu.dcache.mem_ctrl_req_block_addr: 00000000
-# 376 lsu.dcache.mem_ctrl_req_block_data: 0000000000000000
-# 376 lsu.dcache.mem_ctrl_req_ready: 0
-# 
-# 376 lsu.dcache.mem_ctrl_resp_valid: 0
-# 376 lsu.dcache.mem_ctrl_resp_block_data: 0000000000000000
+# 376 lsu.dcache.tag_array_hit_latched: 0
 # 
 # 376 lsu.dcache.pipeline_resp_valid: 0
 # 376 lsu.dcache.pipeline_resp_rd_data: 00000000
 # 
+# 376 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 376 rob_ptr: 0100
+# 376 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 376 lsq_enq_ctr: 0001
+# 376 lsq_deq_ctr: 0001
+# 376 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 386 lsu.dcache.pipeline_req_valid: 0
+# 386 lsu.dcache.pipeline_req_type: READ
+# 386 lsu.dcache.pipeline_req_width: BYTE
+# 386 lsu.dcache.pipeline_req_addr: 00000000
+# 386 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 386 lsu.dcache.pipeline_req_valid_latched: 0
+# 386 lsu.dcache.pipeline_req_type_latched: READ
+# 386 lsu.dcache.pipeline_req_width_latched: BYTE
+# 386 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 386 lsu.dcache.tag_array.csb0 (aL): 1
+# 386 lsu.dcache.tag_array.web0 (aL): 1
+# 386 lsu.dcache.tag_array.wmask0: 10
+# 386 lsu.dcache.tag_array.addr0: 000000
+# 386 lsu.dcache.tag_array.din0: 800000800000
+# 386 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 386 lsu.dcache.tag_array.web0_reg (aL): 1
+# 386 lsu.dcache.tag_array.wmask0_reg: 10
+# 386 lsu.dcache.tag_array.addr0_reg: 000000
+# 386 lsu.dcache.tag_array.din0_reg: 800000800000
+# 386 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 386 lsu.dcache.data_array.csb0 (aL): 1
+# 386 lsu.dcache.data_array.web0 (aL): 1
+# 386 lsu.dcache.data_array.addr0: 000000
+# 386 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 386 lsu.dcache.data_array.csb0_reg (aL): 1
+# 386 lsu.dcache.data_array.web0_reg (aL): 1
+# 386 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 386 lsu.dcache.data_array.addr0_reg: 000000
+# 386 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 386 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 386 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 386 lsu.dcache.pipeline_req_valid: 0
+# 386 lsu.dcache.pipeline_req_valid_latched: 0
+# 386 lsu.dcache.pipeline_resp_was_valid: 0
+# 386 lsu.dcache.tag_array_hit: 0
+# 386 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 386 lsu.dcache.pipeline_resp_valid: 0
+# 386 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 386 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 386 rob_ptr: 0100
+# 386 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 386 lsq_enq_ctr: 0001
+# 386 lsq_deq_ctr: 0001
+# 386 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 396 lsu.dcache.pipeline_req_valid: 0
+# 396 lsu.dcache.pipeline_req_type: READ
+# 396 lsu.dcache.pipeline_req_width: BYTE
+# 396 lsu.dcache.pipeline_req_addr: 00000000
+# 396 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 396 lsu.dcache.pipeline_req_valid_latched: 0
+# 396 lsu.dcache.pipeline_req_type_latched: READ
+# 396 lsu.dcache.pipeline_req_width_latched: BYTE
+# 396 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 396 lsu.dcache.tag_array.csb0 (aL): 1
+# 396 lsu.dcache.tag_array.web0 (aL): 1
+# 396 lsu.dcache.tag_array.wmask0: 10
+# 396 lsu.dcache.tag_array.addr0: 000000
+# 396 lsu.dcache.tag_array.din0: 800000800000
+# 396 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 396 lsu.dcache.tag_array.web0_reg (aL): 1
+# 396 lsu.dcache.tag_array.wmask0_reg: 10
+# 396 lsu.dcache.tag_array.addr0_reg: 000000
+# 396 lsu.dcache.tag_array.din0_reg: 800000800000
+# 396 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 396 lsu.dcache.data_array.csb0 (aL): 1
+# 396 lsu.dcache.data_array.web0 (aL): 1
+# 396 lsu.dcache.data_array.addr0: 000000
+# 396 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 396 lsu.dcache.data_array.csb0_reg (aL): 1
+# 396 lsu.dcache.data_array.web0_reg (aL): 1
+# 396 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 396 lsu.dcache.data_array.addr0_reg: 000000
+# 396 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 396 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 396 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 396 lsu.dcache.pipeline_req_valid: 0
+# 396 lsu.dcache.pipeline_req_valid_latched: 0
+# 396 lsu.dcache.pipeline_resp_was_valid: 0
+# 396 lsu.dcache.tag_array_hit: 0
+# 396 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 396 lsu.dcache.pipeline_resp_valid: 0
+# 396 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 396 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 396 rob_ptr: 0100
+# 396 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 396 lsq_enq_ctr: 0001
+# 396 lsq_deq_ctr: 0001
+# 396 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 406 lsu.dcache.pipeline_req_valid: 0
+# 406 lsu.dcache.pipeline_req_type: READ
+# 406 lsu.dcache.pipeline_req_width: BYTE
+# 406 lsu.dcache.pipeline_req_addr: 00000000
+# 406 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 406 lsu.dcache.pipeline_req_valid_latched: 0
+# 406 lsu.dcache.pipeline_req_type_latched: READ
+# 406 lsu.dcache.pipeline_req_width_latched: BYTE
+# 406 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 406 lsu.dcache.tag_array.csb0 (aL): 1
+# 406 lsu.dcache.tag_array.web0 (aL): 1
+# 406 lsu.dcache.tag_array.wmask0: 10
+# 406 lsu.dcache.tag_array.addr0: 000000
+# 406 lsu.dcache.tag_array.din0: 800000800000
+# 406 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 406 lsu.dcache.tag_array.web0_reg (aL): 1
+# 406 lsu.dcache.tag_array.wmask0_reg: 10
+# 406 lsu.dcache.tag_array.addr0_reg: 000000
+# 406 lsu.dcache.tag_array.din0_reg: 800000800000
+# 406 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 406 lsu.dcache.data_array.csb0 (aL): 1
+# 406 lsu.dcache.data_array.web0 (aL): 1
+# 406 lsu.dcache.data_array.addr0: 000000
+# 406 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 406 lsu.dcache.data_array.csb0_reg (aL): 1
+# 406 lsu.dcache.data_array.web0_reg (aL): 1
+# 406 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 406 lsu.dcache.data_array.addr0_reg: 000000
+# 406 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 406 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 406 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 406 lsu.dcache.pipeline_req_valid: 0
+# 406 lsu.dcache.pipeline_req_valid_latched: 0
+# 406 lsu.dcache.pipeline_resp_was_valid: 0
+# 406 lsu.dcache.tag_array_hit: 0
+# 406 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 406 lsu.dcache.pipeline_resp_valid: 0
+# 406 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 406 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 406 rob_ptr: 0100
+# 406 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 406 lsq_enq_ctr: 0001
+# 406 lsq_deq_ctr: 0001
+# 406 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 416 lsu.dcache.pipeline_req_valid: 0
+# 416 lsu.dcache.pipeline_req_type: READ
+# 416 lsu.dcache.pipeline_req_width: BYTE
+# 416 lsu.dcache.pipeline_req_addr: 00000000
+# 416 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 416 lsu.dcache.pipeline_req_valid_latched: 0
+# 416 lsu.dcache.pipeline_req_type_latched: READ
+# 416 lsu.dcache.pipeline_req_width_latched: BYTE
+# 416 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 416 lsu.dcache.tag_array.csb0 (aL): 1
+# 416 lsu.dcache.tag_array.web0 (aL): 1
+# 416 lsu.dcache.tag_array.wmask0: 10
+# 416 lsu.dcache.tag_array.addr0: 000000
+# 416 lsu.dcache.tag_array.din0: 800000800000
+# 416 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 416 lsu.dcache.tag_array.web0_reg (aL): 1
+# 416 lsu.dcache.tag_array.wmask0_reg: 10
+# 416 lsu.dcache.tag_array.addr0_reg: 000000
+# 416 lsu.dcache.tag_array.din0_reg: 800000800000
+# 416 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 416 lsu.dcache.data_array.csb0 (aL): 1
+# 416 lsu.dcache.data_array.web0 (aL): 1
+# 416 lsu.dcache.data_array.addr0: 000000
+# 416 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 416 lsu.dcache.data_array.csb0_reg (aL): 1
+# 416 lsu.dcache.data_array.web0_reg (aL): 1
+# 416 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 416 lsu.dcache.data_array.addr0_reg: 000000
+# 416 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 416 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 416 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 416 lsu.dcache.pipeline_req_valid: 0
+# 416 lsu.dcache.pipeline_req_valid_latched: 0
+# 416 lsu.dcache.pipeline_resp_was_valid: 0
+# 416 lsu.dcache.tag_array_hit: 0
+# 416 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 416 lsu.dcache.pipeline_resp_valid: 0
+# 416 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 416 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 416 rob_ptr: 0100
+# 416 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 416 lsq_enq_ctr: 0001
+# 416 lsq_deq_ctr: 0001
+# 416 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 426 lsu.dcache.pipeline_req_valid: 0
+# 426 lsu.dcache.pipeline_req_type: READ
+# 426 lsu.dcache.pipeline_req_width: BYTE
+# 426 lsu.dcache.pipeline_req_addr: 00000000
+# 426 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 426 lsu.dcache.pipeline_req_valid_latched: 0
+# 426 lsu.dcache.pipeline_req_type_latched: READ
+# 426 lsu.dcache.pipeline_req_width_latched: BYTE
+# 426 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 426 lsu.dcache.tag_array.csb0 (aL): 1
+# 426 lsu.dcache.tag_array.web0 (aL): 1
+# 426 lsu.dcache.tag_array.wmask0: 10
+# 426 lsu.dcache.tag_array.addr0: 000000
+# 426 lsu.dcache.tag_array.din0: 800000800000
+# 426 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 426 lsu.dcache.tag_array.web0_reg (aL): 1
+# 426 lsu.dcache.tag_array.wmask0_reg: 10
+# 426 lsu.dcache.tag_array.addr0_reg: 000000
+# 426 lsu.dcache.tag_array.din0_reg: 800000800000
+# 426 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 426 lsu.dcache.data_array.csb0 (aL): 1
+# 426 lsu.dcache.data_array.web0 (aL): 1
+# 426 lsu.dcache.data_array.addr0: 000000
+# 426 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 426 lsu.dcache.data_array.csb0_reg (aL): 1
+# 426 lsu.dcache.data_array.web0_reg (aL): 1
+# 426 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 426 lsu.dcache.data_array.addr0_reg: 000000
+# 426 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 426 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 426 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 426 lsu.dcache.pipeline_req_valid: 0
+# 426 lsu.dcache.pipeline_req_valid_latched: 0
+# 426 lsu.dcache.pipeline_resp_was_valid: 0
+# 426 lsu.dcache.tag_array_hit: 0
+# 426 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 426 lsu.dcache.pipeline_resp_valid: 0
+# 426 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 426 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 426 rob_ptr: 0100
+# 426 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 426 lsq_enq_ctr: 0001
+# 426 lsq_deq_ctr: 0001
+# 426 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 436 lsu.dcache.pipeline_req_valid: 0
+# 436 lsu.dcache.pipeline_req_type: READ
+# 436 lsu.dcache.pipeline_req_width: BYTE
+# 436 lsu.dcache.pipeline_req_addr: 00000000
+# 436 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 436 lsu.dcache.pipeline_req_valid_latched: 0
+# 436 lsu.dcache.pipeline_req_type_latched: READ
+# 436 lsu.dcache.pipeline_req_width_latched: BYTE
+# 436 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 436 lsu.dcache.tag_array.csb0 (aL): 1
+# 436 lsu.dcache.tag_array.web0 (aL): 1
+# 436 lsu.dcache.tag_array.wmask0: 10
+# 436 lsu.dcache.tag_array.addr0: 000000
+# 436 lsu.dcache.tag_array.din0: 800000800000
+# 436 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 436 lsu.dcache.tag_array.web0_reg (aL): 1
+# 436 lsu.dcache.tag_array.wmask0_reg: 10
+# 436 lsu.dcache.tag_array.addr0_reg: 000000
+# 436 lsu.dcache.tag_array.din0_reg: 800000800000
+# 436 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 436 lsu.dcache.data_array.csb0 (aL): 1
+# 436 lsu.dcache.data_array.web0 (aL): 1
+# 436 lsu.dcache.data_array.addr0: 000000
+# 436 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 436 lsu.dcache.data_array.csb0_reg (aL): 1
+# 436 lsu.dcache.data_array.web0_reg (aL): 1
+# 436 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 436 lsu.dcache.data_array.addr0_reg: 000000
+# 436 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 436 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 436 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 436 lsu.dcache.pipeline_req_valid: 0
+# 436 lsu.dcache.pipeline_req_valid_latched: 0
+# 436 lsu.dcache.pipeline_resp_was_valid: 0
+# 436 lsu.dcache.tag_array_hit: 0
+# 436 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 436 lsu.dcache.pipeline_resp_valid: 0
+# 436 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 436 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 436 rob_ptr: 0100
+# 436 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 436 lsq_enq_ctr: 0001
+# 436 lsq_deq_ctr: 0001
+# 436 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 446 lsu.dcache.pipeline_req_valid: 0
+# 446 lsu.dcache.pipeline_req_type: READ
+# 446 lsu.dcache.pipeline_req_width: BYTE
+# 446 lsu.dcache.pipeline_req_addr: 00000000
+# 446 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 446 lsu.dcache.pipeline_req_valid_latched: 0
+# 446 lsu.dcache.pipeline_req_type_latched: READ
+# 446 lsu.dcache.pipeline_req_width_latched: BYTE
+# 446 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 446 lsu.dcache.tag_array.csb0 (aL): 1
+# 446 lsu.dcache.tag_array.web0 (aL): 1
+# 446 lsu.dcache.tag_array.wmask0: 10
+# 446 lsu.dcache.tag_array.addr0: 000000
+# 446 lsu.dcache.tag_array.din0: 800000800000
+# 446 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 446 lsu.dcache.tag_array.web0_reg (aL): 1
+# 446 lsu.dcache.tag_array.wmask0_reg: 10
+# 446 lsu.dcache.tag_array.addr0_reg: 000000
+# 446 lsu.dcache.tag_array.din0_reg: 800000800000
+# 446 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 446 lsu.dcache.data_array.csb0 (aL): 1
+# 446 lsu.dcache.data_array.web0 (aL): 1
+# 446 lsu.dcache.data_array.addr0: 000000
+# 446 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 446 lsu.dcache.data_array.csb0_reg (aL): 1
+# 446 lsu.dcache.data_array.web0_reg (aL): 1
+# 446 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 446 lsu.dcache.data_array.addr0_reg: 000000
+# 446 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 446 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 446 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 446 lsu.dcache.pipeline_req_valid: 0
+# 446 lsu.dcache.pipeline_req_valid_latched: 0
+# 446 lsu.dcache.pipeline_resp_was_valid: 0
+# 446 lsu.dcache.tag_array_hit: 0
+# 446 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 446 lsu.dcache.pipeline_resp_valid: 0
+# 446 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 446 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 446 rob_ptr: 0100
+# 446 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 446 lsq_enq_ctr: 0001
+# 446 lsq_deq_ctr: 0001
+# 446 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 456 lsu.dcache.pipeline_req_valid: 0
+# 456 lsu.dcache.pipeline_req_type: READ
+# 456 lsu.dcache.pipeline_req_width: BYTE
+# 456 lsu.dcache.pipeline_req_addr: 00000000
+# 456 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 456 lsu.dcache.pipeline_req_valid_latched: 0
+# 456 lsu.dcache.pipeline_req_type_latched: READ
+# 456 lsu.dcache.pipeline_req_width_latched: BYTE
+# 456 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 456 lsu.dcache.tag_array.csb0 (aL): 1
+# 456 lsu.dcache.tag_array.web0 (aL): 1
+# 456 lsu.dcache.tag_array.wmask0: 10
+# 456 lsu.dcache.tag_array.addr0: 000000
+# 456 lsu.dcache.tag_array.din0: 800000800000
+# 456 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 456 lsu.dcache.tag_array.web0_reg (aL): 1
+# 456 lsu.dcache.tag_array.wmask0_reg: 10
+# 456 lsu.dcache.tag_array.addr0_reg: 000000
+# 456 lsu.dcache.tag_array.din0_reg: 800000800000
+# 456 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 456 lsu.dcache.data_array.csb0 (aL): 1
+# 456 lsu.dcache.data_array.web0 (aL): 1
+# 456 lsu.dcache.data_array.addr0: 000000
+# 456 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 456 lsu.dcache.data_array.csb0_reg (aL): 1
+# 456 lsu.dcache.data_array.web0_reg (aL): 1
+# 456 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 456 lsu.dcache.data_array.addr0_reg: 000000
+# 456 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 456 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 456 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 456 lsu.dcache.pipeline_req_valid: 0
+# 456 lsu.dcache.pipeline_req_valid_latched: 0
+# 456 lsu.dcache.pipeline_resp_was_valid: 0
+# 456 lsu.dcache.tag_array_hit: 0
+# 456 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 456 lsu.dcache.pipeline_resp_valid: 0
+# 456 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 456 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 456 rob_ptr: 0100
+# 456 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 456 lsq_enq_ctr: 0001
+# 456 lsq_deq_ctr: 0001
+# 456 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 466 lsu.dcache.pipeline_req_valid: 0
+# 466 lsu.dcache.pipeline_req_type: READ
+# 466 lsu.dcache.pipeline_req_width: BYTE
+# 466 lsu.dcache.pipeline_req_addr: 00000000
+# 466 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 466 lsu.dcache.pipeline_req_valid_latched: 0
+# 466 lsu.dcache.pipeline_req_type_latched: READ
+# 466 lsu.dcache.pipeline_req_width_latched: BYTE
+# 466 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 466 lsu.dcache.tag_array.csb0 (aL): 1
+# 466 lsu.dcache.tag_array.web0 (aL): 1
+# 466 lsu.dcache.tag_array.wmask0: 10
+# 466 lsu.dcache.tag_array.addr0: 000000
+# 466 lsu.dcache.tag_array.din0: 800000800000
+# 466 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 466 lsu.dcache.tag_array.web0_reg (aL): 1
+# 466 lsu.dcache.tag_array.wmask0_reg: 10
+# 466 lsu.dcache.tag_array.addr0_reg: 000000
+# 466 lsu.dcache.tag_array.din0_reg: 800000800000
+# 466 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 466 lsu.dcache.data_array.csb0 (aL): 1
+# 466 lsu.dcache.data_array.web0 (aL): 1
+# 466 lsu.dcache.data_array.addr0: 000000
+# 466 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 466 lsu.dcache.data_array.csb0_reg (aL): 1
+# 466 lsu.dcache.data_array.web0_reg (aL): 1
+# 466 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 466 lsu.dcache.data_array.addr0_reg: 000000
+# 466 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 466 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 466 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 466 lsu.dcache.pipeline_req_valid: 0
+# 466 lsu.dcache.pipeline_req_valid_latched: 0
+# 466 lsu.dcache.pipeline_resp_was_valid: 0
+# 466 lsu.dcache.tag_array_hit: 0
+# 466 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 466 lsu.dcache.pipeline_resp_valid: 0
+# 466 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 466 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 466 rob_ptr: 0100
+# 466 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 466 lsq_enq_ctr: 0001
+# 466 lsq_deq_ctr: 0001
+# 466 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 476 lsu.dcache.pipeline_req_valid: 0
+# 476 lsu.dcache.pipeline_req_type: READ
+# 476 lsu.dcache.pipeline_req_width: BYTE
+# 476 lsu.dcache.pipeline_req_addr: 00000000
+# 476 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 476 lsu.dcache.pipeline_req_valid_latched: 0
+# 476 lsu.dcache.pipeline_req_type_latched: READ
+# 476 lsu.dcache.pipeline_req_width_latched: BYTE
+# 476 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 476 lsu.dcache.tag_array.csb0 (aL): 1
+# 476 lsu.dcache.tag_array.web0 (aL): 1
+# 476 lsu.dcache.tag_array.wmask0: 10
+# 476 lsu.dcache.tag_array.addr0: 000000
+# 476 lsu.dcache.tag_array.din0: 800000800000
+# 476 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 476 lsu.dcache.tag_array.web0_reg (aL): 1
+# 476 lsu.dcache.tag_array.wmask0_reg: 10
+# 476 lsu.dcache.tag_array.addr0_reg: 000000
+# 476 lsu.dcache.tag_array.din0_reg: 800000800000
+# 476 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 476 lsu.dcache.data_array.csb0 (aL): 1
+# 476 lsu.dcache.data_array.web0 (aL): 1
+# 476 lsu.dcache.data_array.addr0: 000000
+# 476 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 476 lsu.dcache.data_array.csb0_reg (aL): 1
+# 476 lsu.dcache.data_array.web0_reg (aL): 1
+# 476 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 476 lsu.dcache.data_array.addr0_reg: 000000
+# 476 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 476 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 476 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 476 lsu.dcache.pipeline_req_valid: 0
+# 476 lsu.dcache.pipeline_req_valid_latched: 0
+# 476 lsu.dcache.pipeline_resp_was_valid: 0
+# 476 lsu.dcache.tag_array_hit: 0
+# 476 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 476 lsu.dcache.pipeline_resp_valid: 0
+# 476 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 476 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 476 rob_ptr: 0100
+# 476 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 476 lsq_enq_ctr: 0001
+# 476 lsq_deq_ctr: 0001
+# 476 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 486 lsu.dcache.pipeline_req_valid: 0
+# 486 lsu.dcache.pipeline_req_type: READ
+# 486 lsu.dcache.pipeline_req_width: BYTE
+# 486 lsu.dcache.pipeline_req_addr: 00000000
+# 486 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 486 lsu.dcache.pipeline_req_valid_latched: 0
+# 486 lsu.dcache.pipeline_req_type_latched: READ
+# 486 lsu.dcache.pipeline_req_width_latched: BYTE
+# 486 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 486 lsu.dcache.tag_array.csb0 (aL): 1
+# 486 lsu.dcache.tag_array.web0 (aL): 1
+# 486 lsu.dcache.tag_array.wmask0: 10
+# 486 lsu.dcache.tag_array.addr0: 000000
+# 486 lsu.dcache.tag_array.din0: 800000800000
+# 486 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 486 lsu.dcache.tag_array.web0_reg (aL): 1
+# 486 lsu.dcache.tag_array.wmask0_reg: 10
+# 486 lsu.dcache.tag_array.addr0_reg: 000000
+# 486 lsu.dcache.tag_array.din0_reg: 800000800000
+# 486 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 486 lsu.dcache.data_array.csb0 (aL): 1
+# 486 lsu.dcache.data_array.web0 (aL): 1
+# 486 lsu.dcache.data_array.addr0: 000000
+# 486 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 486 lsu.dcache.data_array.csb0_reg (aL): 1
+# 486 lsu.dcache.data_array.web0_reg (aL): 1
+# 486 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 486 lsu.dcache.data_array.addr0_reg: 000000
+# 486 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 486 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 486 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 486 lsu.dcache.pipeline_req_valid: 0
+# 486 lsu.dcache.pipeline_req_valid_latched: 0
+# 486 lsu.dcache.pipeline_resp_was_valid: 0
+# 486 lsu.dcache.tag_array_hit: 0
+# 486 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 486 lsu.dcache.pipeline_resp_valid: 0
+# 486 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 486 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 486 rob_ptr: 0100
+# 486 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 486 lsq_enq_ctr: 0001
+# 486 lsq_deq_ctr: 0001
+# 486 ld_broadcast_reg_data: 00000000
+#  
+#  
+#  
+#  
+#  
+# 496 lsu.dcache.pipeline_req_valid: 0
+# 496 lsu.dcache.pipeline_req_type: READ
+# 496 lsu.dcache.pipeline_req_width: BYTE
+# 496 lsu.dcache.pipeline_req_addr: 00000000
+# 496 lsu.dcache.pipeline_req_wr_data: 00000000
+# 
+# 496 lsu.dcache.pipeline_req_valid_latched: 0
+# 496 lsu.dcache.pipeline_req_type_latched: READ
+# 496 lsu.dcache.pipeline_req_width_latched: BYTE
+# 496 lsu.dcache.pipeline_req_addr_latched: 00000000
+# 
+# 496 lsu.dcache.tag_array.csb0 (aL): 1
+# 496 lsu.dcache.tag_array.web0 (aL): 1
+# 496 lsu.dcache.tag_array.wmask0: 10
+# 496 lsu.dcache.tag_array.addr0: 000000
+# 496 lsu.dcache.tag_array.din0: 800000800000
+# 496 lsu.dcache.tag_array.csb0_reg (aL): 1
+# 496 lsu.dcache.tag_array.web0_reg (aL): 1
+# 496 lsu.dcache.tag_array.wmask0_reg: 10
+# 496 lsu.dcache.tag_array.addr0_reg: 000000
+# 496 lsu.dcache.tag_array.din0_reg: 800000800000
+# 496 lsu.dcache.tag_array.dout0: 000000800080
+# 
+# 496 lsu.dcache.data_array.csb0 (aL): 1
+# 496 lsu.dcache.data_array.web0 (aL): 1
+# 496 lsu.dcache.data_array.addr0: 000000
+# 496 lsu.dcache.data_array.din0: 00000000000000000000000000000000
+# 496 lsu.dcache.data_array.csb0_reg (aL): 1
+# 496 lsu.dcache.data_array.web0_reg (aL): 1
+# 496 lsu.dcache.data_array.wmask0_reg: 0000000000000000
+# 496 lsu.dcache.data_array.addr0_reg: 000000
+# 496 lsu.dcache.data_array.din0_reg: 00000000000000000000000000000000
+# 496 lsu.dcache.data_array.dout0: xxxxxxxxxxxxxxxx0000000000000000
+# 
+# 496 lsu.dcache.pipeline_resp_valid: 0
+# 
+# 496 lsu.dcache.pipeline_req_valid: 0
+# 496 lsu.dcache.pipeline_req_valid_latched: 0
+# 496 lsu.dcache.pipeline_resp_was_valid: 0
+# 496 lsu.dcache.tag_array_hit: 0
+# 496 lsu.dcache.tag_array_hit_latched: 0
+# 
+# 496 lsu.dcache.pipeline_resp_valid: 0
+# 496 lsu.dcache.pipeline_resp_rd_data: 00000000
+# 
+# 496 rob_entries[2:0]: '{'{dst_valid:1, dst_arf_id:1, pc_npc:65940, br_mispred:0, reg_ready:1, is_executed:1, reg_data:0}, '{dst_valid:0, dst_arf_id:0, pc_npc:65936, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65936}, '{dst_valid:0, dst_arf_id:0, pc_npc:65932, br_mispred:0, reg_ready:1, is_executed:1, reg_data:65932}}
+# 496 rob_ptr: 0100
+# 496 lsq_entries[1:0]: '{'{ld_st:0, base_addr_rob_id:0, base_addr_ready:0, base_addr:0, imm:0, st_data_rob_id:0, st_data_ready:0, st_data:0, instr_rob_id:0, width:BYTE, ld_sign:0}, '{ld_st:0, base_addr_rob_id:0, base_addr_ready:1, base_addr:65928, imm:28, st_data_rob_id:0, st_data_ready:1, st_data:0, instr_rob_id:2, width:WORD, ld_sign:0}}
+# 496 lsq_enq_ctr: 0001
+# 496 lsq_deq_ctr: 0001
+# 496 ld_broadcast_reg_data: 00000000
+#  
 #  
 # ALL 0 DIRECTED TESTS PASSED
-# ARF OUT AT CYCLE    10 AT TIME   381===================
+# ARF OUT AT CYCLE    20 AT TIME   501===================
 # ARF[0]: 0x00000000
 # ARF[1]: 0x00000000
 # ARF[2]: 0x00010188
@@ -1843,7 +3131,7 @@ Reading pref.tcl
 # ARF[5]: 0x00000000
 # ARF[6]: 0x00000000
 # ARF[7]: 0x00000000
-# ARF[8]: 0x00010188
+# ARF[8]: 0xdeadbabe
 # ARF[9]: 0x00000000
 # ARF[10]: 0x00000000
 # ARF[11]: 0x00000000
@@ -1869,11 +3157,26 @@ Reading pref.tcl
 # ARF[31]: 0x00000000
 # END ARF OUT =======================================
 #  
-# MAIN MEM OUT AT CYCLE    10 AT TIME   381===================
-# MAIN_MEM[0x203400000004]: 0x00000000
+# MAIN MEM OUT AT CYCLE    20 AT TIME   501===================
+# MAIN_MEM[0x00010160]: 0xxxxxxxxx
+# MAIN_MEM[0x00010164]: 0xxxxxxxxx
+# MAIN_MEM[0x00010168]: 0xxxxxxxxx
+# MAIN_MEM[0x0001016c]: 0xxxxxxxxx
+# MAIN_MEM[0x00010170]: 0xxxxxxxxx
+# MAIN_MEM[0x00010174]: 0xxxxxxxxx
+# MAIN_MEM[0x00010178]: 0xxxxxxxxx
+# MAIN_MEM[0x0001017c]: 0xxxxxxxxx
+# MAIN_MEM[0x00010180]: 0xxxxxxxxx
+# MAIN_MEM[0x00010184]: 0xxxxxxxxx
+# MAIN_MEM[0x00010188]: 0xxxxxxxxx
+# MAIN_MEM[0x0001018c]: 0xfe010113
+# MAIN_MEM[0x00010190]: 0x00812e23
+# MAIN_MEM[0x00010194]: 0x01c12083
+# MAIN_MEM[0x00010198]: 0xxxxxxxxx
+# MAIN_MEM[0x0001019c]: 0xxxxxxxxx
 # END MAIN MEM OUT =======================================
 #  
-# ** Note: $finish    : ./testing/top_tb.sv(551)
-#    Time: 381 ns  Iteration: 0  Instance: /top_tb
-# End time: 14:09:44 on Apr 25,2024, Elapsed time: 0:00:04
+# ** Note: $finish    : ./testing/top_tb.sv(566)
+#    Time: 501 ns  Iteration: 0  Instance: /top_tb
+# End time: 19:15:00 on Apr 25,2024, Elapsed time: 0:00:04
 # Errors: 0, Warnings: 0, Suppressed Warnings: 9

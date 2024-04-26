@@ -109,6 +109,8 @@ cache #(
     .mem_ctrl_req_type(READ), // NOT USED always read /*output req_type_t*/ // 0: read 1: write
     .mem_ctrl_req_block_addr(mem_ctrl_req_block_addr), /*output main_mem_block_addr_t*/
     .mem_ctrl_req_block_data(), /* NOT USED output block_data_t*/ // (only for dcache and stores)
+    .mem_ctrl_req_width(), /* NOT USED output req_width_t*/ // TODO: temporary (only for dcache and stores)
+    .mem_ctrl_req_addr(), /* NOT USED output addr_t*/ // TODO: temporary (only for dcache and stores)
     .mem_ctrl_req_ready(mem_ctrl_req_ready), /*input logic*/ // (icache has priority. for icache if valid is true then ready is also true.)
 
     // FROM MEM_CTRL TO CACHE (RESPONSE) (LATENCY-SENSITIVE)

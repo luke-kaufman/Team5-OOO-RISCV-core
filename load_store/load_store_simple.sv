@@ -19,6 +19,8 @@ module load_store_simple #(
     output req_type_t mem_ctrl_req_type, // 0: read, 1: write
     output main_mem_block_addr_t mem_ctrl_req_block_addr,
     output block_data_t mem_ctrl_req_block_data, // for writes
+    output req_width_t mem_ctrl_req_width, // TODO: temporary (only for dcache and stores)
+    output addr_t mem_ctrl_req_addr, // TODO: temporary (only for dcache and stores)
     input logic mem_ctrl_req_ready,
     // MEM CTRL RESPONSE
     input logic mem_ctrl_resp_valid,
@@ -39,6 +41,7 @@ module load_store_simple #(
     input wire reg_data_t alu_broadcast_reg_data,
 
     // lsu broadcast:
+    output wire lsu_rob_wb_valid,
     output wire lsu_broadcast_valid,
     output wire rob_id_t lsu_broadcast_rob_id,
     output wire reg_data_t lsu_broadcast_reg_data
@@ -185,6 +188,8 @@ module load_store_simple #(
         .mem_ctrl_req_type(mem_ctrl_req_type), // 0: read, 1: write
         .mem_ctrl_req_block_addr(mem_ctrl_req_block_addr),
         .mem_ctrl_req_block_data(mem_ctrl_req_block_data), // (only for dcache and stores)
+        .mem_ctrl_req_width(mem_ctrl_req_width), // TODO: temporary (only for dcache and stores)
+        .mem_ctrl_req_addr(mem_ctrl_req_addr), // TODO: temporary (only for dcache and stores)
         .mem_ctrl_req_ready(mem_ctrl_req_ready), // (icache has priority. for icache, if valid is true, then ready is also true.)
         // FROM MEM_CTRL TO CACHE (RESPONSE) (LATENCY-SENSITIVE)
         .mem_ctrl_resp_valid(mem_ctrl_resp_valid),
@@ -194,6 +199,7 @@ module load_store_simple #(
         .pipeline_resp_rd_data(dcache_resp_rd_data)
     );
 
+    assign lsu_rob_wb_valid = dcache_resp_valid;
     assign lsu_broadcast_valid = dcache_resp_valid & ~lsq_deq_entry.ld_st; // is load
     assign lsu_broadcast_rob_id = lsq_deq_entry.instr_rob_id;
     assign lsu_broadcast_reg_data = lsq_deq_entry.ld_sign == 1'b0 ? ( // signed

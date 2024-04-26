@@ -42,6 +42,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     input wire alu_npc_mispred, // always true for jalr, only true for b_type when actual mispredict
     input wire addr_t alu_npc,
     // INTERFACE TO LOAD-STORE UNIT (LSU)
+    input wire lsu_rob_wb_valid,
     input wire ld_broadcast_valid,
     input wire rob_id_t ld_broadcast_rob_id,
     input wire reg_data_t ld_broadcast_reg_data,
@@ -272,7 +273,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         .alu_npc_mispred(alu_npc_mispred),
         .alu_npc(alu_npc),
 
-        .ld_wb_valid(ld_broadcast_valid),
+        .ld_wb_valid(lsu_rob_wb_valid), // TODO: double-check if separating lsu_rob_wb_valid and ld_broadcast_valid is necessary
         .ld_wb_rob_id(ld_broadcast_rob_id),
         .ld_wb_reg_data(ld_broadcast_reg_data)
         // , .ld_wb_ld_mispred(ld_mispred)
@@ -300,7 +301,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         // NOT FLUSHED ON REDIRECT
         .flush(1'b0),
 
-        .init_regfile_state({{23{32'b0}}, init_sp /* x8 */, {5{32'b0}}, init_sp /* x2 */, {2{32'b0}}}),
+        .init_regfile_state({{23{32'b0}}, 32'hDEADBABE /* x8 */, {5{32'b0}}, init_sp /* x2 */, {2{32'b0}}}),
         .current_regfile_state(ARF_OUT)
     );
 

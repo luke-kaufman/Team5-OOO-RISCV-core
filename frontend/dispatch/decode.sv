@@ -30,7 +30,7 @@ module decode (
     wire opcode_t opcode = instr[`opcode_bits];
 
     assign is_r_type =  opcode == `OP_OPCODE;
-    assign is_i_type =  opcode == `OP_IMM_OPCODE;
+    assign is_i_type = (opcode == `OP_IMM_OPCODE) || (opcode == `LD_OPCODE) || (opcode == `JALR_OPCODE);
     assign is_s_type =  opcode == `ST_OPCODE;
     assign is_b_type =  opcode == `BR_OPCODE;
     assign is_u_type = (opcode == `LUI_OPCODE) || (opcode == `AUIPC_OPCODE);

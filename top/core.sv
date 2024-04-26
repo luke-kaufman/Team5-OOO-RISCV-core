@@ -29,6 +29,8 @@ module core #(parameter VERBOSE = 0) (
     output req_type_t dcache_mem_ctrl_req_type, // 0: read, 1: write
     output main_mem_block_addr_t dcache_mem_ctrl_req_block_addr,
     output block_data_t dcache_mem_ctrl_req_block_data, // for writes
+    output req_width_t dcache_mem_ctrl_req_width, // TODO: temporary (only for dcache and stores)
+    output addr_t dcache_mem_ctrl_req_addr, // TODO: temporary (only for dcache and stores)
     input logic dcache_mem_ctrl_req_ready,
 
     // DCACHE MEM CTRL RESPONSE
@@ -72,6 +74,7 @@ module core #(parameter VERBOSE = 0) (
 
 
     // DISPATCH <- LSU
+    wire        lsu_rob_wb_valid;
     wire            ld_broadcast_valid;
     rob_id_t   ld_broadcast_rob_id;
     reg_data_t ld_broadcast_reg_data;
@@ -141,6 +144,7 @@ module core #(parameter VERBOSE = 0) (
         .alu_npc_mispred(alu_npc_mispred),  /*input*/ // always true for jalr, only true for b_type when actual mispredict
         .alu_npc(alu_npc),                  /*input*/
         // INTERFACE TO LOAD-STORE UNIT (LSU)
+        .lsu_rob_wb_valid(lsu_rob_wb_valid),
         .ld_broadcast_valid(ld_broadcast_valid),     /*input*/
         .ld_broadcast_rob_id(ld_broadcast_rob_id),    /*input*/
         .ld_broadcast_reg_data(ld_broadcast_reg_data),  /*input*/
@@ -201,6 +205,8 @@ module core #(parameter VERBOSE = 0) (
         .mem_ctrl_req_type(dcache_mem_ctrl_req_type), // output req_type_t  // 0: read 1: write
         .mem_ctrl_req_block_addr(dcache_mem_ctrl_req_block_addr), // output main_mem_block_addr_t
         .mem_ctrl_req_block_data(dcache_mem_ctrl_req_block_data), // output block_data_t  // for writes
+        .mem_ctrl_req_width(dcache_mem_ctrl_req_width), // TODO: temporary (only for dcache and stores)
+        .mem_ctrl_req_addr(dcache_mem_ctrl_req_addr), // TODO: temporary (only for dcache and stores)
         // DCACHE MEM CTRL RESPONSE
         .mem_ctrl_req_ready(dcache_mem_ctrl_req_ready), // input logic
         .mem_ctrl_resp_valid(dcache_mem_ctrl_resp_valid), // input logic
@@ -217,6 +223,7 @@ module core #(parameter VERBOSE = 0) (
         .alu_broadcast_rob_id(alu_broadcast_rob_id),    /*input*/
         .alu_broadcast_reg_data(alu_broadcast_reg_data),  /*input*/
         // // load broadcast:
+        .lsu_rob_wb_valid(lsu_rob_wb_valid),
         .lsu_broadcast_valid(ld_broadcast_valid),    /*output*/
         .lsu_broadcast_rob_id(ld_broadcast_rob_id),   /*output*/
         .lsu_broadcast_reg_data(ld_broadcast_reg_data),  /*output*/

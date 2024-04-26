@@ -21,6 +21,8 @@ module main_mem #(
     input req_type_t req_type, // 0: read, 1: write
     input main_mem_block_addr_t req_block_addr,
     input block_data_t req_block_data, // for writes
+    input req_width_t req_width, // (only for dcache and stores) TODO: temporary
+    input addr_t req_addr, // (only for dcache and stores) TODO: temporary
 
     // FROM MAIN_MEM TO MEM_CTRL (RESPONSE) (LATENCY-SENSITIVE)
     output logic resp_valid,
@@ -39,6 +41,8 @@ module main_mem #(
         cache_type_t cache_type;
         main_mem_block_addr_t addr;
         block_data_t data;
+        req_width_t width; // (only for dcache and stores) TODO: temporary
+        addr_t whole_addr; // (only for dcache and stores) TODO: temporary
     } main_mem_req_t;
 
     main_mem_req_t req_pipeline[N_DELAY_CYCLES];
@@ -76,7 +80,9 @@ module main_mem #(
                 req_type: req_type,
                 cache_type: req_cache_type,
                 addr: req_block_addr,
-                data: req_block_data
+                data: req_block_data,
+                width: req_width, // (only for dcache and stores) TODO: temporary
+                whole_addr: req_addr // (only for dcache and stores) TODO: temporary
             };
 
             // Handle the oldest request in the pipeline
@@ -84,7 +90,20 @@ module main_mem #(
             resp_cache_type <= req_pipeline[N_DELAY_CYCLES-1].cache_type;
             if (req_pipeline[N_DELAY_CYCLES-1].valid) begin
                 if (req_pipeline[N_DELAY_CYCLES-1].req_type == WRITE) begin
-                    mem[req_pipeline[N_DELAY_CYCLES-1].addr] <= req_pipeline[N_DELAY_CYCLES-1].data;
+                    // mem[req_pipeline[N_DELAY_CYCLES-1].addr] <= req_pipeline[N_DELAY_CYCLES-1].data;
+                    automatic main_mem_block_addr_t block_addr = req_pipeline[N_DELAY_CYCLES-1].addr;
+                    automatic main_mem_block_offset_t byte_offset = req_pipeline[N_DELAY_CYCLES-1].whole_addr[2:0];
+                    case (req_pipeline[N_DELAY_CYCLES-1].width)
+                    WORD: begin
+                        mem[block_addr][8*byte_offset+:32] <= req_pipeline[N_DELAY_CYCLES-1].data[31:0];
+                    end
+                    BYTE: begin
+                        mem[block_addr][8*byte_offset+:8] <= req_pipeline[N_DELAY_CYCLES-1].data[7:0];
+                    end
+                    HALFWORD: begin
+                        mem[block_addr][8*byte_offset+:16] <= req_pipeline[N_DELAY_CYCLES-1].data[15:0];
+                    end
+                    endcase
                 end
                 resp_block_data <= mem[req_pipeline[N_DELAY_CYCLES-1].addr];
             end else begin
