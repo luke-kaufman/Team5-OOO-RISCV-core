@@ -1,3 +1,6 @@
+`ifndef ICACHE_DATA_SRAM_V
+`define ICACHE_DATA_SRAM_V
+
 // OpenRAM SRAM model
 // Words: 64
 // Word size: 128
@@ -97,3 +100,5 @@ module sram_64x128_1rw_wsize64 #(parameter VERBOSE = 0) (
   end
 
 endmodule
+
+`endif

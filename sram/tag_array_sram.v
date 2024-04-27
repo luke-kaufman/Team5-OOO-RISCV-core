@@ -1,3 +1,6 @@
+`ifndef TAG_ARRAY_SRAM_V
+`define TAG_ARRAY_SRAM_V
+
 // OpenRAM SRAM model
 // Words: 64
 // Word size: 48
@@ -98,3 +101,5 @@ module sram_64x48_1rw_wsize24 #(parameter VERBOSE = 0) (
   end
 
 endmodule
+
+`endif

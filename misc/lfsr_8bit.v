@@ -1,3 +1,8 @@
+`ifndef LFSR_V
+`define LFSR_V
+
+`include "misc/reg_.v"
+
 module lfsr_8bit (
     input  wire        clk,      // Clock input
     input  wire        init,
@@ -42,3 +47,5 @@ module lfsr_8bit (
     assign out_bit = lfsr_reg_dout[0];
 
 endmodule
+
+`endif

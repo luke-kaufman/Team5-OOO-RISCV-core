@@ -1,6 +1,6 @@
 `include "misc/global_defs.svh"
 `include "load_store/lsq_simple.sv"
-`include "memory/cache.sv"
+`include "memory/dcache.sv"
 
 module load_store_simple #(
     parameter int unsigned VERBOSE = 0,
@@ -21,6 +21,7 @@ module load_store_simple #(
     output block_data_t mem_ctrl_req_block_data, // for writes
     output req_width_t mem_ctrl_req_width, // TODO: temporary (only for dcache and stores)
     output addr_t mem_ctrl_req_addr, // TODO: temporary (only for dcache and stores)
+    output logic mem_ctrl_req_writethrough,
     input logic mem_ctrl_req_ready,
     // MEM CTRL RESPONSE
     input logic mem_ctrl_resp_valid,
@@ -166,11 +167,11 @@ module load_store_simple #(
     assign eff_addr[1] = (lsq_deq_entry.width == WORD) ? 1'b0 : eff_addr_unaligned[1]; // if (lw | sw)
     assign eff_addr[0] = (lsq_deq_entry.width != BYTE) ? 1'b0 : eff_addr_unaligned[0]; // if (lw | lh | lhu | sw | sh)
 
-    cache #(
+    dcache #(
         .VERBOSE(VERBOSE),
         .CACHE_TYPE(DCACHE),
         .N_SETS(`DCACHE_NUM_SETS)
-    ) dcache (
+    ) _dcache (
         .clk(clk),
         .init(init),
         .rst_aL(rst_aL),
@@ -190,6 +191,7 @@ module load_store_simple #(
         .mem_ctrl_req_block_data(mem_ctrl_req_block_data), // (only for dcache and stores)
         .mem_ctrl_req_width(mem_ctrl_req_width), // TODO: temporary (only for dcache and stores)
         .mem_ctrl_req_addr(mem_ctrl_req_addr), // TODO: temporary (only for dcache and stores)
+        .mem_ctrl_req_writethrough(mem_ctrl_req_writethrough),
         .mem_ctrl_req_ready(mem_ctrl_req_ready), // (icache has priority. for icache, if valid is true, then ready is also true.)
         // FROM MEM_CTRL TO CACHE (RESPONSE) (LATENCY-SENSITIVE)
         .mem_ctrl_resp_valid(mem_ctrl_resp_valid),

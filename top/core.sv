@@ -12,7 +12,7 @@ module core #(parameter VERBOSE = 0) (
     input wire clk,
     input wire init,
     input addr_t init_pc,
-    input addr_t init_sp,
+    input wire [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] init_arf_state,
     input wire rst_aL,
 
     // ICACHE MEM CTRL REQUEST
@@ -31,6 +31,7 @@ module core #(parameter VERBOSE = 0) (
     output block_data_t dcache_mem_ctrl_req_block_data, // for writes
     output req_width_t dcache_mem_ctrl_req_width, // TODO: temporary (only for dcache and stores)
     output addr_t dcache_mem_ctrl_req_addr, // TODO: temporary (only for dcache and stores)
+    output logic dcache_mem_ctrl_req_writethrough,
     input logic dcache_mem_ctrl_req_ready,
 
     // DCACHE MEM CTRL RESPONSE
@@ -113,7 +114,7 @@ module core #(parameter VERBOSE = 0) (
     dispatch_simple _dispatch (
         .clk(clk),       /*input*/
         .init(init),
-        .init_sp(init_sp),
+        .init_arf_state(init_arf_state),
         .rst_aL(rst_aL), /*input*/
         // INTERFACE TO INSRUCTION FIFO (IFIFO)
         .ififo_dispatch_ready(ififo_dispatch_ready),  // output
@@ -207,6 +208,7 @@ module core #(parameter VERBOSE = 0) (
         .mem_ctrl_req_block_data(dcache_mem_ctrl_req_block_data), // output block_data_t  // for writes
         .mem_ctrl_req_width(dcache_mem_ctrl_req_width), // TODO: temporary (only for dcache and stores)
         .mem_ctrl_req_addr(dcache_mem_ctrl_req_addr), // TODO: temporary (only for dcache and stores)
+        .mem_ctrl_req_writethrough(dcache_mem_ctrl_req_writethrough), // output logic
         // DCACHE MEM CTRL RESPONSE
         .mem_ctrl_req_ready(dcache_mem_ctrl_req_ready), // input logic
         .mem_ctrl_resp_valid(dcache_mem_ctrl_resp_valid), // input logic

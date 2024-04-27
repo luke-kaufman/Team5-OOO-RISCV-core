@@ -23,6 +23,7 @@ module main_mem #(
     input block_data_t req_block_data, // for writes
     input req_width_t req_width, // (only for dcache and stores) TODO: temporary
     input addr_t req_addr, // (only for dcache and stores) TODO: temporary
+    input logic req_writethrough,
 
     // FROM MAIN_MEM TO MEM_CTRL (RESPONSE) (LATENCY-SENSITIVE)
     output logic resp_valid,
@@ -43,6 +44,7 @@ module main_mem #(
         block_data_t data;
         req_width_t width; // (only for dcache and stores) TODO: temporary
         addr_t whole_addr; // (only for dcache and stores) TODO: temporary
+        logic writethrough;
     } main_mem_req_t;
 
     main_mem_req_t req_pipeline[N_DELAY_CYCLES];
@@ -82,12 +84,17 @@ module main_mem #(
                 addr: req_block_addr,
                 data: req_block_data,
                 width: req_width, // (only for dcache and stores) TODO: temporary
-                whole_addr: req_addr // (only for dcache and stores) TODO: temporary
+                whole_addr: req_addr, // (only for dcache and stores) TODO: temporary
+                writethrough: req_writethrough
             };
 
             // Handle the oldest request in the pipeline
-            resp_valid <= req_pipeline[N_DELAY_CYCLES-1].valid;
-            resp_cache_type <= req_pipeline[N_DELAY_CYCLES-1].cache_type;
+            if (req_pipeline[N_DELAY_CYCLES-1].writethrough) begin
+                resp_valid = 0;
+            end else begin
+                resp_valid = req_pipeline[N_DELAY_CYCLES-1].valid;
+            end
+            resp_cache_type = req_pipeline[N_DELAY_CYCLES-1].cache_type;
             if (req_pipeline[N_DELAY_CYCLES-1].valid) begin
                 if (req_pipeline[N_DELAY_CYCLES-1].req_type == WRITE) begin
                     // mem[req_pipeline[N_DELAY_CYCLES-1].addr] <= req_pipeline[N_DELAY_CYCLES-1].data;
@@ -95,19 +102,20 @@ module main_mem #(
                     automatic main_mem_block_offset_t byte_offset = req_pipeline[N_DELAY_CYCLES-1].whole_addr[2:0];
                     case (req_pipeline[N_DELAY_CYCLES-1].width)
                     WORD: begin
-                        mem[block_addr][8*byte_offset+:32] <= req_pipeline[N_DELAY_CYCLES-1].data[31:0];
+                        mem[block_addr][8*byte_offset+:32] = req_pipeline[N_DELAY_CYCLES-1].data[31:0];
                     end
                     BYTE: begin
-                        mem[block_addr][8*byte_offset+:8] <= req_pipeline[N_DELAY_CYCLES-1].data[7:0];
+                        mem[block_addr][8*byte_offset+:8] = req_pipeline[N_DELAY_CYCLES-1].data[7:0];
                     end
                     HALFWORD: begin
-                        mem[block_addr][8*byte_offset+:16] <= req_pipeline[N_DELAY_CYCLES-1].data[15:0];
+                        mem[block_addr][8*byte_offset+:16] = req_pipeline[N_DELAY_CYCLES-1].data[15:0];
                     end
                     endcase
                 end
-                resp_block_data <= mem[req_pipeline[N_DELAY_CYCLES-1].addr];
+                // TODO: change back to non-blocking if it doesn't work and rewrite resp_block_data
+                resp_block_data = mem[req_pipeline[N_DELAY_CYCLES-1].addr];
             end else begin
-                resp_block_data <= 0;
+                resp_block_data = 0;
             end
         end
     end

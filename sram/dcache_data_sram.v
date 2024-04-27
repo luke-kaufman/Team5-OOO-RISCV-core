@@ -1,3 +1,6 @@
+`ifndef DCACHE_DATA_SRAM_V
+`define DCACHE_DATA_SRAM_V
+
 // OpenRAM SRAM model (NOTE: This one is netlist only!)
 // Words: 64
 // Word size: 128
@@ -124,3 +127,5 @@ module sram_64x128_1rw_wsize8 #(parameter VERBOSE = 0) (
   end
 
 endmodule
+
+`endif

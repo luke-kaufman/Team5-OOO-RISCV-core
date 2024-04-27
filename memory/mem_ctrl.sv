@@ -16,6 +16,7 @@ module mem_ctrl (
     input block_data_t dcache_req_block_data, // for writes
     input req_width_t dcache_req_width, // (only for dcache and stores) TODO: temporary
     input addr_t dcache_req_addr, // (only for dcache and stores) TODO: temporary
+    input logic dcache_req_writethrough,
     output logic dcache_req_ready,
 
     // FROM MEM_CTRL TO MAIN_MEM (REQUEST) (LATENCY-SENSITIVE)
@@ -26,6 +27,7 @@ module mem_ctrl (
     output block_data_t mem_req_block_data, // for writes
     output req_width_t mem_req_width, // (only for dcache and stores) TODO: temporary
     output addr_t mem_req_addr, // (only for dcache and stores) TODO: temporary
+    output logic mem_req_writethrough,
 
     // FROM MAIN_MEM TO MEM_CTRL (RESPONSE) (LATENCY-SENSITIVE)
     input logic mem_resp_valid,

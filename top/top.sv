@@ -11,9 +11,9 @@ module top #(
     input wire clk,
     input wire init,
     input addr_t init_pc,
-    input addr_t init_sp,
     // input block_data_t init_main_mem_state[`MAIN_MEM_N_BLOCKS],
     input block_data_t init_main_mem_state[HIGHEST_INSTR_BLOCK_ADDR:0],
+    input wire [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] init_arf_state,
     input wire rst_aL,
 
     output logic [`ARF_N_ENTRIES-1:0] [`REG_DATA_WIDTH-1:0] ARF_OUT,
@@ -31,6 +31,7 @@ module top #(
     wire block_data_t dcache_mem_ctrl_req_block_data;
     req_width_t dcache_mem_ctrl_req_width; // TODO: temporary (only for dcache and stores)
     wire addr_t dcache_mem_ctrl_req_addr; // TODO: temporary (only for dcache and stores)
+    wire dcache_mem_ctrl_req_writethrough;
     wire dcache_mem_ctrl_req_ready;
     wire dcache_mem_ctrl_resp_valid;
     wire block_data_t dcache_mem_ctrl_resp_block_data;
@@ -41,7 +42,8 @@ module top #(
     wire main_mem_block_addr_t mem_req_block_addr;
     wire block_data_t mem_req_block_data;
     req_width_t mem_req_width; // (only for dcache and stores) TODO: temporary
-    wire addr_t mem_req_addr; // (only for dcache and stores) TODO: temporar
+    wire addr_t mem_req_addr; // (only for dcache and stores) TODO: temporary
+    wire mem_req_writethrough;
     wire mem_resp_valid;
     cache_type_t mem_resp_cache_type; // TODO: figure out the enum 4-state bug
     wire block_data_t mem_resp_block_data;
@@ -50,7 +52,7 @@ module top #(
         .clk(clk),
         .init(init),
         .init_pc(init_pc),
-        .init_sp(init_sp),
+        .init_arf_state(init_arf_state),
         .rst_aL(rst_aL),
 
         // ICACHE MEM CTRL REQUEST
@@ -69,6 +71,7 @@ module top #(
         .dcache_mem_ctrl_req_block_data(dcache_mem_ctrl_req_block_data),  // for writes
         .dcache_mem_ctrl_req_width(dcache_mem_ctrl_req_width), // TODO: temporary (only for dcache and stores)
         .dcache_mem_ctrl_req_addr(dcache_mem_ctrl_req_addr), // TODO: temporary (only for dcache and stores)
+        .dcache_mem_ctrl_req_writethrough(dcache_mem_ctrl_req_writethrough),
         .dcache_mem_ctrl_req_ready(dcache_mem_ctrl_req_ready),
 
         // DCACHE MEM CTRL RESPONSE
@@ -96,6 +99,7 @@ module top #(
         .dcache_req_block_data(dcache_mem_ctrl_req_block_data), // for writes
         .dcache_req_width(dcache_mem_ctrl_req_width), // (only for dcache and stores) TODO: temporary
         .dcache_req_addr(dcache_mem_ctrl_req_addr), // (only for dcache and stores) TODO: temporary
+        .dcache_req_writethrough(dcache_mem_ctrl_req_writethrough),
         .dcache_req_ready(dcache_mem_ctrl_req_ready),
 
         // FROM MEM_CTRL TO DCACHE (RESPONSE) (LATENCY-SENSITIVE)
@@ -110,6 +114,7 @@ module top #(
         .mem_req_block_data(mem_req_block_data), // for writes
         .mem_req_width(mem_req_width), // (only for dcache and stores) TODO: temporary
         .mem_req_addr(mem_req_addr), // (only for dcache and stores) TODO: temporary
+        .mem_req_writethrough(mem_req_writethrough),
 
         // FROM MAIN_MEM TO MEM_CTRL (RESPONSE) (LATENCY-SENSITIVE)
         .mem_resp_valid(mem_resp_valid),
@@ -133,6 +138,7 @@ module top #(
         .req_block_data(mem_req_block_data), // for writes
         .req_width(mem_req_width), // (only for dcache and stores) TODO: temporary
         .req_addr(mem_req_addr), // (only for dcache and stores) TODO: temporary
+        .req_writethrough(mem_req_writethrough),
 
         // FROM MAIN_MEM TO MEM_CTRL (RESPONSE) (LATENCY-SENSITIVE)
         .resp_valid(mem_resp_valid),

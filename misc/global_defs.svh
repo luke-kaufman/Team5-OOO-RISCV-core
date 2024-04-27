@@ -19,11 +19,11 @@
 `define ICACHE_WRITE_SIZE_BITS 64
 
 `define DCACHE_NUM_SETS 64
-`define DCACHE_TAG_ENTRY_SIZE 25
 `define DCACHE_DATA_BLOCK_SIZE 64
-`define DCACHE_NUM_WAYS 2
-`define DCACHE_NUM_TAG_CTRL_BITS 2  // dirty and valid
-`define DCACHE_WRITE_SIZE_BITS 8
+// `define DCACHE_TAG_ENTRY_SIZE 25
+// `define DCACHE_NUM_WAYS 2
+// `define DCACHE_NUM_TAG_CTRL_BITS 2  // dirty and valid
+// `define DCACHE_WRITE_SIZE_BITS 8
 
 `define BLOCK_DATA_WIDTH 64
 `define MAIN_MEM_N_BLOCKS (2**(`ADDR_WIDTH-$clog2(`BLOCK_DATA_WIDTH / 8))) // TODO: `BLOCK_DATA_WIDTH vs. `BLOCK_DATA_WIDTH/8 ?P
@@ -66,17 +66,29 @@ typedef logic [`BLOCK_DATA_WIDTH-1:0] block_data_t;
 typedef logic [`MAIN_MEM_BLOCK_ADDR_WIDTH-1:0] main_mem_block_addr_t;
 typedef logic [`MAIN_MEM_BLOCK_OFFSET_WIDTH-1:0] main_mem_block_offset_t;
 
-typedef logic [`N_DCACHE_OFFSET_BITS-1:0] dcache_offset_t;
-typedef logic [`N_DCACHE_INDEX_BITS-1:0] dcache_index_t;
 typedef logic [`N_DCACHE_TAG_BITS-1:0] dcache_tag_t;
-
-typedef logic [`N_ICACHE_OFFSET_BITS-1:0] icache_offset_t;
-typedef logic [`ICACHE_INDEX_BITS-1:0] icache_index_t;
-typedef logic [`ICACHE_TAG_BITS-1:0] icache_tag_t;
+typedef logic [`N_DCACHE_INDEX_BITS-1:0] dcache_index_t;
+typedef logic [`N_DCACHE_OFFSET_BITS-1:0] dcache_offset_t;
 
 typedef enum {ICACHE = 0, DCACHE = 1} cache_type_t;
 typedef enum {READ = 0, WRITE = 1} req_type_t;
 typedef enum {BYTE = 0, HALFWORD = 1, WORD = 2, ERROR} req_width_t;
+
+typedef struct packed {
+    dcache_tag_t tag;
+    dcache_index_t index;
+    dcache_offset_t offset;
+} dcache_addr_t;
+
+typedef struct packed {
+    logic valid;
+    req_type_t req_type;
+    logic [1:0] wmask;
+} dcache_tag_array_req_t;
+
+typedef logic [`N_ICACHE_OFFSET_BITS-1:0] icache_offset_t;
+typedef logic [`ICACHE_INDEX_BITS-1:0] icache_index_t;
+typedef logic [`ICACHE_TAG_BITS-1:0] icache_tag_t;
 
 `define I_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[24:21], instr[20] })
 `define S_IMM(instr) ({                  {21{instr[31]}}                , instr[30:25], instr[11:8] , instr[7]  })
