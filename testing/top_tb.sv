@@ -37,8 +37,8 @@ module top_tb #(
         32'h00000000 /* x12 (a2)    */,
         32'h00000000 /* x11 (a1)    */,
         32'h00000000 /* x10 (a0)    */,
-        32'hDEADBEEF /* x9  (s1)    */,
-        32'hDEADBABE /* x8  (s0/fp) */,
+        32'h00000000 /* x9  (s1)    */,
+        32'h00000000 /* x8  (s0/fp) */,
         32'h00000000 /* x7  (t2)    */,
         32'h00000000 /* x6  (t1)    */,
         32'h00000000 /* x5  (t0)    */,
@@ -52,10 +52,32 @@ module top_tb #(
         32'hfe010113, // add sp,sp,-32
         32'h00812e23, // sw s0,28(sp)
         32'h00912c23, // sw s1,24(sp)
+        32'h01212a23, // sw s2,20(sp)
+        32'h01312823, // sw s3,16(sp)
+        32'h01412623, // sw s4,12(sp)
+        32'h01512423, // sw s5,8(sp)
         32'h02010413, // add s0,sp,32
-        32'h00f00493, // li s1,15
+        32'h00000a93, // li s5,0
+        32'h00100913, // li s2,1
+        32'h00000993, // li s3,0
+        32'h00a00a13, // li s4,10
+        32'h00000493, // li s1,0
+        32'h0140006f, // j 101d4 <main+0x48>
+        32'h012a89b3, // add s3,s5,s2
+        32'h00090a93, // mv s5,s2
+        32'h00098913, // mv s2,s3
+        32'h00148493, // add s1,s1,1
+        32'hff44c8e3, // blt s1,s4,101c4 <main+0x38>
+        32'h00098793, // mv a5,s3
+        32'h00078513, // mv a0,a5
         32'h01c12403, // lw s0,28(sp)
-        32'h01812483  // lw s1,24(sp)
+        32'h01812483, // lw s1,24(sp)
+        32'h01412903, // lw s2,20(sp)
+        32'h01012983, // lw s3,16(sp)
+        32'h00c12a03, // lw s4,12(sp)
+        32'h00812a83, // lw s5,8(sp)
+        32'h02010113, // add sp,sp,32
+        32'h00008067  // ret
     };
     block_data_t init_main_mem_state [HIGHEST_INSTR_BLOCK_ADDR:0];
 
@@ -113,114 +135,124 @@ module top_tb #(
         #1;
         init = 0;
 
-        repeat (50)
+        repeat (10000)
             @(posedge clk);
 
         #1;
         dump_arf();
-        dump_main_mem(init_pc - 32, init_pc + 32);
+        dump_main_mem(init_pc - 64, init_pc + 64);
         $finish;
     end
 
     always @(negedge clk) begin #1 $display();
-        for (int i = 0; i < 8; i++) begin
-            $display(
-                "%0t rob_state[%0d] = {pc_npc: %h, is_executed: %b, reg_ready: %b}",
-                $time,
-                i,
-                _top._core._dispatch._rob.rob_state[i].pc_npc,
-                _top._core._dispatch._rob.rob_state[i].is_executed,
-                _top._core._dispatch._rob.rob_state[i].reg_ready
-            );
+        if (1) begin
+            if (1) begin
+                for (int i = 0; i < 8; i++) begin
+                    $display(
+                        "%0t rob_state[%0d] = {pc_npc: %h, is_executed: %b, reg_ready: %b}",
+                        $time,
+                        i,
+                        _top._core._dispatch._rob.rob_state[i].pc_npc,
+                        _top._core._dispatch._rob.rob_state[i].is_executed,
+                        _top._core._dispatch._rob.rob_state[i].reg_ready
+                    );
+                end
+            end
+            if (0) begin
+                $display("%0t iiq_enq_ctr: %d", $time, _top._core._integer_issue.iiq.enq_ctr);
+                for (int i = 0; i < 4; i++) begin
+                    $display(
+                        "%0t iiq_state[%0d] = {
+                            src1_valid: %b, src1_rob_id: %d, src1_ready: %b, src1_data: %h,
+                            src2_valid: %b, src2_rob_id: %d, src2_ready: %b, src2_data: %h,
+                            dst_valid: %b, instr_rob_id: %d
+                        }",
+                        $time, i,
+                        _top._core._integer_issue.entries[i].src1_valid,
+                        _top._core._integer_issue.entries[i].src1_rob_id,
+                        _top._core._integer_issue.entries[i].src1_ready,
+                        _top._core._integer_issue.entries[i].src1_data,
+                        _top._core._integer_issue.entries[i].src2_valid,
+                        _top._core._integer_issue.entries[i].src2_rob_id,
+                        _top._core._integer_issue.entries[i].src2_ready,
+                        _top._core._integer_issue.entries[i].src2_data,
+                        _top._core._integer_issue.entries[i].dst_valid,
+                        _top._core._integer_issue.entries[i].instr_rob_id
+                    );
+                end
+            end
+            if (0) begin
+                $display("%0t lsq_enq_ctr: %d", $time, _top._core.lsu._lsq_simple.enq_ctr);
+                $display("%0t lsq_deq_ctr: %d", $time, _top._core.lsu._lsq_simple.deq_ctr);
+                for (int i = 0; i < 4; i++) begin
+                    $display(
+                        "%0t lsq_state[%0d] = {
+                            ld_st: %b, base_addr_rob_id: %d, base_addr_ready: %b, base_addr: %h,
+                            st_data_rob_id: %d, st_data_ready: %b, st_data: %h,
+                            instr_rob_id: %d
+                        }",
+                        $time, i,
+                        _top._core.lsu.lsq_entries[i].ld_st,
+                        _top._core.lsu.lsq_entries[i].base_addr_rob_id,
+                        _top._core.lsu.lsq_entries[i].base_addr_ready,
+                        _top._core.lsu.lsq_entries[i].base_addr,
+                        _top._core.lsu.lsq_entries[i].st_data_rob_id,
+                        _top._core.lsu.lsq_entries[i].st_data_ready,
+                        _top._core.lsu.lsq_entries[i].st_data,
+                        _top._core.lsu.lsq_entries[i].instr_rob_id
+                    );
+                end
+            end
+            if (0) begin
+                $display("%0t dcache.pipeline_req_valid: %b", $time, _top._core.lsu._dcache.pipeline_req_valid);
+                $display("%0t dcache.pipeline_req_type: %s", $time, _top._core.lsu._dcache.pipeline_req_type.name);
+                $display("%0t dcache.pipeline_req_addr: %h", $time, _top._core.lsu._dcache.pipeline_req_addr);
+                $display("%0t dcache.pipeline_req_wr_data: %h\n", $time, _top._core.lsu._dcache.pipeline_req_wr_data);
+
+                $display("%0t dcache.mem_ctrl_resp_was_valid: %b", $time, _top._core.lsu._dcache.mem_ctrl_resp_was_valid);
+                $display("%0t dcache.refill_waiting: %b", $time, _top._core.lsu._dcache.refill_waiting);
+                $display("%0t dcache.refill_writing: %d", $time, _top._core.lsu._dcache.refill_writing);
+                $display("%0t dcache.refill_wmask: %b\n", $time, _top._core.lsu._dcache.refill_wmask);
+
+                $display("%0t dcache.tag_stage_buffer.valid: %b", $time, _top._core.lsu._dcache.tag_stage_buffer.valid);
+                $display("%0t dcache.tag_array.csb0_reg: %b", $time, ~_top._core.lsu._dcache.tag_array.csb0_reg);
+                $display("%0t dcache.tag_stage_buffer.refill: %b", $time, _top._core.lsu._dcache.tag_stage_buffer.refill);
+                $display("%0t dcache.tag_stage_buffer.req_type: %s", $time, _top._core.lsu._dcache.tag_stage_buffer.req_type.name);
+                $display("%0t dcache.tag_array.web0_reg: %b", $time, ~_top._core.lsu._dcache.tag_array.web0_reg);
+                $display("%0t dcache.tag_array.wmask0_reg: %b", $time, _top._core.lsu._dcache.tag_array.wmask0_reg);
+                $display("%0t dcache.tag_stage_buffer.addr: %h", $time, _top._core.lsu._dcache.tag_stage_buffer.addr);
+                $display("%0t dcache.tag_array.addr0_reg: %h", $time, _top._core.lsu._dcache.tag_array.addr0_reg);
+                $display("%0t dcache.tag_stage_buffer.wr_data: %h", $time, _top._core.lsu._dcache.tag_stage_buffer.wr_data);
+                $display("%0t dcache.tag_array.din0_reg: %h\n", $time, _top._core.lsu._dcache.tag_array.din0_reg);
+
+                $display("%0t dcache.data_stage_buffer.valid: %b", $time, _top._core.lsu._dcache.data_stage_buffer.valid);
+                $display("%0t dcache.data_array.csb0_reg: %b", $time, ~_top._core.lsu._dcache.data_array.csb0_reg);
+                $display("%0t dcache.data_stage_buffer.refill: %b", $time, _top._core.lsu._dcache.data_stage_buffer.refill);
+                $display("%0t dcache.data_stage_buffer.req_type: %s", $time, _top._core.lsu._dcache.data_stage_buffer.req_type.name);
+                $display("%0t dcache.data_array.web0_reg: %b", $time, ~_top._core.lsu._dcache.data_array.web0_reg);
+                $display("%0t dcache.data_stage_buffer.addr: %h", $time, _top._core.lsu._dcache.data_stage_buffer.addr);
+                $display("%0t dcache.data_array.addr0_reg: %h", $time, _top._core.lsu._dcache.data_array.addr0_reg);
+                $display("%0t dcache.data_stage_buffer.sel_way: %b", $time, _top._core.lsu._dcache.data_stage_buffer.sel_way);
+                $display("%0t dcache.data_array.wmask0_reg: %b", $time, _top._core.lsu._dcache.data_array.wmask0_reg);
+                $display("%0t dcache.data_array.din0_reg: %h\n", $time, _top._core.lsu._dcache.data_array.din0_reg);
+
+                $display("%0t dcache.mem_ctrl_req_valid: %b", $time, _top._core.lsu._dcache.mem_ctrl_req_valid);
+                $display("%0t dcache.mem_ctrl_req_type: %s", $time, _top._core.lsu._dcache.mem_ctrl_req_type.name);
+                $display("%0t dcache.mem_ctrl_req_block_addr: %h", $time, _top._core.lsu._dcache.mem_ctrl_req_block_addr);
+                $display("%0t dcache.mem_ctrl_req_block_data: %h", $time, _top._core.lsu._dcache.mem_ctrl_req_block_data);
+                $display("%0t dcache.mem_ctrl_req_addr: %h", $time, _top._core.lsu._dcache.mem_ctrl_req_addr);
+                $display("%0t dcache.mem_ctrl_req_writethrough: %b", $time, _top._core.lsu._dcache.mem_ctrl_req_writethrough);
+                $display("%0t dcache.mem_ctrl_req_ready: %b", $time, _top._core.lsu._dcache.mem_ctrl_req_ready);
+                $display("%0t dcache.mem_ctrl_req_success: %b\n", $time, _top._core.lsu._dcache.mem_ctrl_req_success);
+
+                $display("%0t main_mem.req_pipeline: %p\n", $time, _top._main_mem.req_pipeline);
+
+                $display("%0t dcache.mem_ctrl_resp_valid: %b", $time, _top._core.lsu._dcache.mem_ctrl_resp_valid);
+                $display("%0t dcache.mem_ctrl_resp_block_data: %h", $time, _top._core.lsu._dcache.mem_ctrl_resp_block_data);
+
+                $display("%0t dcache.pipeline_resp_valid: %b", $time, _top._core.lsu._dcache.pipeline_resp_valid);
+                $display("%0t dcache.pipeline_resp_rd_data: %h", $time, _top._core.lsu._dcache.pipeline_resp_rd_data);
+            end
         end
-        $display("%0t iiq_enq_ctr: %d", $time, _top._core._integer_issue.iiq.enq_ctr);
-        for (int i = 0; i < 4; i++) begin
-            $display(
-                "%0t iiq_state[%0d] = {
-                    src1_valid: %b, src1_rob_id: %d, src1_ready: %b, src1_data: %h,
-                    src2_valid: %b, src2_rob_id: %d, src2_ready: %b, src2_data: %h,
-                    dst_valid: %b, instr_rob_id: %d
-                }",
-                $time, i,
-                _top._core._integer_issue.entries[i].src1_valid,
-                _top._core._integer_issue.entries[i].src1_rob_id,
-                _top._core._integer_issue.entries[i].src1_ready,
-                _top._core._integer_issue.entries[i].src1_data,
-                _top._core._integer_issue.entries[i].src2_valid,
-                _top._core._integer_issue.entries[i].src2_rob_id,
-                _top._core._integer_issue.entries[i].src2_ready,
-                _top._core._integer_issue.entries[i].src2_data,
-                _top._core._integer_issue.entries[i].dst_valid,
-                _top._core._integer_issue.entries[i].instr_rob_id
-            );
-        end
-        $display("%0t lsq_enq_ctr: %d", $time, _top._core.lsu._lsq_simple.enq_ctr);
-        $display("%0t lsq_deq_ctr: %d", $time, _top._core.lsu._lsq_simple.deq_ctr);
-        for (int i = 0; i < 4; i++) begin
-            $display(
-                "%0t lsq_state[%0d] = {
-                    ld_st: %b, base_addr_rob_id: %d, base_addr_ready: %b, base_addr: %h,
-                    st_data_rob_id: %d, st_data_ready: %b, st_data: %h,
-                    instr_rob_id: %d
-                }",
-                $time, i,
-                _top._core.lsu.lsq_entries[i].ld_st,
-                _top._core.lsu.lsq_entries[i].base_addr_rob_id,
-                _top._core.lsu.lsq_entries[i].base_addr_ready,
-                _top._core.lsu.lsq_entries[i].base_addr,
-                _top._core.lsu.lsq_entries[i].st_data_rob_id,
-                _top._core.lsu.lsq_entries[i].st_data_ready,
-                _top._core.lsu.lsq_entries[i].st_data,
-                _top._core.lsu.lsq_entries[i].instr_rob_id
-            );
-        end
-        $display("%0t dcache.pipeline_req_valid: %b", $time, _top._core.lsu._dcache.pipeline_req_valid);
-        $display("%0t dcache.pipeline_req_type: %s", $time, _top._core.lsu._dcache.pipeline_req_type.name);
-        $display("%0t dcache.pipeline_req_addr: %h", $time, _top._core.lsu._dcache.pipeline_req_addr);
-        $display("%0t dcache.pipeline_req_wr_data: %h\n", $time, _top._core.lsu._dcache.pipeline_req_wr_data);
-
-        $display("%0t dcache.mem_ctrl_resp_was_valid: %b", $time, _top._core.lsu._dcache.mem_ctrl_resp_was_valid);
-        $display("%0t dcache.refill_waiting: %b", $time, _top._core.lsu._dcache.refill_waiting);
-        $display("%0t dcache.refill_writing: %d", $time, _top._core.lsu._dcache.refill_writing);
-        $display("%0t dcache.refill_wmask: %b\n", $time, _top._core.lsu._dcache.refill_wmask);
-
-        $display("%0t dcache.tag_stage_buffer.valid: %b", $time, _top._core.lsu._dcache.tag_stage_buffer.valid);
-        $display("%0t dcache.tag_array.csb0_reg: %b", $time, ~_top._core.lsu._dcache.tag_array.csb0_reg);
-        $display("%0t dcache.tag_stage_buffer.refill: %b", $time, _top._core.lsu._dcache.tag_stage_buffer.refill);
-        $display("%0t dcache.tag_stage_buffer.req_type: %s", $time, _top._core.lsu._dcache.tag_stage_buffer.req_type.name);
-        $display("%0t dcache.tag_array.web0_reg: %b", $time, ~_top._core.lsu._dcache.tag_array.web0_reg);
-        $display("%0t dcache.tag_array.wmask0_reg: %b", $time, _top._core.lsu._dcache.tag_array.wmask0_reg);
-        $display("%0t dcache.tag_stage_buffer.addr: %h", $time, _top._core.lsu._dcache.tag_stage_buffer.addr);
-        $display("%0t dcache.tag_array.addr0_reg: %h", $time, _top._core.lsu._dcache.tag_array.addr0_reg);
-        $display("%0t dcache.tag_stage_buffer.wr_data: %h", $time, _top._core.lsu._dcache.tag_stage_buffer.wr_data);
-        $display("%0t dcache.tag_array.din0_reg: %h\n", $time, _top._core.lsu._dcache.tag_array.din0_reg);
-
-        $display("%0t dcache.data_stage_buffer.valid: %b", $time, _top._core.lsu._dcache.data_stage_buffer.valid);
-        $display("%0t dcache.data_array.csb0_reg: %b", $time, ~_top._core.lsu._dcache.data_array.csb0_reg);
-        $display("%0t dcache.data_stage_buffer.refill: %b", $time, _top._core.lsu._dcache.data_stage_buffer.refill);
-        $display("%0t dcache.data_stage_buffer.req_type: %s", $time, _top._core.lsu._dcache.data_stage_buffer.req_type.name);
-        $display("%0t dcache.data_array.web0_reg: %b", $time, ~_top._core.lsu._dcache.data_array.web0_reg);
-        $display("%0t dcache.data_stage_buffer.addr: %h", $time, _top._core.lsu._dcache.data_stage_buffer.addr);
-        $display("%0t dcache.data_array.addr0_reg: %h", $time, _top._core.lsu._dcache.data_array.addr0_reg);
-        $display("%0t dcache.data_stage_buffer.sel_way: %b", $time, _top._core.lsu._dcache.data_stage_buffer.sel_way);
-        $display("%0t dcache.data_array.wmask0_reg: %b", $time, _top._core.lsu._dcache.data_array.wmask0_reg);
-        $display("%0t dcache.data_array.din0_reg: %h\n", $time, _top._core.lsu._dcache.data_array.din0_reg);
-
-        $display("%0t dcache.mem_ctrl_req_valid: %b", $time, _top._core.lsu._dcache.mem_ctrl_req_valid);
-        $display("%0t dcache.mem_ctrl_req_type: %s", $time, _top._core.lsu._dcache.mem_ctrl_req_type.name);
-        $display("%0t dcache.mem_ctrl_req_block_addr: %h", $time, _top._core.lsu._dcache.mem_ctrl_req_block_addr);
-        $display("%0t dcache.mem_ctrl_req_block_data: %h", $time, _top._core.lsu._dcache.mem_ctrl_req_block_data);
-        $display("%0t dcache.mem_ctrl_req_addr: %h", $time, _top._core.lsu._dcache.mem_ctrl_req_addr);
-        $display("%0t dcache.mem_ctrl_req_writethrough: %b", $time, _top._core.lsu._dcache.mem_ctrl_req_writethrough);
-        $display("%0t dcache.mem_ctrl_req_ready: %b", $time, _top._core.lsu._dcache.mem_ctrl_req_ready);
-        $display("%0t dcache.mem_ctrl_req_success: %b\n", $time, _top._core.lsu._dcache.mem_ctrl_req_success);
-
-        $display("%0t main_mem.req_pipeline: %p\n", $time, _top._main_mem.req_pipeline);
-
-        $display("%0t dcache.mem_ctrl_resp_valid: %b", $time, _top._core.lsu._dcache.mem_ctrl_resp_valid);
-        $display("%0t dcache.mem_ctrl_resp_block_data: %h", $time, _top._core.lsu._dcache.mem_ctrl_resp_block_data);
-
-        $display("%0t dcache.pipeline_resp_valid: %b", $time, _top._core.lsu._dcache.pipeline_resp_valid);
-        $display("%0t dcache.pipeline_resp_rd_data: %h", $time, _top._core.lsu._dcache.pipeline_resp_rd_data);
     end
 endmodule
