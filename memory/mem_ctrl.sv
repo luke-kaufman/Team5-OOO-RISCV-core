@@ -66,6 +66,7 @@ module mem_ctrl (
             mem_req_block_data = 0;
             mem_req_width = WORD; // NOT USED
             mem_req_addr = 0; // NOT USED
+            mem_req_writethrough = 0; // NOT USED
         end else if (dcache_req_valid) begin
             mem_req_valid = 1;
             mem_req_cache_type = DCACHE;
@@ -74,6 +75,7 @@ module mem_ctrl (
             mem_req_block_data = dcache_req_block_data;
             mem_req_width = dcache_req_width;
             mem_req_addr = dcache_req_addr;
+            mem_req_writethrough = dcache_req_writethrough;
         end else begin
             mem_req_valid = 0;
             mem_req_cache_type = cache_type_t'(0);
@@ -82,6 +84,7 @@ module mem_ctrl (
             mem_req_block_data = 0;
             mem_req_width = req_width_t'(0);
             mem_req_addr = 0;
+            mem_req_writethrough = 0;
         end
     end
 

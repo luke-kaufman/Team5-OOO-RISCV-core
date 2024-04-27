@@ -64,8 +64,6 @@ module dcache #(
         req_width_t width;
         dcache_addr_t addr;
         word_t wr_data;
-        // logic tag_array_web; // ?
-        // logic [1:0] tag_array_wmask; // ?
         logic refill;
     } tag_stage_buffer_t;
 
@@ -86,13 +84,19 @@ module dcache #(
     );
 
     tag_stage_buffer_t tag_stage_buffer;
+    tag_stage_buffer_t next_tag_stage_buffer;
     data_stage_buffer_t data_stage_buffer;
-    wire tag_array_set_t tag_array_dout;
-    wire data_array_set_t data_array_dout;
+    data_stage_buffer_t next_data_stage_buffer;
 
     logic mem_ctrl_resp_was_valid;
     logic refill_waiting;
     logic [1:0] refill_writing;
+    logic next_mem_ctrl_resp_was_valid;
+    logic next_refill_waiting;
+    logic [1:0] next_refill_writing;
+
+    wire tag_array_set_t tag_array_dout;
+    wire data_array_set_t data_array_dout;
 
     // assertion: refill_wmask[1] and refill_wmask[0] should not be true at the same time
     wire [1:0] refill_wmask = {
@@ -105,7 +109,7 @@ module dcache #(
     wire mem_ctrl_req_success = mem_ctrl_req_valid & mem_ctrl_req_ready;
 
     wire tag_array_csb = mem_ctrl_resp_valid     |
-                         mem_ctrl_resp_was_valid |
+                         tag_stage_buffer.refill |
                        (~tag_stage_buffer.valid  &
                         ~refill_waiting &
                         ~pipeline_resp_valid     &
@@ -141,72 +145,56 @@ module dcache #(
                     (tag_array_dout.way0_tag == tag_stage_buffer.addr.tag);
     wire tag_array_hit = sel_way1 | sel_way0; // NOTE?: not guarded by pipeline_req_valid_latched and mem_ctrl_resp_waiting
 
-
+    always_comb begin
+        next_tag_stage_buffer = '{
+            valid: tag_array_csb,
+            req_type: pipeline_req_type,
+            width: pipeline_req_width,
+            addr: pipeline_req_addr,
+            wr_data: pipeline_req_wr_data,
+            refill: mem_ctrl_resp_valid
+        };
+    end
     always_ff @(posedge clk or posedge init or negedge rst_aL) begin
         if (init | !rst_aL) begin
-            tag_stage_buffer.valid <= 1'b0;
-            tag_stage_buffer.req_type <= READ;
-            tag_stage_buffer.width <= BYTE;
-            tag_stage_buffer.addr <= '0;
-            tag_stage_buffer.wr_data <= '0;
-            // tag_stage_buffer.tag_array_web <= 1'b0;
-            // tag_stage_buffer.tag_array_wmask <= 2'b00;
-            tag_stage_buffer.refill <= 1'b0;
+            tag_stage_buffer <= '{default: 0};
         end else begin
-            tag_stage_buffer.valid <= tag_array_csb;
-            tag_stage_buffer.req_type <=  pipeline_req_type;
-            tag_stage_buffer.width <= pipeline_req_width;
-            tag_stage_buffer.addr <= pipeline_req_addr;
-            tag_stage_buffer.wr_data <= pipeline_req_wr_data;
-            // tag_stage_buffer.tag_array_web <= tag_array_web;
-            // tag_stage_buffer.tag_array_wmask <= tag_array_wmask;
-            tag_stage_buffer.refill <= mem_ctrl_resp_valid;
+            tag_stage_buffer <= next_tag_stage_buffer;
         end
     end
 
+    always_comb begin
+        if (mem_ctrl_resp_valid) begin
+            next_mem_ctrl_resp_was_valid = 1'b1;
+        end else if (mem_ctrl_resp_was_valid) begin
+            next_mem_ctrl_resp_was_valid = 1'b0;
+        end else begin
+            next_mem_ctrl_resp_was_valid = mem_ctrl_resp_was_valid;
+        end
+        if (mem_ctrl_req_success & ~mem_ctrl_req_writethrough) begin
+            next_refill_waiting = 1'b1;
+        end else if (mem_ctrl_resp_valid) begin
+            next_refill_waiting = 1'b0;
+        end else begin
+            next_refill_waiting = refill_waiting;
+        end
+        if (mem_ctrl_resp_valid) begin
+            next_refill_writing = 2'd2;
+        end else if (refill_writing > 0) begin
+            next_refill_writing = refill_writing - 2'd1;
+        end else begin
+            next_refill_writing = refill_writing;
+        end
+    end
     always_ff @(posedge clk or posedge init or negedge rst_aL) begin
         if (init | !rst_aL) begin
             mem_ctrl_resp_was_valid <= 1'b0;
             refill_waiting <= 1'b0;
             refill_writing <= 2'd0;
         end else begin
-            if (mem_ctrl_resp_valid) begin
-                mem_ctrl_resp_was_valid <= 1'b1;
-            end else if (mem_ctrl_resp_was_valid) begin
-                mem_ctrl_resp_was_valid <= 1'b0;
-            end else begin
-                mem_ctrl_resp_was_valid <= mem_ctrl_resp_was_valid;
-            end
-            if (mem_ctrl_req_success) begin
-                refill_waiting <= 1'b1;
-            end if (mem_ctrl_resp_valid) begin
-                refill_waiting <= 1'b0;
-            end else begin
-                refill_waiting <= refill_waiting;
-            end
-            if (mem_ctrl_resp_valid) begin
-                refill_writing <= 2'd2;
-            end else if (refill_writing > 0) begin
-                refill_writing <= refill_writing - 2'd1;
-            end else begin
-                refill_writing <= refill_writing;
-            end
-        end
-    end
-
-    always_ff @(posedge clk or posedge init or negedge rst_aL) begin
-        if (init | !rst_aL) begin
-            data_stage_buffer.valid <= 1'b0;
-            data_stage_buffer.req_type <= READ;
-            data_stage_buffer.addr <= '0;
-            data_stage_buffer.sel_way <= 2'b00;
-            data_stage_buffer.refill <= 1'b0;
-        end else begin
-            data_stage_buffer.valid <= tag_array_hit;
-            data_stage_buffer.req_type <= tag_stage_buffer.req_type;
-            data_stage_buffer.addr <= tag_stage_buffer.addr;
-            data_stage_buffer.sel_way <= {sel_way1, sel_way0};
-            data_stage_buffer.refill <= mem_ctrl_resp_valid;
+            mem_ctrl_resp_was_valid <= next_mem_ctrl_resp_was_valid;
+            refill_waiting <= next_refill_waiting;
+            refill_writing <= next_refill_writing;
         end
     end
 
@@ -250,6 +238,23 @@ module dcache #(
         .din0(data_array_din),
         .dout0(data_array_dout)
     );
+
+    always_comb begin
+        next_data_stage_buffer = '{
+            valid: data_array_csb,
+            req_type: tag_stage_buffer.req_type,
+            addr: tag_stage_buffer.addr,
+            sel_way: data_stage_buffer.refill ? refill_wmask : {sel_way1, sel_way0},
+            refill: mem_ctrl_resp_valid
+        };
+    end
+    always_ff @(posedge clk or posedge init or negedge rst_aL) begin
+        if (init | !rst_aL) begin
+            data_stage_buffer <= '{default: 0};
+        end else begin
+            data_stage_buffer <= next_data_stage_buffer;
+        end
+    end
 
     assign mem_ctrl_req_valid = tag_stage_buffer.valid   &
                                 (refill_writing == 2'd0) &
