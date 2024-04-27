@@ -412,39 +412,13 @@ module top_tb_old #(
     endtask
 
     task dump_main_mem(int cycle, addr_t start_addr, addr_t end_addr);
-        // TODO: currently works for only lw and sw
-        // automatic main_mem_block_addr_t start_addr_block_addr;
-        // automatic main_mem_block_offset_t start_addr_block_offset;
-        // automatic main_mem_block_addr_t end_addr_block_addr;
-        // automatic main_mem_block_offset_t end_addr_block_offset;
-        // {start_addr_block_addr, start_addr_block_offset} = start_addr;
-        // {end_addr_block_addr, end_addr_block_offset} = end_addr;
-        // FIXME: prints same address multiple times
-        // 32'h10184 = 0001 0000 0001 1000 0100 = 0001 0000 0001 10000 100
-        // 32'h10188 = 0001 0000 0001 1000 1000 = 0001 0000 0001 10001 000
-        automatic main_mem_block_addr_t block_addr;
-        automatic main_mem_block_offset_t block_offset;
-        automatic addr_t addr;
+        addr_t addr;
+        main_mem_block_addr_t block_addr;
+        main_mem_block_offset_t block_offset;
+        assign {block_addr, block_offset} = addr;
         $display("MAIN MEM OUT AT CYCLE %5d AT TIME %5d===================", cycle, $time);
-        // for (int j = start_addr_block_offset; j < 8; j += 4) begin
-        //     $display("MAIN_MEM[0x%8h]: 0x%8h", {start_addr_block_addr, j}, main_mem_out_data[start_addr_block_addr][8*j+:32]);
-        // end
-        // for (int i = start_addr_block_addr + 1; i < end_addr_block_addr; i++) begin
-        //     for (int j = 0; j < 8; j += 4) begin
-        //         $display("MAIN_MEM[0x%8h]: 0x%8h", {i, j}, main_mem_out_data[i][8*j+:32]);
-        //     end
-        // end
-        // for (int j = 0; j < end_addr_block_offset; j += 4) begin
-        //     $display("MAIN_MEM[0x%8h]: 0x%8h", {end_addr_block_addr, j}, main_mem_out_data[end_addr_block_addr][8*j+:32]);
-        // end
-        {block_addr, block_offset} = start_addr;
-        // $display("MAIN_MEM[0x%8h]: 0x%8h", start_addr, main_mem_out_data[block_addr][8*block_offset+:32]);
-        addr = {main_mem_block_addr_t'(block_addr - 4), main_mem_block_offset_t'(3'b000)};
-        for (int i = block_addr - 8; i < block_addr + 8 ; i++) begin
-            for (int j = 0; j < 8; j += 4) begin
-                $display("MAIN_MEM[0x%8h]: 0x%8h", addr, main_mem_out_data[i][8*j+:32]);
-                addr += 4;
-            end
+        for (addr = start_addr; addr < end_addr; addr += 4) begin
+            $display("MAIN_MEM[0x%8h]: 0x%8h", addr, main_mem_out_data[block_addr][8*block_offset+:32]);
         end
         $display("END MAIN MEM OUT =======================================");
         $display();
@@ -560,7 +534,7 @@ module top_tb_old #(
         // );
         directed_testsets();
         dump_arf(cycle);
-        dump_main_mem(cycle, 32'h10184, 32'h10184 + 4);
+        dump_main_mem(cycle, 32'h1018c - 64, 32'h1018c + 64);
         // [0x203400000004]
         // [0x203000000004]
         $finish;
