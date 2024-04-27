@@ -1,0 +1,318 @@
+Questa Intel FPGA Edition-64 vlog 2021.3 Compiler 2021.07 Jul 13 2021
+Start time: 19:18:44 on Apr 24,2024
+vlog -sv -lint -suppress 13314 ./testing/top_tb.sv 
+-- Compiling package top_tb_sv_unit
+-- Compiling module lfsr_8bit
+-- Compiling module sram_64x48_1rw_wsize24
+-- Compiling module sram_64x128_1rw_wsize8
+-- Compiling module sram_64x128_1rw_wsize64
+-- Compiling module cache
+-- Compiling module inv
+-- Compiling module and8
+-- Compiling module and16
+-- Compiling module and32
+-- Compiling module and_
+-- Compiling module unsigned_cmp_
+-- Compiling module dec_
+-- Compiling module or_
+-- Compiling module mux_
+-- Compiling module dff_we
+-- Compiling module reg_
+-- Compiling module adder
+-- Compiling module up_counter
+-- Compiling module fifo
+-- Compiling module sign_extend
+-- Compiling module predicted_NPC
+-- Compiling module ifu
+-- Compiling module onehot_mux_
+-- Compiling module ff1
+-- Compiling module regfile
+-- Compiling module regfile_golden
+-- Compiling module fifo_ram
+-- Compiling module fifo_ram_golden
+-- Compiling module rob_simple
+-- Compiling module decode
+-- Compiling module dispatch_simple
+-- Compiling module up_down_counter
+-- Compiling module extend_first1
+-- Compiling module shift_queue
+-- Compiling module integer_issue
+-- Compiling module signed_cmp_
+-- Compiling module bitwise_and
+-- Compiling module bitwise_or
+-- Compiling module xor_
+-- Compiling module bitwise_xor
+-- Compiling module integer_execute
+-- Compiling module lsq_simple
+-- Compiling module load_store_simple
+-- Compiling module core
+-- Compiling module mem_ctrl
+-- Compiling module main_mem
+-- Compiling module top
+-- Compiling module top_tb
+
+Top level modules:
+	dff_we
+	sign_extend
+	regfile
+	fifo_ram
+	top_tb
+End time: 19:18:45 on Apr 24,2024, Elapsed time: 0:00:01
+Errors: 0, Warnings: 0, Suppressed Warnings: 14
+Reading pref.tcl
+
+# 2021.3
+
+# vsim -c -L stdcells -sv_seed 1 -do "run -all; quit" top_tb 
+# Start time: 19:18:46 on Apr 24,2024
+# ** Note: (vsim-3812) Design is being optimized...
+# //  Questa Intel FPGA Edition-64
+# //  Version 2021.3 linux_x86_64 Jul 13 2021
+# //
+# //  Copyright 1991-2021 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.top_tb_sv_unit(fast)
+# Loading work.top_tb(fast)
+# Loading stdcells.OR3_X1(fast)
+# Loading stdcells.INV_X1(fast)
+# Loading stdcells.AND3_X1(fast)
+# Loading stdcells.FA_X1(fast)
+# Loading stdcells.AND2_X1(fast)
+# Loading stdcells.OR2_X1(fast)
+# Loading stdcells.AND2_X1(fast__1)
+# Loading work.mux_(fast__2)
+# Loading work.mux_(fast__3)
+# Loading stdcells.AND2_X1(fast__2)
+# Loading stdcells.OR2_X1(fast__1)
+# Loading work.fifo(fast)
+# Loading stdcells.AND4_X1(fast)
+# Loading work.regfile_golden(fast)
+# Loading work.regfile_golden(fast__1)
+# Loading work.fifo_ram_golden(fast)
+# Loading work.shift_queue(fast)
+# Loading work.load_store_simple(fast)
+# Loading work.lsq_simple(fast)
+# run -all
+# STARTING TESTBENCH time:      0
+# ------| Cycle start: 0 |--------------------------------------------
+# 
+# STARTING TEST SET BEFORE FUNCTION 0
+# 
+# 
+# Filling main_mem with instructions...
+# FILL MAIN MEM: mem[0x00002031]         32, INSTR: 0xfe010113
+# Done filling main_mem with instructions!
+#  
+# Architectural Register File AT CYCLE:     0 AT TIME:     3===================
+# ARF[0]: 0x00000000
+# ARF[1]: 0x00000000
+# ARF[2]: 0x00010188  <=== This is what we will be modifying (the stack pointer in reg 2)
+# ARF[3]: 0x00000000
+# ARF[4]: 0x00000000
+# ARF[5]: 0x00000000
+# ARF[6]: 0x00000000
+# ARF[7]: 0x00000000
+# ARF[8]: 0x00000000
+# ARF[9]: 0x00000000
+# ARF[10]: 0x00000000
+# ARF[11]: 0x00000000
+# ARF[12]: 0x00000000
+# ARF[13]: 0x00000000
+# ARF[14]: 0x00000000
+# ARF[15]: 0x00000000
+# ARF[16]: 0x00000000
+# ARF[17]: 0x00000000
+# ARF[18]: 0x00000000
+# ARF[19]: 0x00000000
+# ARF[20]: 0x00000000
+# ARF[21]: 0x00000000
+# ARF[22]: 0x00000000
+# ARF[23]: 0x00000000
+# ARF[24]: 0x00000000
+# ARF[25]: 0x00000000
+# ARF[26]: 0x00000000
+# ARF[27]: 0x00000000
+# ARF[28]: 0x00000000
+# ARF[29]: 0x00000000
+# ARF[30]: 0x00000000
+# ARF[31]: 0x00000000
+# END ARF OUT =======================================
+#  
+# FETCH: Program Counter (PC): 0x0001018c
+# FETCH: Instruction Cache Hit?: 0
+# Waiting for instruction from main memory...
+# 
+# ------| Cycle start:    1 |--------------------------------------------
+# 
+# FETCH: Program Counter (PC): 0x0001018c
+# FETCH: Instruction Cache Hit?: 0
+# Waiting for instruction from main memory...
+# 
+# ------| Cycle start:    2 |--------------------------------------------
+# 
+# FETCH: Program Counter (PC): 0x0001018c
+# FETCH: Instruction Cache Hit?: 0
+# Waiting for instruction from main memory...
+# 
+# ------| Cycle start:    3 |--------------------------------------------
+# 
+# FETCH: Program Counter (PC): 0x0001018c
+# FETCH: Instruction Cache Hit?: 0
+# Waiting for instruction from main memory...
+# 
+# ------| Cycle start:    4 |--------------------------------------------
+# 
+# FETCH: Program Counter (PC): 0x0001018c
+# FETCH: Instruction Cache Hit?: 0
+# Waiting for instruction from main memory...
+# 
+# ------| Cycle start:    5 |--------------------------------------------
+# 
+# FETCH: Program Counter (PC): 0x0001018c
+# FETCH: Instruction Cache Hit?: 0
+# Waiting for instruction from main memory...
+# 
+# ------| Cycle start:    6 |--------------------------------------------
+# 
+# FETCH: Program Counter (PC): 0x0001018c
+# FETCH: Instruction Cache Hit?: 0
+# Waiting for instruction from main memory...
+# 
+# ------| Cycle start:    7 |--------------------------------------------
+# 
+# FETCH: Program Counter (PC): 0x0001018c
+# FETCH: Instruction Cache Hit?: 0
+# Waiting for instruction from main memory...
+# 
+# ------| Cycle start:    8 |--------------------------------------------
+# 
+# FETCH: Program Counter (PC): 0x0001018c
+# FETCH: Instruction Cache Hit?: 1
+# FETCH: HIT! Got instruction from I-Cache
+# 
+# Sending this instruction and metadata to DISPATCH stage:
+#   Instruction                              : 0xfe010113 (add sp, sp, -32) ("sp" means stack pointer, which is architectural register 2)
+#   Program Counter                          : 0x0001018c
+#   is it a conditional branch?              : 0
+#   do we predict the branch is taken?       : 0
+#   if the branch is taken, where does it go?: 0x00010190
+# 
+# ------| Cycle start:    9 |--------------------------------------------
+# 
+# Decoding instruction: 0xfe010113
+# DISPATCH: Write to Register Alias Table(RAT), Reorder Buffer(ROB) 
+# DISPATCH: AND send all this decoded data for this instruction to Integer Issue Queue (IIQ):
+# DISPATCH: Data to IIQ:
+#    src1_valid: 1
+#    src1_rob_id: 0
+#    src1_ready: 1
+#    src1_data: 65928(0x00010188 - this is what was in the stack pointer) 
+#    src2_valid: 0
+#    src2_rob_id: 0
+#    src2_ready: 1
+#    src2_data: 0
+#    dst_valid: 1
+#    instr_rob_id: 0
+#    immediate: -32
+#    pc: 0001018c
+#    funct3: 000
+#    is_r_type: 0
+#    is_i_type: 1
+#    is_u_type: 0
+#    is_b_type: 0
+#    is_j_type: 0
+#    is_sub: 0
+#    is_sra_srai: 0
+#    is_lui: 0
+#    is_jalr: 0
+#    br_dir_pred: 0
+#    br_target_pred: 00010190
+# 
+# ------| Cycle start:   10 |--------------------------------------------
+# 
+# IIQ: Normally instruction waits here until its operands are ready before going to ALU
+# IIQ: (this is the crux of out-of-order execution - its faster to send things to be executed when they are ready to be, not just based on the order they arrive)
+# IIQ: In this case, stack pointer is ready and we are just adding an immediate to it, so this instruction is immediately ready to go
+# IIQ: Sending instruction to ALU:
+#    src1_data: 65928(0x00010188 stack pointer data)
+#    src2_data: 0
+#    imm: -32
+#    funct3: 000
+#    is_r_type: 0
+#    is_i_type: 1
+#    is_u_type: 0
+#    is_b_type: 0
+#    is_j_type: 0
+#    is_sub: 0
+#    is_sra_srai: 0
+#    is_lui: 0
+#    is_jalr: 0
+#    br_dir_pred: 0
+#    br_target_pred: 00010190
+# 
+# ------| Cycle start:   11 |--------------------------------------------
+# 
+# ALU: With the data from IIQ, we can now ACTUALLY EXECUTE the instruction: ADD sp, sp, -32
+# ALU: This just ends up doing (0x10188 - 32 = 0x10168)
+# ALU: Now we would broadcast this result to the rest of the pipeline (which is empty in this case) if other instructions are waiting for this result
+# ALU: And also send it back to the ROB so it can be retired (offically written back to the ARF)
+#  
+# ALU: alu_broadcast_valid: 1
+# ALU: alu_result: 65896 (0x00010168)
+# 
+# ------| Cycle start:   12 |--------------------------------------------
+# 
+# ROB: INSTRUCTION DONE, now we can write it back to the ROB
+# ROB: Since the ROB is empty in this case, in the next cycle, we can retire the instruction and write it back to the ARF
+# 
+# ------| Cycle start:   13 |--------------------------------------------
+# 
+# Architectural Register File AT CYCLE:    13 AT TIME:   187===================
+# ARF[0]: 0x00000000
+# ARF[1]: 0x00000000
+# ARF[2]: 0x00010168  <=== Stack pointer updated!
+# ARF[3]: 0x00000000
+# ARF[4]: 0x00000000
+# ARF[5]: 0x00000000
+# ARF[6]: 0x00000000
+# ARF[7]: 0x00000000
+# ARF[8]: 0x00000000
+# ARF[9]: 0x00000000
+# ARF[10]: 0x00000000
+# ARF[11]: 0x00000000
+# ARF[12]: 0x00000000
+# ARF[13]: 0x00000000
+# ARF[14]: 0x00000000
+# ARF[15]: 0x00000000
+# ARF[16]: 0x00000000
+# ARF[17]: 0x00000000
+# ARF[18]: 0x00000000
+# ARF[19]: 0x00000000
+# ARF[20]: 0x00000000
+# ARF[21]: 0x00000000
+# ARF[22]: 0x00000000
+# ARF[23]: 0x00000000
+# ARF[24]: 0x00000000
+# ARF[25]: 0x00000000
+# ARF[26]: 0x00000000
+# ARF[27]: 0x00000000
+# ARF[28]: 0x00000000
+# ARF[29]: 0x00000000
+# ARF[30]: 0x00000000
+# ARF[31]: 0x00000000
+# END ARF OUT =======================================
+#  
+# ** Note: $finish    : ./testing/top_tb.sv(625)
+#    Time: 187 ns  Iteration: 0  Instance: /top_tb
+# End time: 19:18:49 on Apr 24,2024, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 0, Suppressed Warnings: 9

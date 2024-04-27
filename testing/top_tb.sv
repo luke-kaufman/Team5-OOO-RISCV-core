@@ -32,11 +32,11 @@ module top_tb #(
         32'h00000000 /* x17 (a7)    */,
         32'h00000000 /* x16 (a6)    */,
         32'h00000000 /* x15 (a5)    */,
-        32'h00000000 /* x14 (a4)    */,
-        32'h00000000 /* x13 (a3)    */,
-        32'h00000000 /* x12 (a2)    */,
+        32'h00000000 /* x14 (a4)    */,  // result should go here (c)
+        32'h00000000 /* x13 (a3)    */,  // or result is here ??
+        32'h00000000 /* x12 (a2)    */,  // becomes n immediately
         32'h00000000 /* x11 (a1)    */,
-        32'h00000000 /* x10 (a0)    */,
+        32'h0000000A /* x10 (a0)    */,  // input into fibonacci (n) , then becomes b?
         32'h00000000 /* x9  (s1)    */,
         32'h00000000 /* x8  (s0/fp) */,
         32'h00000000 /* x7  (t2)    */,
@@ -49,35 +49,19 @@ module top_tb #(
         32'h00000000 /* x0  (zero)  */
     };
     instr_t instrs[] = {
-        32'hfe010113, // add sp,sp,-32
-        32'h00812e23, // sw s0,28(sp)
-        32'h00912c23, // sw s1,24(sp)
-        32'h01212a23, // sw s2,20(sp)
-        32'h01312823, // sw s3,16(sp)
-        32'h01412623, // sw s4,12(sp)
-        32'h01512423, // sw s5,8(sp)
-        32'h02010413, // add s0,sp,32
-        32'h00000a93, // li s5,0
-        32'h00100913, // li s2,1
-        32'h00000993, // li s3,0
-        32'h00a00a13, // li s4,10
-        32'h00000493, // li s1,0
-        32'h0140006f, // j 101d4 <main+0x48>
-        32'h012a89b3, // add s3,s5,s2
-        32'h00090a93, // mv s5,s2
-        32'h00098913, // mv s2,s3
-        32'h00148493, // add s1,s1,1
-        32'hff44c8e3, // blt s1,s4,101c4 <main+0x38>
-        32'h00098793, // mv a5,s3
-        32'h00078513, // mv a0,a5
-        32'h01c12403, // lw s0,28(sp)
-        32'h01812483, // lw s1,24(sp)
-        32'h01412903, // lw s2,20(sp)
-        32'h01012983, // lw s3,16(sp)
-        32'h00c12a03, // lw s4,12(sp)
-        32'h00812a83, // lw s5,8(sp)
-        32'h02010113, // add sp,sp,32
-        32'h00008067  // ret
+        32'h00050613, // mv a2,a0        
+        32'h02a05463, // blez a0,10234 <fibonacci+0x2c>       
+        32'h00000793, // li a5,0        
+        32'h00100513, // li a0,1        
+        32'h00000713, // li a4,0        
+        32'h00050693, // mv a3,a0        
+        32'h00178793, // add a5,a5,1        
+        32'h00e50533, // add a0,a0,a4        
+        32'h00068713, // mv a4,a3        
+        32'hfef618e3, // bne a2,a5,1021c <fibonacci+0x14>       
+        32'h00008067, // ret         
+        32'h00000513, // li a0,0        
+        32'h00008067  // ret         
     };
     block_data_t init_main_mem_state [HIGHEST_INSTR_BLOCK_ADDR:0];
 
@@ -111,7 +95,7 @@ module top_tb #(
 
     task dump_arf();
         $display("ARF OUT AT TIME %5d===================", $time);
-        for(int i = 0; i < `ARF_N_ENTRIES; i++) begin
+        for(int i = `ARF_N_ENTRIES; i >=0 ; i--) begin
             $display("ARF[%0d]: 0x%8h", i, arf_out_data[i]);
         end
         $display("END ARF OUT =======================================");
@@ -145,7 +129,7 @@ module top_tb #(
     end
 
     always @(negedge clk) begin #1 $display();
-        if (1) begin
+        if (0) begin
             if (1) begin
                 for (int i = 0; i < 8; i++) begin
                     $display(
