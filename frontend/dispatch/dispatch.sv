@@ -3,7 +3,7 @@
 `include "misc/regfile.sv"
 `include "frontend/dispatch/rob.sv"
 `include "misc/mux/mux_.v"
-`include "misc/onehot_mux/onehot_mux_.v"
+`include "misc/onehot_mux/onehot_mux.v"
 `include "misc/or/or_.v"
 `include "misc/reg_.v"
 
@@ -138,7 +138,7 @@ module dispatch ( // DECODE, RENAME, and REGISTER READ happen during this stage
     wire rob_id_t retire_rob_id;
     wire retire_arf_id_not_renamed;
     wire rob_id_t retire_arf_id_curr_rob_id;
-    unsigned_cmp_ #(.WIDTH(`ROB_ID_WIDTH)) retire_arf_id_not_renamed_cmp (
+    unsigned_cmp #(.WIDTH(`ROB_ID_WIDTH)) retire_arf_id_not_renamed_cmp (
         .a(retire_rob_id),
         .b(retire_arf_id_curr_rob_id),
         .y(retire_arf_id_not_renamed)

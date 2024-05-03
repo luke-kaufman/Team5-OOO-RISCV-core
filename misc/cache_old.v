@@ -8,7 +8,7 @@
 `include "sram/tag_array_sram.v"
 `include "misc/dff_we.v"
 `include "misc/cmp/cmp32.v"
-`include "misc/onehot_mux/onehot_mux_.v"
+`include "misc/onehot_mux/onehot_mux.v"
 `include "misc/mux/mux_.v"
 `include "misc/lfsr.v"
 
@@ -257,7 +257,7 @@ OR2_X1 icache_hit_or_gate(
 );
 
 // select which data way
-onehot_mux_ #(
+onehot_mux #(
     .WIDTH(BLOCK_SIZE_BITS),
     .N_INS(2)
 )

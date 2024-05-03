@@ -1,15 +1,12 @@
 `ifndef AND_V
 `define AND_V
 
-// `include "freepdk-45nm/stdcells.v"
 `include "misc/and/and8.v"
 `include "misc/and/and16.v"
 `include "misc/and/and32.v"
 
-// IMPL STATUS: COMPLETE
-// TEST STATUS: MISSING
 module and_ #(
-    parameter N_INS = 2
+    parameter N_INS
 ) (
     input wire [N_INS-1:0] a,
     output wire y

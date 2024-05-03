@@ -1,6 +1,6 @@
 Questa Intel FPGA Edition-64 vlog 2021.3 Compiler 2021.07 Jul 13 2021
 Start time: 20:09:27 on Apr 16,2024
-vlog -sv -lint -suppress 13314 ./testing/frontend/fetch/ifu_tb.v ./testing/frontend/fetch/ifu_tb.sv 
+vlog -sv -lint -suppress 13314 ./testing/frontend/fetch/ifu_tb.v ./testing/frontend/fetch/ifu_tb.sv
 ** Error: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.v(1)
 ** while parsing file included at frontend/fetch/ifu.v(4)
 ** at misc/global_defs.svh(131): (vlog-2163) Macro `ST_BUF_ID_WIDTH is undefined.
@@ -117,7 +117,7 @@ vlog -sv -lint -suppress 13314 ./testing/frontend/fetch/ifu_tb.v ./testing/front
 ** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
 ** while parsing file included at frontend/fetch/ifu.v(6)
 ** while parsing file included at misc/cache.v(11)
-** at misc/onehot_mux/onehot_mux_.v(9): (vlog-2275) Existing module 'onehot_mux_' at line 9 will be overwritten.
+** at misc/onehot_mux/onehot_mux.v(9): (vlog-2275) Existing module 'onehot_mux_' at line 9 will be overwritten.
 -- Compiling module and8
 ** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
 ** while parsing file included at frontend/fetch/ifu.v(6)
@@ -167,7 +167,7 @@ vlog -sv -lint -suppress 13314 ./testing/frontend/fetch/ifu_tb.v ./testing/front
 ** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
 ** while parsing file included at frontend/fetch/ifu.v(7)
 ** while parsing file included at misc/fifo.v(6)
-** at misc/cmp/unsigned_cmp_.v(4): (vlog-2275) Existing module 'unsigned_cmp_' at line 4 will be overwritten.
+** at misc/cmp/unsigned_cmp.v(4): (vlog-2275) Existing module 'unsigned_cmp_' at line 4 will be overwritten.
 -- Compiling module dec_
 ** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
 ** while parsing file included at frontend/fetch/ifu.v(7)
@@ -213,7 +213,7 @@ Reading pref.tcl
 
 # 2021.3
 
-# vsim -c -L stdcells -sv_seed 1 -do "run -all; quit" ifu_tb 
+# vsim -c -L stdcells -sv_seed 1 -do "run -all; quit" ifu_tb
 # Start time: 20:09:29 on Apr 16,2024
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Error: ./testing/frontend/fetch/ifu_tb.sv(54): Invalid type 'ififo_entry_t'. Please check the type of the variable 'ifu_out'.

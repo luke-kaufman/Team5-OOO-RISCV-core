@@ -70,9 +70,9 @@ typedef logic [`N_DCACHE_TAG_BITS-1:0] dcache_tag_t;
 typedef logic [`N_DCACHE_INDEX_BITS-1:0] dcache_index_t;
 typedef logic [`N_DCACHE_OFFSET_BITS-1:0] dcache_offset_t;
 
-typedef enum {ICACHE = 0, DCACHE = 1} cache_type_t;
-typedef enum {READ = 0, WRITE = 1} req_type_t;
-typedef enum {BYTE = 0, HALFWORD = 1, WORD = 2, ERROR} req_width_t;
+typedef enum bit {ICACHE = 1'b0, DCACHE = 1'b1} cache_type_t;
+typedef enum bit {READ = 1'b0, WRITE = 1'b1} req_type_t;
+typedef enum bit [1:0] {BYTE = 2'b00, HALFWORD = 2'b01, WORD = 2'b10} req_width_t;
 
 typedef struct packed {
     dcache_tag_t tag;
@@ -345,9 +345,13 @@ typedef enum {POSEDGE, NEGEDGE} edge_t;
 `define rs1_bits 19:15
 `define rs2_bits 24:20
 `define funct7_bits 31:25
+
 typedef logic [6:0] opcode_t;
+`define OPCODE_WIDTH 7
 typedef logic [2:0] funct3_t;
+`define FUNCT3_WIDTH 3
 typedef logic [6:0] funct7_t;
+`define FUNCT7_WIDTH 7
 
 // typedef struct packed {
 //     logic [6:0] funct7;

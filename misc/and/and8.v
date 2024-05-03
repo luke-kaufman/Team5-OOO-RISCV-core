@@ -1,32 +1,17 @@
 `ifndef AND8_V
 `define AND8_V
 
-// `include "freepdk-45nm/stdcells.v"
-
-// IMPL STATUS: COMPLETE
-// TEST STATUS: MISSING
 module and8 (
     input wire [7:0] a,
     output wire y
 );
-    // Generate a first level of 2 4-input AND gates
-    wire [1:0] y1;
-    for (genvar i = 0; i < 2; i++) begin
-        AND4_X1 and_gate (
-            .A1(a[i*4 + 0]),
-            .A2(a[i*4 + 1]),
-            .A3(a[i*4 + 2]),
-            .A4(a[i*4 + 3]),
-            .ZN(y1[i])
-        );
-    end
+    wire and0;
+    wire and1;
 
-    // Generate a second level of 1 2-input AND gate
-    AND2_X1 and_gate (
-        .A1(y1[0]),
-        .A2(y1[1]),
-        .ZN(y)
-    );
+    AND4_X1 _and0(.A1(a[0]), .A2(a[1]), .A3(a[2]), .A4(a[3]), .ZN(and0));
+    AND4_X1 _and1(.A1(a[4]), .A2(a[5]), .A3(a[6]), .A4(a[7]), .ZN(and1));
+
+    AND2_X1 _and_y(.A1(and0), .A2(and1), .ZN(y));
 endmodule
 
 `endif

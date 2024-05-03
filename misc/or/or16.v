@@ -1,9 +1,6 @@
-// IMPL STATUS: COMPLETE
-// TEST STATUS: MISSING
-
 `ifndef OR16_V
 `define OR16_V
-// `include "freepdk-45nm/stdcells.v"
+
 `include "misc/or/or8.v"
 
 module or16 (
@@ -13,11 +10,10 @@ module or16 (
     wire or0;
     wire or1;
 
-    or8 o0(.a(a[0:7]), .ZN(or0));
-    or8 o1(.a(a[8:15]), .ZN(or1));
+    or8 _or0(.a(a[7:0]), .y(or0));
+    or8 _or1(.a(a[15:8]), .y(or1));
 
-    OR2_X1 o3(.A1(or0), .A2(or1), .ZN(y));
-
+    OR2_X1 _or_y(.A1(or0), .A2(or1), .ZN(y));
 endmodule
 
 `endif

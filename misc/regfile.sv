@@ -5,7 +5,7 @@
 `include "misc/and/and_.v"
 `include "misc/or/or_.v"
 `include "misc/mux/mux_.v"
-`include "misc/onehot_mux/onehot_mux_.v"
+`include "misc/onehot_mux/onehot_mux.v"
 `include "misc/reg_.v"
 `include "misc/ff1/ff1.v"
 
@@ -77,7 +77,7 @@ module regfile #(
     // select the din of each entry based on the one-hot select signal
     wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] din;
     for (genvar i = 0; i < N_ENTRIES; i++) begin
-        onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_WRITE_PORTS)) din_onehot_mux (
+        onehot_mux #(.WIDTH(ENTRY_WIDTH), .N_INS(N_WRITE_PORTS)) din_onehot_mux (
             .clk(clk),
             .ins(wr_data),
             .sel(din_onehot_mux_sel[i]),

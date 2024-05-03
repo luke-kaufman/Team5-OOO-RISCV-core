@@ -1,5 +1,5 @@
-`ifndef xOR_V
-`define xOR_V
+`ifndef XOR_V
+`define XOR_V
 
 module xor_ #(
     parameter N_INS = 2

@@ -8,8 +8,10 @@
 `include "frontend/dispatch/rob_simple.sv"
 `include "frontend/dispatch/decode.sv"
 `include "misc/mux/mux_.v"
-`include "misc/onehot_mux/onehot_mux_.v"
+`include "misc/onehot_mux/onehot_mux.v"
 `include "misc/or/or_.v"
+`include "misc/nor/nor_.v"
+`include "misc/and/and_.v"
 `include "misc/reg_.v"
 
 // FIXME: convert pc -> pc_npc, add npc_wb coming from alu
@@ -86,6 +88,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     // NOTE: is_int_instr and is_ls_instr should be mutually exclusive
 
     decode _decode (
+        .clk(clk),
         .instr(instr),
         .rs1_valid(rs1_valid), // valid stands for "exists"
         .rs2_valid(rs2_valid),
@@ -124,7 +127,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         .y(lsq_dispatch_ok)
     );
     // NOTE: switch between lsu and lsu_simple by comenting/uncommenting the relevant line
-    // assign st_buf_dispatch_ok = ~is_s_type | st_buf_dispatch_ready; // FIXME: convert to structural
+    // assign st_buf_dispatch_ok = ~is_s_type | st_buf_dispatch_ready;
     assign st_buf_dispatch_ok = 1'b1;
     wire rob_dispatch_ready;
     wire dispatch;
@@ -144,7 +147,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     wire rob_id_t retire_rob_id;
     wire retire_arf_id_not_renamed;
     wire rob_id_t retire_arf_id_curr_rob_id;
-    unsigned_cmp_ #(.WIDTH(`ROB_ID_WIDTH)) retire_arf_id_not_renamed_cmp (
+    unsigned_cmp #(.WIDTH(`ROB_ID_WIDTH)) retire_arf_id_not_renamed_cmp (
         .a(retire_rob_id),
         .b(retire_arf_id_curr_rob_id),
         .eq(retire_arf_id_not_renamed),
@@ -308,38 +311,146 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     // INTERFACE TO FETCH
     assign ififo_dispatch_ready = dispatch;
 
+    wire src1_iiq_wakeup_match;
+    wire src1_alu_broadcast_match;
+    wire src1_ld_broadcast_match;
+    wire src2_iiq_wakeup_match;
+    wire src2_alu_broadcast_match;
+    wire src2_ld_broadcast_match;
+    unsigned_cmp #(.WIDTH(`ROB_ID_WIDTH)) src1_iiq_wakeup_cmp (
+        .a(rob_id_src1),
+        .b(iiq_wakeup_rob_id),
+        .eq(src1_iiq_wakeup_match),
+        .lt(),
+        .ge()
+    );
+    unsigned_cmp #(.WIDTH(`ROB_ID_WIDTH)) src1_alu_broadcast_cmp (
+        .a(rob_id_src1),
+        .b(alu_broadcast_rob_id),
+        .eq(src1_alu_broadcast_match),
+        .lt(),
+        .ge()
+    );
+    unsigned_cmp #(.WIDTH(`ROB_ID_WIDTH)) src1_ld_broadcast_cmp (
+        .a(rob_id_src1),
+        .b(ld_broadcast_rob_id),
+        .eq(src1_ld_broadcast_match),
+        .lt(),
+        .ge()
+    );
+    unsigned_cmp #(.WIDTH(`ROB_ID_WIDTH)) src2_iiq_wakeup_cmp (
+        .a(rob_id_src2),
+        .b(iiq_wakeup_rob_id),
+        .eq(src2_iiq_wakeup_match),
+        .lt(),
+        .ge()
+    );
+    unsigned_cmp #(.WIDTH(`ROB_ID_WIDTH)) src2_alu_broadcast_cmp (
+        .a(rob_id_src2),
+        .b(alu_broadcast_rob_id),
+        .eq(src2_alu_broadcast_match),
+        .lt(),
+        .ge()
+    );
+    unsigned_cmp #(.WIDTH(`ROB_ID_WIDTH)) src2_ld_broadcast_cmp (
+        .a(rob_id_src2),
+        .b(ld_broadcast_rob_id),
+        .eq(src2_ld_broadcast_match),
+        .lt(),
+        .ge()
+    );
+    wire src1_iiq_wakeup_capture;
+    wire src1_alu_broadcast_capture;
+    wire src1_ld_broadcast_capture;
+    wire src2_iiq_wakeup_capture;
+    wire src2_alu_broadcast_capture;
+    wire src2_ld_broadcast_capture;
+    and_ #(.N_INS(3)) src1_iiq_wakeup_capture_and (
+        .a({iiq_wakeup_valid, rs1_valid, src1_iiq_wakeup_match}),
+        .y(src1_iiq_wakeup_capture)
+    );
+    and_ #(.N_INS(3)) src1_alu_broadcast_capture_and (
+        .a({alu_broadcast_valid, rs1_valid, src1_alu_broadcast_match}),
+        .y(src1_alu_broadcast_capture)
+    );
+    and_ #(.N_INS(3)) src1_ld_broadcast_capture_and (
+        .a({ld_broadcast_valid, rs1_valid, src1_ld_broadcast_match}),
+        .y(src1_ld_broadcast_capture)
+    );
+    and_ #(.N_INS(3)) src2_iiq_wakeup_capture_and (
+        .a({iiq_wakeup_valid, rs2_valid, src2_iiq_wakeup_match}),
+        .y(src2_iiq_wakeup_capture)
+    );
+    and_ #(.N_INS(3)) src2_alu_broadcast_capture_and (
+        .a({alu_broadcast_valid, rs2_valid, src2_alu_broadcast_match}),
+        .y(src2_alu_broadcast_capture)
+    );
+    and_ #(.N_INS(3)) src2_ld_broadcast_capture_and (
+        .a({ld_broadcast_valid, rs2_valid, src2_ld_broadcast_match}),
+        .y(src2_ld_broadcast_capture)
+    );
+
+    wire src1_ready;
+    wire src2_ready;
+    or_ #(.N_INS(4)) src1_ready_or (
+        .a({src1_iiq_wakeup_capture, src1_ld_broadcast_capture, rs1_retired, rob_reg_ready_src1}),
+        .y(src1_ready)
+    );
+    or_ #(.N_INS(4)) src2_ready_or (
+        .a({src2_iiq_wakeup_capture, src2_ld_broadcast_capture, rs2_retired, rob_reg_ready_src2}),
+        .y(src2_ready)
+    );
+
+    wire sel_rob_reg_data_src1;
+    wire sel_rob_reg_data_src2;
+    nor_ #(.N_INS(3)) sel_rob_reg_data_src1_nor (
+        .a({src1_alu_broadcast_capture, src1_ld_broadcast_capture, rs1_retired}),
+        .y(sel_rob_reg_data_src1)
+    );
+    nor_ #(.N_INS(3)) sel_rob_reg_data_src2_nor (
+        .a({src2_alu_broadcast_capture, src2_ld_broadcast_capture, rs2_retired}),
+        .y(sel_rob_reg_data_src2)
+    );
+
+    wire reg_data_t src1_data;
+    wire reg_data_t src2_data;
+    onehot_mux #(
+        .WIDTH(`REG_DATA_WIDTH),
+        .N_INS(4)
+    ) src1_data_mux (
+        .clk(clk),
+        .sel({src1_alu_broadcast_capture, src1_ld_broadcast_capture, rs1_retired, sel_rob_reg_data_src1}),
+        .ins({alu_broadcast_reg_data, ld_broadcast_reg_data, arf_reg_data_src1, rob_reg_data_src1}),
+        .out(src1_data)
+    );
+    onehot_mux #(
+        .WIDTH(`REG_DATA_WIDTH),
+        .N_INS(4)
+    ) src2_data_mux (
+        .clk(clk),
+        .sel({src2_alu_broadcast_capture, src2_ld_broadcast_capture, rs2_retired, sel_rob_reg_data_src2}),
+        .ins({alu_broadcast_reg_data, ld_broadcast_reg_data, arf_reg_data_src2, rob_reg_data_src2}),
+        .out(src2_data)
+    );
+
     // INTERFACE TO INTEGER ISSUE QUEUE (IIQ)
-    // FIXME: convert to structural
-    assign iiq_dispatch_valid = dispatch && is_int_instr;
-    // and_ #(.N_INS(2)) iiq_dispatch_valid_and (
-    //     .a({dispatch, is_int_instr}),
-    //     .y(iiq_dispatch_valid)
-    // );
+    and_ #(.N_INS(2)) iiq_dispatch_valid_and (
+        .a({dispatch, is_int_instr}),
+        .y(iiq_dispatch_valid)
+    );
     assign iiq_dispatch_data = '{
         src1_valid: rs1_valid,
         src1_rob_id: rob_id_src1,
         // issue2dispatch wakeup bypass
-        src1_ready: (iiq_wakeup_valid   && rs1_valid && (iiq_wakeup_rob_id   == rob_id_src1))  ? 1'b1 :
-                    (ld_broadcast_valid && rs1_valid && (ld_broadcast_rob_id == rob_id_src1))  ? 1'b1 :
-                                                                                   rs1_retired ? 1'b1 :
-                                                                                                 rob_reg_ready_src1,
+        src1_ready: src1_ready,
         // execute2dispatch data bypass
-        src1_data: (alu_broadcast_valid && rs1_valid && (alu_broadcast_rob_id == rob_id_src1)) ? alu_broadcast_reg_data :
-                   (ld_broadcast_valid  && rs1_valid && (ld_broadcast_rob_id  == rob_id_src1)) ? ld_broadcast_reg_data  :
-                                                                                   rs1_retired ? arf_reg_data_src1      :
-                                                                                                 rob_reg_data_src1,
+        src1_data: src1_data,
         src2_valid: rs2_valid,
         src2_rob_id: rob_id_src2,
         // issue2dispatch wakeup bypass
-        src2_ready: (iiq_wakeup_valid   && rs2_valid && (iiq_wakeup_rob_id   == rob_id_src2))  ? 1'b1 :
-                    (ld_broadcast_valid && rs2_valid && (ld_broadcast_rob_id == rob_id_src2))  ? 1'b1 :
-                                                                                   rs2_retired ? 1'b1 :
-                                                                                                 rob_reg_ready_src2,
+        src2_ready: src2_ready,
         // execute2dispatch data bypass
-        src2_data: (alu_broadcast_valid && rs2_valid && (alu_broadcast_rob_id == rob_id_src2)) ? alu_broadcast_reg_data :
-                   (ld_broadcast_valid  && rs2_valid && (ld_broadcast_rob_id  == rob_id_src2)) ? ld_broadcast_reg_data  :
-                                                                                   rs2_retired ? arf_reg_data_src2      :
-                                                                                                 rob_reg_data_src2,
+        src2_data: src2_data,
         dst_valid: rd_valid,
         instr_rob_id: dispatch_rob_id,
         imm: imm,
@@ -359,41 +470,24 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     };
 
     // INTERFACE TO LOAD-STORE QUEUE (LSQ)
-    assign lsq_dispatch_valid = dispatch & is_ls_instr;
+    and_ #(.N_INS(2)) lsq_dispatch_valid_and (
+        .a({dispatch, is_ls_instr}),
+        .y(lsq_dispatch_valid)
+    );
     assign lsq_dispatch_data = '{
-        ld_st: is_s_type, // 0: ld, 1: st
+        ld_st:            is_s_type, // 0: ld, 1: st
         base_addr_rob_id: rob_id_src1,
-        base_addr_ready: (iiq_wakeup_valid    && (iiq_wakeup_rob_id    == rob_id_src1))  ? 1'b1 :
-                         (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src1))  ? 1'b1 :
-                                                                             rs1_retired ? 1'b1 :
-                                                                                           rob_reg_ready_src1,
-        base_addr:       (alu_broadcast_valid && (alu_broadcast_rob_id == rob_id_src1))  ? alu_broadcast_reg_data :
-                         (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src1))  ? ld_broadcast_reg_data  :
-                                                                            rs1_retired  ? arf_reg_data_src1      :
-                                                                                           rob_reg_data_src1,
+        base_addr_ready:  src1_ready,
+        base_addr:        src1_data,
         imm: imm,
         st_data_rob_id:   rob_id_src2,
-        st_data_ready:   (iiq_wakeup_valid    && (iiq_wakeup_rob_id    == rob_id_src1))  ? 1'b1 :
-                         (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src1))  ? 1'b1 :
-                                                                             rs2_retired ? 1'b1 :
-                                                                                           rob_reg_ready_src1,
-        st_data:         (alu_broadcast_valid && (alu_broadcast_rob_id == rob_id_src2))  ? alu_broadcast_reg_data :
-                         (ld_broadcast_valid  && (ld_broadcast_rob_id  == rob_id_src2))  ? ld_broadcast_reg_data  :
-                                                                            rs2_retired  ? arf_reg_data_src2      :
-                                                                                           rob_reg_data_src2,
-        instr_rob_id: dispatch_rob_id,
-        width: ls_width,              // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
-        ld_sign: ld_sign             // 0: signed (LB, LH, LW), 1: unsigned (LBU, LHU)
+        st_data_ready:    src2_ready,
+        st_data:          src2_data,
+        instr_rob_id:     dispatch_rob_id,
+        width:            ls_width,              // 00: byte (8 bits), 01: half-word (16 bits), 10: word (32 bits)
+        ld_sign:          ld_sign             // 0: signed (LB, LH, LW), 1: unsigned (LBU, LHU)
         // , st_buf_id: 0 // only st_buf is allocated during dispatch, not ld_buf
     };
-
-    // INTERFACE TO STORE BUFFE (ST_BUF)
-    // assign st_buf_dispatch_valid = dispatch & is_s_type;
-    // // st_buf_entry is initialized to zero during dispatch (it is written during load_store_issue)
-    // assign st_buf_dispatch_data = '{
-    //     eff_addr: 0,
-    //     st_data: 0,
-    //     st_width: 0
-    // };
 endmodule
+
 `endif

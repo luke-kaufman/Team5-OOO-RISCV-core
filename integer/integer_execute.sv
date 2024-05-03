@@ -2,9 +2,9 @@
 `define ALU_V
 
 `include "misc/global_defs.svh"
-`include "misc/onehot_mux/onehot_mux_.v"
-`include "misc/cmp/unsigned_cmp_.v"
-`include "misc/cmp/signed_cmp_.sv"
+`include "misc/onehot_mux/onehot_mux.v"
+`include "misc/cmp/unsigned_cmp.v"
+`include "misc/cmp/signed_cmp.v"
 `include "misc/and/bitwise_and.v"
 `include "misc/or/bitwise_or.v"
 `include "misc/xor/bitwise_xor.v"
@@ -134,7 +134,7 @@ module integer_execute (
     wire word_t signed_cmp_eq;
     wire word_t signed_cmp_lt;
     wire word_t signed_cmp_ge;
-    unsigned_cmp_ #(
+    unsigned_cmp #(
         .WIDTH(`WORD_WIDTH)
     ) unsigned_cmp (
         .a(cmp_op1),
@@ -146,8 +146,8 @@ module integer_execute (
     assign unsigned_cmp_eq = {31'b0, unsigned_cmp.eq};
     assign unsigned_cmp_lt = {31'b0, unsigned_cmp.lt};
     assign unsigned_cmp_ge = {31'b0, unsigned_cmp.ge};
-    
-    signed_cmp_ #(
+
+    signed_cmp #(
         .WIDTH(`WORD_WIDTH)
     ) signed_cmp (
         .a(cmp_op1),
@@ -204,7 +204,7 @@ module integer_execute (
     assign instr_rob_id_out = instr_rob_id_in;
 
     assign execute_valid = entry_valid;
-    
+
     wire dst_valid = !is_b_type;
     assign alu_broadcast_valid = entry_valid & dst_valid;
     wire sel_main_adder_sum = is_u_type | (~|funct3); // funct3 = 3'b000
@@ -217,7 +217,7 @@ module integer_execute (
     wire sel_or_out = funct3[2] & funct3[1] & ~funct3[0]; // funct3 = 3'b110
     wire sel_xor_out = funct3[2] & ~funct3[1] & ~funct3[0]; // funct3 = 3'b100
     wire sel_pc_plus_4 = is_j_type | is_jalr; // jal or jalr
-    onehot_mux_ #(
+    onehot_mux #(
         .WIDTH(`WORD_WIDTH),
         .N_INS(10)
     ) dst_mux (
@@ -256,7 +256,7 @@ module integer_execute (
     wire sel_bltu_taken = funct3[2] & funct3[1] & ~funct3[0]; // funct3 = 3'b110
     wire sel_bgeu_taken = &funct3; // funct3 = 3'b111
     wire br_taken;
-    onehot_mux_ #(
+    onehot_mux #(
         .WIDTH(1),
         .N_INS(6)
     ) br_taken_mux (

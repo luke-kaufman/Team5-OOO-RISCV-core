@@ -3,8 +3,8 @@
 
 `include "misc/reg_.v"
 `include "misc/up_down_counter.v"
-`include "misc/cmp/unsigned_cmp_.v"
-`include "misc/onehot_mux/onehot_mux_.v"
+`include "misc/cmp/unsigned_cmp.v"
+`include "misc/onehot_mux/onehot_mux.v"
 `include "misc/dec/dec_.v"
 `include "misc/and/and_.v"
 `include "misc/or/or_.v"
@@ -216,14 +216,14 @@ module shift_queue #(
     // if all select signals are zero, the output is don't care (physically 0); the entry_we for the register is false anyway
     wire [N_ENTRIES-1:0] [ENTRY_WIDTH-1:0] entry_din;
     for (genvar i = 0; i < N_ENTRIES-1; i++) begin
-        onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(4)) entry_din_mux (
+        onehot_mux #(.WIDTH(ENTRY_WIDTH), .N_INS(4)) entry_din_mux (
             .clk(clk),
             .ins({entry_douts[i+1], enq_data, wr_data[i], wr_data[i+1]}),
             .sel({sel_data_behind[i], sel_enq_data[i], sel_wr_data[i], sel_wr_data_behind[i]}),
             .out(entry_din[i])
         );
     end
-    onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(4)) entry_din_last_mux (
+    onehot_mux #(.WIDTH(ENTRY_WIDTH), .N_INS(4)) entry_din_last_mux (
         // if sel_data_behind[N_ENTRIES-1] is true, then shift in fresh all 0s
         // sel_wr_data_behind[N_ENTRIES-1] is always false anyway
         .clk(clk),
@@ -283,7 +283,7 @@ module shift_queue #(
         .y(deq_valid)
     );
     // select the entry to be dequeued (outputs {ENTRY_WIDTH{1'b0}} when no entry is selected)
-    onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_ENTRIES)) deq_data_mux (
+    onehot_mux #(.WIDTH(ENTRY_WIDTH), .N_INS(N_ENTRIES)) deq_data_mux (
         .clk(clk),
         .sel(deq_sel_onehot),
         .ins(entry_douts),

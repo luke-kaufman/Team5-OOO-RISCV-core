@@ -3,7 +3,7 @@
 
 `include "misc/global_defs.svh"
 `include "misc/ff1/ff1.v"
-`include "misc/cmp/unsigned_cmp_.v"
+`include "misc/cmp/unsigned_cmp.v"
 `include "misc/reg_.v"
 `include "misc/shift_queue.v"
 
@@ -103,7 +103,7 @@ module integer_issue (
     wire [`IIQ_N_ENTRIES-1:0] entries_src2_ld_capture;
     wire [`IIQ_N_ENTRIES-1:0] entries_src2_ld_capture_ok;
     for (genvar i = 0; i < `IIQ_N_ENTRIES; i++) begin
-        unsigned_cmp_ #(
+        unsigned_cmp #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src1_int_wakeup_cmp (
             .a(scheduled_entry.src1_rob_id),
@@ -117,7 +117,7 @@ module integer_issue (
                                                entries[i].src1_valid &
                                                ~entries[i].src1_ready &
                                                entries_src1_iiq_wakeup[i];
-        unsigned_cmp_ #(
+        unsigned_cmp #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_int_wakeup_cmp (
             .a(scheduled_entry.src2_rob_id),
@@ -131,7 +131,7 @@ module integer_issue (
                                                entries[i].src2_valid &
                                                ~entries[i].src2_ready &
                                                entries_src2_iiq_wakeup[i];
-        unsigned_cmp_ #(
+        unsigned_cmp #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src1_alu_capture_cmp (
             .a(alu_broadcast_rob_id),
@@ -145,7 +145,7 @@ module integer_issue (
                                                 entries[i].src1_valid &
                                                 entries[i].src1_ready & // TODO: double-check
                                                 entries_src1_alu_capture[i];
-        unsigned_cmp_ #(
+        unsigned_cmp #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_alu_capture_cmp (
             .a(alu_broadcast_rob_id),
@@ -159,7 +159,7 @@ module integer_issue (
                                                 entries[i].src2_valid &
                                                 entries[i].src2_ready & // TODO: double-check
                                                 entries_src2_alu_capture[i];
-        unsigned_cmp_ #(
+        unsigned_cmp #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src1_ld_capture_cmp (
             .a(ld_broadcast_rob_id),
@@ -173,7 +173,7 @@ module integer_issue (
                                                entries[i].src1_valid &
                                                ~entries[i].src1_ready & // TODO: double-check
                                                entries_src1_ld_capture[i];
-        unsigned_cmp_ #(
+        unsigned_cmp #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_ld_capture_cmp (
             .a(ld_broadcast_rob_id),

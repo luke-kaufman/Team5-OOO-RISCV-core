@@ -4,10 +4,10 @@
 `include "misc/global_defs.svh"
 `include "misc/inv.v"
 `include "misc/and/and_.v"
-`include "misc/cmp/unsigned_cmp_.v"
+`include "misc/cmp/unsigned_cmp.v"
 `include "misc/dec/dec_.v"
 `include "misc/mux/mux_.v"
-`include "misc/onehot_mux/onehot_mux_.v"
+`include "misc/onehot_mux/onehot_mux.v"
 `include "misc/reg_.v"
 `include "misc/up_counter.v"
 
@@ -80,7 +80,7 @@ module fifo_ram #(
 
     // comparator that disambiguates between full and empty conditions using the MSB
     wire eq_msb;
-    unsigned_cmp_ #(.WIDTH(1)) eq_msb_cmp (
+    unsigned_cmp #(.WIDTH(1)) eq_msb_cmp (
         .a(enq_ctr[CTR_WIDTH-1]),
         .b(deq_ctr[CTR_WIDTH-1]),
         .eq(eq_msb),
@@ -96,7 +96,7 @@ module fifo_ram #(
 
     // comparator that checks if the enqueue and dequeue pointers are equal (i.e. the fifo is empty or full)
     wire eq_ptr;
-    unsigned_cmp_ #(.WIDTH(PTR_WIDTH)) eq_ptr_cmp (
+    unsigned_cmp #(.WIDTH(PTR_WIDTH)) eq_ptr_cmp (
         .a(enq_ptr),
         .b(deq_ptr),
         .eq(eq_ptr),
@@ -203,7 +203,7 @@ module fifo_ram #(
         // mux that selects the din for each fifo entry
         // NOTE: mux_ only works with power-of-2 N_INS
         // if all selects are 0, the output is don't care (physically all 0s), entry_we in this case is 0 anyway
-        onehot_mux_ #(.WIDTH(ENTRY_WIDTH), .N_INS(N_WRITE_PORTS+1)) entry_din_mux (
+        onehot_mux #(.WIDTH(ENTRY_WIDTH), .N_INS(N_WRITE_PORTS+1)) entry_din_mux (
             .clk(clk),
             .ins({wr_data[i], enq_data}),
             .sel({wr_en_we_transposed[i], enq_we[i]}),
