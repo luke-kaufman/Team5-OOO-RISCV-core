@@ -1,16 +1,12 @@
 `ifndef MUX_V
 `define MUX_V
 
-// `include "freepdk-45nm/stdcells.v"
 `include "misc/and/and_.v"
 `include "misc/or/or_.v"
 
-// IMPL STATUS: COMPLETE
-// TEST STATUS: COMPLETE
-
 module mux_ #(
-    parameter WIDTH = 1,
-    parameter N_INS = 2,
+    parameter WIDTH,
+    parameter N_INS,
     localparam SEL_WIDTH = $clog2(N_INS)
 ) (
     input wire [N_INS-1:0][WIDTH-1:0] ins,
