@@ -311,6 +311,10 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     // INTERFACE TO INTEGER ISSUE QUEUE (IIQ)
     // FIXME: convert to structural
     assign iiq_dispatch_valid = dispatch && is_int_instr;
+    // and_ #(.N_INS(2)) iiq_dispatch_valid_and (
+    //     .a({dispatch, is_int_instr}),
+    //     .y(iiq_dispatch_valid)
+    // );
     assign iiq_dispatch_data = '{
         src1_valid: rs1_valid,
         src1_rob_id: rob_id_src1,

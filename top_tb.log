@@ -1,5 +1,5 @@
 Questa Intel FPGA Edition-64 vlog 2021.3 Compiler 2021.07 Jul 13 2021
-Start time: 16:44:39 on Apr 27,2024
+Start time: 17:57:45 on Apr 27,2024
 vlog -sv -lint -suppress 13314,2643 ./testing/top_tb.sv 
 -- Compiling package top_tb_sv_unit
 -- Compiling module dff_we
@@ -58,14 +58,14 @@ Top level modules:
 	regfile
 	fifo_ram
 	top_tb
-End time: 16:44:40 on Apr 27,2024, Elapsed time: 0:00:01
+End time: 17:57:45 on Apr 27,2024, Elapsed time: 0:00:00
 Errors: 0, Warnings: 0, Suppressed Warnings: 18
 Reading pref.tcl
 
 # 2021.3
 
 # vsim -c -L stdcells -sv_seed 1 -do "run -all; quit" top_tb 
-# Start time: 16:44:41 on Apr 27,2024
+# Start time: 17:57:46 on Apr 27,2024
 # ** Note: (vsim-3812) Design is being optimized...
 # //  Questa Intel FPGA Edition-64
 # //  Version 2021.3 linux_x86_64 Jul 13 2021
@@ -10122,12 +10122,12 @@ Reading pref.tcl
 # ARF[18]: 0x00000000
 # ARF[17]: 0x00000000
 # ARF[16]: 0x00000000
-# ARF[15]: 0x0000000a
-# ARF[14]: 0x00000037
-# ARF[13]: 0x00000059
-# ARF[12]: 0x0000000a
+# ARF[15]: 0x0000002f
+# ARF[14]: 0xb11924e1
+# ARF[13]: 0x1e8d0a40
+# ARF[12]: 0x0000002f
 # ARF[11]: 0x00000000
-# ARF[10]: 0x00000059
+# ARF[10]: 0x1e8d0a40
 # ARF[9]: 0x00000000
 # ARF[8]: 0x00000000
 # ARF[7]: 0x00000000
@@ -10173,7 +10173,8 @@ Reading pref.tcl
 # MAIN_MEM[0x000101c4]: 0xxxxxxxxx
 # MAIN_MEM[0x000101c8]: 0xxxxxxxxx
 # END MAIN MEM OUT =======================================
-# ** Note: $finish    : ./testing/top_tb.sv(128)
+# PC: 0xxxxxxxxX
+# ** Note: $finish    : ./testing/top_tb.sv(133)
 #    Time: 100001 ns  Iteration: 0  Instance: /top_tb
-# End time: 16:44:45 on Apr 27,2024, Elapsed time: 0:00:04
+# End time: 17:57:51 on Apr 27,2024, Elapsed time: 0:00:05
 # Errors: 0, Warnings: 0, Suppressed Warnings: 10
