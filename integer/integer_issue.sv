@@ -6,6 +6,7 @@
 `include "misc/cmp/unsigned_cmp.v"
 `include "misc/reg_.v"
 `include "misc/shift_queue.v"
+`include "misc/nor/nor_.v"
 
 module integer_issue (
     input wire clk,
@@ -77,10 +78,65 @@ module integer_issue (
     wire [`IIQ_N_ENTRIES-1:0] entries_valid;
     wire [`IIQ_N_ENTRIES-1:0] entries_ready;
     for (genvar i = 0; i < `IIQ_N_ENTRIES; i++) begin
-        assign entries_valid[i] = (i < enq_ctr); // TODO: double check that this works
-        wire src1_ok = ~entries[i].src1_valid || (entries[i].src1_valid && entries[i].src1_ready);
-        wire src2_ok = ~entries[i].src2_valid || (entries[i].src2_valid && entries[i].src2_ready);
-        assign entries_ready[i] = entries_valid[i] && src1_ok && src2_ok;
+        // assign entries_valid[i] = (i < enq_ctr); // TODO: double check that this works
+        unsigned_cmp #(
+            .WIDTH(CTR_WIDTH)
+        ) entries_valid_cmp (
+            .a(i[CTR_WIDTH-1:0]),
+            .b(enq_ctr),
+            .eq(),
+            .lt(entries_valid[i]),
+            .ge()
+        );
+        // wire src1_ok = ~entries[i].src1_valid || (entries[i].src1_valid && entries[i].src1_ready);
+        wire entries_src1_valid_and_ready;
+        and_ #(
+            .N_INS(2)
+        ) entries_src1_valid_and_ready_and (
+            .a({entries[i].src1_valid, entries[i].src1_ready}),
+            .y(entries_src1_valid_and_ready)
+        );
+        wire entries_src1_not_valid;
+        inv entries_src1_not_valid_inv (
+            .a(entries[i].src1_valid),
+            .y(entries_src1_not_valid)
+        );
+        wire src1_ok;
+        or_ #(
+            .N_INS(2)
+        ) src1_ok_or (
+            .a({entries_src1_not_valid, entries_src1_valid_and_ready}),
+            .y(src1_ok)
+        );
+
+        // wire src2_ok = ~entries[i].src2_valid || (entries[i].src2_valid && entries[i].src2_ready);
+        wire entries_src2_valid_and_ready;
+        and_ #(
+            .N_INS(2)
+        ) entries_src2_valid_and_ready_and (
+            .a({entries[i].src2_valid, entries[i].src2_ready}),
+            .y(entries_src2_valid_and_ready)
+        );
+        wire entries_src2_not_valid;
+        inv entries_src2_not_valid_inv (
+            .a(entries[i].src2_valid),
+            .y(entries_src2_not_valid)
+        );
+        wire src2_ok;
+        or_ #(
+            .N_INS(2)
+        ) src2_ok_or (
+            .a({entries_src2_not_valid, entries_src2_valid_and_ready}),
+            .y(src2_ok)
+        );
+
+        // assign entries_ready[i] = entries_valid[i] && src1_ok && src2_ok;
+        and_ #(
+            .N_INS(3)
+        ) entries_ready_and (
+            .a({entries_valid[i], src1_ok, src2_ok}),
+            .y(entries_ready[i])
+        );
     end
     ff1 #(
         .WIDTH(`IIQ_N_ENTRIES)
@@ -112,11 +168,23 @@ module integer_issue (
             .ge(),
             .lt()
         );
-        assign entries_src1_iiq_wakeup_ok[i] = issue_valid &
-                                               entries_valid[i] &
-                                               entries[i].src1_valid &
-                                               ~entries[i].src1_ready &
-                                               entries_src1_iiq_wakeup[i];
+        // assign entries_src1_iiq_wakeup_ok[i] = issue_valid &
+        //                                        entries_valid[i] &
+        //                                        entries[i].src1_valid &
+        //                                        ~entries[i].src1_ready &
+        //                                        entries_src1_iiq_wakeup[i];
+        wire entries_src1_not_ready;
+        inv entries_src1_not_ready_inv (
+            .a(entries[i].src1_ready),
+            .y(entries_src1_not_ready)
+        );
+        and_ #(
+            .N_INS(5)
+        ) entries_src1_iiq_wakeup_ok_and (
+            .a({issue_valid, entries_valid[i], entries[i].src1_valid, entries_src1_not_ready, entries_src1_iiq_wakeup[i]}),
+            .y(entries_src1_iiq_wakeup_ok[i])
+        );
+
         unsigned_cmp #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_int_wakeup_cmp (
@@ -126,11 +194,23 @@ module integer_issue (
             .ge(),
             .lt()
         );
-        assign entries_src2_iiq_wakeup_ok[i] = issue_valid &
-                                               entries_valid[i] &
-                                               entries[i].src2_valid &
-                                               ~entries[i].src2_ready &
-                                               entries_src2_iiq_wakeup[i];
+        // assign entries_src2_iiq_wakeup_ok[i] = issue_valid &
+        //                                        entries_valid[i] &
+        //                                        entries[i].src2_valid &
+        //                                        ~entries[i].src2_ready &
+        //                                        entries_src2_iiq_wakeup[i];
+        wire entries_src2_not_ready;
+        inv entries_src2_not_ready_inv (
+            .a(entries[i].src2_ready),
+            .y(entries_src2_not_ready)
+        );
+        and_ #(
+            .N_INS(5)
+        ) entries_src2_iiq_wakeup_ok_and (
+            .a({issue_valid, entries_valid[i], entries[i].src2_valid, entries_src2_not_ready, entries_src2_iiq_wakeup[i]}),
+            .y(entries_src2_iiq_wakeup_ok[i])
+        );
+
         unsigned_cmp #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src1_alu_capture_cmp (
@@ -140,11 +220,18 @@ module integer_issue (
             .ge(),
             .lt()
         );
-        assign entries_src1_alu_capture_ok[i] = alu_broadcast_valid &
-                                                entries_valid[i] &
-                                                entries[i].src1_valid &
-                                                entries[i].src1_ready & // TODO: double-check
-                                                entries_src1_alu_capture[i];
+        // assign entries_src1_alu_capture_ok[i] = alu_broadcast_valid &
+        //                                         entries_valid[i] &
+        //                                         entries[i].src1_valid &
+        //                                         entries[i].src1_ready & // TODO: double-check
+        //                                         entries_src1_alu_capture[i];
+        and_ #(
+            .N_INS(5)
+        ) entries_src1_alu_capture_ok_and (
+            .a({alu_broadcast_valid, entries_valid[i], entries[i].src1_valid, entries[i].src1_ready, entries_src1_alu_capture[i]}),
+            .y(entries_src1_alu_capture_ok[i])
+        );
+
         unsigned_cmp #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_alu_capture_cmp (
@@ -154,11 +241,18 @@ module integer_issue (
             .ge(),
             .lt()
         );
-        assign entries_src2_alu_capture_ok[i] = alu_broadcast_valid &
-                                                entries_valid[i] &
-                                                entries[i].src2_valid &
-                                                entries[i].src2_ready & // TODO: double-check
-                                                entries_src2_alu_capture[i];
+        // assign entries_src2_alu_capture_ok[i] = alu_broadcast_valid &
+        //                                         entries_valid[i] &
+        //                                         entries[i].src2_valid &
+        //                                         entries[i].src2_ready & // TODO: double-check
+        //                                         entries_src2_alu_capture[i];
+        and_ #(
+            .N_INS(5)
+        ) entries_src2_alu_capture_ok_and (
+            .a({alu_broadcast_valid, entries_valid[i], entries[i].src2_valid, entries[i].src2_ready, entries_src2_alu_capture[i]}),
+            .y(entries_src2_alu_capture_ok[i])
+        );
+
         unsigned_cmp #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src1_ld_capture_cmp (
@@ -168,11 +262,18 @@ module integer_issue (
             .ge(),
             .lt()
         );
-        assign entries_src1_ld_capture_ok[i] = ld_broadcast_valid &
-                                               entries_valid[i] &
-                                               entries[i].src1_valid &
-                                               ~entries[i].src1_ready & // TODO: double-check
-                                               entries_src1_ld_capture[i];
+        // assign entries_src1_ld_capture_ok[i] = ld_broadcast_valid &
+        //                                        entries_valid[i] &
+        //                                        entries[i].src1_valid &
+        //                                        ~entries[i].src1_ready & // TODO: double-check
+        //                                        entries_src1_ld_capture[i];
+        and_ #(
+            .N_INS(5)
+        ) entries_src1_ld_capture_ok_and (
+            .a({ld_broadcast_valid, entries_valid[i], entries[i].src1_valid, entries_src1_not_ready, entries_src1_ld_capture[i]}),
+            .y(entries_src1_ld_capture_ok[i])
+        );
+
         unsigned_cmp #(
             .WIDTH(`ROB_ID_WIDTH)
         ) entries_src2_ld_capture_cmp (
@@ -182,40 +283,88 @@ module integer_issue (
             .ge(),
             .lt()
         );
-        assign entries_src2_ld_capture_ok[i] = ld_broadcast_valid &
-                                               entries_valid[i] &
-                                               entries[i].src2_valid &
-                                               ~entries[i].src2_ready & // TODO: double-check
-                                               entries_src2_ld_capture[i];
+        // assign entries_src2_ld_capture_ok[i] = ld_broadcast_valid &
+        //                                        entries_valid[i] &
+        //                                        entries[i].src2_valid &
+        //                                        ~entries[i].src2_ready & // TODO: double-check
+        //                                        entries_src2_ld_capture[i];
+        and_ #(
+            .N_INS(5)
+        ) entries_src2_ld_capture_ok_and (
+            .a({ld_broadcast_valid, entries_valid[i], entries[i].src2_valid, entries_src2_not_ready, entries_src2_ld_capture[i]}),
+            .y(entries_src2_ld_capture_ok[i])
+        );
     end
 
     for (genvar i = 0; i < `IIQ_N_ENTRIES; i++) begin
-        assign entries_wr_en[i] = (entries_src1_iiq_wakeup_ok[i]  || entries_src2_iiq_wakeup_ok[i] ) ||
-                                  (entries_src1_alu_capture_ok[i] || entries_src2_alu_capture_ok[i]) ||
-                                  (entries_src1_ld_capture_ok[i]  || entries_src2_ld_capture_ok[i] ) ;
+        // assign entries_wr_en[i] = (entries_src1_iiq_wakeup_ok[i]  || entries_src2_iiq_wakeup_ok[i] ) ||
+        //                           (entries_src1_alu_capture_ok[i] || entries_src2_alu_capture_ok[i]) ||
+        //                           (entries_src1_ld_capture_ok[i]  || entries_src2_ld_capture_ok[i] ) ;
+        or_ #(
+            .N_INS(6)
+        ) entries_wr_en_or (
+            .a({entries_src1_iiq_wakeup_ok[i], entries_src2_iiq_wakeup_ok[i], entries_src1_alu_capture_ok[i], entries_src2_alu_capture_ok[i], entries_src1_ld_capture_ok[i], entries_src2_ld_capture_ok[i]}),
+            .y(entries_wr_en[i])
+        );
     end
     for (genvar i = 0; i < `IIQ_N_ENTRIES; i++) begin
+        wire entries_wr_src1_ready;
+        or_ #(
+            .N_INS(3)
+        ) entries_wr_src1_ready_or (
+            .a({entries_src1_iiq_wakeup_ok[i], entries_src1_ld_capture_ok[i], entries[i].src1_ready}),
+            .y(entries_wr_src1_ready)
+        );
+        wire sel_src1_data;
+        nor_ #(
+            .N_INS(2)
+        ) sel_src1_data_nor (
+            .a({entries_src1_alu_capture_ok[i], entries_src1_ld_capture_ok[i]}),
+            .y(sel_src1_data)
+        );
+        wire reg_data_t entries_wr_src1_data;
+        onehot_mux #(
+            .WIDTH(`REG_DATA_WIDTH),
+            .N_INS(3)
+        ) entries_wr_src1_data_mux (
+            .clk(clk),
+            .ins({alu_broadcast_reg_data,         ld_broadcast_reg_data,         entries[i].src1_data}),
+            .sel({entries_src1_alu_capture_ok[i], entries_src1_ld_capture_ok[i], sel_src1_data}),
+            .out(entries_wr_src1_data)
+        );
+        wire entries_wr_src2_ready;
+        or_ #(
+            .N_INS(3)
+        ) entries_wr_src2_ready_or (
+            .a({entries_src2_iiq_wakeup_ok[i], entries_src2_ld_capture_ok[i], entries[i].src2_ready}),
+            .y(entries_wr_src2_ready)
+        );
+        wire sel_src2_data;
+        nor_ #(
+            .N_INS(2)
+        ) sel_src2_data_nor (
+            .a({entries_src2_alu_capture_ok[i], entries_src2_ld_capture_ok[i]}),
+            .y(sel_src2_data)
+        );
+        wire reg_data_t entries_wr_src2_data;
+        onehot_mux #(
+            .WIDTH(`REG_DATA_WIDTH),
+            .N_INS(3)
+        ) entries_wr_src2_data_mux (
+            .clk(clk),
+            .ins({alu_broadcast_reg_data,         ld_broadcast_reg_data,         entries[i].src2_data}),
+            .sel({entries_src2_alu_capture_ok[i], entries_src2_ld_capture_ok[i], sel_src2_data}),
+            .out(entries_wr_src2_data)
+        );
         assign entries_wr_data[i] = '{
             src1_valid:     entries[i].src1_valid,
             src1_rob_id:    entries[i].src1_rob_id,
-            src1_ready:     (entries_src1_iiq_wakeup_ok[i] || entries_src1_ld_capture_ok[i]) ?
-                                1'b1 :
-                                entries[i].src1_ready,
-            src1_data:      entries_src1_alu_capture_ok[i] ?
-                                alu_broadcast_reg_data :
-                                entries_src1_ld_capture_ok[i] ?
-                                    ld_broadcast_reg_data :
-                                    entries[i].src1_data,
+            src1_ready:     entries_wr_src1_ready,
+            src1_data:      entries_wr_src1_data,
             src2_valid:     entries[i].src2_valid,
             src2_rob_id:    entries[i].src2_rob_id,
-            src2_ready:     (entries_src2_iiq_wakeup_ok[i] || entries_src2_ld_capture_ok[i]) ?
-                                1'b1 :
-                                entries[i].src2_ready,
-            src2_data:      entries_src2_alu_capture_ok[i] ?
-                                alu_broadcast_reg_data :
-                                entries_src2_ld_capture_ok[i] ?
-                                    ld_broadcast_reg_data :
-                                    entries[i].src2_data,
+            src2_ready:     entries_wr_src2_ready,
+            src2_data:      entries_wr_src2_data,
             dst_valid:      entries[i].dst_valid,
             instr_rob_id:   entries[i].instr_rob_id,
             imm:            entries[i].imm,
@@ -236,22 +385,127 @@ module integer_issue (
         };
     end
 
+    wire src1_alu_broadcast_match;
+    wire src1_ld_broadcast_match;
+    wire src2_alu_broadcast_match;
+    wire src2_ld_broadcast_match;
+    unsigned_cmp #(
+        .WIDTH(`ROB_ID_WIDTH)
+    ) src1_alu_broadcast_cmp (
+        .a(alu_broadcast_rob_id),
+        .b(scheduled_entry.src1_rob_id),
+        .eq(src1_alu_broadcast_match),
+        .ge(),
+        .lt()
+    );
+    unsigned_cmp #(
+        .WIDTH(`ROB_ID_WIDTH)
+    ) src1_ld_broadcast_cmp (
+        .a(ld_broadcast_rob_id),
+        .b(scheduled_entry.src1_rob_id),
+        .eq(src1_ld_broadcast_match),
+        .ge(),
+        .lt()
+    );
+    unsigned_cmp #(
+        .WIDTH(`ROB_ID_WIDTH)
+    ) src2_alu_broadcast_cmp (
+        .a(alu_broadcast_rob_id),
+        .b(scheduled_entry.src2_rob_id),
+        .eq(src2_alu_broadcast_match),
+        .ge(),
+        .lt()
+    );
+    unsigned_cmp #(
+        .WIDTH(`ROB_ID_WIDTH)
+    ) src2_ld_broadcast_cmp (
+        .a(ld_broadcast_rob_id),
+        .b(scheduled_entry.src2_rob_id),
+        .eq(src2_ld_broadcast_match),
+        .ge(),
+        .lt()
+    );
+    wire src1_alu_broadcast_bypass;
+    wire src1_ld_broadcast_bypass;
+    wire src2_alu_broadcast_bypass;
+    wire src2_ld_broadcast_bypass;
+    and_ #(
+        .N_INS(2)
+    ) src1_alu_broadcast_bypass_and (
+        .a({alu_broadcast_valid, src1_alu_broadcast_match}),
+        .y(src1_alu_broadcast_bypass)
+    );
+    and_ #(
+        .N_INS(2)
+    ) src1_ld_broadcast_bypass_and (
+        .a({ld_broadcast_valid, src1_ld_broadcast_match}),
+        .y(src1_ld_broadcast_bypass)
+    );
+    and_ #(
+        .N_INS(2)
+    ) src2_alu_broadcast_bypass_and (
+        .a({alu_broadcast_valid, src2_alu_broadcast_match}),
+        .y(src2_alu_broadcast_bypass)
+    );
+    and_ #(
+        .N_INS(2)
+    ) src2_ld_broadcast_bypass_and (
+        .a({ld_broadcast_valid, src2_ld_broadcast_match}),
+        .y(src2_ld_broadcast_bypass)
+    );
+    wire sel_iiq_src1_data;
+    wire sel_iiq_src2_data;
+    nor_ #(
+        .N_INS(2)
+    ) sel_iiq_src1_data_nor (
+        .a({src1_alu_broadcast_bypass, src1_ld_broadcast_bypass}),
+        .y(sel_iiq_src1_data)
+    );
+    nor_ #(
+        .N_INS(2)
+    ) sel_iiq_src2_data_nor (
+        .a({src2_alu_broadcast_bypass, src2_ld_broadcast_bypass}),
+        .y(sel_iiq_src2_data)
+    );
+    wire reg_data_t integer_issue_buffer_din_src1_data;
+    wire reg_data_t integer_issue_buffer_din_src2_data;
+    onehot_mux #(
+        .WIDTH(`REG_DATA_WIDTH),
+        .N_INS(3)
+    ) integer_issue_buffer_din_src1_data_mux (
+        .clk(clk),
+        .ins({alu_broadcast_reg_data,         ld_broadcast_reg_data,         scheduled_entry.src1_data}),
+        .sel({src1_alu_broadcast_bypass,      src1_ld_broadcast_bypass,      sel_iiq_src1_data}),
+        .out(integer_issue_buffer_din_src1_data)
+    );
+    onehot_mux #(
+        .WIDTH(`REG_DATA_WIDTH),
+        .N_INS(3)
+    ) integer_issue_buffer_din_src2_data_mux (
+        .clk(clk),
+        .ins({alu_broadcast_reg_data,         ld_broadcast_reg_data,         scheduled_entry.src2_data}),
+        .sel({src2_alu_broadcast_bypass,      src2_ld_broadcast_bypass,      sel_iiq_src2_data}),
+        .out(integer_issue_buffer_din_src2_data)
+    );
+
     wire iiq_issue_data_t integer_issue_buffer_din;
     // select between the issue data from iiq and bypass data from alu and load
     assign integer_issue_buffer_din = '{
         entry_valid : issue_valid,
         // FIXME: add check for src1_valid?
-        src1_data: alu_broadcast_valid && (alu_broadcast_rob_id == scheduled_entry.src1_rob_id) ?
-                        alu_broadcast_reg_data :
-                        ld_broadcast_valid && (ld_broadcast_rob_id == scheduled_entry.src1_rob_id) ?
-                            ld_broadcast_reg_data :
-                            scheduled_entry.src1_data,
+        // src1_data: alu_broadcast_valid && (alu_broadcast_rob_id == scheduled_entry.src1_rob_id) ?
+        //                 alu_broadcast_reg_data :
+        //                 ld_broadcast_valid && (ld_broadcast_rob_id == scheduled_entry.src1_rob_id) ?
+        //                     ld_broadcast_reg_data :
+        //                     scheduled_entry.src1_data,
+        src1_data: integer_issue_buffer_din_src1_data,
         // FIXME: add check for src2_valid?
-        src2_data: alu_broadcast_valid && (alu_broadcast_rob_id == scheduled_entry.src2_rob_id) ?
-                        alu_broadcast_reg_data :
-                        ld_broadcast_valid && (ld_broadcast_rob_id == scheduled_entry.src2_rob_id) ?
-                            ld_broadcast_reg_data :
-                            scheduled_entry.src2_data,
+        // src2_data: alu_broadcast_valid && (alu_broadcast_rob_id == scheduled_entry.src2_rob_id) ?
+        //                 alu_broadcast_reg_data :
+        //                 ld_broadcast_valid && (ld_broadcast_rob_id == scheduled_entry.src2_rob_id) ?
+        //                     ld_broadcast_reg_data :
+        //                     scheduled_entry.src2_data,
+        src2_data: integer_issue_buffer_din_src2_data,
         rob_id_t: scheduled_entry.instr_rob_id, // received from issue
         imm: scheduled_entry.imm,
         pc: scheduled_entry.pc,
@@ -285,4 +539,5 @@ module integer_issue (
 
     assign issue_rob_id = scheduled_entry.instr_rob_id;
 endmodule
+
 `endif
