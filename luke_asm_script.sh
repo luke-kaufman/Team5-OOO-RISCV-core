@@ -1,7 +1,7 @@
 TEST_FOLDER_LOCATION=${1}
 C_FILE=${2}
 
-riscv64-unknown-elf-gcc -O0 -march=rv32i -mabi=ilp32 ${TEST_FOLDER_LOCATION}/${C_FILE} -o ${TEST_FOLDER_LOCATION}/curr_test.out
+riscv64-unknown-elf-gcc -O1 -march=rv32i -mabi=ilp32 ${TEST_FOLDER_LOCATION}/${C_FILE} -o ${TEST_FOLDER_LOCATION}/curr_test.out
 riscv64-unknown-elf-objdump -d ${TEST_FOLDER_LOCATION}/curr_test.out > ${TEST_FOLDER_LOCATION}/curr_disasm
 
 # parse through the disasm file and find line between main: and end of main

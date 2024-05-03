@@ -49,19 +49,19 @@ module top_tb #(
         32'h00000000 /* x0  (zero)  */
     };
     instr_t instrs[] = {
-        32'h00050613, // mv a2,a0        
-        32'h02a05463, // blez a0,10234 <fibonacci+0x2c>       
-        32'h00000793, // li a5,0        
-        32'h00100513, // li a0,1        
-        32'h00000713, // li a4,0        
-        32'h00050693, // mv a3,a0        
-        32'h00178793, // add a5,a5,1        
-        32'h00e50533, // add a0,a0,a4        
-        32'h00068713, // mv a4,a3        
-        32'hfef618e3, // bne a2,a5,1021c <fibonacci+0x14>       
-        32'h00008067, // ret         
-        32'h00000513, // li a0,0        
-        32'h00008067  // ret         
+        32'h00050613, // mv a2,a0
+        32'h02a05463, // blez a0,10234 <fibonacci+0x2c>
+        32'h00000793, // li a5,0
+        32'h00100513, // li a0,1
+        32'h00000713, // li a4,0
+        32'h00050693, // mv a3,a0
+        32'h00178793, // add a5,a5,1
+        32'h00e50533, // add a0,a0,a4
+        32'h00068713, // mv a4,a3
+        32'hfef618e3, // bne a2,a5,1021c <fibonacci+0x14>
+        32'h00008067, // ret
+        32'h00000513, // li a0,0
+        32'h00008067  // ret
     };
     block_data_t init_main_mem_state [HIGHEST_INSTR_BLOCK_ADDR:0];
 
