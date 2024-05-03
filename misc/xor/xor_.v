@@ -2,12 +2,12 @@
 `define XOR_V
 
 module xor_ #(
-    parameter N_INS = 2
+    parameter N_INS
 ) (
     input wire [N_INS-1:0] a,
     output wire y
 );
-    // TODO: implement
+    // FIXME: convert to structural
     assign y = ^a;
 endmodule
 

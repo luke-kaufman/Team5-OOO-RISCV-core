@@ -1,14 +1,10 @@
 `ifndef ADDER_V
 `define ADDER_V
 
-// IMPL STATUS: COMPLETE
-// TEST STATUS: COMPLETE
-
-// `include "freepdk-45nm/stdcells.v"
 `include "misc/global_defs.svh"
 
 module adder #(
-    parameter WIDTH = 1
+    parameter WIDTH
 ) (
     input wire [WIDTH-1:0] a,
     input wire [WIDTH-1:0] b,

@@ -228,7 +228,13 @@ module integer_issue (
         and_ #(
             .N_INS(5)
         ) entries_src1_alu_capture_ok_and (
-            .a({alu_broadcast_valid, entries_valid[i], entries[i].src1_valid, entries[i].src1_ready, entries_src1_alu_capture[i]}),
+            .a({
+                alu_broadcast_valid,
+                entries_valid[i],
+                entries[i].src1_valid,
+                entries[i].src1_ready,
+                entries_src1_alu_capture[i]
+            }),
             .y(entries_src1_alu_capture_ok[i])
         );
 
@@ -249,7 +255,13 @@ module integer_issue (
         and_ #(
             .N_INS(5)
         ) entries_src2_alu_capture_ok_and (
-            .a({alu_broadcast_valid, entries_valid[i], entries[i].src2_valid, entries[i].src2_ready, entries_src2_alu_capture[i]}),
+            .a({
+                alu_broadcast_valid,
+                entries_valid[i],
+                entries[i].src2_valid,
+                entries[i].src2_ready,
+                entries_src2_alu_capture[i]
+            }),
             .y(entries_src2_alu_capture_ok[i])
         );
 
@@ -270,7 +282,13 @@ module integer_issue (
         and_ #(
             .N_INS(5)
         ) entries_src1_ld_capture_ok_and (
-            .a({ld_broadcast_valid, entries_valid[i], entries[i].src1_valid, entries_src1_not_ready, entries_src1_ld_capture[i]}),
+            .a({
+                ld_broadcast_valid,
+                entries_valid[i],
+                entries[i].src1_valid,
+                entries_src1_not_ready,
+                entries_src1_ld_capture[i]
+            }),
             .y(entries_src1_ld_capture_ok[i])
         );
 
@@ -291,7 +309,13 @@ module integer_issue (
         and_ #(
             .N_INS(5)
         ) entries_src2_ld_capture_ok_and (
-            .a({ld_broadcast_valid, entries_valid[i], entries[i].src2_valid, entries_src2_not_ready, entries_src2_ld_capture[i]}),
+            .a({
+                ld_broadcast_valid,
+                entries_valid[i],
+                entries[i].src2_valid,
+                entries_src2_not_ready,
+                entries_src2_ld_capture[i]
+            }),
             .y(entries_src2_ld_capture_ok[i])
         );
     end
@@ -303,7 +327,14 @@ module integer_issue (
         or_ #(
             .N_INS(6)
         ) entries_wr_en_or (
-            .a({entries_src1_iiq_wakeup_ok[i], entries_src2_iiq_wakeup_ok[i], entries_src1_alu_capture_ok[i], entries_src2_alu_capture_ok[i], entries_src1_ld_capture_ok[i], entries_src2_ld_capture_ok[i]}),
+            .a({
+                entries_src1_iiq_wakeup_ok[i],
+                entries_src2_iiq_wakeup_ok[i],
+                entries_src1_alu_capture_ok[i],
+                entries_src2_alu_capture_ok[i],
+                entries_src1_ld_capture_ok[i],
+                entries_src2_ld_capture_ok[i]
+            }),
             .y(entries_wr_en[i])
         );
     end

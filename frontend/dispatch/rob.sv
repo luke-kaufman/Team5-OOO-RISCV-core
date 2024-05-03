@@ -6,7 +6,7 @@
 `include "misc/fifo_ram.v"
 `include "misc/mux/mux_.v"
 `include "misc/and/and_.v"
-`include "misc/inv.v"
+`include "misc/inv/inv.v"
 
 // IMPL STATUS: MISSING
 // TEST STATUS: MISSING

@@ -2,7 +2,7 @@
 `include "misc/cmp/unsigned_cmp.v"
 `include "misc/and/and_.v"
 `include "misc/or/or_.v"
-`include "misc/inv.v"
+`include "misc/inv/inv.v"
 `include "misc/onehot_mux/onehot_mux.v"
 
 module decode (

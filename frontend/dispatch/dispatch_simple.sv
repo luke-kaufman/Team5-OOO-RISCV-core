@@ -143,7 +143,8 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     );
 
     // logic to decide if arf_id of the ROB head should be marked as retired (0) in the ARF/ROB table
-    wire retire;
+    wire retire_valid;
+    wire retire_wb_arf_valid;
     wire rob_id_t retire_rob_id;
     wire retire_arf_id_not_renamed;
     wire rob_id_t retire_arf_id_curr_rob_id;
@@ -156,7 +157,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
     );
     wire retire_arf_id_mark_as_retired;
     and_ #(.N_INS(2)) retire_arf_id_mark_as_retired_and (
-        .a({retire_arf_id_not_renamed, retire}),
+        .a({retire_arf_id_not_renamed, retire_valid}),
         .y(retire_arf_id_mark_as_retired)
     );
 
@@ -251,7 +252,8 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         .dispatch_rob_id(dispatch_rob_id),
         .dispatch_data(rob_dispatch_data),
 
-        .retire(retire),
+        .retire_valid(retire_valid),
+        .retire_wb_arf_valid(retire_wb_arf_valid),
         .retire_rob_id(retire_rob_id),
         .retire_arf_id(retire_arf_id),
         .retire_reg_data(retire_reg_data),
@@ -297,7 +299,7 @@ module dispatch_simple ( // DECODE, RENAME, and REGISTER READ happen during this
         .rd_addr({rs1, rs2}),
         .rd_data({arf_reg_data_src1, arf_reg_data_src2}),
 
-        .wr_en(retire),
+        .wr_en(retire_wb_arf_valid),
         .wr_addr(retire_arf_id),
         .wr_data(retire_reg_data),
 

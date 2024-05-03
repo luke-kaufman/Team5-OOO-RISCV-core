@@ -4,7 +4,7 @@
 `include "misc/xor/xor_.v"
 
 module bitwise_xor #(
-    parameter WIDTH = 1
+    parameter WIDTH
 ) (
     input wire [WIDTH-1:0] a,
     input wire [WIDTH-1:0] b,

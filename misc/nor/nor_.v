@@ -2,7 +2,7 @@
 `define NOR_V
 
 `include "misc/or/or_.v"
-`include "misc/inv.v"
+`include "misc/inv/inv.v"
 
 module nor_ #(
     parameter N_INS

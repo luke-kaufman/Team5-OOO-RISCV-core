@@ -162,7 +162,7 @@ vlog -sv -lint -suppress 13314 ./testing/frontend/fetch/ifu_tb.v ./testing/front
 ** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
 ** while parsing file included at frontend/fetch/ifu.v(7)
 ** while parsing file included at misc/fifo.v(4)
-** at misc/inv.v(6): (vlog-2275) Existing module 'inv' at line 6 will be overwritten.
+** at misc/inv/inv.v(6): (vlog-2275) Existing module 'inv' at line 6 will be overwritten.
 -- Compiling module unsigned_cmp_
 ** Warning: ** while parsing file included at ./testing/frontend/fetch/ifu_tb.sv(1)
 ** while parsing file included at frontend/fetch/ifu.v(7)

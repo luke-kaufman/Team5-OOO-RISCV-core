@@ -7,7 +7,7 @@
 `include "golden/misc/fifo_ram_golden.sv"
 `include "misc/mux/mux_.v"
 `include "misc/and/and_.v"
-`include "misc/inv.v"
+`include "misc/inv/inv.v"
 
 // FIXME: convert int_wakeup -> iiq_wakeup
 // FIXME: convert lsu_wb -> ld_wb
@@ -30,7 +30,8 @@ module rob_simple (
 
     // INTERFACE TO ARF (DEQUEUE)
     // ARF is always ready to accept data
-    output wire retire,
+    output wire retire_valid,
+    output wire retire_wb_arf_valid,
     output wire rob_id_t retire_rob_id,
     output wire arf_id_t retire_arf_id,
     output wire reg_data_t retire_reg_data,
@@ -201,7 +202,7 @@ module rob_simple (
     // NOTE: retire means WRITING to ARF! (it does not include non-ARF-writing instrs like branches and stores)
     // TODO: potentially change the semantics of retire to include ALL (including dst invalid ones) instrs and add a new
     // retire_arf_wb valid signal?
-    and_ #(.N_INS(4)) retire_and (
+    and_ #(.N_INS(4)) retire_wb_arf_valid_and (
         .a({
             retire_entry_data.dst_valid,
             retire_entry_data.is_executed,
@@ -209,8 +210,10 @@ module rob_simple (
             // ,not_ld_mispred
             ,1'b1
         }),
-        .y(retire)
+        .y(retire_wb_arf_valid)
     );
+    assign retire_valid = retire_entry_data.is_executed; // TODO: double-check
+
     assign retire_arf_id = retire_entry_data.dst_arf_id;
     assign retire_reg_data = retire_entry_data.reg_data;
     assign retire_redirect_pc_valid = retire_entry_data.br_mispred; // | retire_entry_data.ld_mispred;
