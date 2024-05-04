@@ -33,10 +33,10 @@ module top_tb #(
         32'h00000000 /* x16 (a6)    */,
         32'h00000000 /* x15 (a5)    */,
         32'h00000000 /* x14 (a4)    */,
-        32'h00000000 /* x13 (a3)    */,  // result is here (F(n))
+        32'h00000000 /* x13 (a3)    */,
         32'h00000000 /* x12 (a2)    */,
         32'h00000000 /* x11 (a1)    */,
-        32'h0000000A /* x10 (a0)    */,  // input into fibonacci (n)
+        32'h00000000 /* x10 (a0)    */,
         32'h00000000 /* x9  (s1)    */,
         32'h00000000 /* x8  (s0/fp) */,
         32'h00000000 /* x7  (t2)    */,
@@ -44,25 +44,33 @@ module top_tb #(
         32'h00000000 /* x5  (t0)    */,
         32'h00000000 /* x4  (tp)    */,
         32'h00000000 /* x3  (gp)    */,
-        init_sp      /* x2  (sp)    */,
-        32'h00000000 /* x1  (ra)    */,
+        32'h00000000 /* x2  (sp)    */,
+        32'h07213241 /* x1  (ra)    */,
         32'h00000000 /* x0  (zero)  */
     };
 
     instr_t instrs[] = {
-        32'h00050613, // mv a2,a0        (1018c)
-        32'h02a05463, // bge x0,a0,10234 (10190)
-        32'h00000793, // li a5,0         (10194)
-        32'h00100513, // li a0,1         (10198)
-        32'h00000713, // li a4,0         (1019c)
-        32'h00050693, // mv a3,a0        (101a0)
-        32'h00178793, // add a5,a5,1     (101a4)
-        32'h00e50533, // add a0,a0,a4    (101a8)
-        32'h00068713, // mv a4,a3        (101ac)
-        32'hfef618e3, // bne a2,a5,-16   (101b0)
-        32'h00008067, // ret             (101b4)
-        32'h00000513, // li a0,0         (101b8)
-        32'h00008067  // ret             (101bc)
+        // x1 ＜- 32'h07213241
+        32'h0ff00213, // addi x4, x0, 255
+
+        32'h00127133, // and x2, x4, x1
+
+        32'h00821213, // slli x4, x4, 8
+        32'h001271b3, // and x3, x4, x1
+        32'h0081d193, // srli x3, x3, 8
+        32'h00310133, // add x2, x2, x3
+
+        32'h00821213, // slli x4, x4, 8
+        32'h001271b3, // and x3, x4, x1
+        32'h0101d193, // srli x3, x3, 16
+        32'h00310133, // add x2, x2, x3
+
+        32'h00821213, // slli x4, x4, 8
+        32'h001271b3, // and x3, x4, x1
+        32'h0181d193, // srli x3, x3, 24
+        32'h00310133, // add x2, x2, x3
+
+        32'h00008067  // ret
     };
     block_data_t init_main_mem_state [HIGHEST_INSTR_BLOCK_ADDR:0];
 
@@ -135,7 +143,7 @@ module top_tb #(
     end
 
     always @(negedge clk) begin #1
-        if (0) begin
+        if (1) begin
             if (1) begin
                 $display("%0t fetch_redirect_valid: %b", $time, _top._core.fetch_redirect_valid);
                 $display("%0t fetch_redirect_pc: %h", $time, _top._core.fetch_redirect_pc);
